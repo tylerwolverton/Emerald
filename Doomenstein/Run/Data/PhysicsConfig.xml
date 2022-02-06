@@ -1,0 +1,24 @@
+<!-- Reserved for general physics settings -->
+<PhysicsConfig>
+    <!-- Maximum of 32 layers may be defined -->
+    <Layers>
+        <Layer name="entity"/>
+        <Layer name="portal"/>
+        <Layer name="environment"/>
+        <Layer name="noCollision"/>
+    </Layers>
+
+    <!-- 
+        By default, all layers will interact with all others.
+        Disable    - disables interaction between 2 layers
+        Enable     - enables interaction between 2 layers
+        DisableAll - disables a layer from interacting with any others 
+    -->
+
+    <LayerInteractions>
+        <!-- <Disable layer1="entity" layer2="entity" /> -->
+         <DisableAll layer="noCollision"/> 
+        <!-- <Enable layer1="entity" layer2="environment"/> -->
+    </LayerInteractions>
+
+</PhysicsConfig>

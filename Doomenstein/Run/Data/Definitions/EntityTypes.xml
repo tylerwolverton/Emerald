@@ -1,0 +1,47 @@
+<EntityTypes>
+  ​
+  <Entity name="Marine">
+    <Physics radius="0.18" height="0.62" eyeHeight="0.58" walkSpeed="1.0" 
+             collisionLayer="entity" canPush="true" canBePushed="true" />
+    <Appearance size="1.5,1.5" billboard="CameraFacingXY" spriteSheet="Data/Images/Actor_Marine_7x12.png" layout="7,12">
+      <Walk front="0" left="14" back="28" right="42"/>
+      <Attack front="0"/>
+      <Pain front="0"/>
+      <Death front="0"/>
+    </Appearance>
+    <!-- <Light isEnabled="true" intensity=".9" color="0,1,0" attenuation="0,.5,0"/> -->
+  </Entity>
+  ​
+  <Entity name="Pinky">
+    <Physics radius="0.22" height="0.56" eyeHeight="0.40" walkSpeed="1.5"
+             collisionLayer="entity" canPush="true" canBePushed="true"/>
+    <Appearance size="1.5,1.5" billboard="CameraFacingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9" spriteMaterial="Data/Materials/Pinky.material">
+    <!--<Appearance size="1.5,1.5" billboard="CameraOpposingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9">-->
+    <!--<Appearance size="1.5,1.5" billboard="CameraFacingXYZ" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9">-->
+    <!--<Appearance size="1.5,1.5" billboard="CameraOpposingXYZ" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9">-->
+      <Walk front="0,1,2,3" frontLeft="8,9,10,11" left="16,17,18,19" backLeft="24,25,26,27" back="32,33,34,35" backRight="40,41,42,43" right="48,49,50,51" frontRight="56,57,58,59"/>
+      <Attack front="4,5,6" frontLeft="12,13,14" left="20,21,22" backLeft="28,29,30" back="36,37,38" backRight="44,45,46" right="52,53,54" frontRight="60,61,62"/>
+      <Pain front="7" frontLeft="15" left="23" backLeft="31" back="39" backRight="47" right="55" frontRight="63"/>
+      <Death front="64,65,66,67,68,69"/>
+    </Appearance>
+    <Script name="Pinky.zephyr"/>
+  </Entity>
+  ​
+  <Entity name="Energy Teleporter">
+    <Physics radius="0.18" height="0.62" eyeHeight="0.58" walkSpeed="0.0"
+             collisionLayer="portal" canPush="false" canBePushed="false" />
+    <Appearance size="1,1" billboard="CameraFacingXYZ" spriteSheet="Data/Images/Terrain_8x8.png" layout="8,8">
+      <Walk front="57"/>
+    </Appearance>
+    <Script name="Portal.zephyr"/>
+  </Entity>
+  ​
+    <Entity name="DemoLight">    
+     <!-- <Appearance size="1.5,1.5" billboard="CameraFacingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9" spriteMaterial="Data/Materials/Pinky.material">
+      <Walk front="0,1,2,3" />
+    </Appearance> -->
+    <Light isEnabled="true" intensity=".5" color="1,1,1" attenuation="0,.5,0"/>
+    <Script name="FollowLight.zephyr"/>
+  </Entity>
+
+</EntityTypes>

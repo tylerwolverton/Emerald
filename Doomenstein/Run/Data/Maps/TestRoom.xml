@@ -1,0 +1,41 @@
+<MapDefinition type="TileMap" version="1" dimensions="8,8">
+
+	<Legend>
+		<Tile glyph="C" regionType="CobblestoneWall"/>
+		<Tile glyph="W" regionType="WoodWall"/>
+		<Tile glyph="." regionType="StoneFloor"/>
+		<Tile glyph="," regionType="GrassFloor"/>
+	</Legend>
+	<MapRows>
+		<MapRow tiles="CCCCCCCC"/>
+		<MapRow tiles="C......C"/>
+		<MapRow tiles="C.WWW..C"/>
+		<MapRow tiles="C.W,W..C"/>
+		<MapRow tiles="C.,,,..C"/>
+		<MapRow tiles="CCC..W.C"/>
+		<MapRow tiles="C......C"/>
+		<MapRow tiles="CCCCCCCC"/>
+	</MapRows>
+	<Entities>
+		<PlayerStart pos="6.5,1.5" yaw="150"/>
+		<Entity type="DemoLight" pos="1.5,1.5" yaw="0">
+			<GlobalVar type="vec2" var="rotationCenter" value="4.5,4.5"/>
+		</Entity>
+		<Actor type="Pinky" pos="1.5,1.5" yaw="150"/>
+		<Actor type="Pinky" pos="3.5,1.5" yaw="75"/>
+		<Actor type="Pinky" pos="2.5,1.5" yaw="15"/>
+		<Actor type="Marine" pos="1.5,3.5" yaw="180"/>
+		<Actor type="Marine" pos="6.5,5.5" yaw="180"/>
+		<Actor type="Pinky" pos="1.5,4.5" yaw="150"/>
+		<Actor type="Pinky" pos="3.5,3.5" yaw="120"/>
+		<Actor type="Pinky" pos="2.5,6.5" yaw="150"/>
+    	<Entity type="Energy Teleporter" pos="6.5,6.5" yaw="90">
+			<GlobalVar type="string" var="destMap" value="EmptyRoom"/>
+			<GlobalVar type="vec2" var="destPosition" value="3,3"/>
+			<GlobalVar type="number" var="destYawOffset" value="90"/>
+		</Entity>
+	</Entities>
+
+</MapDefinition>
+
+

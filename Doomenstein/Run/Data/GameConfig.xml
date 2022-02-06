@@ -1,0 +1,8 @@
+<GameConfig
+	startMap="TestRoom"
+  windowHeightRatio=".9f"
+	windowAspect="1.777"
+  windowTitle="Doomenstein"
+	windowMode="windowed"
+  physicsConfigPath="Data/PhysicsConfig.xml"
+/>
