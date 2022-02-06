@@ -20,6 +20,15 @@
     <Filter Include="Data\UI">
       <UniqueIdentifier>{4317ead0-e311-4091-bf63-64a12c1ee0ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataDefinitions">
+      <UniqueIdentifier>{ab179e8f-563c-4c9d-ba69-cd645a438451}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{814468e7-9c01-46a7-89ea-0d8aef49ab4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{be58f57a-6ab2-432a-bb09-1a423cf75a55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main_Windows.cpp">
@@ -37,47 +46,47 @@
     <ClCompile Include="GameCommon.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Map.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Tile.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="World.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="TileDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="TileMap.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="GameMeshUtils.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="MapRegionTypeDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="MapMaterialTypeDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteAnimationSetDefinition.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="GameJobs.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="MapData.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Scripting\ZephyrGameAPI.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="MapMaterialTypeDefinition.cpp">
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="MapRegionTypeDefinition.cpp">
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="EntityDefinition.cpp">
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="TileDefinition.cpp">
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="MapData.cpp">
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
     <ClCompile Include="PhysicsConfig.cpp">
-      <Filter>Framework</Filter>
+      <Filter>DataDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="TileMap.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Tile.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="Map.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteAnimationSetDefinition.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMeshUtils.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -93,50 +102,50 @@
     <ClInclude Include="Entity.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Map.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Tile.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="World.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="EngineBuildPreferences.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="TileDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="TileMap.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="GameMeshUtils.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MapRegionTypeDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MapMaterialTypeDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteAnimationSetDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="GameJobs.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="MapData.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Scripting\ZephyrGameAPI.hpp">
       <Filter>Scripting</Filter>
     </ClInclude>
+    <ClInclude Include="MapRegionTypeDefinition.hpp">
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="MapMaterialTypeDefinition.hpp">
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityDefinition.hpp">
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="TileDefinition.hpp">
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="MapData.hpp">
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
     <ClInclude Include="PhysicsConfig.hpp">
-      <Filter>Framework</Filter>
+      <Filter>DataDefinitions</Filter>
+    </ClInclude>
+    <ClInclude Include="TileMap.hpp">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Tile.hpp">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.hpp">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteAnimationSetDefinition.hpp">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMeshUtils.hpp">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

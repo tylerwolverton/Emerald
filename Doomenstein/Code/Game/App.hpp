@@ -1,12 +1,8 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Math/Vec2.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-class Camera;
-class RenderContext;
-class Game;
 enum class eWindowMode;
 
 

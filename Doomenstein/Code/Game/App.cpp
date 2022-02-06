@@ -4,19 +4,12 @@
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/JobSystem.hpp"
 #include "Engine/Core/NamedStrings.hpp"
-#include "Engine/Core/Rgba8.hpp"
-#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/XmlUtils.hpp"
-#include "Engine/Core/Vertex_PCU.hpp"
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
-#include "Engine/Math/RandomNumberGenerator.hpp"
-#include "Engine/Math/MathUtils.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
-#include "Engine/Renderer/Camera.hpp"
-#include "Engine/Time/Time.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/ZephyrCore/ZephyrEngineAPI.hpp"
@@ -42,6 +35,7 @@ App::~App()
 //-----------------------------------------------------------------------------------------------
 void App::Startup()
 {
+	// Load XML config files for game and physics
 	PopulateGameConfig();
 	g_physicsConfig = new PhysicsConfig();
 

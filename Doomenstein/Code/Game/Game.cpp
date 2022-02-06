@@ -159,6 +159,7 @@ void Game::InitializeCameras()
 	m_uiCamera->SetProjectionOrthographic( windowDimensions.y );
 }
 
+
 //-----------------------------------------------------------------------------------------------
 void Game::AddGunToUI()
 {
@@ -700,10 +701,12 @@ void Game::LoadXmlUIElements()
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: Move this logic into EntityDefinitions, do same for the rest of the Load functions 
 void Game::LoadXmlEntityTypes()
 {
 	g_devConsole->PrintString( "Loading Entity Types..." );
 
+	// TODO: Set this in game config
 	const char* filePath = "Data/Definitions/EntityTypes.xml";
 
 	XmlDocument doc;

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <crtdbg.h>
 
-#include "Engine/Core/EngineCommon.hpp"
 #include "Game/GameCommon.hpp"
 #include "Game/App.hpp"
 
