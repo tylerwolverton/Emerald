@@ -88,6 +88,9 @@
     <ClCompile Include="GameMeshUtils.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="PerformanceTracker.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -146,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="GameMeshUtils.hpp">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="PerformanceTracker.hpp">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

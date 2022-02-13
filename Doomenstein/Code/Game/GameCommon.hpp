@@ -36,7 +36,6 @@ extern PhysicsConfig* g_physicsConfig;
 // Game Constants
 //-----------------------------------------------------------------------------------------------
 constexpr float CLIENT_ASPECT = 16.f / 9.f;
-constexpr int FRAME_HISTORY_COUNT = 10;
 
 constexpr float SQRT_2_OVER_2 = 0.70710678f;
 

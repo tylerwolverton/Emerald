@@ -63,12 +63,12 @@ private:
 	void StopAllThreads();
 
 private:
-	std::deque<Job*> m_queuedJobs;
-	std::mutex m_queuedJobsMutex;
-	std::deque<Job*> m_runningJobs;
-	std::mutex m_runningJobsMutex;
-	std::deque<Job*> m_completedJobs;
-	std::mutex m_completedJobsMutex;
+	std::deque<Job*>	m_queuedJobs;
+	std::mutex			m_queuedJobsMutex;
+	std::deque<Job*>	m_runningJobs;
+	std::mutex			m_runningJobsMutex;
+	std::deque<Job*>	m_completedJobs;
+	std::mutex			m_completedJobsMutex;
 
 	std::vector<JobSystemWorkerThread*> m_workerThreads;
 

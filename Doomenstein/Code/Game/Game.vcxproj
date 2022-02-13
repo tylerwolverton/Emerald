@@ -205,6 +205,7 @@
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MapMaterialTypeDefinition.cpp" />
     <ClCompile Include="MapRegionTypeDefinition.cpp" />
+    <ClCompile Include="PerformanceTracker.cpp" />
     <ClCompile Include="PhysicsConfig.cpp" />
     <ClCompile Include="Scripting\ZephyrGameAPI.cpp" />
     <ClCompile Include="SpriteAnimationSetDefinition.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="MapData.hpp" />
     <ClInclude Include="MapMaterialTypeDefinition.hpp" />
     <ClInclude Include="MapRegionTypeDefinition.hpp" />
+    <ClInclude Include="PerformanceTracker.hpp" />
     <ClInclude Include="PhysicsConfig.hpp" />
     <ClInclude Include="Scripting\ZephyrGameAPI.hpp" />
     <ClInclude Include="SpriteAnimationSetDefinition.hpp" />

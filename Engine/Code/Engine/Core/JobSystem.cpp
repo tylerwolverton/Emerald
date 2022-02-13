@@ -40,6 +40,7 @@ void JobSystemWorkerThread::Join()
 	m_thread->join();
 }
 
+
 //-----------------------------------------------------------------------------------------------
 void JobSystemWorkerThread::WorkerThreadMain()
 {

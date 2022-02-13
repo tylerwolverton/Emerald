@@ -73,13 +73,14 @@ public:
 	
 	const Vec2		GetMouseWorldPosition()														{ return m_mouseWorldPosition; }
 	const Camera*	GetWorldCamera()															{ return m_worldCamera; }
+	Clock*			GetGameClock()																{ return m_gameClock; }
 
 	void			AddScreenShakeIntensity( float additionalIntensityFraction );
 	
 	void			SetCameraPositionAndYaw( const Vec2& pos, float yaw );
 	
-	void			WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
-	void			WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void			WarpToMap		( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void			WarpEntityToMap	( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 
 	Entity*			GetEntityById( EntityId id );
 	Entity*			GetEntityByName( const std::string& name );
@@ -87,8 +88,8 @@ public:
 	Map*			GetCurrentMap();
 	void			SaveEntityByName( Entity* entity );
 
-	void			PlaySoundByName( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
-	void			ChangeMusic( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
+	void			PlaySoundByName	( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
+	void			ChangeMusic		( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 
 	void			StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
 	void			StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
@@ -130,16 +131,12 @@ private:
 	void UpdateMovementFromKeyboard();
 	void UpdateCameraTransformToMatchPlayer();
 	void UpdateTimers();
-	void UpdateFramesPerSecond();
 
 	void RenderDebugUI() const;
-	void RenderFPSCounter() const;
 
 	void UpdateCameras();
 	void TranslateCameraFPS( const Vec3& relativeTranslation );
 	void SetLightDirectionToCamera( Light& light );
-
-	float GetAverageFPS() const;
 
 	void PossesNearestEntity();
 	
@@ -148,7 +145,6 @@ private:
 
 private:
 	Clock* m_gameClock = nullptr;
-	float m_fpsHistory[FRAME_HISTORY_COUNT];
 
 	Entity* m_player = nullptr;
 

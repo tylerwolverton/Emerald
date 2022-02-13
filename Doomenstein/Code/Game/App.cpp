@@ -57,6 +57,7 @@ void App::Startup()
 	g_devConsole = new DevConsole();
 	g_zephyrAPI = new ZephyrGameAPI();
 	g_game = new Game();
+	m_perfTrackSystem = new PerformanceTracker();
 
 	g_eventSystem->Startup();
 	g_window->SetEventSystem( g_eventSystem );
@@ -77,6 +78,11 @@ void App::Startup()
 
 	g_game->Startup();
 
+	PerformanceTrackingSystemParams perfParams;
+	perfParams.clock = g_game->GetGameClock();
+
+	m_perfTrackSystem->StartUp( perfParams );
+
 	g_eventSystem->RegisterEvent( "quit", "Quit the game.", eUsageLocation::EVERYWHERE, QuitGame );
 }
 
@@ -95,6 +101,7 @@ void App::Shutdown()
 	g_window->Close();
 
 	PTR_SAFE_DELETE( g_physicsConfig );
+	PTR_SAFE_DELETE( m_perfTrackSystem );
 	PTR_SAFE_DELETE( g_game );
 	PTR_SAFE_DELETE( g_zephyrAPI );
 	PTR_SAFE_DELETE( g_devConsole );
@@ -179,6 +186,7 @@ void App::Update()
 {
 	g_devConsole->Update();
 	g_game->Update();
+	m_perfTrackSystem->Update();
 
 	UpdateFromKeyboard();
 }
@@ -215,6 +223,8 @@ void App::UpdateFromKeyboard()
 void App::Render() const
 {
 	g_game->Render();
+	m_perfTrackSystem->Render();
+	DebugRenderScreenTo( g_renderer->GetBackBuffer() );
 	g_devConsole->Render();
 }
 
