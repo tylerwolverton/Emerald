@@ -2,6 +2,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Time/Timer.hpp"
 
 #include <string>
 
@@ -10,6 +11,7 @@
 class ZephyrValue;
 class ZephyrBytecodeChunk;
 class ZephyrEngineAPI;
+class ZephyrSystem;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -22,6 +24,7 @@ constexpr int ERROR_ZEPHYR_VAL = -1000;
 extern std::string PARENT_ENTITY_NAME;
 
 extern ZephyrEngineAPI* g_zephyrAPI;
+extern ZephyrSystem* g_zephyrSystem;
 
 //-----------------------------------------------------------------------------------------------
 enum class eTokenType
@@ -224,4 +227,20 @@ private:
 		std::string* strData = nullptr;
 		EntityId entityData;
 	};
+};
+
+
+//-----------------------------------------------------------------------------------------------
+struct ZephyrTimer
+{
+public:
+	Timer timer;
+	EntityId targetId = -1;
+	std::string name;
+	std::string callbackName;
+	EventArgs* callbackArgs = nullptr;
+
+public:
+	ZephyrTimer( Clock* clock, const EntityId& targetId = -1, const std::string& callbackName = "", const std::string& name = "", EventArgs* callbackArgsIn = nullptr );
+	~ZephyrTimer();
 };

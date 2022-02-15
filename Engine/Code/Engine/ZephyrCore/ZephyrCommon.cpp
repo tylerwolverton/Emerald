@@ -1,12 +1,16 @@
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+
+#include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 std::string PARENT_ENTITY_NAME = "parentEntity";
 ZephyrEngineAPI* g_zephyrAPI = nullptr;
+ZephyrSystem* g_zephyrSystem = nullptr;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -482,4 +486,55 @@ void ZephyrValue::ReportConversionError( eValueType targetType )
 {
 	g_devConsole->PrintError( Stringf( "Cannot access '%s' variable as type '%s'", ToString( m_type ).c_str(), ToString( targetType ).c_str() ) );
 	entityData = ERROR_ZEPHYR_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTimer::ZephyrTimer( Clock* clock, const EntityId& targetId, const std::string& callbackName, const std::string& name, EventArgs* callbackArgsIn )
+	: targetId( targetId )
+	, name( name )
+	, callbackName( callbackName )
+{
+	timer = Timer( clock );
+
+	callbackArgs = new EventArgs();
+	for ( auto const& keyValuePair : callbackArgsIn->GetAllKeyValuePairs() )
+	{
+		if ( keyValuePair.second->Is<float>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, 0.f ) );
+		}
+		else if ( keyValuePair.second->Is<int>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, (EntityId)-1 ) );
+		}
+		else if ( keyValuePair.second->Is<double>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, (float)callbackArgsIn->GetValue( keyValuePair.first, 0.0 ) );
+		}
+		else if ( keyValuePair.second->Is<bool>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, false ) );
+		}
+		else if ( keyValuePair.second->Is<Vec2>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, Vec2::ZERO ) );
+		}
+		else if ( keyValuePair.second->Is<Vec3>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, Vec2::ZERO ) );
+		}
+		else if ( keyValuePair.second->Is<std::string>()
+				  || keyValuePair.second->Is<char*>() )
+		{
+			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, "" ) );
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTimer::~ZephyrTimer()
+{
+	PTR_SAFE_DELETE( callbackArgs );
 }

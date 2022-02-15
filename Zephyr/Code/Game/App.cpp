@@ -19,6 +19,7 @@
 #include "Engine/Time/Clock.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/ZephyrCore/ZephyrEngineAPI.hpp"
+#include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
@@ -60,6 +61,7 @@ void App::Startup()
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
 	g_physicsSystem2D = new Physics2D();
+	g_zephyrSystem = new ZephyrSystem();
 	g_zephyrAPI = new ZephyrGameAPI();
 	g_game = new Game();
 
@@ -82,6 +84,10 @@ void App::Startup()
 	// Calls g_physicsSystem2D::Startup too
 	g_game->Startup();
 
+	ZephyrSystemParams zephyrParams;
+	zephyrParams.clock = g_game->GetGameClock();
+	g_zephyrSystem->Startup( zephyrParams );
+
 	g_eventSystem->RegisterEvent( "Quit", "Quit the game.", eUsageLocation::EVERYWHERE, QuitGame );
 }
 
@@ -89,6 +95,7 @@ void App::Startup()
 //-----------------------------------------------------------------------------------------------
 void App::Shutdown()
 {
+	g_zephyrSystem->Shutdown();
 	g_game->Shutdown();
 	g_physicsSystem2D->Shutdown();
 	g_devConsole->Shutdown();
@@ -101,6 +108,7 @@ void App::Shutdown()
 
 	Clock::MasterShutdown();
 		
+	PTR_SAFE_DELETE( g_zephyrSystem );
 	PTR_SAFE_DELETE( g_game );
 	PTR_SAFE_DELETE( g_physicsSystem2D );
 	PTR_SAFE_DELETE( g_zephyrAPI );
@@ -165,6 +173,7 @@ void App::Update()
 {
 	g_devConsole->Update();
 	g_game->Update();
+	g_zephyrSystem->Update();
 
 	UpdateFromKeyboard();
 }

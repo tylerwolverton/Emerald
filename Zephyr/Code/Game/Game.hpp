@@ -41,22 +41,6 @@ enum class eGameState
 
 
 //-----------------------------------------------------------------------------------------------
-struct GameTimer
-{
-public:
-	Timer timer;
-	EntityId targetId = -1;
-	std::string name;
-	std::string callbackName;
-	EventArgs* callbackArgs = nullptr;
-
-public:
-	GameTimer( Clock* clock, const EntityId& targetId = -1, const std::string& callbackName = "", const std::string& name = "", EventArgs* callbackArgsIn = nullptr );
-	~GameTimer();
-};
-
-
-//-----------------------------------------------------------------------------------------------
 class Game
 {
 public:
@@ -77,6 +61,7 @@ public:
 	eGameState  GetGameState()															{ return m_gameState; }
 
 	const Vec2	GetMouseWorldPosition()													{ return m_mouseWorldPosition; }
+	Clock*		GetGameClock()															{ return m_gameClock; }
 
 	void		SetWorldCameraPosition( const Vec3& position );
 	void		AddScreenShakeIntensity( float additionalIntensityFraction );
@@ -100,9 +85,6 @@ public:
 	void		PlaySoundByName( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 	void		ChangeMusic( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 
-	void		StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
-	void		StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
-
 public:
 	RandomNumberGenerator* m_rng = nullptr;
 
@@ -124,7 +106,6 @@ private:
 	void UpdateMouseWorldPosition();
 	void UpdateMouseUIPosition();
 	void UpdateCameras();
-	void UpdateTimers();
 
 	void InitializeFPSHistory();
 	void InitializeUI();
@@ -180,7 +161,4 @@ private:
 
 	World* m_world = nullptr;
 	std::string m_startingMapName;
-
-	// Timer management
-	std::vector<GameTimer*> m_timerPool;
 };

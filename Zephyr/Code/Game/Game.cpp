@@ -29,6 +29,7 @@
 #include "Engine/ZephyrCore/ZephyrInterpreter.hpp"
 #include "Engine/ZephyrCore/ZephyrBytecodeChunk.hpp"
 #include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
+#include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
 #include "Game/Actor.hpp"
 #include "Game/Entity.hpp"
@@ -37,56 +38,6 @@
 #include "Game/TileDefinition.hpp"
 #include "Game/MapData.hpp"
 
-
-//-----------------------------------------------------------------------------------------------
-GameTimer::GameTimer( Clock* clock, const EntityId& targetId, const std::string& callbackName, const std::string& name, EventArgs* callbackArgsIn )
-	: targetId( targetId )
-	, name( name )
-	, callbackName( callbackName )
-{
-	timer = Timer( clock );
-
-	callbackArgs = new EventArgs();
-	for ( auto const& keyValuePair : callbackArgsIn->GetAllKeyValuePairs() )
-	{
-		if ( keyValuePair.second->Is<float>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, 0.f ) );
-		}
-		else if ( keyValuePair.second->Is<int>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, (EntityId)-1 ) );
-		}
-		else if ( keyValuePair.second->Is<double>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, (float)callbackArgsIn->GetValue( keyValuePair.first, 0.0 ) );
-		}
-		else if ( keyValuePair.second->Is<bool>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, false ) );
-		}
-		else if ( keyValuePair.second->Is<Vec2>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, Vec2::ZERO ) );
-		}
-		else if ( keyValuePair.second->Is<Vec3>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, Vec2::ZERO ) );
-		}
-		else if ( keyValuePair.second->Is<std::string>()
-				  || keyValuePair.second->Is<char*>() )
-		{
-			callbackArgs->SetValue( keyValuePair.first, callbackArgsIn->GetValue( keyValuePair.first, "" ) );
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameTimer::~GameTimer()
-{
-	PTR_SAFE_DELETE( callbackArgs );
-}
 
 //-----------------------------------------------------------------------------------------------
 Game::Game()
@@ -244,7 +195,6 @@ void Game::Update()
 		break;
 	}
 
-	UpdateTimers();
 	UpdateCameras();
 	UpdateMousePositions();
 	UpdateFramesPerSecond();
@@ -755,7 +705,7 @@ void Game::ReloadGame()
 
 	m_world->Reset();
 
-	PTR_VECTOR_SAFE_DELETE( m_timerPool );
+	g_zephyrSystem->Shutdown();
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();
@@ -976,44 +926,6 @@ void Game::UpdateCameras()
 	//m_worldCamera->Translate2D( cameraShakeOffset );
 	m_worldCamera->SetPosition( m_focalPoint + Vec3( cameraShakeOffset, 0.f ) );
 	m_worldCamera->SetProjectionOrthographic( WINDOW_HEIGHT );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::UpdateTimers()
-{
-	int numTimers = (int)m_timerPool.size();
-	for ( int timerIdx = 0; timerIdx < numTimers; ++timerIdx )
-	{
-		GameTimer*& gameTimer = m_timerPool[timerIdx];
-		if ( gameTimer == nullptr )
-		{
-			continue;
-		}
-
-		if ( gameTimer->timer.IsRunning()
-			 && gameTimer->timer.HasElapsed() )
-		{
-			if ( !gameTimer->callbackName.empty() )
-			{
-				if ( gameTimer->targetId == -1 )
-				{
-					g_eventSystem->FireEvent( gameTimer->callbackName, gameTimer->callbackArgs );
-				}
-				else
-				{
-					Entity* targetEntity = GetEntityById( gameTimer->targetId );
-					if ( targetEntity != nullptr )
-					{
-						targetEntity->FireScriptEvent( gameTimer->callbackName, gameTimer->callbackArgs );
-					}
-				}
-			}
-
-			delete m_timerPool[timerIdx];
-			m_timerPool[timerIdx] = nullptr;
-		}
-	}
 }
 
 
@@ -1340,42 +1252,6 @@ void Game::ChangeMusic( const std::string& musicName, bool isLooped, float volum
 
 	m_curMusicName = musicName;
 	m_curMusicId = g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs )
-{
-	GameTimer* newTimer = new GameTimer( m_gameClock, targetId, onCompletedEventName, name, callbackArgs );
-
-	int numTimers = (int)m_timerPool.size();
-	for ( int timerIdx = 0; timerIdx < numTimers; ++timerIdx )
-	{
-		if ( m_timerPool[timerIdx] == nullptr )
-		{
-			m_timerPool[timerIdx] = newTimer;
-			newTimer->timer.Start( (double)durationSeconds );
-			return;
-		}
-	}
-
-	newTimer->timer.Start( (double)durationSeconds );
-	m_timerPool.push_back( newTimer );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs )
-{
-	Entity* target = m_world->GetEntityByName( targetName );
-
-	if ( target == nullptr )
-	{
-		g_devConsole->PrintError( Stringf( "Couldn't start a timer event with unknown target name '%s'", targetName.c_str() ) );
-		return;
-	}
-
-	StartNewTimer( target->GetId(), name, durationSeconds, onCompletedEventName, callbackArgs );
 }
 
 

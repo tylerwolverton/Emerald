@@ -385,6 +385,9 @@
     <ClCompile Include="Core\HashUtils.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="ZephyrCore\ZephyrSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -724,5 +727,6 @@
     <ClInclude Include="ZephyrCore\ZephyrVirtualMachine.hpp" />
     <ClInclude Include="ZephyrCore\ZephyrUtils.hpp" />
     <ClInclude Include="Core\HashUtils.hpp" />
+    <ClInclude Include="ZephyrCore\ZephyrSystem.hpp" />
   </ItemGroup>
 </Project>
