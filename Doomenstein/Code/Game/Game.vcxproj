@@ -200,6 +200,7 @@
     <ClCompile Include="GameCommon.cpp" />
     <ClCompile Include="GameJobs.cpp" />
     <ClCompile Include="GameMeshUtils.cpp" />
+    <ClCompile Include="LineMap.cpp" />
     <ClCompile Include="Main_Windows.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapData.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="GameJobs.hpp" />
     <ClInclude Include="GameMeshUtils.hpp" />
+    <ClInclude Include="LineMap.hpp" />
     <ClInclude Include="Map.hpp" />
     <ClInclude Include="MapData.hpp" />
     <ClInclude Include="MapMaterialTypeDefinition.hpp" />

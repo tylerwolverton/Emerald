@@ -91,6 +91,9 @@
     <ClCompile Include="PerformanceTracker.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="LineMap.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -152,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="PerformanceTracker.hpp">
       <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="LineMap.hpp">
+      <Filter>Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
