@@ -1,0 +1,34 @@
+Entity levelMgr = null
+Entity player = null
+
+State UnPressed
+{
+    OnEnter()
+    {
+        ChangeSpriteAnimation( newAnim: "Off" )
+    }
+
+    Function OnTriggerEnter( Entity otherEntity )
+    {
+        if( otherEntity == player )
+        {
+            ChangeState( Pressed )
+        }
+    }
+}
+
+
+State Pressed
+{
+    OnEnter()
+    {
+        ChangeSpriteAnimation( newAnim: "On" )
+        levelMgr.RegisterPress( plate: parentEntity )
+    }
+}
+
+
+Function Reset()
+{
+    ChangeState( UnPressed )
+}

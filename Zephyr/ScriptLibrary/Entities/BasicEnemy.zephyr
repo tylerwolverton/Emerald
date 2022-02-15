@@ -1,0 +1,79 @@
+Variable Entity target = null
+Variable Number maxChaseDist = 4.5
+	
+
+Function ChangeStateIfTargetSeen()
+{
+	Entity newTarget = CheckForTarget() 
+	if( newTarget != null )
+	{
+		this.target = target;
+
+		if( this.entity.health <= this.lowHealthThreshhold )
+		{
+			ChangeState( Flee )
+		}
+		else
+		{
+			ChangeState( Chase )
+		}
+	}
+}
+
+
+State Wander
+{
+	Vec2 targetPosition;
+
+	Enter()
+	{
+		targetPosition = GetNewWanderTargetPosition() 
+	}
+
+	Update()
+	{
+		ChangeStateIfTargetSeen()
+
+		if( this.entity.position == targetPosition )
+		{
+			targetPosition = GetNewWanderTargetPosition()
+		}
+		
+		MoveToPosition( pos: targetPosition
+						speed: this.entity.speed )
+	}
+}
+
+
+Function StartWanderIfTooFarAway()
+{
+	if( DistanceBetweenEntities( this.entity, this.target ) > this.maxChaseDist )
+	{
+		this.target = null;
+		ChangeState( Wander )
+	}
+}
+
+
+State Chase
+{
+	Update()
+	{
+		StartWanderIfTooFarAway()
+
+		MoveTowardsTarget( target: this.target
+						   speed: this.entity.speed )
+	}
+}
+
+
+State Flee
+{
+	Update()
+	{
+		StartWanderIfTooFarAway()
+
+		MoveAwayFromTarget( target: this.target
+							speed: this.entity.speed )
+	}
+}

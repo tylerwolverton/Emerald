@@ -1,0 +1,209 @@
+Variable Number meleeAttackMaxDist = 2
+Variable Number meleeAttackMaxDistTolerance = .5 // to prevent flipping back and forth from melee to range when on the border
+Variable Number meleeAttackRadius = 1.25
+Variable Number meleeAttackDamage = 1~3
+
+Variable String projectileType = "Boulder"
+Variable Number projectileSpeed = 3
+Variable Number accuracy = 90
+Variable Number accuracyVarianceDegrees = 15
+
+Variable Number attackCooldownSeconds = .8
+Variable Bool canAttack = true
+
+Variable Number breakdownSeconds = 1.5
+Variable Number functioningSeconds = 5
+
+Variable Bool isRaging = false
+Variable Number rageHealthThreshhold = 5
+
+Variable Entity target = null
+
+
+// -----------------------------------------------------------------
+// Functions to transition between attacking and vulnerable states
+// -----------------------------------------------------------------
+Function BreakDown()
+{
+    ChangeState( BrokenDown )
+
+    WakeUp( delaySeconds: this.breakdownSeconds )
+}
+
+
+Function WakeUp()
+{
+    if( this.isRaging )
+    {
+        ChangeState( Raging )
+    }
+    else
+    {
+        ChangeState( MeleeAttack )
+    }
+    
+    FireDelayedEvent( delaySeconds: this.functioningSeconds
+                      event: "BreakDown" )
+}
+
+
+// Golem stays still and can be damaged
+State BrokenDown
+{
+    Enter()
+    {
+        ChangeSpriteAnimation( name: "BreakDown" )
+        DeactivateInvincibility()
+    }
+
+    HealthUpdated()
+    {
+        if( !this.isRaging
+            && this.entity.health < this.rageHealthThreshhold )
+        {
+            this.isRaging = true
+            this.entity.speed = this.entity.speed * 2
+            this.attackCooldownSeconds = this.attackCooldownSeconds * .5
+            this.accuracy = this.accuracy * .8
+            this.functioningSeconds = this.functioningSeconds * 2.5
+        }
+    }
+
+    Exit()
+    {
+        ChangeSpriteAnimation( name: "WakeUp" )
+        ActivateInvincibility()
+    }
+}
+
+
+// -----------------------------------------------------------------
+// Attack functions
+// -----------------------------------------------------------------
+Function StartAttackCooldown()
+{
+    this.canAttack = false
+    FireDelayedEvent( delaySeconds: this.attackCooldownSeconds
+                      eventName: "EnableAttack" )
+}
+
+
+Function EnableAttack()
+{
+    this.canAttack = true
+}
+
+
+// TODO? Create a built in Attack feature with anims and actions built in?
+Function GroundSmash( String nextAnim )
+{
+    ChangeSpriteAnimation( name: "GroundSmash" 
+                           nextAnim: nextAnim ) // switch back to last anim once this anim is finished
+
+    PlaySound( name: "GroundSmash" )
+
+    DamageEntitiesInCircle( damage: this.meleeAttackDamage
+                            center: this.entity.position
+                            radius: this.meleeAttackRadius
+                            factionToExclude: this.entity.faction )
+}
+
+
+Function ThrowBoulder( String nextAnim )
+{
+    ChangeSpriteAnimation( name: "GroundSmash" 
+                           nextAnim: nextAnim )
+
+    PlaySound( name: "ThrowBoulder" )
+
+    FireAtEntity(   attacker: this.entity
+                    target: this.target
+                    projectileType: this.projectileType
+                    speed: this.projectileSpeed
+                    accuracy: this.accuracy
+                    accuracyVarianceDegrees: this.accuracyVarianceDegrees )
+}
+
+
+// -----------------------------------------------------------------
+// Attack states
+// -----------------------------------------------------------------
+State MeleeAttack
+{
+    Enter()
+    {
+        ChangeSpriteAnimation( name: "Normal" )
+    }
+
+    Update()
+    {
+        Number dist = DistanceBetweenEntities( this.entity, this.target )
+
+        if( dist > this.meleeAttackMaxDist + this.meleeAttackMaxDistTolerance  )
+        {
+            ChangeState( RangedAttack )
+        }  
+        
+        if( this.canAttack )
+        {
+            GroundSmash( curAnim: "Normal" )
+            StartAttackCooldown()
+        }
+
+        MoveTowardsTarget( target: this.target
+                           speed: this.entity.speed )
+    }
+}
+
+
+State RangedAttack
+{
+    Enter()
+    {
+        ChangeSpriteAnimation( name: "Normal" )
+    }
+
+    Update()
+    {
+        Number dist = DistanceBetweenEntities( this.entity, this.target )
+
+        if( dist < this.meleeAttackMaxDist - this.meleeAttackMaxDistTolerance  )
+        {
+            ChangeState( MeleeAttack )
+        }  
+
+        if( this.canAttack  )
+        {
+            ThrowBoulder( curAnim: "Normal" )
+            StartAttackCooldown()
+        }
+
+        MoveTowardsTarget( target: this.target
+                           speed: this.entity.speed )
+    }
+}
+
+
+State Raging
+{
+    Enter()
+    {
+        ChangeSpriteAnimation( name: "Raging" )
+    }
+
+    Update()
+    {
+        // Do both attacks when raging
+        if( this.canAttack )
+        {
+            // This will cause some wonky anims but I'll iterate on that later
+            ThrowBoulder( curAnim: "Raging" )
+            GroundSmash( curAnim: "Raging" )
+            StartAttackCooldown()
+        }
+
+        MoveTowardsTarget( target: this.target
+                           speed: this.entity.speed )
+    }
+}
+

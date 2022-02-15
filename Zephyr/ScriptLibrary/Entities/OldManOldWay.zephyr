@@ -1,0 +1,45 @@
+Variable String doorName  // Set from map editor
+Variable Bool isDoorOpen = false
+
+State Waiting
+{
+    PlayerInteracted()
+    {
+        StartConversation( DoorConversation )
+    }
+}
+
+Conversation DoorConversation
+{
+    Welcome()
+    {
+        Text( "Hello traveler" )
+        
+        Choice( "Could you open the door in the other room?", AskToOpenDoor )
+        Choice( "Nevermind", End )
+    }
+    
+    AskToOpenDoor()
+    {
+        if( this.isDoorOpen )
+        {
+            Text( "It's already open" )
+            
+            Choice( "Oh, right", End )
+        }
+        else
+        {
+            OpenDoor( this.doorName )
+            this.isDoorOpen = true
+            
+            Text( "There you go" )
+
+            Choice( "Thanks!", End )
+        }
+    }
+
+    End()
+    {
+        EndConversation()
+    }
+}
