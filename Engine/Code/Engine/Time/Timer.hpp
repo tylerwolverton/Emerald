@@ -41,7 +41,7 @@ public:
 
 
 public:
-	Clock* m_clock; // clock timer is based off of
+	Clock* m_clock = nullptr; // clock timer is based off of
 
 	double m_startSeconds = 0.0;
 	double m_durationSeconds = -1.0;    // negative means stopped

@@ -2,6 +2,7 @@
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/ZephyrCore/ZephyrEngineAPI.hpp"
 #include "Engine/ZephyrCore/ZephyrEntity.hpp"
+#include "Engine/ZephyrCore/ZephyrUtils.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Time/Clock.hpp"
@@ -32,6 +33,13 @@ void ZephyrSystem::Startup( const ZephyrSystemParams& params )
 	{
 		m_clock = params.clock;
 	}
+
+	constexpr int POOL_SIZE = 50;
+	m_timerPool.reserve( POOL_SIZE );
+	for ( int timerIdx = 0; timerIdx < POOL_SIZE; ++timerIdx )
+	{
+		m_timerPool.emplace_back( m_clock );
+	}
 }
 
 
@@ -48,34 +56,31 @@ void ZephyrSystem::UpdateTimers()
 	int numTimers = (int)m_timerPool.size();
 	for ( int timerIdx = 0; timerIdx < numTimers; ++timerIdx )
 	{
-		ZephyrTimer*& gameTimer = m_timerPool[timerIdx];
-		if ( gameTimer == nullptr )
+		ZephyrTimer& zephyrTimer = m_timerPool[timerIdx];
+		if ( !zephyrTimer.timer.IsRunning() 
+			 || !zephyrTimer.timer.HasElapsed() )
 		{
 			continue;
 		}
 
-		if ( gameTimer->timer.IsRunning()
-			 && gameTimer->timer.HasElapsed() )
+		if ( !zephyrTimer.callbackName.empty() )
 		{
-			if ( !gameTimer->callbackName.empty() )
+			if ( zephyrTimer.targetId == -1 )
 			{
-				if ( gameTimer->targetId == -1 )
+				g_eventSystem->FireEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
+			}
+			else
+			{
+				ZephyrEntity* targetEntity = g_zephyrAPI->GetEntityById( zephyrTimer.targetId );
+				if ( targetEntity != nullptr )
 				{
-					g_eventSystem->FireEvent( gameTimer->callbackName, gameTimer->callbackArgs );
-				}
-				else
-				{
-					ZephyrEntity* targetEntity = g_zephyrAPI->GetEntityById( gameTimer->targetId );
-					if ( targetEntity != nullptr )
-					{
-						targetEntity->FireScriptEvent( gameTimer->callbackName, gameTimer->callbackArgs );
-					}
+					targetEntity->FireScriptEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
 				}
 			}
-
-			delete m_timerPool[timerIdx];
-			m_timerPool[timerIdx] = nullptr;
 		}
+
+		zephyrTimer.timer.Stop();
+		zephyrTimer.callbackArgs->Clear();
 	}
 }
 
@@ -83,28 +88,30 @@ void ZephyrSystem::UpdateTimers()
 //-----------------------------------------------------------------------------------------------
 void ZephyrSystem::Shutdown()
 {
-	PTR_VECTOR_SAFE_DELETE( m_timerPool );
+	m_timerPool.clear();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrSystem::StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs )
 {
-	ZephyrTimer* newTimer = new ZephyrTimer( m_clock, targetId, onCompletedEventName, name, callbackArgs );
-
 	int numTimers = (int)m_timerPool.size();
 	for ( int timerIdx = 0; timerIdx < numTimers; ++timerIdx )
 	{
-		if ( m_timerPool[timerIdx] == nullptr )
+		if ( !m_timerPool[timerIdx].timer.IsRunning() )
 		{
-			m_timerPool[timerIdx] = newTimer;
-			newTimer->timer.Start( (double)durationSeconds );
+			ZephyrTimer& freeZephyrTimer = m_timerPool[timerIdx];
+			freeZephyrTimer.targetId = targetId;
+			freeZephyrTimer.callbackName = onCompletedEventName;
+			freeZephyrTimer.name = name;
+			CloneZephyrEventArgs( freeZephyrTimer.callbackArgs, *callbackArgs );
+
+			freeZephyrTimer.timer.Start( (double)durationSeconds );
 			return;
 		}
 	}
 
-	newTimer->timer.Start( (double)durationSeconds );
-	m_timerPool.push_back( newTimer );
+	g_devConsole->PrintError( "No more room for new ZephyrTimer" );
 }
 
 
@@ -120,4 +127,15 @@ void ZephyrSystem::StartNewTimer( const std::string& targetName, const std::stri
 	}
 
 	StartNewTimer( target->GetId(), name, durationSeconds, onCompletedEventName, callbackArgs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::StopAllTimers()
+{
+	int numTimers = (int)m_timerPool.size();
+	for ( int timerIdx = 0; timerIdx < numTimers; ++timerIdx )
+	{
+		m_timerPool[timerIdx].timer.Stop();
+	}
 }

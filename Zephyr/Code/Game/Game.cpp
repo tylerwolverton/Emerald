@@ -705,7 +705,7 @@ void Game::ReloadGame()
 
 	m_world->Reset();
 
-	g_zephyrSystem->Shutdown();
+	g_zephyrSystem->StopAllTimers();
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();

@@ -241,6 +241,6 @@ public:
 	EventArgs* callbackArgs = nullptr;
 
 public:
-	ZephyrTimer( Clock* clock, const EntityId& targetId = -1, const std::string& callbackName = "", const std::string& name = "", EventArgs* callbackArgsIn = nullptr );
+	ZephyrTimer( Clock* clock );
 	~ZephyrTimer();
 };

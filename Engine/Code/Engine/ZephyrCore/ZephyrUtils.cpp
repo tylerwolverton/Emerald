@@ -1,7 +1,21 @@
 #include "Engine/ZephyrCore/ZephyrUtils.hpp"
+#include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+
+
+//-----------------------------------------------------------------------------------------------
+void CloneZephyrEventArgs( EventArgs* destArgs, const EventArgs& srcArgs )
+{
+	if ( destArgs == nullptr )
+	{
+		g_devConsole->PrintError( "Tried to clone zephyr event args with a null destination!" );
+		return;
+	}
+
+	CloneZephyrEventArgs( *destArgs, srcArgs );
+}
 
 
 //-----------------------------------------------------------------------------------------------

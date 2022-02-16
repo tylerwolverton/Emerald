@@ -31,11 +31,13 @@ public:
 
 	void		StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
 	void		StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
+	void		StopAllTimers();
 
 private:
 	void UpdateTimers();
 
 private:
 	Clock* m_clock = nullptr;
-	std::vector<ZephyrTimer*> m_timerPool;
+	// TODO: Use new ObjectPool with this once the engine has it
+	std::vector<ZephyrTimer> m_timerPool;
 };

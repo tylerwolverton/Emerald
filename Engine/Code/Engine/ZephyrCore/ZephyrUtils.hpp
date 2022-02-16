@@ -4,3 +4,4 @@
 
 //-----------------------------------------------------------------------------------------------
 void CloneZephyrEventArgs( EventArgs& destArgs, const EventArgs& srcArgs );
+void CloneZephyrEventArgs( EventArgs* destArgs, const EventArgs& srcArgs );

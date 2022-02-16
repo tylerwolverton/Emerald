@@ -44,6 +44,13 @@ std::string NamedProperties::GetValue( const std::string& keyName, const char* d
 
 
 //-----------------------------------------------------------------------------------------------
+void NamedProperties::Clear()
+{
+	m_keyValuePairs.clear();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 TypedPropertyBase* NamedProperties::FindInMap( const std::string& key ) const
 {
 	auto iter = m_keyValuePairs.find( key );
