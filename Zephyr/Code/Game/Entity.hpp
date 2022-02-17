@@ -69,6 +69,9 @@ public:
 	virtual void		Unload();
 
 	void				ChangeSpriteAnimation( const std::string& spriteAnimDefSetName );
+	void				PlaySpriteAnimation( const std::string& spriteAnimDefSetName );
+	SpriteAnimationSetDefinition* GetSpriteAnimSetDef( const std::string& animSetName ) const { return m_entityDef.GetSpriteAnimSetDef( animSetName ); }
+
 
 	const Vec2			GetForwardVector() const;
 	virtual const Vec2	GetPosition() const override;
@@ -157,6 +160,7 @@ protected:
 	
 	// Visual
 	float									m_cumulativeTime = 0.f;
+	Vec2									m_facingDirection = Vec2::ZERO_TO_ONE;
 	std::vector<Vertex_PCU>					m_vertices;
 	SpriteAnimationSetDefinition*			m_curSpriteAnimSetDef = nullptr;
 

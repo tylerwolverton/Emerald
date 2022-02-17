@@ -3,9 +3,13 @@
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Math/IntRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
+
 #include "Game/GameCommon.hpp"
+#include "Game/Entity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -36,6 +40,16 @@ SpriteAnimationSetDefinition::~SpriteAnimationSetDefinition()
 //-----------------------------------------------------------------------------------------------
 SpriteAnimDefinition* SpriteAnimationSetDefinition::GetSpriteAnimationDefForDirection( const Vec2& direction )
 {
+	Vec2 animDirection = direction;
+	if ( IsNearlyEqual( direction, Vec2::ZERO ) )
+	{
+		animDirection = m_lastDirection;
+	}
+	else
+	{
+		m_lastDirection = direction;
+	}
+
 	float maxDotProduct = -99999.f;
 	std::string closestAnimName = "";
 	for ( auto it = m_directionSpriteAnims.begin(); it != m_directionSpriteAnims.end(); ++it )
@@ -60,35 +74,93 @@ SpriteAnimDefinition* SpriteAnimationSetDefinition::GetSpriteAnimationDefForDire
 
 
 //-----------------------------------------------------------------------------------------------
+void SpriteAnimationSetDefinition::AddFrameEvent( int frameNum, const std::string& eventName )
+{
+	m_frameToEventNames[frameNum] = eventName;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SpriteAnimationSetDefinition::FireFrameEvent( int frameNum, Entity* parent )
+{
+	auto iter = m_frameToEventNames.find( frameNum );
+	if ( iter == m_frameToEventNames.end() )
+	{
+		return;
+	}
+
+	if ( parent == nullptr )
+	{
+		g_eventSystem->FireEvent( iter->second );
+	}
+	else
+	{
+		parent->FireScriptEvent( iter->second );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+int SpriteAnimationSetDefinition::GetNumFrames() const
+{
+	if ( m_directionSpriteAnims.empty() )
+	{
+		return 0;
+	}
+
+	return m_directionSpriteAnims.begin()->second->animDef->GetNumFrames();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SpriteAnimationSetDefinition::AdjustAnimationSpeed( float deltaSpeedModifier )
+{
+	m_curSpeedModifier += deltaSpeedModifier;
+
+	for ( auto& anim : m_directionSpriteAnims )
+	{
+		anim.second->animDef->SetSpeedModifier( m_curSpeedModifier );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void SpriteAnimationSetDefinition::AddDirectionAnimation( const std::string& animName, const Vec2& facingDir, const XmlElement& spriteAnimSetDefElem )
 {
 	if ( spriteAnimSetDefElem.Attribute( animName.c_str() ) )
 	{
 		Ints spriteIndexes;
 		spriteIndexes = ParseXmlAttribute( spriteAnimSetDefElem, animName.c_str(), spriteIndexes );
-		if ( spriteIndexes.size() == 0 )
+		if ( spriteIndexes.size() <= 1 )
 		{
-			g_devConsole->PrintError( Stringf( "Animation '%s' %s has no sprite indexes defined.", m_name.c_str(), animName.c_str() ) );
-		}
-		else
-		{
-			float fps = ParseXmlAttribute( spriteAnimSetDefElem, "fps", m_defaultFPS );
-			std::string typeStr = ParseXmlAttribute( spriteAnimSetDefElem, "playbackType", "loop" );
-			SpriteAnimPlaybackType playbackType = SpriteAnimPlaybackType::LOOP;
-			if ( IsEqualIgnoreCase( typeStr, "pingpong" ) )
+			// If we only found 1, either this is a range or a single sprite, either way parsing as an IntRange will work
+			IntRange spriteIndexRange;
+			spriteIndexRange = ParseXmlAttribute( spriteAnimSetDefElem, animName.c_str(), spriteIndexRange );
+			if ( spriteIndexRange.min > spriteIndexRange.max )
 			{
-				playbackType = SpriteAnimPlaybackType::PINGPONG;
-			}
-			if ( IsEqualIgnoreCase( typeStr, "once" ) )
-			{
-				playbackType = SpriteAnimPlaybackType::ONCE;
+				g_devConsole->PrintError( Stringf( "Animation '%s' %s has no sprite indexes defined.", m_name.c_str(), animName.c_str() ) );
+				return;
 			}
 
-			DirectionAnimation* dirAnim = new DirectionAnimation();
-			dirAnim->animDef = new SpriteAnimDefinition( *m_spriteSheet, spriteIndexes, fps, playbackType );
-			dirAnim->facingDirection = facingDir;
-
-			m_directionSpriteAnims[animName] = dirAnim;
+			spriteIndexes = spriteIndexRange.GetAsIntVector();
 		}
+		
+		float fps = ParseXmlAttribute( spriteAnimSetDefElem, "fps", m_defaultFPS );
+		std::string typeStr = ParseXmlAttribute( spriteAnimSetDefElem, "playbackType", "loop" );
+		SpriteAnimPlaybackType playbackType = SpriteAnimPlaybackType::LOOP;
+		if ( IsEqualIgnoreCase( typeStr, "pingpong" ) )
+		{
+			playbackType = SpriteAnimPlaybackType::PINGPONG;
+		}
+		if ( IsEqualIgnoreCase( typeStr, "once" ) )
+		{
+			playbackType = SpriteAnimPlaybackType::ONCE;
+		}
+
+		DirectionAnimation* dirAnim = new DirectionAnimation();
+		dirAnim->animDef = new SpriteAnimDefinition( *m_spriteSheet, spriteIndexes, fps, playbackType );
+		dirAnim->facingDirection = facingDir;
+
+		m_directionSpriteAnims[animName] = dirAnim;
 	}
 }

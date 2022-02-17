@@ -12,6 +12,7 @@
 #include "Game/Game.hpp"
 #include "Game/Map.hpp"
 #include "Game/Entity.hpp"
+#include "Game/SpriteAnimationSetDefinition.hpp"
 
 
 #define REGISTER_EVENT( eventName ) {\
@@ -60,6 +61,7 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( AddScreenShake );
 
 	REGISTER_EVENT( SpawnEntitiesInRange );
+	REGISTER_EVENT( AddAnimationEvent );
 }
 
 
@@ -840,6 +842,23 @@ void ZephyrGameAPI::ChangeSpriteAnimation( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::PlaySpriteAnimation( EventArgs* args )
+{
+	std::string newAnim = args->GetValue( "newAnim", "" );
+	//Entity* targetEntity = g_game->GetEntityByName( targetId );
+	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
+
+	if ( entity == nullptr
+		 || newAnim.empty() )
+	{
+		return;
+	}
+
+	entity->PlaySpriteAnimation( newAnim );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrGameAPI::PlaySound( EventArgs* args )
 {
 	std::string soundName = args->GetValue( "name", "" );
@@ -902,6 +921,60 @@ void ZephyrGameAPI::SpawnEntitiesInRange( EventArgs* args )
 		args->SetValue( "position", randomPosition );
 		g_eventSystem->FireEvent( "SpawnEntity", args );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::AddAnimationEvent( EventArgs* args )
+{
+	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
+	std::string animName = args->GetValue( "anim", "" );
+	std::string frameStr = args->GetValue( "frame", "first" );
+	std::string eventName = args->GetValue( "event", "" );
+
+	if ( entity == nullptr
+		 || animName.empty()
+		 || eventName.empty() )
+	{
+		// print warning
+		return;
+	}
+
+	SpriteAnimationSetDefinition* spriteAnimSetDef = entity->GetSpriteAnimSetDef( animName );
+	if ( spriteAnimSetDef == nullptr )
+	{
+		// Print error
+		return;
+	}
+
+	int numFrames = spriteAnimSetDef->GetNumFrames();
+	if ( numFrames == 0 )
+	{
+		// print error
+		return;
+	}
+
+	int frameNum = 0;
+	if ( frameStr == "first" )
+	{
+		frameNum = 0;
+	}
+	else if ( frameStr == "last" )
+	{
+		frameNum = numFrames - 1;
+	}
+	else
+	{
+		frameNum = FromString( frameStr, frameNum );
+	}
+
+	if ( frameNum >= numFrames )
+	{
+		// print warning
+		frameNum = numFrames - 1;
+	}
+
+	spriteAnimSetDef->AddFrameEvent( frameNum, eventName );
 }
 
 

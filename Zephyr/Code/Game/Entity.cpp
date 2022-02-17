@@ -115,6 +115,15 @@ void Entity::Update( float deltaSeconds )
 	m_lastDeltaSeconds = deltaSeconds;
 
 	ZephyrEntity::Update( deltaSeconds );
+
+	SpriteAnimDefinition* animDef = nullptr;
+	if ( m_curSpriteAnimSetDef != nullptr )
+	{
+		animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_facingDirection );
+		int frameIndex = animDef->GetFrameIndexAtTime( m_cumulativeTime );
+
+		m_curSpriteAnimSetDef->FireFrameEvent( frameIndex, this );
+	}
 }
 
 
@@ -591,6 +600,22 @@ void Entity::ChangeSpriteAnimation( const std::string& spriteAnimDefSetName )
 	}
 
 	m_curSpriteAnimSetDef = newSpriteAnimSetDef;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::PlaySpriteAnimation( const std::string& spriteAnimDefSetName )
+{
+	SpriteAnimationSetDefinition* newSpriteAnimSetDef = m_entityDef.GetSpriteAnimSetDef( spriteAnimDefSetName );
+
+	if ( newSpriteAnimSetDef == nullptr )
+	{
+		//g_devConsole->PrintWarning( Stringf( "Warning: Failed to change animation for entity '%s' to undefined animation '%s'", GetName().c_str(), spriteAnimDefSetName.c_str() ) );
+		return;
+	}
+
+	m_curSpriteAnimSetDef = newSpriteAnimSetDef;
+	m_cumulativeTime = 0.f;
 }
 
 
