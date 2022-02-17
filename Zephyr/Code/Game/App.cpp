@@ -1,4 +1,5 @@
 #include "Game/App.hpp"
+#include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCU.hpp"
@@ -6,15 +7,15 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/OS/Window.hpp"
+#include "Engine/Performance/PerformanceTracker.hpp"
 #include "Engine/Physics/Physics2D.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/Camera.hpp"
-#include "Engine/Input/InputSystem.hpp"
-#include "Engine/Audio/AudioSystem.hpp"
-#include "Engine/OS/Window.hpp"
 #include "Engine/Time/Time.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
@@ -63,6 +64,7 @@ void App::Startup()
 	g_physicsSystem2D = new Physics2D();
 	g_zephyrSystem = new ZephyrSystem();
 	g_zephyrAPI = new ZephyrGameAPI();
+	g_performanceTracker = new PerformanceTracker();
 	g_game = new Game();
 
 	g_eventSystem->Startup();
@@ -88,6 +90,10 @@ void App::Startup()
 	zephyrParams.clock = g_game->GetGameClock();
 	g_zephyrSystem->Startup( zephyrParams );
 
+	PerformanceTrackerParams perfParams;
+	perfParams.clock = g_game->GetGameClock();
+	g_performanceTracker->StartUp( perfParams );
+
 	g_eventSystem->RegisterEvent( "Quit", "Quit the game.", eUsageLocation::EVERYWHERE, QuitGame );
 }
 
@@ -108,10 +114,11 @@ void App::Shutdown()
 
 	Clock::MasterShutdown();
 		
-	PTR_SAFE_DELETE( g_zephyrSystem );
 	PTR_SAFE_DELETE( g_game );
+	PTR_SAFE_DELETE( g_performanceTracker );
 	PTR_SAFE_DELETE( g_physicsSystem2D );
 	PTR_SAFE_DELETE( g_zephyrAPI );
+	PTR_SAFE_DELETE( g_zephyrSystem );
 	PTR_SAFE_DELETE( g_devConsole );
 	PTR_SAFE_DELETE( g_renderer );
 	PTR_SAFE_DELETE( g_audioSystem );
@@ -174,6 +181,7 @@ void App::Update()
 	g_devConsole->Update();
 	g_game->Update();
 	g_zephyrSystem->Update();
+	g_performanceTracker->Update();
 
 	UpdateFromKeyboard();
 }
@@ -208,6 +216,8 @@ void App::UpdateFromKeyboard()
 void App::Render() const
 {
 	g_game->Render();
+	g_performanceTracker->Render();
+	DebugRenderScreenTo( g_renderer->GetBackBuffer() );
 	g_devConsole->Render();
 }
 

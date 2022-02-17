@@ -6,7 +6,7 @@ class Clock;
 
 
 //-----------------------------------------------------------------------------------------------
-struct PerformanceTrackingSystemParams
+struct PerformanceTrackerParams
 {
 	Clock* clock = nullptr;
 };
@@ -16,7 +16,7 @@ struct PerformanceTrackingSystemParams
 class PerformanceTracker
 {
 public:
-	void StartUp( const PerformanceTrackingSystemParams& params );
+	void StartUp( const PerformanceTrackerParams& params );
 	void Update();
 	void Render() const;
 
@@ -28,5 +28,7 @@ private:
 
 private:
 	float m_fpsHistory[FRAME_HISTORY_COUNT];
+	int m_fpsNextIdx = 0;
+	float m_fpsHistorySum = 0.f;
 	Clock* m_clock = nullptr;
 };

@@ -1,4 +1,4 @@
-#include "Game/PerformanceTracker.hpp"
+#include "Engine/Performance/PerformanceTracker.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec4.hpp"
@@ -7,7 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-void PerformanceTracker::StartUp( const PerformanceTrackingSystemParams& params )
+void PerformanceTracker::StartUp( const PerformanceTrackerParams& params )
 {
 	if ( params.clock == nullptr )
 	{
@@ -21,6 +21,7 @@ void PerformanceTracker::StartUp( const PerformanceTrackingSystemParams& params 
 	for ( int frameNum = 0; frameNum < FRAME_HISTORY_COUNT - 1; ++frameNum )
 	{
 		m_fpsHistory[frameNum] = 60.f;
+		m_fpsHistorySum += 60.f;
 	}
 }
 
@@ -42,25 +43,40 @@ void PerformanceTracker::Render() const
 //-----------------------------------------------------------------------------------------------
 float PerformanceTracker::GetAverageFPS() const
 {
-	float cummulativeFPS = 0.f;
-	for ( int frameNum = 0; frameNum < FRAME_HISTORY_COUNT; ++frameNum )
-	{
-		cummulativeFPS += m_fpsHistory[frameNum];
-	}
+	constexpr float oneOverFrameCount = 1.f / (float)FRAME_HISTORY_COUNT;
 
-	return cummulativeFPS / (float)FRAME_HISTORY_COUNT;
+	return m_fpsHistorySum * oneOverFrameCount;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void PerformanceTracker::UpdateFramesPerSecond()
 {
-	for ( int frameNum = 0; frameNum < FRAME_HISTORY_COUNT - 1; ++frameNum )
+	if ( m_clock->IsPaused() )
 	{
-		m_fpsHistory[frameNum] = m_fpsHistory[frameNum + 1];
+		return;
 	}
 
-	m_fpsHistory[FRAME_HISTORY_COUNT - 1] = 1.f / (float)m_clock->GetLastDeltaSeconds();
+	float curFPS = 1.f / (float)m_clock->GetLastDeltaSeconds();
+
+	if ( curFPS < 0 )
+	{
+		curFPS = 0;
+	}
+	else if ( curFPS > 99999.f )
+	{
+		curFPS = 99999.f;
+	}
+
+	m_fpsHistorySum -= m_fpsHistory[m_fpsNextIdx];
+	m_fpsHistory[m_fpsNextIdx] = curFPS;
+	m_fpsHistorySum += curFPS;
+
+	++m_fpsNextIdx;
+	if ( m_fpsNextIdx >= FRAME_HISTORY_COUNT )
+	{
+		m_fpsNextIdx = 0;
+	}
 }
 
 

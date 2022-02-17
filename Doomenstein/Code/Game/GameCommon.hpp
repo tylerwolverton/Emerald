@@ -7,6 +7,7 @@ class InputSystem;
 class AudioSystem;
 class RenderContext;
 class NetworkingSystem;
+class PerformanceTracker;
 class PhysicsConfig;
 class Game;
 class SpriteSheet;
@@ -29,6 +30,7 @@ extern AudioSystem* g_audioSystem;
 extern RenderContext* g_renderer;
 extern NetworkingSystem* g_networkingSystem;
 extern Game* g_game;
+extern PerformanceTracker* g_performanceTracker;
 extern PhysicsConfig* g_physicsConfig;
 
 

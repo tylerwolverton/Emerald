@@ -107,11 +107,7 @@ private:
 	void UpdateMouseUIPosition();
 	void UpdateCameras();
 
-	void InitializeFPSHistory();
 	void InitializeUI();
-	void UpdateFramesPerSecond();
-	float GetAverageFPS() const;
-	void RenderFPSCounter() const;
 
 	// Events
 	void PrintBytecodeChunk( EventArgs* args );
@@ -119,9 +115,6 @@ private:
 private:
 	Clock* m_gameClock = nullptr;
 	Timer* m_stepTimer = nullptr;
-	float m_fpsHistory[FRAME_HISTORY_COUNT];
-	int m_fpsNextIdx = 0;
-	float m_fpsHistorySum = 0.f;
 
 	bool m_isPaused = false;
 	bool m_isDebugRendering = false;

@@ -8,6 +8,7 @@
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/OS/Window.hpp"
+#include "Engine/Performance/PerformanceTracker.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
@@ -56,8 +57,8 @@ void App::Startup()
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
 	g_zephyrAPI = new ZephyrGameAPI();
+	g_performanceTracker = new PerformanceTracker();
 	g_game = new Game();
-	m_perfTrackSystem = new PerformanceTracker();
 
 	g_eventSystem->Startup();
 	g_window->SetEventSystem( g_eventSystem );
@@ -78,10 +79,9 @@ void App::Startup()
 
 	g_game->Startup();
 
-	PerformanceTrackingSystemParams perfParams;
+	PerformanceTrackerParams perfParams;
 	perfParams.clock = g_game->GetGameClock();
-
-	m_perfTrackSystem->StartUp( perfParams );
+	g_performanceTracker->StartUp( perfParams );
 
 	g_eventSystem->RegisterEvent( "quit", "Quit the game.", eUsageLocation::EVERYWHERE, QuitGame );
 }
@@ -100,9 +100,9 @@ void App::Shutdown()
 	g_eventSystem->Shutdown();
 	g_window->Close();
 
-	PTR_SAFE_DELETE( g_physicsConfig );
-	PTR_SAFE_DELETE( m_perfTrackSystem );
 	PTR_SAFE_DELETE( g_game );
+	PTR_SAFE_DELETE( g_physicsConfig );
+	PTR_SAFE_DELETE( g_performanceTracker );
 	PTR_SAFE_DELETE( g_zephyrAPI );
 	PTR_SAFE_DELETE( g_devConsole );
 	PTR_SAFE_DELETE( g_renderer );
@@ -186,7 +186,7 @@ void App::Update()
 {
 	g_devConsole->Update();
 	g_game->Update();
-	m_perfTrackSystem->Update();
+	g_performanceTracker->Update();
 
 	UpdateFromKeyboard();
 }
@@ -223,7 +223,7 @@ void App::UpdateFromKeyboard()
 void App::Render() const
 {
 	g_game->Render();
-	m_perfTrackSystem->Render();
+	g_performanceTracker->Render();
 	DebugRenderScreenTo( g_renderer->GetBackBuffer() );
 	g_devConsole->Render();
 }

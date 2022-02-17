@@ -7,6 +7,7 @@ class InputSystem;
 class AudioSystem;
 class RenderContext;
 class Game;
+class PerformanceTracker;
 class Physics2D;
 class SpriteSheet;
 struct Vec2;
@@ -23,6 +24,7 @@ extern InputSystem* g_inputSystem;
 extern AudioSystem* g_audioSystem;
 extern RenderContext* g_renderer;
 extern Game* g_game;
+extern PerformanceTracker* g_performanceTracker;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -35,7 +37,6 @@ void PopulateGameConfig();
 // Game Constants
 //
 constexpr float CLIENT_ASPECT = 16.f / 9.f;
-constexpr int FRAME_HISTORY_COUNT = 200;
 
 constexpr float SQRT_2_OVER_2 = 0.70710678f;
 

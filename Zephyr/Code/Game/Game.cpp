@@ -68,8 +68,6 @@ void Game::Startup()
 
 	EnableDebugRendering();
 	
-	InitializeFPSHistory();
-
 	m_debugInfoTextBox = new TextBox( *g_renderer, AABB2( Vec2::ZERO, Vec2( 200.f, 80.f ) ) );
 
 	m_rng = new RandomNumberGenerator();
@@ -197,7 +195,6 @@ void Game::Update()
 
 	UpdateCameras();
 	UpdateMousePositions();
-	UpdateFramesPerSecond();
 
 	m_uiSystem->Update();
 }
@@ -285,12 +282,9 @@ void Game::Render() const
 
 	m_dialogueBox->Render();
 
-	RenderFPSCounter();
-
 	g_renderer->EndCamera( *m_uiCamera );
 
 	DebugRenderWorldToCamera( m_worldCamera );
-	DebugRenderScreenTo( g_renderer->GetBackBuffer() );
 }
 
 
@@ -930,18 +924,6 @@ void Game::UpdateCameras()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::InitializeFPSHistory()
-{
-	// Optimistically initialize fps history to 60 fps
-	for ( int i = 0; i < FRAME_HISTORY_COUNT; ++i )
-	{
-		m_fpsHistory[i] = 60.f;
-		m_fpsHistorySum += 60.f;
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::InitializeUI()
 {
 	UIAlignedPositionData infoPos;
@@ -956,78 +938,6 @@ void Game::InitializeUI()
 	posData.positionOffsetFraction = Vec2( 0.f, .05f );
 
 	m_dialogueBox = new DialogueBox( *m_uiSystem, posData );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::UpdateFramesPerSecond()
-{
-	if ( m_gameClock->IsPaused() )
-	{
-		return;
-	}
-
-	float curFPS = 1.f / (float)m_gameClock->GetLastDeltaSeconds();
-
-	if ( curFPS < 0 ) 
-	{ 
-		curFPS = 0; 
-	}
-	else if ( curFPS > 99999.f )
-	{
-		curFPS = 99999.f;
-	}
-
-	m_fpsHistorySum -= m_fpsHistory[m_fpsNextIdx];
-	m_fpsHistory[m_fpsNextIdx] = curFPS;
-	m_fpsHistorySum += curFPS;
-
-	++m_fpsNextIdx;
-	if ( m_fpsNextIdx >= FRAME_HISTORY_COUNT )
-	{
-		m_fpsNextIdx = 0;
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-float Game::GetAverageFPS() const
-{
-	constexpr float oneOverFrameCount = 1.f / (float)FRAME_HISTORY_COUNT;
-
-	return m_fpsHistorySum * oneOverFrameCount;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::RenderFPSCounter() const
-{
-	if ( m_gameClock->IsPaused() )
-	{
-		DebugAddScreenTextf( Vec4( 0.75f, .97f, 0.f, 0.f ), Vec2::ZERO, 15.f, Rgba8::YELLOW, 0.f,
-							 "Game Paused" );
-
-		return;
-	}
-
-	float fps = GetAverageFPS();
-
-	Rgba8 fpsCountercolor = Rgba8::GREEN;
-
-	if ( fps < 30.f )
-	{
-		fpsCountercolor = Rgba8::RED;
-	}
-	if ( fps < 55.f )
-	{
-		fpsCountercolor = Rgba8::YELLOW;
-	}
-
-	float frameTime = (float)m_gameClock->GetLastDeltaSeconds() * 1000.f;
-
-	DebugAddScreenTextf( Vec4( 0.75f, .97f, 0.f, 0.f ), Vec2::ZERO, 15.f, fpsCountercolor, 0.f,
-						 "FPS: %.2f ( %.2f ms/frame )",
-						 fps, frameTime );
 }
 
 

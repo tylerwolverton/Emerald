@@ -388,6 +388,9 @@
     <ClCompile Include="ZephyrCore\ZephyrSystem.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Performance\PerformanceTracker.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -728,5 +731,6 @@
     <ClInclude Include="ZephyrCore\ZephyrUtils.hpp" />
     <ClInclude Include="Core\HashUtils.hpp" />
     <ClInclude Include="ZephyrCore\ZephyrSystem.hpp" />
+    <ClInclude Include="Performance\PerformanceTracker.hpp" />
   </ItemGroup>
 </Project>

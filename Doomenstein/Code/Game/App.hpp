@@ -1,6 +1,5 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
-#include "Game/PerformanceTracker.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -34,5 +33,4 @@ private:
 
 private:
 	bool m_isQuitting = false;
-	PerformanceTracker* m_perfTrackSystem = nullptr;
 };

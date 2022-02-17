@@ -88,9 +88,6 @@
     <ClCompile Include="GameMeshUtils.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="PerformanceTracker.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="LineMap.cpp">
       <Filter>Map</Filter>
     </ClCompile>
@@ -152,9 +149,6 @@
     </ClInclude>
     <ClInclude Include="GameMeshUtils.hpp">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="PerformanceTracker.hpp">
-      <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="LineMap.hpp">
       <Filter>Map</Filter>
