@@ -6,6 +6,7 @@
 #include "Engine/Math/Vec4.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
+#include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
@@ -220,7 +221,7 @@ void ZephyrGameAPI::StartNewTimer( EventArgs* args )
 	// Broadcast event to all takes precedence and broadcasts to all entities
 	if ( broadcastEventToAll )
 	{
-		g_game->StartNewTimer( -1, timerName, durationSeconds, onCompletedEventName, args );
+		g_zephyrSystem->StartNewTimer( -1, timerName, durationSeconds, onCompletedEventName, args );
 		return;
 	}
 	
@@ -230,7 +231,7 @@ void ZephyrGameAPI::StartNewTimer( EventArgs* args )
 		return;
 	}
 
-	g_game->StartNewTimer( entity->GetId(), timerName, durationSeconds, onCompletedEventName, args );
+	g_zephyrSystem->StartNewTimer( entity->GetId(), timerName, durationSeconds, onCompletedEventName, args );
 }
 
 
