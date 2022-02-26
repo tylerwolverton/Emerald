@@ -60,7 +60,7 @@ public:
 
 	Entity*				GetEntityById( EntityId id );
 	Entity*				GetEntityByName( const std::string& name );
-	Entity*				GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
+	Entity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
 
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );
@@ -76,7 +76,7 @@ protected:
 	World*					m_world = nullptr;
 
 	// Multiplayer TODO: Make this into an array
-	Vec2					m_playerStartPos = Vec2::ZERO;
+	Vec3					m_playerStartPos = Vec3::ZERO;
 	float					m_playerStartYaw = 0.f;
 
 	std::vector<Entity*>	m_entities;

@@ -91,6 +91,9 @@
     <ClCompile Include="LineMap.cpp">
       <Filter>Map</Filter>
     </ClCompile>
+    <ClCompile Include="EntityController.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -152,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="LineMap.hpp">
       <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityController.hpp">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

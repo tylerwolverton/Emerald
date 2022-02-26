@@ -242,7 +242,7 @@ void MapData::CreateMapEntityDefFromNode( const XmlElement& entityElem )
 		return;
 	}
 
-	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec2::ZERO );
+	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec3::ZERO );
 	mapEntityDef.yawDegrees = ParseXmlAttribute( entityElem, "yaw", 0.f );
 	
 	const XmlElement* globalVarElem = entityElem.FirstChildElement( "GlobalVar" );

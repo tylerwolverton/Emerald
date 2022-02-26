@@ -263,7 +263,7 @@ Entity* Map::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist )
+Entity* Map::GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist )
 {
 	float maxDistToSearch = maxDist;
 	Entity* closestEntity = nullptr;
@@ -276,10 +276,11 @@ Entity* Map::GetClosestEntityInSector( const Vec2& observerPos, float forwardDeg
 			continue;
 		}
 
-		if ( IsPointInForwardSector2D( entity->GetPosition(), observerPos, forwardDegrees, apertureDegrees, maxDistToSearch ) )
+		// TODO: Do this with a raycast onto physics bounds
+		if ( IsPointInForwardSector2D( entity->GetPosition().XY(), observerPos.XY(), forwardDegrees, apertureDegrees, maxDistToSearch ) )
 		{
 			closestEntity = entity;
-			maxDistToSearch = GetDistance2D( observerPos, entity->GetPosition() );
+			maxDistToSearch = GetDistance2D( observerPos.XY(), entity->GetPosition().XY() );
 		}
 	}
 
@@ -373,7 +374,8 @@ void Map::ResolveCollisionEvents( Entity* entity, Entity* otherEntity )
 	otherArgs.SetValue( "otherEntityName", entity->GetName() );
 	otherArgs.SetValue( "otherEntityType", entity->GetType() );
 
-	if ( DoDiscsOverlap( entity->GetPosition(), entity->GetPhysicsRadius(), otherEntity->GetPosition(), otherEntity->GetPhysicsRadius() ) )
+	// TODO: 3D Physics?
+	if ( DoDiscsOverlap( entity->GetPosition().XY(), entity->GetPhysicsRadius(), otherEntity->GetPosition().XY(), otherEntity->GetPhysicsRadius() ) )
 	{
 		// If entities are already colliding, fire stay
 		if ( entity->m_collidingEntities.count( otherEntity->GetId() ) > 0 )
@@ -428,6 +430,7 @@ void Map::ResolveCollisionEvents( Entity* entity, Entity* otherEntity )
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: 3D positions
 void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
 {
 	// Neither can be moved
@@ -444,6 +447,8 @@ void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
 		return;
 	}
 
+	Vec2 position1 = entity1.GetPosition().XY();
+	Vec2 position2 = entity2.GetPosition().XY();
 	float radius1 = entity1.GetPhysicsRadius();
 	float radius2 = entity2.GetPhysicsRadius();
 
@@ -454,19 +459,19 @@ void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
 		if ( entity1.m_canPush
 			 && entity2.m_canPush )
 		{
-			PushDiscsOutOfEachOtherRelativeToMass2D( entity1.m_position, radius1, entity1.GetMass(), entity2.m_position, radius2, entity2.GetMass() );
+			PushDiscsOutOfEachOtherRelativeToMass2D( position1, radius1, entity1.GetMass(), position2, radius2, entity2.GetMass() );
 		}
 		
 		if ( entity1.m_canPush
 			  && !entity2.m_canPush )
 		{
-			PushDiscOutOfDisc2D( entity2.m_position, radius2, entity1.m_position, radius1 );
+			PushDiscOutOfDisc2D( position2, radius2, position1, radius1 );
 		}
 
 		if ( entity2.m_canPush
 			  && !entity1.m_canPush )
 		{
-			PushDiscOutOfDisc2D( entity1.m_position, radius1, entity2.m_position, radius2 );
+			PushDiscOutOfDisc2D( position1, radius1, position2, radius2 );
 		}
 	}
 
@@ -476,7 +481,7 @@ void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
 	{
 		if ( entity2.m_canPush )
 		{
-			PushDiscOutOfDisc2D( entity1.m_position, radius1, entity2.m_position, radius2 );
+			PushDiscOutOfDisc2D( position1, radius1, position2, radius2 );
 		}
 	}
 
@@ -486,7 +491,10 @@ void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
 	{
 		if ( entity1.m_canPush )
 		{
-			PushDiscOutOfDisc2D( entity2.m_position, radius2, entity1.m_position, radius1 );
+			PushDiscOutOfDisc2D( position2, radius2, position1, radius1 );
 		}
 	}
+
+	entity1.SetPosition( Vec3( position1, 0.f ) );
+	entity2.SetPosition( Vec3( position2, 0.f ) );
 }

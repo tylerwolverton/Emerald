@@ -55,22 +55,22 @@ void Entity::Update( float deltaSeconds )
 		}
 	}
 
-	// vel += acceleration * dt;
-	m_velocity += m_linearAcceleration * deltaSeconds;
-	m_linearAcceleration = Vec2( 0.f, 0.f );
-	// pos += vel * dt;
-	m_position += m_velocity * deltaSeconds;
+	//// vel += acceleration * dt;
+	//m_velocity += m_linearAcceleration * deltaSeconds;
+	//m_linearAcceleration = Vec3::ZERO;
+	//// pos += vel * dt;
+	//m_position += m_velocity * deltaSeconds;
 
-	//update orientation
-	m_orientationDegrees += m_angularVelocity * deltaSeconds;
+	////update orientation
+	//m_orientationDegrees += m_angularVelocity * deltaSeconds;
 
-	ApplyFriction();
+	//ApplyFriction();
 
 	ZephyrEntity::Update( deltaSeconds );
 
 	if ( m_curSpriteAnimSetDef != nullptr )
 	{
-		SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_position, m_orientationDegrees, *g_game->GetWorldCamera() );
+		SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_position.XY(), m_orientationDegrees, *g_game->GetWorldCamera() );
 		int frameIndex = animDef->GetFrameIndexAtTime( m_cumulativeTime );
 
 		m_curSpriteAnimSetDef->FireFrameEvent( frameIndex, this );
@@ -107,16 +107,16 @@ void Entity::Render() const
 	Vec3 corners[4];
 	switch ( m_entityDef.m_billboardStyle )
 	{
-		case eBillboardStyle::CAMERA_FACING_XY:		BillboardSpriteCameraFacingXY( m_position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_OPPOSING_XY:	BillboardSpriteCameraOpposingXY( m_position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_FACING_XYZ:	BillboardSpriteCameraFacingXYZ( m_position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_OPPOSING_XYZ:	BillboardSpriteCameraOpposingXYZ( m_position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
+		case eBillboardStyle::CAMERA_FACING_XY:		BillboardSpriteCameraFacingXY( m_position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_OPPOSING_XY:	BillboardSpriteCameraOpposingXY( m_position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_FACING_XYZ:	BillboardSpriteCameraFacingXYZ( m_position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_OPPOSING_XYZ:	BillboardSpriteCameraOpposingXYZ( m_position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
 		
-		default: BillboardSpriteCameraFacingXY( m_position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
+		default: BillboardSpriteCameraFacingXY( m_position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
 	}
 	
 	// Get UVs for sprite
-	SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_position, m_orientationDegrees, *g_game->GetWorldCamera() );
+	SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_position.XY(), m_orientationDegrees, *g_game->GetWorldCamera() );
 	const SpriteDefinition& spriteDef = animDef->GetSpriteDefAtTime( m_cumulativeTime );
 	
 	Vec2 mins, maxs;
@@ -164,7 +164,7 @@ void Entity::DebugRender() const
 		return;
 	}
 
-	DebugAddWorldWireCylinder( Vec3( m_position, 0.f ), Vec3( m_position, m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
+	DebugAddWorldWireCylinder( m_position, Vec3( m_position.XY(), m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
 }
 
 
@@ -186,7 +186,7 @@ void Entity::RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegr
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::MoveInCircle( const Vec2& center, float radius, float speed )
+void Entity::MoveInCircle( const Vec3& center, float radius, float speed )
 {
 	m_orientationDegrees += speed;
 	if ( m_orientationDegrees > 360.f )
@@ -197,7 +197,7 @@ void Entity::MoveInCircle( const Vec2& center, float radius, float speed )
 	{
 		m_orientationDegrees += 360.f;
 	}
-	m_position = center + Vec2::MakeFromPolarDegrees( m_orientationDegrees, radius );
+	m_position = center + Vec3( Vec2::MakeFromPolarDegrees( m_orientationDegrees, radius ), 0.f );
 }
 
 
@@ -272,7 +272,7 @@ void Entity::ApplyFriction()
 	}
 	else
 	{
-		m_velocity = Vec2( 0.f, 0.f );
+		m_velocity = Vec3::ZERO;
 	}
 }
 

@@ -123,7 +123,8 @@ Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardD
 {
 	if ( m_curMap != nullptr )
 	{
-		return m_curMap->GetClosestEntityInSector( observerPos, forwardDegrees, apertureDegrees, maxDist );
+		// TODO: 3D
+		return m_curMap->GetClosestEntityInSector( Vec3( observerPos, 0.f ), forwardDegrees, apertureDegrees, maxDist );
 	}
 
 	return nullptr;
@@ -133,9 +134,16 @@ Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardD
 //-----------------------------------------------------------------------------------------------
 void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
+	WarpEntityToMap( entityToWarp, destMapName, Vec3( newPos, 0.f ), newYawDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+{
 	if ( entityToWarp == nullptr )
 	{
-		g_devConsole->PrintWarning("Tried to warp null entity");
+		g_devConsole->PrintWarning( "Tried to warp null entity" );
 		return;
 	}
 
@@ -143,7 +151,7 @@ void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapNam
 
 	// TODO: Verify portal target maps exist while loading xml files
 	// Warp to a new map if one is specified and the entity is the player
-	if ( destMap != nullptr 
+	if ( destMap != nullptr
 		 && destMap != m_curMap
 		 && entityToWarp->IsPossessed() )
 	{

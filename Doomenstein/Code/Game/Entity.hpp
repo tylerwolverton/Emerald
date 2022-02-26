@@ -55,8 +55,8 @@ public:
 
 	// Accessors
 	const Vec2			GetForwardVector() const;
-	const Vec2			GetPosition() const										{ return m_position; }
-	void				SetPosition( const Vec2& position )						{ m_position = position; }
+	const Vec3			GetPosition() const										{ return m_position; }
+	void				SetPosition( const Vec3& position )						{ m_position = position; }
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
 	const float			GetHeight() const										{ return m_entityDef.m_height; }
 	const float			GetEyeHeight() const									{ return m_entityDef.m_eyeHeight; }
@@ -74,11 +74,13 @@ public:
 	bool				IsPossessed() const										{ return m_isPossessed; }
 
 	// Physics
-	void				AddVelocity( const Vec2& deltaVelocity )				{ m_velocity += deltaVelocity; }
-	void				Translate( const Vec2& translation )					{ m_position += translation; }
+	void				AddVelocity( const Vec2& deltaVelocity )				{ m_velocity += Vec3( deltaVelocity, 0.f); }
+	void				AddVelocity( const Vec3& deltaVelocity )				{ m_velocity += deltaVelocity; }
+	void				Translate( const Vec2& translation )					{ m_position += Vec3( translation, 0.f ); }
+	void				Translate( const Vec3& translation )					{ m_position += translation; }
 	void				RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees );
 
-	void				MoveInCircle( const Vec2& center, float radius, float speed );
+	void				MoveInCircle( const Vec3& center, float radius, float speed );
 
 	// Pawn possession
 	void				Possess();
@@ -118,9 +120,9 @@ protected:
 	bool							m_isPossessed = false;							
 
 	// Physics
-	Vec2							m_position = Vec2( 0.f, 0.f );					// the Entity's 2D(x, y) Cartesian origin / center location, in world space
-	Vec2							m_velocity = Vec2( 0.f, 0.f );					// the Entity's linear 2D( x, y ) velocity, in world units per second
-	Vec2							m_linearAcceleration = Vec2( 0.f, 0.f );		// the Entity's signed linear acceleration per second per second
+	Vec3							m_position = Vec3::ZERO;						
+	Vec3							m_velocity = Vec3::ZERO;					
+	Vec3							m_linearAcceleration = Vec3::ZERO;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
 	float							m_angularVelocity = 0.f;						// the Entity's signed angular velocity( spin rate ), in degrees per second
 

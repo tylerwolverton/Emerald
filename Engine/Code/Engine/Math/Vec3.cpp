@@ -47,10 +47,26 @@ Vec3::Vec3( const Vec2& copyFrom, float initialZ )
 void Vec3::SetFromText( const char* asText )
 {
 	std::vector<std::string> splitStrings = SplitStringOnDelimiter( asText, ',' );
-	GUARANTEE_OR_DIE( splitStrings.size() == 3, Stringf( "Vec3 can't construct from improper string \"%s\"", asText ) );
-	x = (float)atof( splitStrings[0].c_str() );
-	y = (float)atof( splitStrings[1].c_str() );
-	z = (float)atof( splitStrings[2].c_str() );
+	GUARANTEE_OR_DIE( splitStrings.size() > 0 && splitStrings.size() < 4, Stringf( "Vec3 can't construct from improper string \"%s\"", asText ) );
+	// Support partial vec definitions, 1 value means all components the same, 2 means use 0 for z
+	if ( splitStrings.size() == 1 )
+	{
+		x = (float)atof( splitStrings[0].c_str() );
+		y = x;
+		z = x;
+	}
+	else if ( splitStrings.size() == 2 )
+	{
+		x = (float)atof( splitStrings[0].c_str() );
+		y = (float)atof( splitStrings[1].c_str() );
+		z = 0.f;
+	}
+	else if ( splitStrings.size() == 3 )
+	{
+		x = (float)atof( splitStrings[0].c_str() );
+		y = (float)atof( splitStrings[1].c_str() );
+		z = (float)atof( splitStrings[2].c_str() );
+	}
 }
 
 

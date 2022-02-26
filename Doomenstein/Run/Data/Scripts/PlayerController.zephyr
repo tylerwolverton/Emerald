@@ -1,0 +1,29 @@
+Function OnSpawn()
+{
+}
+
+
+Function OnPossess()
+{
+    RegisterKeyEvent( key: "E", event: "Interact" )
+    ChangeState( Possessing )
+}
+
+
+Function OnUnPossess()
+{
+    UnRegisterKeyEvent( key: "E", event: "Interact" )
+    ChangeState( DebugCamera )
+}
+
+
+State DebugCamera
+{
+
+}
+
+
+State Possessing
+{
+
+}

@@ -346,7 +346,7 @@ void Game::UpdateCameraTransformToMatchPlayer()
 		float pitchDegrees = mousePosition.y * s_mouseSensitivityMultiplier;
 		pitchDegrees *= .009f;
 
-		m_worldCamera->SetPosition( Vec3( m_player->GetPosition(), m_player->GetEyeHeight() ) );
+		m_worldCamera->SetPosition( m_player->GetPosition() + Vec3(0.f, 0.f, m_player->GetEyeHeight() ) );
 		m_worldCamera->SetYawOrientationDegrees( m_player->GetOrientationDegrees() );
 		m_worldCamera->RotateYawPitchRoll( 0.f, pitchDegrees, 0.f );
 	}
@@ -393,7 +393,7 @@ void Game::PossesNearestEntity()
 		return;
 	}
 
-	if ( GetDistance3D( cameraTransform.GetPosition(), Vec3( entity->GetPosition(), entity->GetHeight() * .5f ) ) < 2.f )
+	if ( GetDistance3D( cameraTransform.GetPosition(), entity->GetPosition() + Vec3( 0.f, 0.f, entity->GetHeight() * .5f ) ) < 2.f )
 	{
 		m_player = m_world->GetClosestEntityInSector( cameraTransform.GetPosition().XY(), cameraTransform.GetYawDegrees(), 90.f, 2.f );
 		m_worldCamera->SetPitchRollYawOrientationDegrees( 0.f, 0.f, m_player->GetOrientationDegrees() );
@@ -1011,8 +1011,15 @@ void Game::AddScreenShakeIntensity(float intensity)
 //-----------------------------------------------------------------------------------------------
 void Game::SetCameraPositionAndYaw( const Vec2& pos, float yaw )
 {
+	SetCameraPositionAndYaw( Vec3( pos, 0.5f ), yaw );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::SetCameraPositionAndYaw( const Vec3& pos, float yaw )
+{
 	Transform newTransform = m_worldCamera->GetTransform();
-	newTransform.SetPosition( Vec3( pos, 0.5f ) );
+	newTransform.SetPosition( pos );
 	newTransform.SetOrientationFromPitchRollYawDegrees( 0.f, 0.f, yaw );
 
 	m_worldCamera->SetTransform( newTransform );
@@ -1021,6 +1028,13 @@ void Game::SetCameraPositionAndYaw( const Vec2& pos, float yaw )
 
 //-----------------------------------------------------------------------------------------------
 void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+{
+	WarpToMap( entityToWarp, destMapName, Vec3( newPos, .5f ), newYawDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	// No entity specified, just load the new map and set camera position and orientation
 	if ( entityToWarp == nullptr )
@@ -1041,6 +1055,13 @@ void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, cons
 
 //-----------------------------------------------------------------------------------------------
 void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+{
+	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
 }

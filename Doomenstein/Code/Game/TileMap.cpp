@@ -417,7 +417,8 @@ RaycastResult TileMap::RaycastAgainstEntities( const Vec3& startPos, const Vec3&
 			}
 
 			// Check if sample is inside entity
-			if ( !IsPointInsideDisc( samplePos.XY(), entity->GetPosition(), entity->GetPhysicsRadius() ) )
+			// TODO: 3D physics?
+			if ( !IsPointInsideDisc( samplePos.XY(), entity->GetPosition().XY(), entity->GetPhysicsRadius() ) )
 			{
 				continue;
 			}
@@ -442,7 +443,7 @@ RaycastResult TileMap::RaycastAgainstEntities( const Vec3& startPos, const Vec3&
 			}
 			else
 			{
-				result.impactSurfaceNormal = ( samplePos - Vec3( entity->GetPosition(), samplePos.z ) ).GetNormalized();
+				result.impactSurfaceNormal = ( samplePos - Vec3( entity->GetPosition().XY(), samplePos.z ) ).GetNormalized();
 			}
 
 			return result;
@@ -478,7 +479,7 @@ RaycastResult TileMap::RaycastAgainstEntitiesFast( const Vec3& startPos, const V
 		Vec2 jBasis = iBasis.GetRotated90Degrees();
 
 		// Project disc into forward vector's space
-		Vec2 displacementFromStartToCenterOfDisc = entity->m_position - startPos.XY();
+		Vec2 displacementFromStartToCenterOfDisc = entity->m_position.XY() - startPos.XY();
 		Vec2 posOfCircleCenterAlongRay( DotProduct2D( iBasis, displacementFromStartToCenterOfDisc ), DotProduct2D( jBasis, displacementFromStartToCenterOfDisc ) );
 
 		// TODO: Account for y out of reasonable area also
@@ -546,6 +547,7 @@ RaycastResult TileMap::RaycastAgainstEntitiesFast( const Vec3& startPos, const V
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: 3D raycasts
 bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& potentialImpactPos, const Entity& entity ) const
 {
 	Vec3 impactPos = potentialImpactPos;
@@ -557,7 +559,7 @@ bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& 
 		 && impactPos.z < entity.GetHeight() )
 	{
 		raycastResult.impactPos = impactPos;
-		raycastResult.impactSurfaceNormal = ( impactPos - Vec3( entity.GetPosition(), impactPos.z ) ).GetNormalized();
+		raycastResult.impactSurfaceNormal = ( impactPos - ( entity.GetPosition() + Vec3( 0.f, 0.f, impactPos.z ) ) ).GetNormalized();
 
 		return true;
 	}
@@ -568,7 +570,7 @@ bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& 
 
 		if ( rayAgainstTop.didImpact )
 		{
-			if ( IsPointInsideDiscFast( rayAgainstTop.impactPos.XY(), entity.GetPosition(), entity.GetPhysicsRadius() ) )
+			if ( IsPointInsideDiscFast( rayAgainstTop.impactPos.XY(), entity.GetPosition().XY(), entity.GetPhysicsRadius() ) )
 			{
 				raycastResult.impactPos = rayAgainstTop.impactPos;
 				raycastResult.impactSurfaceNormal = Vec3( 0.f, 0.f, 1.f );
@@ -583,7 +585,7 @@ bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& 
 		RaycastResult rayAgainstBottom = RaycastAgainstZPlane( raycastResult.startPos, raycastResult.forwardNormal, raycastResult.maxDist, 0.f );
 		if ( rayAgainstBottom.didImpact )
 		{
-			if ( IsPointInsideDiscFast( rayAgainstBottom.impactPos.XY(), entity.GetPosition(), entity.GetPhysicsRadius() ) )
+			if ( IsPointInsideDiscFast( rayAgainstBottom.impactPos.XY(), entity.GetPosition().XY(), entity.GetPhysicsRadius() ) )
 			{
 				raycastResult.impactPos = rayAgainstBottom.impactPos;
 				raycastResult.impactSurfaceNormal = Vec3( 0.f, 0.f, -1.f );
@@ -654,7 +656,7 @@ void TileMap::ResolveEntityVsWallCollisions()
 //-----------------------------------------------------------------------------------------------
 void TileMap::ResolveEntityVsWallCollision( Entity& entity )
 {
-	const Tile* entityTile = GetTileFromWorldCoords( entity.GetPosition() );
+	const Tile* entityTile = GetTileFromWorldCoords( entity.GetPosition().XY() );
 	if ( entityTile == nullptr )
 	{
 		return;
@@ -668,7 +670,9 @@ void TileMap::ResolveEntityVsWallCollision( Entity& entity )
 			 && g_physicsConfig->DoLayersInteract( tile->GetCollisionLayer(), entity.GetCollisionLayer() )
 			 && tile->IsSolid() )
 		{
-			PushDiscOutOfAABB2D( entity.m_position, entity.GetPhysicsRadius(), tile->GetBounds() );
+			Vec2 position = entity.m_position.XY();
+			PushDiscOutOfAABB2D( position, entity.GetPhysicsRadius(), tile->GetBounds() );
+			entity.SetPosition( Vec3( position, 0.f ) );
 		}
 	}
 }

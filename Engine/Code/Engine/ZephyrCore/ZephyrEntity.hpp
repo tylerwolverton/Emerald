@@ -40,7 +40,7 @@ public:
 	void						SetScriptObjectValidity( bool isValid );
 	std::string					GetScriptName() const;
 
-	virtual const Vec2			GetPosition() const = 0;
+	virtual const Vec3			GetPosition() const = 0;
 
 	virtual EntityId			GetId() const											{ return m_id; }
 	virtual std::string			GetName() const											{ return m_name; }

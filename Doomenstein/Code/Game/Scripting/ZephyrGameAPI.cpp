@@ -99,7 +99,7 @@ void ZephyrGameAPI::WarpToMap( EventArgs* args )
 		return;
 	}
 
-	Vec2 newPosition = args->GetValue( "position", targetEntity->GetPosition() );
+	Vec3 newPosition = args->GetValue( "position", targetEntity->GetPosition() );
 	float newYawOffset = args->GetValue( "yawOffset", targetEntity->GetOrientationDegrees() );
 	std::string destMap = args->GetValue( "map", "" );
 
@@ -147,7 +147,7 @@ void ZephyrGameAPI::MoveInCircle( EventArgs* args )
 
 	float speed = args->GetValue( "speed", .5f );
 	float radius = args->GetValue( "radius", .5f );
-	Vec2 center = args->GetValue( "center", targetEntity->GetPosition() );
+	Vec3 center = args->GetValue( "center", targetEntity->GetPosition() );
 
 	targetEntity->MoveInCircle( center, radius, speed );
 }
@@ -292,7 +292,7 @@ void ZephyrGameAPI::PrintDebugText( EventArgs* args )
 
 	if ( entity != nullptr )
 	{
-		textLocation.SetTranslation2D( entity->GetPosition() );
+		textLocation.SetTranslation2D( entity->GetPosition().XY() );
 	}
 	
 	DebugAddWorldText( textLocation, Vec2::HALF, color, color, duration, .1f, eDebugRenderMode::DEBUG_RENDER_ALWAYS, text.c_str() );

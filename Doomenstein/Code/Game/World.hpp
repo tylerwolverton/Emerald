@@ -8,6 +8,7 @@
 
 //-----------------------------------------------------------------------------------------------
 struct Vec2;
+struct Vec3;
 class Clock;
 class Entity;
 class EntityDefinition;
@@ -35,6 +36,7 @@ public:
 	Entity* GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
 
 	void WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees );
 	bool IsMapLoaded( const std::string& mapName );
 
 	// Entity access

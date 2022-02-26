@@ -21,7 +21,7 @@ struct MapEntityDefinition
 {
 	EntityDefinition* entityDef = nullptr;
 	std::string name;
-	Vec2 position = Vec2::ZERO;
+	Vec3 position = Vec3::ZERO;
 	float yawDegrees = 0.f;
 
 	ZephyrValueMap zephyrScriptInitialValues;
@@ -43,7 +43,7 @@ public:
 	std::vector<MapRegionTypeDefinition*> regionTypeDefs;	// TileMap
 
 	// Multiplayer TODO: Make this into an array
-	Vec2 playerStartPos = Vec2::ZERO;
+	Vec3 playerStartPos = Vec3::ZERO;
 	float playerStartYaw = 0.f;
 
 public:

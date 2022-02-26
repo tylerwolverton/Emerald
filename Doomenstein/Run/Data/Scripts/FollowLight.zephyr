@@ -1,5 +1,5 @@
 Entity target = null
-Vec2 rotationCenter = Vec2( 0,0 )
+Vec3 rotationCenter = Vec3( 0,0,0 )
 
 State Loop
 {
