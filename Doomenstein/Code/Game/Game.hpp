@@ -7,6 +7,8 @@
 #include "Engine/Time/Timer.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Game/GameCommon.hpp"
+#include "Game/GameCamera.hpp"
+#include "Game/EntityController.hpp"
 
 #include <string>
 #include <vector>
@@ -56,7 +58,7 @@ public:
 	void			RestartGame();
 	
 	const Vec2		GetMouseWorldPosition()														{ return m_mouseWorldPosition; }
-	const Camera*	GetWorldCamera()															{ return m_worldCamera; }
+	const Camera*	GetWorldCamera()															{ return m_playerController->GetCurrentWorldCamera()->GetEngineCamera(); }
 	Clock*			GetGameClock()																{ return m_gameClock; }
 
 	void			AddScreenShakeIntensity( float additionalIntensityFraction );
@@ -120,16 +122,14 @@ private:
 	void UpdateCameras();
 	void TranslateCameraFPS( const Vec3& relativeTranslation );
 	void SetLightDirectionToCamera( Light& light );
-
-	void PossesNearestEntity();
-	
+		
 	// Events
 	void WarpMapCommand( EventArgs* args );
 
 private:
 	Clock* m_gameClock = nullptr;
 
-	Entity* m_player = nullptr;
+	EntityController* m_playerController = nullptr;
 
 	eGameState m_gameState = eGameState::LOADING;
 	bool m_isDebugRendering = false;
@@ -144,7 +144,6 @@ private:
 
 	float m_screenShakeIntensity = 0.f;
 
-	Camera* m_worldCamera = nullptr;
 	Camera* m_uiCamera = nullptr;
 
 	World* m_world = nullptr;

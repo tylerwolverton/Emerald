@@ -1,28 +1,44 @@
 #pragma once
 #include "Engine/ZephyrCore/ZephyrEntity.hpp"
-#include "Engine/Renderer/Camera.hpp"
+#include "Game/GameCamera.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-class Entity;
 struct Vec3;
+class Entity;
+class World;
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityController : ZephyrEntity
+class EntityController //: ZephyrEntity
 {
 public:
-	EntityController() = default;
-	~EntityController() = default;
+	EntityController();
+	~EntityController();
 
+	GameCamera* GetCurrentWorldCamera() const								{ return m_currentWorldCamera; }
+	const Transform GetTransform() const;
+	const Vec3	GetPosition() const;
+	const float	GetYawDegrees() const;
+	const Vec3	GetForwardVector() const;
+
+	void PushCamera( const GameCameraSettings& cameraSettings );
+	void PopCamera();
+
+	bool IsPossessing() const											{ return m_possessedEntity != nullptr; }
+	Entity* GetPossessedEntity() const									{ return m_possessedEntity; }
+	void PossessNearestEntity( const World& world );
+	void Unpossess();
 	// ZephyrEntity overrides
-	virtual const Vec3	GetPosition() const override		{ m_worldCamera.GetTransform().GetPosition(); }
-	virtual bool		IsDead() const override				{ return false; }
-
-	// 
+	//virtual const Vec3	GetPosition() const override;
+	//virtual bool			IsDead() const override							{ return false; }
+	//virtual void			AddGameEventParams( EventArgs* args ) const		{ UNUSED( args ); }
 
 private:
 	// EntityController will exist at camera location
-	Camera m_worldCamera;
+	std::vector<GameCamera*> m_gameCameras;
+	int m_gameCameraStackTop = 0;
+	GameCamera* m_currentWorldCamera = nullptr;
+	GameCamera* m_debugCamera = nullptr;
 	Entity* m_possessedEntity = nullptr;
 };

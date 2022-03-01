@@ -197,7 +197,10 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityController.cpp" />
     <ClCompile Include="EntityDefinition.cpp" />
+    <ClCompile Include="FPSCamera.cpp" />
+    <ClCompile Include="FreeCamera.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="GameCommon.cpp" />
     <ClCompile Include="GameJobs.cpp" />
     <ClCompile Include="GameMeshUtils.cpp" />
@@ -221,7 +224,10 @@
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="EntityController.hpp" />
     <ClInclude Include="EntityDefinition.hpp" />
+    <ClInclude Include="FPSCamera.hpp" />
+    <ClInclude Include="FreeCamera.hpp" />
     <ClInclude Include="Game.hpp" />
+    <ClInclude Include="GameCamera.hpp" />
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="GameJobs.hpp" />
     <ClInclude Include="GameMeshUtils.hpp" />

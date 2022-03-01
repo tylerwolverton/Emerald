@@ -42,6 +42,7 @@
 #include "Engine/ZephyrCore/ZephyrUtils.hpp"
 
 #include "Game/Entity.hpp"
+#include "Game/EntityController.hpp"
 #include "Game/PhysicsConfig.hpp"
 #include "Game/GameJobs.hpp"
 #include "Game/MapData.hpp"
@@ -93,6 +94,8 @@ void Game::Startup()
 
 	InitializeCameras();
 	
+	m_playerController = new EntityController();
+
 	m_uiSystem = new UISystem();
 	m_uiSystem->Startup( g_window, g_renderer );
 
@@ -112,17 +115,6 @@ void Game::Startup()
 //-----------------------------------------------------------------------------------------------
 void Game::InitializeCameras()
 {
-	m_worldCamera = new Camera();
-	Texture* depthTexture = g_renderer->GetOrCreateDepthStencil( g_renderer->GetDefaultBackBufferSize() );
-	m_worldCamera->SetDepthStencilTarget( depthTexture );
-
-	m_worldCamera->SetOutputSize( Vec2( 16.f, 9.f ) );
-	m_worldCamera->SetProjectionPerspective( 60.f, -.05f, -100.f );
-	m_worldCamera->Translate( Vec3( 0.f, 0.f, .5f ) );
-
-	Rgba8 backgroundColor( 10, 10, 10, 255 );
-	m_worldCamera->SetClearMode( CLEAR_COLOR_BIT | CLEAR_DEPTH_BIT, backgroundColor );
-
 	Vec2 windowDimensions = g_window->GetDimensions();
 
 	m_uiCamera = new Camera();
@@ -160,10 +152,10 @@ void Game::Shutdown()
 	m_uiSystem->Shutdown();
 
 	// Clean up member variables
+	PTR_SAFE_DELETE( m_playerController );
 	PTR_SAFE_DELETE( m_world );
 	PTR_SAFE_DELETE( m_gameClock );
 	PTR_SAFE_DELETE( m_rng );
-	PTR_SAFE_DELETE( m_worldCamera );
 	PTR_SAFE_DELETE( m_uiCamera );
 }
 
@@ -213,14 +205,13 @@ void Game::UpdateFromKeyboard()
 
 	if ( g_inputSystem->WasKeyJustPressed( KEY_F3 ) )
 	{
-		if ( m_player == nullptr )
+		if ( !m_playerController->IsPossessing() )
 		{
-			PossesNearestEntity();
+			m_playerController->PossessNearestEntity( *m_world );
 		}
 		else
 		{
-			m_player->Unpossess();
-			m_player = nullptr;
+			m_playerController->Unpossess();
 		}
 	}
 
@@ -247,12 +238,13 @@ void Game::LoadStartingMap( const std::string& mapName )
 
 	m_world->ChangeMap( mapName );
 
-	if ( m_player != nullptr )
+	if ( m_playerController->IsPossessing() )
 	{
-		m_player->FireSpawnEvent();
+		m_playerController->GetPossessedEntity()->FireSpawnEvent();
 	}
 
-	m_world->CallAllZephyrSpawnEvents( m_player );
+	// TODO: Double check how this works
+	m_world->CallAllZephyrSpawnEvents( m_playerController->GetPossessedEntity() );
 }
 
 
@@ -280,7 +272,7 @@ void Game::UpdateMovementFromKeyboard()
 		movementTranslation.x -= 1.f;
 	}
 
-	if ( m_player == nullptr )
+	if ( !m_playerController->IsPossessing() )
 	{
 		if ( g_inputSystem->IsKeyPressed( 'E' ) )
 		{
@@ -308,27 +300,27 @@ void Game::UpdateMovementFromKeyboard()
 	float deltaSeconds = (float)m_gameClock->GetLastDeltaSeconds();
 
 	// An entity is possessed
-	if ( m_player != nullptr )
+	if ( m_playerController->IsPossessing() )
 	{
 		// Rotation (only consider yaw so the forward vector is always in XY space)
-		m_player->SetOrientationDegrees( m_player->GetOrientationDegrees() + yawDegrees );
+		m_playerController->GetPossessedEntity()->SetOrientationDegrees( m_playerController->GetPossessedEntity()->GetOrientationDegrees() + yawDegrees );
 
-		Vec2 forwardVec = m_player->GetForwardVector();
+		Vec2 forwardVec = m_playerController->GetPossessedEntity()->GetForwardVector();
 		Vec2 rightVec = forwardVec.GetRotatedMinus90Degrees();
 
 		Vec2 translationXY( movementTranslation.x * forwardVec
 							+ movementTranslation.y * rightVec );
 
-		translationXY *= m_player->GetWalkSpeed();
+		translationXY *= m_playerController->GetPossessedEntity()->GetWalkSpeed();
 
 		//m_player->AddVelocity( translationXY );
-		m_player->Translate( translationXY * deltaSeconds );
+		m_playerController->GetPossessedEntity()->Translate( translationXY * deltaSeconds );
 	}
 	// No entity possessed, move the camera directly
 	else
 	{
-		Transform transform = m_worldCamera->GetTransform();
-		m_worldCamera->RotateYawPitchRoll( yawDegrees, pitchDegrees, 0.f );
+		Transform transform = m_playerController->GetTransform();
+		m_playerController->GetCurrentWorldCamera()->RotateYawPitchRoll( yawDegrees, pitchDegrees, 0.f );
 
 		// Translation
 		TranslateCameraFPS( movementTranslation * deltaSeconds );
@@ -339,16 +331,16 @@ void Game::UpdateMovementFromKeyboard()
 //-----------------------------------------------------------------------------------------------
 void Game::UpdateCameraTransformToMatchPlayer()
 {
-	if ( m_player != nullptr )
+	if ( m_playerController->IsPossessing() )
 	{
 		// Rotation
 		Vec2 mousePosition = g_inputSystem->GetMouseDeltaPosition();
 		float pitchDegrees = mousePosition.y * s_mouseSensitivityMultiplier;
 		pitchDegrees *= .009f;
 
-		m_worldCamera->SetPosition( m_player->GetPosition() + Vec3(0.f, 0.f, m_player->GetEyeHeight() ) );
-		m_worldCamera->SetYawOrientationDegrees( m_player->GetOrientationDegrees() );
-		m_worldCamera->RotateYawPitchRoll( 0.f, pitchDegrees, 0.f );
+		m_playerController->GetCurrentWorldCamera()->SetPosition( m_playerController->GetPossessedEntity()->GetPosition() + Vec3(0.f, 0.f, m_playerController->GetPossessedEntity()->GetEyeHeight() ) );
+		m_playerController->GetCurrentWorldCamera()->SetYawOrientationDegrees( m_playerController->GetPossessedEntity()->GetOrientationDegrees() );
+		m_playerController->GetCurrentWorldCamera()->RotateYawPitchRoll( 0.f, pitchDegrees, 0.f );
 	}
 }
 
@@ -363,7 +355,7 @@ void Game::UpdateCameras()
 //-----------------------------------------------------------------------------------------------
 void Game::TranslateCameraFPS( const Vec3& relativeTranslation )
 {
-	Vec2 forwardVec = Vec2::MakeFromPolarDegrees( m_worldCamera->GetTransform().GetYawDegrees() );
+	Vec2 forwardVec = Vec2::MakeFromPolarDegrees( m_playerController->GetYawDegrees() );
 	Vec2 rightVec = forwardVec.GetRotatedMinus90Degrees();
 
 	Vec2 translationXY( relativeTranslation.x * forwardVec  
@@ -371,35 +363,14 @@ void Game::TranslateCameraFPS( const Vec3& relativeTranslation )
 	
 	Vec3 absoluteTranslation( translationXY, relativeTranslation.z );
 
-	m_worldCamera->Translate( absoluteTranslation );
+	m_playerController->GetCurrentWorldCamera()->Translate( absoluteTranslation );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Game::SetLightDirectionToCamera( Light& light )
 {
-	light.direction = m_worldCamera->GetTransform().GetForwardVector();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::PossesNearestEntity()
-{
-	Transform cameraTransform = m_worldCamera->GetTransform();
-
-	Entity* entity = m_world->GetClosestEntityInSector( cameraTransform.GetPosition().XY(), cameraTransform.GetYawDegrees(), 90.f, 2.f );
-	if ( entity == nullptr )
-	{
-		return;
-	}
-
-	if ( GetDistance3D( cameraTransform.GetPosition(), entity->GetPosition() + Vec3( 0.f, 0.f, entity->GetHeight() * .5f ) ) < 2.f )
-	{
-		m_player = m_world->GetClosestEntityInSector( cameraTransform.GetPosition().XY(), cameraTransform.GetYawDegrees(), 90.f, 2.f );
-		m_worldCamera->SetPitchRollYawOrientationDegrees( 0.f, 0.f, m_player->GetOrientationDegrees() );
-
-		m_player->Possess();
-	}
+	light.direction = m_playerController->GetForwardVector();
 }
 
 
@@ -409,9 +380,9 @@ void Game::Render() const
 	Texture* backbuffer = g_renderer->GetBackBuffer();
 	Texture* colorTarget = g_renderer->AcquireRenderTargetMatching( backbuffer );
 
-	m_worldCamera->SetColorTarget( 0, colorTarget );
+	m_playerController->GetCurrentWorldCamera()->SetColorTarget( 0, colorTarget );
 
-	g_renderer->BeginCamera( *m_worldCamera );
+	m_playerController->GetCurrentWorldCamera()->BeginCamera();
 
 	g_renderer->SetDepthTest( eCompareFunc::COMPARISON_LESS_EQUAL, true );
 
@@ -426,11 +397,11 @@ void Game::Render() const
 
 	m_world->Render();
 	
-	g_renderer->EndCamera( *m_worldCamera );
+	m_playerController->GetCurrentWorldCamera()->EndCamera();
 
 	// Copy rendered data to backbuffer and set on camera
 	g_renderer->CopyTexture( backbuffer, colorTarget );
-	m_worldCamera->SetColorTarget( backbuffer );
+	m_playerController->GetCurrentWorldCamera()->SetColorTarget( backbuffer );
 
 	g_renderer->ReleaseRenderTarget( colorTarget );
 
@@ -440,7 +411,7 @@ void Game::Render() const
 		DebugRender();
 	}
 
-	DebugRenderWorldToCamera( m_worldCamera );
+	m_playerController->GetCurrentWorldCamera()->DebugRenderWorld();
 
 	m_uiCamera->SetColorTarget( 0, backbuffer );
 	g_renderer->BeginCamera( *m_uiCamera );
@@ -462,7 +433,7 @@ void Game::DebugRender() const
 
 	DebugAddWorldBasis( Mat44::IDENTITY, 0.f, DEBUG_RENDER_ALWAYS );
 
-	Mat44 compassMatrix = Mat44::CreateTranslation3D( m_worldCamera->GetTransform().GetPosition() + .1f * m_worldCamera->GetTransform().GetForwardVector() );
+	Mat44 compassMatrix = Mat44::CreateTranslation3D( m_playerController->GetPosition() + .1f * m_playerController->GetForwardVector() );
 	DebugAddWorldBasis( compassMatrix, .01f, 0.f, Rgba8::WHITE, Rgba8::WHITE, DEBUG_RENDER_ALWAYS );
 
 	m_world->DebugRender();
@@ -473,7 +444,7 @@ void Game::DebugRender() const
 void Game::RenderDebugUI() const
 {
 	// Camera position and orientation
-	Transform cameraTransform = m_worldCamera->GetTransform();
+	Transform cameraTransform = m_playerController->GetTransform();
 
 	std::string cameraOrientationStr = Stringf( "Yaw: %.2f, Pitch: %.2f, Roll: %.2f",
 												cameraTransform.GetYawDegrees(),
@@ -945,7 +916,7 @@ void Game::ReloadGame()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
-	m_player = nullptr;
+	m_playerController->Unpossess();
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
 	PTR_MAP_SAFE_DELETE( EntityDefinition::s_definitions );
@@ -1018,11 +989,11 @@ void Game::SetCameraPositionAndYaw( const Vec2& pos, float yaw )
 //-----------------------------------------------------------------------------------------------
 void Game::SetCameraPositionAndYaw( const Vec3& pos, float yaw )
 {
-	Transform newTransform = m_worldCamera->GetTransform();
+	Transform newTransform = m_playerController->GetTransform();
 	newTransform.SetPosition( pos );
 	newTransform.SetOrientationFromPitchRollYawDegrees( 0.f, 0.f, yaw );
 
-	m_worldCamera->SetTransform( newTransform );
+	m_playerController->GetCurrentWorldCamera()->SetTransform( newTransform );
 }
 
 
@@ -1099,8 +1070,8 @@ void Game::WarpMapCommand( EventArgs* args )
 		m_world->ChangeMap( mapStr );
 	}
 
-	Vec2 newPos = args->GetValue( "pos", m_worldCamera->GetTransform().GetPosition().XY() );
-	float newYawDegrees = args->GetValue( "yaw", m_worldCamera->GetTransform().GetYawDegrees() );
+	Vec2 newPos = args->GetValue( "pos", m_playerController->GetPosition().XY() );
+	float newYawDegrees = args->GetValue( "yaw", m_playerController->GetYawDegrees() );
 
 	SetCameraPositionAndYaw( newPos, newYawDegrees );
 }

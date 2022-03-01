@@ -1,5 +1,9 @@
 <EntityTypes>
   ​
+  <Entity name="PlayerController">    
+    <Script name="PlayerController.zephyr"/>
+  </Entity>
+
   <Entity name="Marine">
     <Physics radius="0.18" height="0.62" eyeHeight="0.58" walkSpeed="1.0" 
              collisionLayer="entity" canPush="true" canBePushed="true" />

@@ -119,7 +119,7 @@ Map* World::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist )
+Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist ) const
 {
 	if ( m_curMap != nullptr )
 	{
