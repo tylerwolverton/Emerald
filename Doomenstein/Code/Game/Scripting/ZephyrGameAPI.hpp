@@ -46,6 +46,7 @@ private:
 	void RotateEntity( EventArgs* args );
 	void MoveInCircle( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
+	void MoveInRelativeDirection( EventArgs* args );
 
 	// Input
 	void RegisterKeyEvent( EventArgs* args );

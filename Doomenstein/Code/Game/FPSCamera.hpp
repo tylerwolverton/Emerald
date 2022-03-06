@@ -12,5 +12,5 @@ public:
 	FPSCamera( const GameCameraSettings& gameCameraSettings );
 	virtual ~FPSCamera() = default;
 
-	virtual void Update( Entity* target = nullptr ) override;
+	virtual void UpdateTranslation( Entity* target = nullptr ) override;
 };

@@ -16,7 +16,8 @@ public:
 	EntityController();
 	~EntityController();
 
-	void Update();
+	void UpdateRotation();
+	void UpdateTranslation();
 
 	GameCamera* GetCurrentWorldCamera() const								{ return m_currentWorldCamera; }
 	const Transform GetTransform() const;

@@ -1,29 +1,30 @@
-Function MoveUp()
+// TODO: Forward, right, etc? Maybe specify vector
+Function MoveForward()
 {
-    MoveInDirection( direction: Vec3( 0, 1, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 1, 0, 0 ) )
 }
 
-Function MoveDown()
+Function MoveBackward()
 {
-    MoveInDirection( direction: Vec3( 0, -1, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( -1, 0, 0 ) )
 }
 
 Function MoveLeft()
 {
-    MoveInDirection( direction: Vec3( -1, 0, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, -1, 0 ) )
 }
 
 Function MoveRight()
 {
-    MoveInDirection( direction: Vec3( 1, 0, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, 1, 0 ) )
 }
 
 
 Function OnPossess()
 {
-    RegisterKeyEvent( key: "W", event: "MoveUp" )
+    RegisterKeyEvent( key: "W", event: "MoveForward" )
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
-    RegisterKeyEvent( key: "S", event: "MoveDown" )
+    RegisterKeyEvent( key: "S", event: "MoveBackward" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
 
     PushCamera( type: "fps", fovDegrees: 60 )
@@ -34,9 +35,9 @@ Function OnPossess()
 
 Function OnUnPossess()
 {
-    UnRegisterKeyEvent( key: "W", event: "MoveUp" )
+    UnRegisterKeyEvent( key: "W", event: "MoveForward" )
     UnRegisterKeyEvent( key: "A", event: "MoveLeft" )
-    UnRegisterKeyEvent( key: "S", event: "MoveDown" )
+    UnRegisterKeyEvent( key: "S", event: "MoveBackward" )
     UnRegisterKeyEvent( key: "D", event: "MoveRight" )
 
     PopCamera()

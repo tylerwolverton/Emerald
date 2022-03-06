@@ -39,7 +39,7 @@ public:
 	void BeginCamera();
 	void EndCamera();
 	void DebugRenderWorld();
-	virtual void Update( Entity* target = nullptr ) = 0;
+	virtual void UpdateTranslation( Entity* target = nullptr ) = 0;
 
 	// Wrappers for engine camera
 	const Transform GetTransform() const																{ return m_engineCamera->GetTransform(); }

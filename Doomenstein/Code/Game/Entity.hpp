@@ -55,6 +55,7 @@ public:
 
 	// Accessors
 	const Vec2			GetForwardVector() const;
+	const Vec2			GetRightVector() const;
 	const Vec3			GetPosition() const										{ return m_position; }
 	void				SetPosition( const Vec3& position )						{ m_position = position; }
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
@@ -82,6 +83,7 @@ public:
 
 	void				MoveInCircle( const Vec3& center, float radius, float speed );
 	void				MoveInDirection( float speed, const Vec3& direction );
+	void				MoveInRelativeDirection( float speed, const Vec3& direction );
 
 	// Pawn possession
 	void				Possess();

@@ -177,6 +177,13 @@ const Vec2 Entity::GetForwardVector() const
 
 
 //-----------------------------------------------------------------------------------------------
+const Vec2 Entity::GetRightVector() const
+{
+	return GetForwardVector().GetRotatedMinus90Degrees();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Entity::RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees )
 {
 	UNUSED( pitchDegrees );
@@ -205,7 +212,17 @@ void Entity::MoveInCircle( const Vec3& center, float radius, float speed )
 //-----------------------------------------------------------------------------------------------
 void Entity::MoveInDirection( float speed, const Vec3& direction )
 {
-	Translate( direction * speed * g_game->GetGameClock()->GetLastDeltaSeconds() );
+	Translate( direction * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::MoveInRelativeDirection( float speed, const Vec3& direction )
+{
+	Vec2 translationVector( direction.x * GetForwardVector()
+							+ direction.y * GetRightVector() );
+
+	Translate( translationVector * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
 }
 
 

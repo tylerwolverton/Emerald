@@ -14,16 +14,29 @@ FreeCamera::FreeCamera( const GameCameraSettings& gameCameraSettings )
 
 
 //-----------------------------------------------------------------------------------------------
-void FreeCamera::Update( Entity* target )
+void FreeCamera::UpdateTranslation( Entity* target )
 {
 	UNUSED( target );
 
-	UpdateMovementFromKeyboard();
+	Vec3 movementTranslation = GetMovementFromKeyboard();
+
+	// Translation
+	Vec3 forwardVector = GetTransform().GetForwardVector();
+	Vec3 rightVector = GetTransform().GetRightVector();
+	Vec3 upVector = GetTransform().GetUpVector();
+
+	Vec3 finalMovementVector( forwardVector * movementTranslation.x
+							  + rightVector * movementTranslation.y
+							  + upVector * movementTranslation.z );
+
+	float deltaSeconds = (float)g_game->GetGameClock()->GetLastDeltaSeconds();
+	
+	Translate( finalMovementVector * deltaSeconds );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void FreeCamera::UpdateMovementFromKeyboard()
+Vec3 FreeCamera::GetMovementFromKeyboard()
 {
 	Vec3 movementTranslation;
 	if ( g_inputSystem->IsKeyPressed( 'D' ) )
@@ -61,25 +74,5 @@ void FreeCamera::UpdateMovementFromKeyboard()
 		movementTranslation *= 10.f;
 	}
 
-	// Rotation
-	Vec2 mousePosition = g_inputSystem->GetMouseDeltaPosition();
-	float yawDegrees = -mousePosition.x; // * s_mouseSensitivityMultiplier;
-	float pitchDegrees = mousePosition.y; //* s_mouseSensitivityMultiplier;
-	yawDegrees *= .009f;
-	pitchDegrees *= .009f;
-
-	float deltaSeconds = (float)g_game->GetGameClock()->GetLastDeltaSeconds();
-		
-	RotateYawPitchRoll( yawDegrees, pitchDegrees, 0.f );
-
-	// Translation
-	Vec3 forwardVector = GetTransform().GetForwardVector();
-	Vec3 rightVector = GetTransform().GetRightVector();
-	Vec3 upVector = GetTransform().GetUpVector();
-
-	Vec3 finalMovementVector( forwardVector * movementTranslation.x 
-							  + rightVector * movementTranslation.y
-							  + upVector * movementTranslation.z );
-
-	Translate( finalMovementVector * deltaSeconds );
+	return movementTranslation;
 }

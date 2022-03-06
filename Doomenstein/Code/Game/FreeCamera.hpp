@@ -3,6 +3,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct Vec3;
 class Entity;
 
 
@@ -13,8 +14,8 @@ public:
 	FreeCamera( const GameCameraSettings& gameCameraSettings );
 	virtual ~FreeCamera() = default;
 
-	virtual void Update( Entity* target = nullptr ) override;
+	virtual void UpdateTranslation( Entity* target = nullptr ) override;
 
 private:
-	void UpdateMovementFromKeyboard();
+	Vec3 GetMovementFromKeyboard();
 };

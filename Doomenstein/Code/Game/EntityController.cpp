@@ -1,5 +1,6 @@
 #include "Game/EntityController.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 
@@ -102,9 +103,9 @@ void EntityController::PossessNearestEntity( const World& world )
 	if ( GetDistance3D( cameraTransform.GetPosition(), entity->GetPosition() + Vec3( 0.f, 0.f, entity->GetHeight() * .5f ) ) < 2.f )
 	{
 		m_possessedEntity = entity;
-		m_currentWorldCamera->SetPitchRollYawOrientationDegrees( 0.f, 0.f, m_possessedEntity->GetOrientationDegrees() );
-
 		m_possessedEntity->Possess();
+
+		m_currentWorldCamera->SetPitchRollYawOrientationDegrees( 0.f, 0.f, m_possessedEntity->GetOrientationDegrees() );
 	}
 }
 
@@ -146,9 +147,26 @@ const float EntityController::GetYawDegrees() const
 
 
 //-----------------------------------------------------------------------------------------------
-void EntityController::Update()
+void EntityController::UpdateTranslation()
 {
-	m_currentWorldCamera->Update( m_possessedEntity );
+	m_currentWorldCamera->UpdateTranslation( m_possessedEntity );
 }
 
 
+//-----------------------------------------------------------------------------------------------
+void EntityController::UpdateRotation()
+{
+	// Rotation
+	Vec2 mousePosition = g_inputSystem->GetMouseDeltaPosition();
+	float yawDegrees = -mousePosition.x; // * s_mouseSensitivityMultiplier;
+	float pitchDegrees = mousePosition.y; //* s_mouseSensitivityMultiplier;
+	yawDegrees *= .009f;
+	pitchDegrees *= .009f;
+
+	m_currentWorldCamera->RotateYawPitchRoll( yawDegrees, pitchDegrees, 0.f );
+
+	if ( m_possessedEntity != nullptr )
+	{
+		m_possessedEntity->RotateDegrees( pitchDegrees, yawDegrees, 0.f );
+	}
+}

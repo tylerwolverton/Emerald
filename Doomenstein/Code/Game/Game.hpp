@@ -116,8 +116,6 @@ private:
 
 	void UpdateFromKeyboard();
 	void LoadStartingMap( const std::string& mapName );
-	void UpdateMovementFromKeyboard();
-	void UpdateCameraTransformToMatchPlayer();
 
 	void RenderDebugUI() const;
 

@@ -176,13 +176,14 @@ void Game::Update()
 		UpdateFromKeyboard();
 	}
 
+	m_playerController->UpdateRotation();
+
 	m_uiSystem->Update();
 
 	FreeAllLights();
 	m_world->Update();
 
-	m_playerController->Update();
-	//UpdateCameraTransformToMatchPlayer();
+	m_playerController->UpdateTranslation();
 }
 
 
@@ -227,8 +228,6 @@ void Game::UpdateFromKeyboard()
 		LoadStartingMap( m_startingMapName );
 		return;
 	}
-
-	//UpdateMovementFromKeyboard();
 }
 
 
@@ -246,103 +245,6 @@ void Game::LoadStartingMap( const std::string& mapName )
 
 	// TODO: Double check how this works
 	m_world->CallAllZephyrSpawnEvents( m_playerController->GetPossessedEntity() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::UpdateMovementFromKeyboard()
-{
-	Vec3 movementTranslation;
-	if ( g_inputSystem->IsKeyPressed( 'D' ) )
-	{
-		movementTranslation.y += 1.f;
-	}
-
-	if ( g_inputSystem->IsKeyPressed( 'A' ) )
-	{
-		movementTranslation.y -= 1.f;
-	}
-
-	if ( g_inputSystem->IsKeyPressed( 'W' ) )
-	{
-		movementTranslation.x += 1.f;
-	}
-
-	if ( g_inputSystem->IsKeyPressed( 'S' ) )
-	{
-		movementTranslation.x -= 1.f;
-	}
-
-	if ( !m_playerController->IsPossessing() )
-	{
-		if ( g_inputSystem->IsKeyPressed( 'E' ) )
-		{
-			movementTranslation.z += 1.f;
-		}
-
-		if ( g_inputSystem->IsKeyPressed( 'Q' ) )
-		{
-			movementTranslation.z -= 1.f;
-		}
-
-		if ( g_inputSystem->IsKeyPressed( KEY_SHIFT ) )
-		{
-			movementTranslation *= 10.f;
-		}
-	}
-
-	// Rotation
-	Vec2 mousePosition = g_inputSystem->GetMouseDeltaPosition();
-	float yawDegrees = -mousePosition.x * s_mouseSensitivityMultiplier;
-	float pitchDegrees = mousePosition.y * s_mouseSensitivityMultiplier;
-	yawDegrees *= .009f;
-	pitchDegrees *= .009f;
-
-	float deltaSeconds = (float)m_gameClock->GetLastDeltaSeconds();
-
-	// An entity is possessed
-	if ( m_playerController->IsPossessing() )
-	{
-		// Rotation (only consider yaw so the forward vector is always in XY space)
-		m_playerController->GetPossessedEntity()->SetOrientationDegrees( m_playerController->GetPossessedEntity()->GetOrientationDegrees() + yawDegrees );
-
-		Vec2 forwardVec = m_playerController->GetPossessedEntity()->GetForwardVector();
-		Vec2 rightVec = forwardVec.GetRotatedMinus90Degrees();
-
-		Vec2 translationXY( movementTranslation.x * forwardVec
-							+ movementTranslation.y * rightVec );
-
-		translationXY *= m_playerController->GetPossessedEntity()->GetWalkSpeed();
-
-		//m_player->AddVelocity( translationXY );
-		m_playerController->GetPossessedEntity()->Translate( translationXY * deltaSeconds );
-	}
-	// No entity possessed, move the camera directly
-	else
-	{
-		Transform transform = m_playerController->GetTransform();
-		m_playerController->GetCurrentWorldCamera()->RotateYawPitchRoll( yawDegrees, pitchDegrees, 0.f );
-
-		// Translation
-		TranslateCameraFPS( movementTranslation * deltaSeconds );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::UpdateCameraTransformToMatchPlayer()
-{
-	if ( m_playerController->IsPossessing() )
-	{
-		// Rotation
-		Vec2 mousePosition = g_inputSystem->GetMouseDeltaPosition();
-		float pitchDegrees = mousePosition.y * s_mouseSensitivityMultiplier;
-		pitchDegrees *= .009f;
-
-		m_playerController->GetCurrentWorldCamera()->SetPosition( m_playerController->GetPossessedEntity()->GetPosition() + Vec3(0.f, 0.f, m_playerController->GetPossessedEntity()->GetEyeHeight() ) );
-		m_playerController->GetCurrentWorldCamera()->SetYawOrientationDegrees( m_playerController->GetPossessedEntity()->GetOrientationDegrees() );
-		m_playerController->GetCurrentWorldCamera()->RotateYawPitchRoll( 0.f, pitchDegrees, 0.f );
-	}
 }
 
 
@@ -908,6 +810,7 @@ void Game::ReloadGame()
 		g_audioSystem->StopSound( m_curMusicId );
 	}
 
+	m_playerController->Unpossess();
 	m_world->Reset();
 	g_zephyrSystem->StopAllTimers();
 
@@ -917,7 +820,6 @@ void Game::ReloadGame()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
-	m_playerController->Unpossess();
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
 	PTR_MAP_SAFE_DELETE( EntityDefinition::s_definitions );
