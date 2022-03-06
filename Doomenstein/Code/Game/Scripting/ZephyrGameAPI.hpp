@@ -45,6 +45,7 @@ private:
 	void WarpToMap( EventArgs* args );
 	void RotateEntity( EventArgs* args );
 	void MoveInCircle( EventArgs* args );
+	void MoveInDirection( EventArgs* args );
 
 	// Input
 	void RegisterKeyEvent( EventArgs* args );
@@ -57,6 +58,10 @@ private:
 	void PlaySound( EventArgs* args );
 	void ChangeMusic( EventArgs* args );
 	void AddScreenShake( EventArgs* args );
+	
+	// Camera
+	void PushCamera( EventArgs* args );
+	void PopCamera( EventArgs* args );
 
 private:
 	Entity* GetTargetEntityFromArgs( EventArgs* args );

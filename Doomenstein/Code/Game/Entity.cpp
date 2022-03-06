@@ -14,10 +14,11 @@
 #include "Engine/Renderer/SpriteDefinition.hpp"
 #include "Engine/Renderer/SpriteAnimDefinition.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
+#include "Engine/Time/Clock.hpp"
+
 #include "Game/Game.hpp"
 #include "Game/GameCommon.hpp"
 #include "Game/SpriteAnimationSetDefinition.hpp"
-
 #include "Game/Map.hpp"
 
 //-----------------------------------------------------------------------------------------------
@@ -198,6 +199,13 @@ void Entity::MoveInCircle( const Vec3& center, float radius, float speed )
 		m_orientationDegrees += 360.f;
 	}
 	m_position = center + Vec3( Vec2::MakeFromPolarDegrees( m_orientationDegrees, radius ), 0.f );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::MoveInDirection( float speed, const Vec3& direction )
+{
+	Translate( direction * speed * g_game->GetGameClock()->GetLastDeltaSeconds() );
 }
 
 

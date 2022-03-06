@@ -181,7 +181,8 @@ void Game::Update()
 	FreeAllLights();
 	m_world->Update();
 
-	UpdateCameraTransformToMatchPlayer();
+	m_playerController->Update();
+	//UpdateCameraTransformToMatchPlayer();
 }
 
 
@@ -227,7 +228,7 @@ void Game::UpdateFromKeyboard()
 		return;
 	}
 
-	UpdateMovementFromKeyboard();
+	//UpdateMovementFromKeyboard();
 }
 
 
@@ -1114,6 +1115,20 @@ Map* Game::GetCurrentMap()
 void Game::SaveEntityByName( Entity* entity )
 {
 	m_world->SaveEntityByName( entity );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::PushCamera( const GameCameraSettings& gameCameraSettings )
+{
+	m_playerController->PushCamera( gameCameraSettings );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::PopCamera()
+{
+	m_playerController->PopCamera();
 }
 
 

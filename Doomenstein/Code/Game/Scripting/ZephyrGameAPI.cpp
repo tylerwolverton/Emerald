@@ -3,6 +3,7 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/Rgba8.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/Vec4.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
@@ -32,6 +33,7 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( WarpToMap );
 	REGISTER_EVENT( RotateEntity );
 	REGISTER_EVENT( MoveInCircle );
+	REGISTER_EVENT( MoveInDirection );
 
 	REGISTER_EVENT( StartNewTimer );
 	REGISTER_EVENT( WinGame );
@@ -48,6 +50,9 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( PlaySound );
 	REGISTER_EVENT( ChangeMusic );
 	REGISTER_EVENT( AddScreenShake );
+
+	REGISTER_EVENT( PushCamera );
+	REGISTER_EVENT( PopCamera );
 }
 
 
@@ -131,6 +136,24 @@ void ZephyrGameAPI::RotateEntity( EventArgs* args )
 	{
 		targetEntity->RotateDegrees( pitchDegrees, yawDegrees, rollDegrees );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::MoveInDirection( EventArgs* args )
+{
+	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
+
+	Entity* targetEntity = g_game->GetEntityById( targetId );
+	if ( targetEntity == nullptr )
+	{
+		targetEntity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
+	}
+
+	float speed = args->GetValue( "speed", 1.f );
+	Vec3 direction = args->GetValue( "direction", Vec3::ZERO );
+
+	targetEntity->MoveInDirection( speed, direction );
 }
 
 
@@ -611,6 +634,37 @@ void ZephyrGameAPI::AddScreenShake( EventArgs* args )
 	float intensity = args->GetValue( "intensity", 0.f );
 
 	g_game->AddScreenShakeIntensity( intensity );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::PushCamera( EventArgs* args )
+{
+	std::string type = args->GetValue( "type", "fps" );
+	float fov = args->GetValue( "fovDegrees", 90.f );
+
+	GameCameraSettings gameCameraSettings;
+	gameCameraSettings.fovDegrees = fov;
+
+	if ( IsEqualIgnoreCase( type, "fps" ) )
+	{
+		gameCameraSettings.gameCameraType = eGameCameraType::FPS;
+	}
+	else
+	{
+		gameCameraSettings.gameCameraType = eGameCameraType::FREE;
+	}
+
+	g_game->PushCamera( gameCameraSettings );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::PopCamera( EventArgs* args )
+{
+	UNUSED( args );
+
+	g_game->PopCamera();
 }
 
 

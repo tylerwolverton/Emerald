@@ -81,6 +81,7 @@ public:
 	void				RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees );
 
 	void				MoveInCircle( const Vec3& center, float radius, float speed );
+	void				MoveInDirection( float speed, const Vec3& direction );
 
 	// Pawn possession
 	void				Possess();

@@ -16,6 +16,8 @@ public:
 	EntityController();
 	~EntityController();
 
+	void Update();
+
 	GameCamera* GetCurrentWorldCamera() const								{ return m_currentWorldCamera; }
 	const Transform GetTransform() const;
 	const Vec3	GetPosition() const;
@@ -29,6 +31,7 @@ public:
 	Entity* GetPossessedEntity() const									{ return m_possessedEntity; }
 	void PossessNearestEntity( const World& world );
 	void Unpossess();
+
 	// ZephyrEntity overrides
 	//virtual const Vec3	GetPosition() const override;
 	//virtual bool			IsDead() const override							{ return false; }

@@ -18,7 +18,6 @@ EntityController::EntityController()
 
 	m_debugCamera = new FreeCamera( cameraSettings );
 	m_gameCameras.push_back( m_debugCamera );
-	++m_gameCameraStackTop;
 
 	m_currentWorldCamera = m_debugCamera;
 }
@@ -58,17 +57,18 @@ void EntityController::PushCamera( const GameCameraSettings& cameraSettings )
 	}
 
 
-	if ( m_gameCameraStackTop < (int)m_gameCameras.size() )
+	if ( m_gameCameraStackTop < (int)m_gameCameras.size() - 1 )
 	{
+		++m_gameCameraStackTop;
 		m_gameCameras[m_gameCameraStackTop] = newCamera;
 	}
 	else
 	{
 		m_gameCameras.push_back( newCamera );
+		++m_gameCameraStackTop;
 	}
 
 	m_currentWorldCamera = newCamera;
-	++m_gameCameraStackTop;
 }
 
 
@@ -142,6 +142,13 @@ const Transform EntityController::GetTransform() const
 const float EntityController::GetYawDegrees() const
 {
 	return m_currentWorldCamera->GetTransform().GetYawDegrees();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void EntityController::Update()
+{
+	m_currentWorldCamera->Update( m_possessedEntity );
 }
 
 

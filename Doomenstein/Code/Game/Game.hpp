@@ -76,6 +76,8 @@ public:
 	Map*			GetMapByName( const std::string& name );
 	Map*			GetCurrentMap();
 	void			SaveEntityByName( Entity* entity );
+	void			PushCamera( const GameCameraSettings& gameCameraSettings );
+	void			PopCamera();
 
 	void			PlaySoundByName	( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 	void			ChangeMusic		( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );

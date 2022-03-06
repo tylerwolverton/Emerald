@@ -3,11 +3,14 @@
 
 
 //-----------------------------------------------------------------------------------------------
+class Entity;
+
+//-----------------------------------------------------------------------------------------------
 class FPSCamera : public GameCamera
 {
 public:
 	FPSCamera( const GameCameraSettings& gameCameraSettings );
 	virtual ~FPSCamera() = default;
 
-	virtual void Update() override;
+	virtual void Update( Entity* target = nullptr ) override;
 };

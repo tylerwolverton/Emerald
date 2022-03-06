@@ -3,11 +3,18 @@
 
 
 //-----------------------------------------------------------------------------------------------
+class Entity;
+
+
+//-----------------------------------------------------------------------------------------------
 class FreeCamera : public GameCamera
 {
 public:
 	FreeCamera( const GameCameraSettings& gameCameraSettings );
 	virtual ~FreeCamera() = default;
 
-	virtual void Update() override;
+	virtual void Update( Entity* target = nullptr ) override;
+
+private:
+	void UpdateMovementFromKeyboard();
 };

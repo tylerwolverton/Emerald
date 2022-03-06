@@ -1,12 +1,46 @@
+Function MoveUp()
+{
+    MoveInDirection( direction: Vec3( 0, 1, 0 ) )
+}
+
+Function MoveDown()
+{
+    MoveInDirection( direction: Vec3( 0, -1, 0 ) )
+}
+
+Function MoveLeft()
+{
+    MoveInDirection( direction: Vec3( -1, 0, 0 ) )
+}
+
+Function MoveRight()
+{
+    MoveInDirection( direction: Vec3( 1, 0, 0 ) )
+}
+
 
 Function OnPossess()
 {
+    RegisterKeyEvent( key: "W", event: "MoveUp" )
+    RegisterKeyEvent( key: "A", event: "MoveLeft" )
+    RegisterKeyEvent( key: "S", event: "MoveDown" )
+    RegisterKeyEvent( key: "D", event: "MoveRight" )
+
+    PushCamera( type: "fps", fovDegrees: 60 )
+
     ChangeState( Possessed )
 }
 
 
 Function OnUnPossess()
 {
+    UnRegisterKeyEvent( key: "W", event: "MoveUp" )
+    UnRegisterKeyEvent( key: "A", event: "MoveLeft" )
+    UnRegisterKeyEvent( key: "S", event: "MoveDown" )
+    UnRegisterKeyEvent( key: "D", event: "MoveRight" )
+
+    PopCamera()
+
     ChangeState( Spin )
 }
 
