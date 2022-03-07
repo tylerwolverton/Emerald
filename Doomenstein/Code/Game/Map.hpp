@@ -61,6 +61,7 @@ public:
 	Entity*				GetEntityById( EntityId id );
 	Entity*				GetEntityByName( const std::string& name );
 	Entity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
+	Entity*				GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
 
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );

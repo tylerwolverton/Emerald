@@ -132,6 +132,13 @@ Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardD
 
 
 //-----------------------------------------------------------------------------------------------
+Entity* World::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
+{
+	return m_curMap->GetEntityFromRaycast( startPos, forwardNormal, maxDist );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	WarpEntityToMap( entityToWarp, destMapName, Vec3( newPos, 0.f ), newYawDegrees );

@@ -73,6 +73,7 @@ public:
 
 	Entity*			GetEntityById( EntityId id );
 	Entity*			GetEntityByName( const std::string& name );
+	Entity*			GetEntityFromCameraRaycast( float maxDist ) const;
 	Map*			GetMapByName( const std::string& name );
 	Map*			GetCurrentMap();
 	void			SaveEntityByName( Entity* entity );

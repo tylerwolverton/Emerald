@@ -224,8 +224,7 @@ Entity* Map::GetEntityById( EntityId id )
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr
-			 || entity->IsDead() )
+		if ( entity == nullptr )
 		{
 			continue;
 		}
@@ -246,8 +245,7 @@ Entity* Map::GetEntityByName( const std::string& name )
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr
-			 || entity->IsDead() )
+		if ( entity == nullptr )
 		{
 			continue;
 		}
@@ -285,6 +283,14 @@ Entity* Map::GetClosestEntityInSector( const Vec3& observerPos, float forwardDeg
 	}
 
 	return closestEntity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Entity* Map::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
+{
+	RaycastResult result = Raycast( startPos, forwardNormal, maxDist );
+	return result.impactEntity;
 }
 
 

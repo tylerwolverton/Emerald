@@ -30,6 +30,7 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( PrintToConsole );
 
 	REGISTER_EVENT( DestroySelf );
+	REGISTER_EVENT( Die );
 	REGISTER_EVENT( WarpToMap );
 	REGISTER_EVENT( RotateEntity );
 	REGISTER_EVENT( MoveInCircle );
@@ -51,6 +52,9 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( PlaySound );
 	REGISTER_EVENT( ChangeMusic );
 	REGISTER_EVENT( AddScreenShake );
+	REGISTER_EVENT( ChangeLight );
+	REGISTER_EVENT( GetEntityFromRaytrace );
+	REGISTER_EVENT( GetEntityFromCameraRaytrace );
 
 	REGISTER_EVENT( PushCamera );
 	REGISTER_EVENT( PopCamera );
@@ -90,6 +94,14 @@ void ZephyrGameAPI::DestroySelf( EventArgs* args )
 	{
 		entity->Die();
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::Die( EventArgs* args )
+{
+	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
+	entity->Die();
 }
 
 
@@ -173,6 +185,33 @@ void ZephyrGameAPI::MoveInRelativeDirection( EventArgs* args )
 	Vec3 direction = args->GetValue( "direction", Vec3::ZERO );
 
 	targetEntity->MoveInRelativeDirection( speed, direction );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::GetEntityFromCameraRaytrace( EventArgs* args )
+{
+	float maxDist = args->GetValue( "maxDist", 1.f );
+
+	Entity* foundEntity = g_game->GetEntityFromCameraRaycast( maxDist );
+
+	if ( foundEntity != nullptr )
+	{
+		args->SetValue( "foundEntity", foundEntity->GetId() );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::GetEntityFromRaytrace( EventArgs* args )
+{
+	/*Entity* entity = GetTargetEntityFromArgs( args );
+
+	Vec3 startPos = args->GetValue( "startPos", entity->GetPosition() );
+	Vec3 forwardVector = args->GetValue( "forwardVector", entity->GetForwardVector() );
+	float maxDist = args->GetValue( "maxDist", 1.f );*/
+
+
 }
 
 
@@ -653,6 +692,15 @@ void ZephyrGameAPI::AddScreenShake( EventArgs* args )
 	float intensity = args->GetValue( "intensity", 0.f );
 
 	g_game->AddScreenShakeIntensity( intensity );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::ChangeLight( EventArgs* args )
+{
+	Entity* entity = GetTargetEntityFromArgs( args );
+
+
 }
 
 

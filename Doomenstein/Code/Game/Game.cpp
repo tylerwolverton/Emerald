@@ -1021,6 +1021,13 @@ void Game::SaveEntityByName( Entity* entity )
 
 
 //-----------------------------------------------------------------------------------------------
+Entity* Game::GetEntityFromCameraRaycast( float maxDist ) const
+{
+	return m_world->GetEntityFromRaycast( m_playerController->GetPosition(), m_playerController->GetForwardVector(), maxDist );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::PushCamera( const GameCameraSettings& gameCameraSettings )
 {
 	m_playerController->PushCamera( gameCameraSettings );

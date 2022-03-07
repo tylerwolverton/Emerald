@@ -41,12 +41,15 @@ private:
 
 	// Entity Events
 	void DestroySelf( EventArgs* args );
+	void Die( EventArgs* args );
 	//void DamageEntity( EventArgs* args );
 	void WarpToMap( EventArgs* args );
 	void RotateEntity( EventArgs* args );
 	void MoveInCircle( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
 	void MoveInRelativeDirection( EventArgs* args );
+	void GetEntityFromCameraRaytrace( EventArgs* args );
+	void GetEntityFromRaytrace( EventArgs* args );
 
 	// Input
 	void RegisterKeyEvent( EventArgs* args );
@@ -59,7 +62,8 @@ private:
 	void PlaySound( EventArgs* args );
 	void ChangeMusic( EventArgs* args );
 	void AddScreenShake( EventArgs* args );
-	
+	void ChangeLight( EventArgs* args );
+
 	// Camera
 	void PushCamera( EventArgs* args );
 	void PopCamera( EventArgs* args );

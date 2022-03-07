@@ -113,7 +113,11 @@ void EntityController::PossessNearestEntity( const World& world )
 //-----------------------------------------------------------------------------------------------
 void EntityController::Unpossess()
 {
-	m_possessedEntity->Unpossess();
+	if ( m_possessedEntity != nullptr )
+	{
+		m_possessedEntity->Unpossess();
+	}
+
 	m_possessedEntity = nullptr;
 }
 

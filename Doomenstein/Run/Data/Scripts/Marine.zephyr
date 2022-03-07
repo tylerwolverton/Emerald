@@ -1,0 +1,10 @@
+// TODO: Remove need for Function keyword?
+Function OnInteracted( Entity initiator )
+{
+    Die()
+}
+
+Function OnDie()
+{
+    ChangeSpriteAnimation( newAnim: "Dead" )
+}

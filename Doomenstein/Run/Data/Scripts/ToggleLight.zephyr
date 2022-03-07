@@ -1,0 +1,25 @@
+State On
+{
+    Function Toggle()
+    {
+        ChangeState( Off )
+    }
+
+    OnEnter()
+    {
+        ChangeLight( light: parentEntity, on: true )
+    }
+}
+
+State Off
+{
+    Function Toggle()
+    {
+        ChangeState( On )
+    }
+
+    OnEnter()
+    {
+        ChangeLight( on: false )
+    }
+}

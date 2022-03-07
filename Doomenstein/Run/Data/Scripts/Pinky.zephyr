@@ -19,6 +19,17 @@ Function MoveRight()
     MoveInRelativeDirection( direction: Vec3( 0, 1, 0 ) )
 }
 
+Function Interact()
+{
+    Entity target = null
+    GetEntityFromCameraRaytrace(  maxDist: 3, 
+                                  foundEntity: target )
+
+    if( target != null )
+    {
+        target.OnInteracted( initiator: parentEntity )
+    }
+}
 
 Function OnPossess()
 {
@@ -26,6 +37,7 @@ Function OnPossess()
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
     RegisterKeyEvent( key: "S", event: "MoveBackward" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
+    RegisterKeyEvent( key: "E", event: "Interact" )
 
     PushCamera( type: "fps", fovDegrees: 60 )
 
@@ -39,6 +51,7 @@ Function OnUnPossess()
     UnRegisterKeyEvent( key: "A", event: "MoveLeft" )
     UnRegisterKeyEvent( key: "S", event: "MoveBackward" )
     UnRegisterKeyEvent( key: "D", event: "MoveRight" )
+    UnRegisterKeyEvent( key: "E", event: "Interact" )
 
     PopCamera()
 
@@ -59,4 +72,14 @@ State Spin
 State Possessed
 {
 
+}
+
+Function OnInteracted( Entity initiator )
+{
+    Die()
+}
+
+Function OnDie()
+{
+    PlaySpriteAnimation( newAnim: "Death" )
 }

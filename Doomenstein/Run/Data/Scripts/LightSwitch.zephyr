@@ -1,0 +1,6 @@
+Entity light = null
+
+Function OnInteracted( Entity initiator )
+{
+    light.Toggle()
+}
