@@ -57,6 +57,7 @@ private:
 	std::map<int, std::string> m_frameToEventNames;
 
 	std::string		m_name;
+	float			m_defaultFPS = 4.f;
 	float			m_curSpeedModifier = 1.f;
 	Material*		m_spriteMaterial = nullptr;
 	SpriteSheet*	m_spriteSheet = nullptr;
