@@ -431,13 +431,16 @@ void Entity::UpdateFromKeyboard( float deltaSeconds )
 //-----------------------------------------------------------------------------------------------
 char Entity::GetKeyCodeFromString( const std::string& keyCodeStr )
 {
-	if (		IsEqualIgnoreCase( keyCodeStr, "space" ) )	{ return KEY_SPACEBAR; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "enter" ) )	{ return KEY_ENTER; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "shift" ) )	{ return KEY_SHIFT; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "left" ) )	{ return KEY_LEFTARROW; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "right" ) )	{ return KEY_RIGHTARROW; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "up" ) )		{ return KEY_UPARROW; }
-	else if (	IsEqualIgnoreCase( keyCodeStr, "down" ) )	{ return KEY_DOWNARROW; }
+	if (		IsEqualIgnoreCase( keyCodeStr, "space" ) )			{ return KEY_SPACEBAR; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "enter" ) )			{ return KEY_ENTER; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "shift" ) )			{ return KEY_SHIFT; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "left" ) )			{ return KEY_LEFTARROW; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "right" ) )			{ return KEY_RIGHTARROW; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "up" ) )				{ return KEY_UPARROW; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "down" ) )			{ return KEY_DOWNARROW; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "leftClick" ) )		{ return MOUSE_LBUTTON; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "rightClick" ) )		{ return MOUSE_RBUTTON; }
+	else if (	IsEqualIgnoreCase( keyCodeStr, "middleClick" ) )	{ return MOUSE_MBUTTON; }
 	else
 	{
 		// Register letters and numbers

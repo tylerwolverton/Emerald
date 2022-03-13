@@ -37,7 +37,7 @@ Function OnPossess()
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
     RegisterKeyEvent( key: "S", event: "MoveBackward" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
-    RegisterKeyEvent( key: "E", event: "Interact" )
+    RegisterKeyEvent( key: "leftClick", event: "Interact" )
 
     PushCamera( type: "fps", fovDegrees: 60 )
 
