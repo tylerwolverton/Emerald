@@ -5,6 +5,7 @@
 #include "Engine/Time/Clock.hpp"
 
 #include "Game/TileMap.hpp"
+#include "Game/LineMap.hpp"
 #include "Game/GameCommon.hpp"
 #include "Game/MapData.hpp"
 
@@ -75,6 +76,11 @@ void World::AddNewMap( const MapData& mapData )
 	{
 		TileMap* tileMap = new TileMap( mapData, this );
 		m_loadedMaps[mapData.mapName] = tileMap;
+	}
+	else if ( mapData.type == "LineMap" )
+	{
+		LineMap* lineMap = new LineMap( mapData, this );
+		m_loadedMaps[mapData.mapName] = lineMap;
 	}
 }
 

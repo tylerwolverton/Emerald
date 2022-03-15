@@ -13,9 +13,17 @@ MapData::MapData( const XmlElement& mapDefElem, const std::string& mapName, cons
 {
 	if ( !ParseMapDefinitionNode( mapDefElem ) ) { return; }
 
-	std::map<char, MapRegionTypeDefinition*> legend;
-	if ( !ParseLegendNode( mapDefElem, legend, defaultRegionName ) ) { return; }
-	if ( !ParseMapRowsNode( mapDefElem, legend, defaultRegionName ) ) { return; }
+	if ( type == "TileMap" )
+	{
+		std::map<char, MapRegionTypeDefinition*> legend;
+		if ( !ParseLegendNode( mapDefElem, legend, defaultRegionName ) ) { return; }
+		if ( !ParseMapRowsNode( mapDefElem, legend, defaultRegionName ) ) { return; }
+	}
+	else if ( type == "LineMap" )
+	{
+		if ( !ParseWalls( mapDefElem, defaultRegionName ) ) { return; }
+	}
+
 	if ( !ParseEntitiesNode( mapDefElem ) ) { return; }
 
 	isValid = true;
@@ -46,9 +54,10 @@ bool MapData::ParseMapDefinitionNode( const XmlElement& mapDefElem )
 	}
 
 	dimensions = ParseXmlAttribute( mapDefElem, "dimensions", dimensions );
-	if ( dimensions == IntVec2::ZERO )
+	if ( dimensions == IntVec2::ZERO
+		 && type == "TileMap" )
 	{
-		g_devConsole->PrintError( Stringf( "Map file '%s' is missing a dimensions attribute", mapName.c_str() ) );
+		g_devConsole->PrintError( Stringf( "Tile Map file '%s' is missing a dimensions attribute", mapName.c_str() ) );
 		return false;
 	}
 
@@ -104,6 +113,40 @@ bool MapData::ParseLegendNode( const XmlElement& mapDefElem, std::map<char, MapR
 		legend[glyph] = regionDef;
 
 		tileElem = tileElem->NextSiblingElement();
+	}
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool MapData::ParseWalls( const XmlElement& mapDefElem, const std::string& defaultRegionName )
+{
+	UNUSED( defaultRegionName );
+
+	const XmlElement* wallsElem = mapDefElem.FirstChildElement( "Walls" );
+	if ( wallsElem == nullptr )
+	{
+		g_devConsole->PrintError( "No Walls element defined" );
+		return false;
+	}
+
+	const XmlElement* wallElem = wallsElem->FirstChildElement( "Wall" );
+	while ( wallElem )
+	{
+		std::vector<Vec3> points;
+
+		const XmlElement* pointElem = wallElem->FirstChildElement( "Point" );
+		while ( pointElem )
+		{
+			points.emplace_back( ParseXmlAttribute( *pointElem, "pos", Vec3::ZERO ) );
+
+			pointElem = pointElem->NextSiblingElement();
+		}
+
+		walls.emplace_back( points );
+
+		wallElem = wallElem->NextSiblingElement();
 	}
 
 	return true;
