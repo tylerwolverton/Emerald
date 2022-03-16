@@ -5,8 +5,8 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct OBB3;
 struct Vertex_PCUTBN;
-class Polygon3;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -26,10 +26,12 @@ public:
 
 protected:
 	virtual RaycastResult Raycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const override;
+	
+	void AddWallFace( const Vec3& bottomLeft, const Vec3& bottomRight, const Vec3& topLeft, const Vec3& topRight );
 
 private:
 	Transform					m_raytraceTransform;
 
 	std::vector<Vertex_PCUTBN>	m_mesh;
-	std::vector<Polygon3>		m_walls;
+	std::vector<OBB3>		m_walls;
 };

@@ -1,7 +1,8 @@
 #include "Game/LineMap.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
-#include "Engine/Math/Polygon3.hpp"
+#include "Engine/Math/OBB3.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
+#include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 
 #include "Game/GameCommon.hpp"
@@ -57,19 +58,21 @@ void LineMap::UpdateMeshes()
 
 	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
-		// Consume points 4 at a time for quadrilateral faces
-		std::vector<Vec3> points = m_walls[wallIdx].GetPoints();
-		for ( int pointIdx = 0; pointIdx < (int)points.size(); pointIdx += 4 )
-		{
-			m_mesh.emplace_back( points[pointIdx], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-			m_mesh.emplace_back( points[pointIdx+1], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-			m_mesh.emplace_back( points[pointIdx+2], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-
-			m_mesh.emplace_back( points[pointIdx + 1], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-			m_mesh.emplace_back( points[pointIdx + 3], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-			m_mesh.emplace_back( points[pointIdx + 2], Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-		}
+		AppendVertsForOBB3D( m_mesh, m_walls[wallIdx], Rgba8::WHITE );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void LineMap::AddWallFace( const Vec3& bottomLeft, const Vec3& bottomRight, const Vec3& topLeft, const Vec3& topRight )
+{
+	m_mesh.emplace_back( bottomLeft,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
+	m_mesh.emplace_back( bottomRight,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
+	m_mesh.emplace_back( topRight,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
+
+	m_mesh.emplace_back( bottomLeft,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
+	m_mesh.emplace_back( topRight,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
+	m_mesh.emplace_back( topLeft,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
 }
 
 
@@ -114,8 +117,9 @@ void LineMap::DebugRender() const
 
 	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
-		std::vector<Vec3> points = m_walls[wallIdx].GetPoints();
-		for ( int pointIdx = 0; pointIdx < (int)points.size(); ++pointIdx )
+		Vec3 points[8];
+		m_walls[wallIdx].GetCornerPositions( points );
+		for ( int pointIdx = 0; pointIdx < 8; ++pointIdx )
 		{
 			DebugAddWorldPoint( points[pointIdx], Rgba8::GREEN );
 		}

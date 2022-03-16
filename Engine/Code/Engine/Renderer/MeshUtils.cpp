@@ -458,6 +458,30 @@ void AppendVertsForOBB3D( std::vector<Vertex_PCU>& vertexArray,
 
 
 //-----------------------------------------------------------------------------------------------
+void AppendVertsForOBB3D( std::vector<Vertex_PCUTBN>& vertexArray, 
+						  const OBB3& bounds, 
+						  const Rgba8& tint, 
+						  const Vec2& uvAtMins, const Vec2& uvAtMaxs )
+{
+	AppendVertsForOBB3D( vertexArray, bounds, tint, tint, uvAtMins, uvAtMaxs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AppendVertsForOBB3D( std::vector<Vertex_PCUTBN>& vertexArray, 
+						  const OBB3& bounds, 
+						  const Rgba8& startTint, const Rgba8& endTint, 
+						  const Vec2& uvAtMins, const Vec2& uvAtMaxs )
+{
+	Vec3 corners[8];
+
+	bounds.GetCornerPositions( corners );
+
+	AppendVertsFor3DBox( vertexArray, 8, corners, startTint, endTint, uvAtMins, uvAtMaxs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void AppendVertsForCapsule2D( std::vector<Vertex_PCU>& vertexArray, 
 							  const Capsule2& capsule, 
 							  const Rgba8& tint, const Vec2& uvAtMins, const Vec2& uvAtMaxs )
@@ -632,6 +656,66 @@ void AppendVertsFor3DBox( std::vector<Vertex_PCU>& vertexArray, int cornerCount,
 	vertexArray.push_back( Vertex_PCU( corners[1], frontTint, uvAtMins ) );
 	vertexArray.push_back( Vertex_PCU( corners[4], backTint, uvAtMaxs ) );
 	vertexArray.push_back( Vertex_PCU( corners[5], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ) ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AppendVertsFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, 
+						  std::vector<Vec3>& corners, 
+						  const Rgba8& frontTint, const Rgba8& backTint, 
+						  const Vec2& uvAtMins, const Vec2& uvAtMaxs )
+{
+	AppendVertsFor3DBox( vertexArray, (int)corners.size(), &corners[0], frontTint, backTint, uvAtMins, uvAtMaxs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AppendVertsFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, int cornerCount,
+						  Vec3* corners, 
+						  const Rgba8& frontTint, const Rgba8& backTint, 
+						  const Vec2& uvAtMins, const Vec2& uvAtMaxs )
+{
+	GUARANTEE_OR_DIE( cornerCount == 8, "Must call AppendVertsFor3DBox with exactly 8 points" );
+
+	Vec3 normal( 1.f, 0.f, 0.f );
+	Vec3 tangent( 0.f, 1.f, 0.f );
+
+	vertexArray.reserve( 24 );
+	// Front
+	vertexArray.push_back( Vertex_PCUTBN( corners[0], frontTint, uvAtMins, normal, tangent ));
+	vertexArray.push_back( Vertex_PCUTBN( corners[1], frontTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[2], frontTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[3], frontTint, uvAtMaxs, normal, tangent ));
+
+	// Right
+	vertexArray.push_back( Vertex_PCUTBN( corners[1], frontTint, uvAtMins, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[5], backTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[3], frontTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[7], backTint, uvAtMaxs, normal, tangent ) );
+
+	// Back
+	vertexArray.push_back( Vertex_PCUTBN( corners[4], backTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[5], backTint, uvAtMins, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[6], backTint, uvAtMaxs, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[7], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+
+	// Left
+	vertexArray.push_back( Vertex_PCUTBN( corners[4], backTint, uvAtMins, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[0], frontTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[6], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[2], frontTint, uvAtMaxs, normal, tangent ) );
+
+	// Top
+	vertexArray.push_back( Vertex_PCUTBN( corners[2], frontTint, uvAtMins, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[3], frontTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[6], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[7], backTint, uvAtMaxs, normal, tangent ) );
+
+	// Bottom
+	vertexArray.push_back( Vertex_PCUTBN( corners[0], frontTint, Vec2( uvAtMaxs.x, uvAtMins.y ), normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[1], frontTint, uvAtMins, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[4], backTint, uvAtMaxs, normal, tangent ) );
+	vertexArray.push_back( Vertex_PCUTBN( corners[5], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
 }
 
 

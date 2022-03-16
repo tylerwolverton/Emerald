@@ -50,7 +50,7 @@ Mat44 MakeLookAtMatrix( const Vec3& pos, const Vec3& target, const Vec3& worldUp
 	Vec3 up = CrossProduct3D( right, forward );
 
 	Mat44 lookAt;
-	lookAt.SetBasisVectors3D( right, up, forward );
+	lookAt.SetBasisVectors3D( right, up, -forward ); //TODO: Verify this negation
 
 	return lookAt;
 }

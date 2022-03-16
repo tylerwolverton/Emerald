@@ -686,7 +686,6 @@ void DebugAddWorldLine( const Vec3& p0, const Rgba8& p0_color, const Rgba8& p1_c
 	std::vector<uint> indices;
 
 	Vec3 obbBone = p1 - p0; // k vector of obb3
-	Vec3 normalizedK = obbBone.GetNormalized();
 
 	Mat44 lookAt = MakeLookAtMatrix( p0, p1 );
 
@@ -738,7 +737,7 @@ void DebugAddWorldArrow( const Vec3& p0, const Rgba8& p0_color, const Rgba8& p1_
 
 	Mat44 lookAt = MakeLookAtMatrix( p0, p1 );
 
-	Vec3 endOfLine = p0 + lookAt.GetKBasis3D() * cylinderLength;
+	Vec3 endOfLine = p0 - lookAt.GetKBasis3D() * cylinderLength;
 
 	float arrowRadius = cylinderLength * .01f;
 	AppendVertsAndIndicesForCylinderMesh( vertices, indices, p0, endOfLine, arrowRadius, arrowRadius, p0_color, p1_color );

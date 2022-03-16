@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
-#include "Engine/Math/Polygon3.hpp"
+#include "Engine/Math/OBB3.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 
 #include "Game/MapRegionTypeDefinition.hpp"
@@ -43,7 +43,7 @@ public:
 	std::vector<MapEntityDefinition> mapEntityDefs;			// Map
 	std::vector<MapRegionTypeDefinition*> regionTypeDefs;	// TileMap
 
-	std::vector<Polygon3> walls;							// LineMap
+	std::vector<OBB3> walls;								// LineMap
 
 	// Multiplayer TODO: Make this into an array
 	Vec3 playerStartPos = Vec3::ZERO;
@@ -57,6 +57,7 @@ private:
 	bool ParseMapDefinitionNode( const XmlElement& mapDefElem );
 	bool ParseLegendNode( const XmlElement& mapDefElem, std::map<char, MapRegionTypeDefinition*>& legend, const std::string& defaultRegionName );
 	bool ParseWalls( const XmlElement& mapDefElem, const std::string& defaultRegionName );
+	OBB3 ConstructWallPolygon( const Vec3& startPos, const Vec3& endPos, float height, float width );
 	bool ParseMapRowsNode( const XmlElement& mapDefElem, const std::map<char, MapRegionTypeDefinition*>& legend, const std::string& defaultRegionName );
 	bool ParseEntitiesNode( const XmlElement& mapDefElem );
 	void CreateMapEntityDefFromNode( const XmlElement& entityElem );

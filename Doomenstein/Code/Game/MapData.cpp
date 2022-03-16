@@ -2,6 +2,10 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Math/Mat44.hpp"
+#include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/MatrixUtils.hpp"
+#include "Engine/Math/Transform.hpp"
 #include "Game/TileDefinition.hpp"
 #include "Game/MapRegionTypeDefinition.hpp"
 #include "Game/Map.hpp"
@@ -134,22 +138,38 @@ bool MapData::ParseWalls( const XmlElement& mapDefElem, const std::string& defau
 	const XmlElement* wallElem = wallsElem->FirstChildElement( "Wall" );
 	while ( wallElem )
 	{
-		std::vector<Vec3> points;
+		Vec3 startPos = ParseXmlAttribute( *wallElem, "startPos", Vec3::ZERO );
+		Vec3 endPos = ParseXmlAttribute( *wallElem, "endPos", Vec3( 1.f, 0.f, 0.f ) );
+		float height = ParseXmlAttribute( *wallElem, "height", 1.f );
+		float width = ParseXmlAttribute( *wallElem, "width", 1.f );
+		
+		OBB3 wall = ConstructWallPolygon( startPos, endPos, height, width );
 
-		const XmlElement* pointElem = wallElem->FirstChildElement( "Point" );
-		while ( pointElem )
-		{
-			points.emplace_back( ParseXmlAttribute( *pointElem, "pos", Vec3::ZERO ) );
-
-			pointElem = pointElem->NextSiblingElement();
-		}
-
-		walls.emplace_back( points );
+		walls.emplace_back( wall );
 
 		wallElem = wallElem->NextSiblingElement();
 	}
 
 	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+OBB3 MapData::ConstructWallPolygon( const Vec3& startPos, const Vec3& endPos, float height, float width )
+{
+	// Determine points looking in the direction of the specified start and end, with height going up and width going to the right
+	Mat44 basisMatrix = MakeLookAtMatrix( startPos, endPos, Vec3( 0.f, 0.f, 1.f ) );
+
+	float depth = GetDistance3D( startPos, endPos );
+
+	Vec3 center = startPos
+		+ ( basisMatrix.GetIBasis3D() * ( width * .5f ) )
+		+ ( basisMatrix.GetJBasis3D() * ( height * .5f ) )
+		- ( basisMatrix.GetKBasis3D() * ( depth * .5f ) );
+
+	Vec3 fullDimensions( width, height, depth );
+
+	return OBB3( center, fullDimensions, basisMatrix.GetIBasis3D(), basisMatrix.GetJBasis3D() );
 }
 
 

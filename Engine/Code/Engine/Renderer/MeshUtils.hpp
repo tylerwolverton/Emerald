@@ -100,6 +100,12 @@ void AppendVertsForCubeMesh( std::vector<Vertex_PCUTBN>& vertexArray,
 
 void AppendVertsForQuad( std::vector<Vertex_PCUTBN>& vertexArray, Vec3* corners, const Rgba8& tint, const Vec2& uvAtMins = Vec2::ZERO, const Vec2& uvAtMaxs = Vec2::ONE );
 
+void AppendVertsForOBB3D( std::vector<Vertex_PCUTBN>& vertexArray, const OBB3& bounds, const Rgba8& tint, const Vec2& uvAtMins = Vec2::ZERO, const Vec2& uvAtMaxs = Vec2::ONE );
+void AppendVertsForOBB3D( std::vector<Vertex_PCUTBN>& vertexArray, const OBB3& bounds, const Rgba8& startTint, const Rgba8& endTint, const Vec2& uvAtMins = Vec2::ZERO, const Vec2& uvAtMaxs = Vec2::ONE );
+void AppendVertsFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, std::vector<Vec3>& corners, const Rgba8& frontTint, const Rgba8& backTint, const Vec2& uvAtMins = Vec2::ZERO, const Vec2& uvAtMaxs = Vec2::ONE );
+void AppendVertsFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, int cornerCount, Vec3* corners, const Rgba8& frontTint, const Rgba8& backTint, const Vec2& uvAtMins = Vec2::ZERO, const Vec2& uvAtMaxs = Vec2::ONE );
+
+
 //-----------------------------------------------------------------------------------------------
 // Obj append methods
 //-----------------------------------------------------------------------------------------------
