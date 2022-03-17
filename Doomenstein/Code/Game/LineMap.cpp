@@ -4,10 +4,12 @@
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
+#include "Engine/Renderer/SpriteSheet.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
 #include "Game/MapData.hpp"
+#include "Game/MapMaterialTypeDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -15,6 +17,7 @@ LineMap::LineMap( const MapData& mapData, World* world )
 	: Map( mapData, world )
 {
 	m_walls = mapData.walls;
+	m_regionTypeDefs = mapData.regionTypeDefs;
 }
 
 
@@ -54,12 +57,28 @@ void LineMap::Update( float deltaSeconds )
 //-----------------------------------------------------------------------------------------------
 void LineMap::UpdateMeshes()
 {
+	if ( !m_isMeshDirty )
+	{
+		return;
+	}
+
 	m_mesh.clear();
 
 	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
-		AppendVertsForOBB3D( m_mesh, m_walls[wallIdx], Rgba8::WHITE );
+		Vec2 uvsAtMins, uvsAtMaxs;
+		MapMaterialTypeDefinition* materialTypeDef = m_regionTypeDefs[wallIdx]->GetSideMaterial();
+		if ( materialTypeDef == nullptr )
+		{
+			return;
+		}
+
+		materialTypeDef->GetSpriteSheet()->GetSpriteUVs( uvsAtMins, uvsAtMaxs, materialTypeDef->GetSpriteCoords() );
+
+		AppendVertsForOBB3D( m_mesh, m_walls[wallIdx], Rgba8::WHITE, uvsAtMins, uvsAtMaxs );
 	}
+
+	m_isMeshDirty = false;
 }
 
 

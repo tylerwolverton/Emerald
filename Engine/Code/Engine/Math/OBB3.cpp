@@ -40,7 +40,7 @@ void OBB3::GetCornerPositions( Vec3* out_eightPoints ) const
 {
 	Vec3 boxHalfWidth(	m_halfDimensions.x * m_iBasis );
 	Vec3 boxHalfHeight( m_halfDimensions.y * m_jBasis );
-	Vec3 boxHalfDepth(	m_halfDimensions.z * GetKBasisNormal() );
+	Vec3 boxHalfDepth(	m_halfDimensions.z * -GetKBasisNormal() );
 
 	Vec3 topFrontRight(		m_center + boxHalfWidth + boxHalfHeight - boxHalfDepth );
 	Vec3 topFrontLeft(		m_center - boxHalfWidth + boxHalfHeight - boxHalfDepth );

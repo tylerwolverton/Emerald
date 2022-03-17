@@ -3,15 +3,10 @@
 	<Walls>
 		<!-- <Wall startPos="-3,-2,0" endPos="-3,2,0" height="2" regionType="CobblestoneWall"/> -->
 		<Wall startPos="0,0,0" endPos="3,0,0" height="2" width="1" regionType="CobblestoneWall"/>
-		<!-- <Wall regionType="CobblestoneWall">
-			<Point pos="-3,2,0"/>
-			<Point pos="5,6,0"/>
-			<Point pos="-3,2,2"/>
-			<Point pos="5,6,2"/>
-		</Wall> -->
+		<Wall startPos="-1,1,0" endPos="0,-2,0" height="4" width=".1" regionType="CobblestoneWall"/>
 	</Walls>
 	<Entities>
-		<PlayerStart pos="6.5,1.5" yaw="150"/>
+		<PlayerStart pos="-1.5,0" yaw="0"/>
 		<Actor type="Pinky" pos="1.5,1.5" yaw="150"/>
 		<Actor type="Pinky" pos="3.5,1.5" yaw="150"/>
 	</Entities>

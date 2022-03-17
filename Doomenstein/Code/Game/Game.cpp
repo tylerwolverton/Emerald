@@ -76,6 +76,7 @@ void Game::Startup()
 
 	Transform::s_identityOrientation.PushTransform( Mat44::CreateZRotationDegrees( -90.f ) );
 	Transform::s_identityOrientation.PushTransform( Mat44::CreateXRotationDegrees( 90.f ) );
+	g_renderer->SetFrontFaceWindOrder( true );
 
 	g_eventSystem->RegisterEvent( "set_mouse_sensitivity", "Usage: set_mouse_sensitivity multiplier=NUMBER. Set the multiplier for mouse sensitivity.", eUsageLocation::DEV_CONSOLE, SetMouseSensitivity );
 	g_eventSystem->RegisterEvent( "light_set_ambient_color", "Usage: light_set_ambient_color color=r,g,b", eUsageLocation::DEV_CONSOLE, SetAmbientLightColor );

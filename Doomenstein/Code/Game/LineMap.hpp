@@ -5,6 +5,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
+class MapRegionTypeDefinition;
 struct OBB3;
 struct Vertex_PCUTBN;
 
@@ -32,6 +33,8 @@ protected:
 private:
 	Transform					m_raytraceTransform;
 
+	bool m_isMeshDirty = true;
 	std::vector<Vertex_PCUTBN>	m_mesh;
 	std::vector<OBB3>		m_walls;
+	std::vector<MapRegionTypeDefinition*> m_regionTypeDefs;	
 };

@@ -41,7 +41,7 @@ public:
 	IntVec2 dimensions = IntVec2::ZERO;						// TileMap
 
 	std::vector<MapEntityDefinition> mapEntityDefs;			// Map
-	std::vector<MapRegionTypeDefinition*> regionTypeDefs;	// TileMap
+	std::vector<MapRegionTypeDefinition*> regionTypeDefs;	// TileMap and LineMap
 
 	std::vector<OBB3> walls;								// LineMap
 
@@ -57,7 +57,7 @@ private:
 	bool ParseMapDefinitionNode( const XmlElement& mapDefElem );
 	bool ParseLegendNode( const XmlElement& mapDefElem, std::map<char, MapRegionTypeDefinition*>& legend, const std::string& defaultRegionName );
 	bool ParseWalls( const XmlElement& mapDefElem, const std::string& defaultRegionName );
-	OBB3 ConstructWallPolygon( const Vec3& startPos, const Vec3& endPos, float height, float width );
+	OBB3 ConstructWall( const Vec3& startPos, const Vec3& endPos, float height, float width );
 	bool ParseMapRowsNode( const XmlElement& mapDefElem, const std::map<char, MapRegionTypeDefinition*>& legend, const std::string& defaultRegionName );
 	bool ParseEntitiesNode( const XmlElement& mapDefElem );
 	void CreateMapEntityDefFromNode( const XmlElement& entityElem );

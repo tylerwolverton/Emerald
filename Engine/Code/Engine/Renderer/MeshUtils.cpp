@@ -477,7 +477,7 @@ void AppendVertsForOBB3D( std::vector<Vertex_PCUTBN>& vertexArray,
 
 	bounds.GetCornerPositions( corners );
 
-	AppendVertsFor3DBox( vertexArray, 8, corners, startTint, endTint, uvAtMins, uvAtMaxs );
+	AppendVertsOnlyFor3DBox( vertexArray, 8, corners, startTint, endTint, uvAtMins, uvAtMaxs );
 }
 
 
@@ -716,6 +716,77 @@ void AppendVertsFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, int cornerCou
 	vertexArray.push_back( Vertex_PCUTBN( corners[1], frontTint, uvAtMins, normal, tangent ) );
 	vertexArray.push_back( Vertex_PCUTBN( corners[4], backTint, uvAtMaxs, normal, tangent ) );
 	vertexArray.push_back( Vertex_PCUTBN( corners[5], backTint, Vec2( uvAtMins.x, uvAtMaxs.y ), normal, tangent ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AppendVertsOnlyFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, std::vector<Vec3>& corners, const Rgba8& frontTint, const Rgba8& backTint, const Vec2& uvAtMins /*= Vec2::ZERO*/, const Vec2& uvAtMaxs /*= Vec2::ONE */ )
+{
+	AppendVertsOnlyFor3DBox( vertexArray, (int)corners.size(), &corners[0], frontTint, backTint, uvAtMins, uvAtMaxs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AppendVertsOnlyFor3DBox( std::vector<Vertex_PCUTBN>& vertexArray, int cornerCount, Vec3* corners, const Rgba8& frontTint, const Rgba8& backTint, const Vec2& uvAtMins /*= Vec2::ZERO*/, const Vec2& uvAtMaxs /*= Vec2::ONE */ )
+{
+	std::vector<Vertex_PCUTBN> uniqueVerts;
+	AppendVertsFor3DBox( uniqueVerts, cornerCount, &corners[0], frontTint, backTint, uvAtMins, uvAtMaxs );
+
+	vertexArray.reserve( vertexArray.size() + 36 );
+
+	// Front face
+	vertexArray.push_back( uniqueVerts[0] );
+	vertexArray.push_back( uniqueVerts[1] );
+	vertexArray.push_back( uniqueVerts[3] );
+
+	vertexArray.push_back( uniqueVerts[0] );
+	vertexArray.push_back( uniqueVerts[3] );
+	vertexArray.push_back( uniqueVerts[2] );
+
+	// Right face
+	vertexArray.push_back( uniqueVerts[4] );
+	vertexArray.push_back( uniqueVerts[5] );
+	vertexArray.push_back( uniqueVerts[7] );
+
+	vertexArray.push_back( uniqueVerts[4] );
+	vertexArray.push_back( uniqueVerts[7] );
+	vertexArray.push_back( uniqueVerts[6] );
+
+	// Back face
+	vertexArray.push_back( uniqueVerts[9] );
+	vertexArray.push_back( uniqueVerts[8] );
+	vertexArray.push_back( uniqueVerts[10] );
+
+	vertexArray.push_back( uniqueVerts[9] );
+	vertexArray.push_back( uniqueVerts[10] );
+	vertexArray.push_back( uniqueVerts[11] );
+
+	// Left face
+	vertexArray.push_back( uniqueVerts[12] );
+	vertexArray.push_back( uniqueVerts[13] );
+	vertexArray.push_back( uniqueVerts[15] );
+
+	vertexArray.push_back( uniqueVerts[12] );
+	vertexArray.push_back( uniqueVerts[15] );
+	vertexArray.push_back( uniqueVerts[14] );
+
+	// Top face
+	vertexArray.push_back( uniqueVerts[16] );
+	vertexArray.push_back( uniqueVerts[17] );
+	vertexArray.push_back( uniqueVerts[19] );
+
+	vertexArray.push_back( uniqueVerts[16] );
+	vertexArray.push_back( uniqueVerts[19] );
+	vertexArray.push_back( uniqueVerts[18] );
+
+	// Bottom face
+	vertexArray.push_back( uniqueVerts[20] );
+	vertexArray.push_back( uniqueVerts[22] );
+	vertexArray.push_back( uniqueVerts[23] );
+
+	vertexArray.push_back( uniqueVerts[20] );
+	vertexArray.push_back( uniqueVerts[23] );
+	vertexArray.push_back( uniqueVerts[21] );
 }
 
 

@@ -143,9 +143,19 @@ bool MapData::ParseWalls( const XmlElement& mapDefElem, const std::string& defau
 		float height = ParseXmlAttribute( *wallElem, "height", 1.f );
 		float width = ParseXmlAttribute( *wallElem, "width", 1.f );
 		
-		OBB3 wall = ConstructWallPolygon( startPos, endPos, height, width );
+		std::string regionTypeStr = ParseXmlAttribute( *wallElem, "regionType", defaultRegionName );
+		MapRegionTypeDefinition* regionDef = MapRegionTypeDefinition::GetMapRegionTypeDefinition( regionTypeStr );
+	
+		if ( regionDef == nullptr )
+		{
+			g_devConsole->PrintError( Stringf( "Wall references unknown regionType '%s'", regionTypeStr.c_str() ) );
+			regionDef = MapRegionTypeDefinition::GetMapRegionTypeDefinition( defaultRegionName );
+		}
+		
+		OBB3 wall = ConstructWall( startPos, endPos, height, width );
 
 		walls.emplace_back( wall );
+		regionTypeDefs.push_back( regionDef );
 
 		wallElem = wallElem->NextSiblingElement();
 	}
@@ -155,7 +165,7 @@ bool MapData::ParseWalls( const XmlElement& mapDefElem, const std::string& defau
 
 
 //-----------------------------------------------------------------------------------------------
-OBB3 MapData::ConstructWallPolygon( const Vec3& startPos, const Vec3& endPos, float height, float width )
+OBB3 MapData::ConstructWall( const Vec3& startPos, const Vec3& endPos, float height, float width )
 {
 	// Determine points looking in the direction of the specified start and end, with height going up and width going to the right
 	Mat44 basisMatrix = MakeLookAtMatrix( startPos, endPos, Vec3( 0.f, 0.f, 1.f ) );
