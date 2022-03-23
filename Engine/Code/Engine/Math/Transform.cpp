@@ -2,12 +2,14 @@
 #include "Engine/Math/Mat44.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/MatrixUtils.hpp"
+#include "Engine/Math/Vec3.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 // Static member definitions
 AxisOrientation Transform::s_axisOrientation;
 Mat44 Transform::s_identityOrientation;
+
 
 //-----------------------------------------------------------------------------------------------
 void Transform::SetPosition( const Vec3& position )
@@ -150,6 +152,67 @@ Vec3 Transform::GetUpVector() const
 	}
 
 	return upVec;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Vec3 Transform::GetWorldUpVector()
+{
+	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
+	{
+		case eAxisYawPitchRollOrder::YXZ:
+		{
+			return Vec3( 0.f, 1.f, 0.f );
+		}
+		break;
+
+		case eAxisYawPitchRollOrder::ZYX:
+		{
+			return Vec3( 0.f, 0.f, 1.f );
+		}
+		break;
+	}
+
+	return Vec3::ZERO;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Vec3 Transform::GetWorldRightVector()
+{
+	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
+	{
+		case eAxisYawPitchRollOrder::YXZ:
+		case eAxisYawPitchRollOrder::ZYX:
+		{
+			return Vec3( 1.f, 0.f, 0.f );
+		}
+		break;
+	}
+
+	return Vec3::ZERO;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Vec3 Transform::GetWorldForwardVector()
+{
+	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
+	{
+		case eAxisYawPitchRollOrder::YXZ:
+		{
+			return Vec3( 0.f, 0.f, -1.f );
+		}
+		break;
+
+		case eAxisYawPitchRollOrder::ZYX:
+		{
+			return Vec3( 0.f, 1.f, 0.f );
+		}
+		break;
+	}
+
+	return Vec3::ZERO;
 }
 
 

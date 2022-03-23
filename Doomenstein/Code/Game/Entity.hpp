@@ -43,6 +43,7 @@ class Entity : public ZephyrEntity
 {
 	friend class Map;
 	friend class TileMap;
+	friend class LineMap;
 	
 public:
 	Entity( const EntityDefinition& entityDef, Map* map );

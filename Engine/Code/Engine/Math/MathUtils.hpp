@@ -8,6 +8,7 @@ struct Vec3;
 struct Vec4;
 struct AABB2;
 struct OBB2;
+struct OBB3;
 struct Capsule2;
 struct FloatRange;
 struct Plane2D;
@@ -50,12 +51,7 @@ int				GetTaxicabDistance2D  ( const IntVec2& positionA, const IntVec2& position
 
 // Direction
 const Vec2		GetNormalizedDirectionFromAToB( const Vec2& a, const Vec2& b );
-
-// Intersection Tests
-bool			DoDiscsOverlap  ( const Vec2& center1, float radius1, const Vec2& center2, float radius2 );
-bool			DoSpheresOverlap( const Vec3& center1, float radius1, const Vec3& center2, float radius2 );
-bool			DoesRayIntersectPlane2D( const Vec2& rayStartPos, const Vec2& rayForwardNormal, const Plane2D& plane );
-const Vec2		GetRayIntersectionPointWithPlane2D( const Vec2& rayStartPos, const Vec2& rayForwardNormal, const Plane2D& plane );
+const Vec3		GetNormalizedDirectionFromAToB( const Vec3& a, const Vec3 b );
 
 // Lerp and Clamp
 float			Interpolate			( float a, float b, float fractionOfB );
@@ -85,6 +81,8 @@ const Vec2		GetNearestPointOnCapsule2D		( const Vec2& point, const Vec2& capsule
 const Vec2		GetNearestPointOnCapsule2D		( const Vec2& point, const Capsule2& capsule );
 const Vec2		GetNearestPointOnOBB2D			( const Vec2& point, const OBB2& box );
 
+const Vec2		GetRayIntersectionPointWithPlane2D( const Vec2& rayStartPos, const Vec2& rayForwardNormal, const Plane2D& plane );
+
 FloatRange		GetRangeOnProjectedAxis     ( int numPoints, const Vec2* points, const Vec2& relativeToPos, const Vec2& axisNormal );
 bool			DoLineSegmentAndDiscOverlap2D( const Vec2& lineStart, const Vec2& lineForwardNormal, float lineLength, const Vec2& discCenter, float discRadius );
 bool			DoLineSegmentAndAABBOverlap2D( const Vec2& lineStart, const Vec2& lineForwardNormal, float lineLength, const AABB2& box );
@@ -96,8 +94,10 @@ bool			DoOBBAndCapsuleOverlap2D	( const OBB2& obb, const Vec2& capsuleMidStart, 
 bool			DoOBBAndCapsuleOverlap2D	( const OBB2& obb, const Capsule2& capsule );
 bool			DoOBBAndDiscOverlap2D	    ( const OBB2& obb, const Vec2& discCenter, float discRadius );
 
+bool			DoDiscsOverlap				( const Vec2& center1, float radius1, const Vec2& center2, float radius2 );
 bool			DoAABBsOverlap2D			( const AABB2& box1, const AABB2& box2 );
 bool			DoDiscAndAABBOverlap2D		( const Vec2& center, float radius, const AABB2& box );
+bool			DoesRayIntersectPlane2D		( const Vec2& rayStartPos, const Vec2& rayForwardNormal, const Plane2D& plane );
 
 void			PushDiscOutOfDisc2D						( Vec2& mobileCenter,	float mobileRadius, const Vec2& stationaryCenter,	float stationaryRadius );
 void			PushDiscsOutOfEachOther2D				( Vec2& center1,		float radius1,			  Vec2& center2,			float radius2 );
@@ -112,6 +112,13 @@ bool			IsPointInsideCapsule2D	( const Vec2& point, const Vec2& capsuleMidStart, 
 bool			IsPointInsideCapsule2D	( const Vec2& point, const Capsule2& capsule );
 bool			IsPointInsideOBB2D		( const Vec2& point, const OBB2& box );
 bool			IsPointInForwardSector2D( const Vec2& point, const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
+
+// Geometric Queries 3D
+bool			DoSpheresOverlap			( const Vec3& center1, float radius1, const Vec3& center2, float radius2 );
+bool			DoCylinderAndOBBOverlap3D	( const Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb );
+
+void			PushCylinderOutOfOBB3D( Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb );
+
 
 // Turning 2D 
 float			GetShortestAngularDisplacementDegrees( float orientationDegreesStart,	float orientationDegreesEnd );
@@ -151,4 +158,14 @@ template < typename T>
 T Max( T a, T b )
 {
 	return a > b ? a : b;
+}
+
+template < typename T>
+T Abs( T a )
+{
+	if ( a < (T)0 )
+	{
+		return -a;
+	}
+	return a;
 }

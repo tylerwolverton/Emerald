@@ -7,9 +7,11 @@
 #include "Engine/Math/Vec4.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/OBB2.hpp"
+#include "Engine/Math/OBB3.hpp"
 #include "Engine/Math/Capsule2.hpp"
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/Plane2D.hpp"
+#include "Engine/Math/Transform.hpp"
 
 #include <math.h>
 
@@ -263,6 +265,14 @@ int GetTaxicabDistance2D( const IntVec2& positionA, const IntVec2& positionB )
 const Vec2 GetNormalizedDirectionFromAToB(const Vec2& a, const Vec2& b)
 {
 	Vec2 directionAToB = b - a;
+	return directionAToB.GetNormalized();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+const Vec3 GetNormalizedDirectionFromAToB( const Vec3& a, const Vec3 b )
+{
+	Vec3 directionAToB = b - a;
 	return directionAToB.GetNormalized();
 }
 
@@ -1272,6 +1282,55 @@ bool IsPointInForwardSector2D( const Vec2& point, const Vec2& observerPos, float
 	float angleBetweenDegrees = GetAngleDegreesBetweenVectors2D( displacementToTarget, Vec2::MakeFromPolarDegrees( forwardDegrees ) );
 
 	return angleBetweenDegrees < ( apertureDegrees * .5f );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool DoCylinderAndOBBOverlap3D( const Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb )
+{
+	// Check bounding spheres
+	Vec3 cylinderHeightVec = Transform::GetWorldUpVector() * cylinderHeight;
+	Vec3 cylinderCenter = cylinderBottomCenter + cylinderHeightVec * .5f;
+	if ( !DoSpheresOverlap( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, 
+							obb.GetCenter(), obb.GetOuterRadius() ) )
+	{
+		return false;
+	}
+
+	// Check cylinder above obb
+	Vec3 obbTop = obb.GetFurthestPointInDirection( Transform::GetWorldUpVector() );
+	if ( DotProduct3D( obbTop, Transform::GetWorldUpVector() ) <
+		 DotProduct3D( cylinderBottomCenter, Transform::GetWorldUpVector() ) )
+	{
+		return false;
+	}
+
+	// Check cylinder below obb
+	Vec3 cylinderTop = cylinderBottomCenter + cylinderHeightVec;
+	Vec3 obbBottom = obb.GetFurthestPointInDirection( -Transform::GetWorldUpVector() );
+	if ( DotProduct3D( obbBottom, Transform::GetWorldUpVector() ) >
+		 DotProduct3D( cylinderTop, Transform::GetWorldUpVector() ) )
+	{
+		//return false;
+	}
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PushCylinderOutOfOBB3D( Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb )
+{
+	if ( !DoCylinderAndOBBOverlap3D( cylinderBottomCenter, cylinderRadius, cylinderHeight, obb ) )
+	{
+		return;
+	}
+
+	Vec3 pushDirection = GetNormalizedDirectionFromAToB( obb.GetCenter(), cylinderBottomCenter );
+	Vec3 obbEdge = obb.GetFurthestPointInDirection( pushDirection );
+	float pushDist = GetDistance3D( obbEdge, cylinderBottomCenter - pushDirection * cylinderRadius );
+	
+	cylinderBottomCenter += pushDist * pushDirection;
 }
 
 

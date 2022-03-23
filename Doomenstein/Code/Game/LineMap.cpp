@@ -1,6 +1,7 @@
 #include "Game/LineMap.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/Math/OBB3.hpp"
+#include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -47,6 +48,8 @@ void LineMap::Update( float deltaSeconds )
 {
 	Map::Update( deltaSeconds );
 
+	ResolveEntityVsWallCollisions();
+
 	if ( g_game->g_raytraceFollowCamera )
 	{
 		m_raytraceTransform = g_game->GetWorldCamera()->GetTransform();
@@ -79,19 +82,6 @@ void LineMap::UpdateMeshes()
 	}
 
 	m_isMeshDirty = false;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void LineMap::AddWallFace( const Vec3& bottomLeft, const Vec3& bottomRight, const Vec3& topLeft, const Vec3& topRight )
-{
-	m_mesh.emplace_back( bottomLeft,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-	m_mesh.emplace_back( bottomRight,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-	m_mesh.emplace_back( topRight,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-
-	m_mesh.emplace_back( bottomLeft,	Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-	m_mesh.emplace_back( topRight,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
-	m_mesh.emplace_back( topLeft,		Rgba8::WHITE, Vec2::ZERO, Vec3( 1.f, 0.f, 0.f ), Vec3( 0.f, 1.f, 0.f ) );
 }
 
 
@@ -157,3 +147,28 @@ RaycastResult LineMap::Raycast( const Vec3& startPos, const Vec3& forwardNormal,
 	return result;
 }
 
+
+//-----------------------------------------------------------------------------------------------
+void LineMap::ResolveEntityVsWallCollisions()
+{
+	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	{
+		Entity* const& entity = m_entities[entityIdx];
+		if ( entity == nullptr )
+		{
+			continue;
+		}
+
+		ResolveEntityVsWallCollision( *entity );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void LineMap::ResolveEntityVsWallCollision( Entity& entity )
+{
+	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
+	{
+		PushCylinderOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), entity.GetHeight(), m_walls[wallIdx] );
+	}
+}

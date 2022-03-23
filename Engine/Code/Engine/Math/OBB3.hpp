@@ -26,6 +26,8 @@ public:
 	const Vec3	GetJBasisNormal() const						{ return m_jBasis; }
 	const Vec3	GetKBasisNormal() const;
 	void		GetCornerPositions( Vec3* out_eightPoints ) const;		// fill float[8] with corners
+	float		GetOuterRadius() const;
+	const Vec3	GetFurthestPointInDirection( const Vec3& direction ) const;
 
 	// Mutators (non-const methods)
 	void		Translate( const Vec3& translation );
