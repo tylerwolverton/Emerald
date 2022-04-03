@@ -12,6 +12,7 @@
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/Plane2D.hpp"
 #include "Engine/Math/Transform.hpp"
+#include "Engine/Renderer/DebugRender.hpp"
 
 #include <math.h>
 
@@ -1288,31 +1289,43 @@ bool IsPointInForwardSector2D( const Vec2& point, const Vec2& observerPos, float
 //-----------------------------------------------------------------------------------------------
 bool DoCylinderAndOBBOverlap3D( const Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb )
 {
+	// Try to check collision in multiple voronoi regions
+	// Disc vs box formed by top of box
+	// 2D plane for z axis collision
+
 	// Check bounding spheres
 	Vec3 cylinderHeightVec = Transform::GetWorldUpVector() * cylinderHeight;
 	Vec3 cylinderCenter = cylinderBottomCenter + cylinderHeightVec * .5f;
+	DebugAddWorldWireSphere( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, Rgba8::YELLOW );
+	DebugAddWorldWireSphere( obb.GetCenter(), obb.GetOuterRadius(), Rgba8::GREEN );
 	if ( !DoSpheresOverlap( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, 
 							obb.GetCenter(), obb.GetOuterRadius() ) )
 	{
+		DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Outside sphere!" );
 		return false;
 	}
 
 	// Check cylinder above obb
-	Vec3 obbTop = obb.GetFurthestPointInDirection( Transform::GetWorldUpVector() );
-	if ( DotProduct3D( obbTop, Transform::GetWorldUpVector() ) <
-		 DotProduct3D( cylinderBottomCenter, Transform::GetWorldUpVector() ) )
-	{
-		return false;
-	}
+	//Vec3 obbTop = obb.GetFurthestPointInDirection( Transform::GetWorldUpVector() );
+	//if ( DotProduct3D( obbTop, Transform::GetWorldUpVector() ) <
+	//	 DotProduct3D( cylinderBottomCenter, Transform::GetWorldUpVector() ) )
+	//{
+	//	DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Above!" );
+	//	return false;
+	//}
 
-	// Check cylinder below obb
-	Vec3 cylinderTop = cylinderBottomCenter + cylinderHeightVec;
-	Vec3 obbBottom = obb.GetFurthestPointInDirection( -Transform::GetWorldUpVector() );
-	if ( DotProduct3D( obbBottom, Transform::GetWorldUpVector() ) >
-		 DotProduct3D( cylinderTop, Transform::GetWorldUpVector() ) )
-	{
-		//return false;
-	}
+	//// Check cylinder below obb
+	//Vec3 cylinderTop = cylinderBottomCenter + cylinderHeightVec;
+	//Vec3 obbBottom = obb.GetFurthestPointInDirection( -Transform::GetWorldUpVector() );
+	//if ( DotProduct3D( obbBottom, Transform::GetWorldUpVector() ) >
+	//	 DotProduct3D( cylinderTop, Transform::GetWorldUpVector() ) )
+	//{
+	//	DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Below!" );
+	//	return false;
+	//}
+
+	// Resolve side collision
+	
 
 	return true;
 }
@@ -1326,10 +1339,17 @@ void PushCylinderOutOfOBB3D( Vec3& cylinderBottomCenter, float cylinderRadius, f
 		return;
 	}
 
-	Vec3 pushDirection = GetNormalizedDirectionFromAToB( obb.GetCenter(), cylinderBottomCenter );
-	Vec3 obbEdge = obb.GetFurthestPointInDirection( pushDirection );
-	float pushDist = GetDistance3D( obbEdge, cylinderBottomCenter - pushDirection * cylinderRadius );
+	DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Overlap!" );
 	
+	// Sphere v sphere
+	Vec3 cylinderHeightVec = Transform::GetWorldUpVector() * cylinderHeight;
+	Vec3 cylinderCenter = cylinderBottomCenter + cylinderHeightVec * .5f;
+	Vec3 pushDirection = GetNormalizedDirectionFromAToB( obb.GetCenter(), cylinderCenter );
+	//Vec3 obbEdge = obb.GetFurthestPointInDirection( pushDirection );
+	Vec3 obbPoint = obb.GetCenter() + obb.GetOuterRadius() * pushDirection;
+	Vec3 cylinderPoint = cylinderCenter + ( ( cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius ) * -pushDirection );
+	float pushDist = GetDistance3D( obbPoint, cylinderPoint );
+
 	cylinderBottomCenter += pushDist * pushDirection;
 }
 

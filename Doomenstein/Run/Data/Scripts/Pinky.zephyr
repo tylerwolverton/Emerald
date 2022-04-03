@@ -19,6 +19,16 @@ Function MoveRight()
     MoveInRelativeDirection( direction: Vec3( 0, 1, 0 ) )
 }
 
+Function MoveUp()
+{
+    MoveInRelativeDirection( direction: Vec3( 0, 0, 1 ) )
+}
+
+Function MoveDown()
+{
+    MoveInRelativeDirection( direction: Vec3( 0, 0, -1 ) )
+}
+
 Function Interact()
 {
     Entity target = null
@@ -37,6 +47,8 @@ Function OnPossess()
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
     RegisterKeyEvent( key: "S", event: "MoveBackward" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
+    RegisterKeyEvent( key: "space", event: "MoveUp" )
+    RegisterKeyEvent( key: "C", event: "MoveDown" )
     RegisterKeyEvent( key: "leftClick", event: "Interact" )
 
     PushCamera( type: "fps", fovDegrees: 60 )
@@ -51,6 +63,8 @@ Function OnUnPossess()
     UnRegisterKeyEvent( key: "A", event: "MoveLeft" )
     UnRegisterKeyEvent( key: "S", event: "MoveBackward" )
     UnRegisterKeyEvent( key: "D", event: "MoveRight" )
+    UnRegisterKeyEvent( key: "space", event: "MoveUp" )
+    UnRegisterKeyEvent( key: "C", event: "MoveDown"  )
     UnRegisterKeyEvent( key: "E", event: "Interact" )
 
     PopCamera()

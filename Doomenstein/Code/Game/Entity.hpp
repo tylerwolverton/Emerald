@@ -57,6 +57,7 @@ public:
 	// Accessors
 	const Vec2			GetForwardVector() const;
 	const Vec2			GetRightVector() const;
+	const Vec3			GetUpVector() const;
 	const Vec3			GetPosition() const										{ return m_position; }
 	void				SetPosition( const Vec3& position )						{ m_position = position; }
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }

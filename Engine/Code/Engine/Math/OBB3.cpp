@@ -67,11 +67,18 @@ void OBB3::GetCornerPositions( Vec3* out_eightPoints ) const
 //-----------------------------------------------------------------------------------------------
 float OBB3::GetOuterRadius() const
 {
-	float radius = m_halfDimensions.x;
+	/*float radius = m_halfDimensions.x;
 	if ( radius < m_halfDimensions.y ) { radius = m_halfDimensions.y; }
-	if ( radius < m_halfDimensions.z ) { radius = m_halfDimensions.z; }
+	if ( radius < m_halfDimensions.z ) { radius = m_halfDimensions.z; }*/
 
-	return radius;
+	Vec3 boxHalfWidth( m_halfDimensions.x * m_iBasis );
+	Vec3 boxHalfHeight( m_halfDimensions.y * m_jBasis );
+	Vec3 boxHalfDepth( m_halfDimensions.z * -GetKBasisNormal() );
+
+	Vec3 topFrontRight( m_center + boxHalfWidth + boxHalfHeight - boxHalfDepth );
+	Vec3 bottomBackLeft( m_center - boxHalfWidth - boxHalfHeight + boxHalfDepth );
+
+	return GetDistance3D( topFrontRight, bottomBackLeft ) * .5f;
 }
 
 
@@ -84,7 +91,7 @@ const Vec3 OBB3::GetFurthestPointInDirection( const Vec3& direction ) const
 	float maxDist = -9999.f;
 	for ( int i = 0; i < 8; ++i )
 	{
-		float dist = Abs( DotProduct3D( direction, corners[i] ) );
+		float dist = DotProduct3D( direction, corners[i] );
 		if ( dist > maxDist )
 		{
 			maxDist = dist;

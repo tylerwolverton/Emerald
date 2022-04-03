@@ -2,6 +2,7 @@
 #include "Game/EntityDefinition.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Transform.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/Core/EngineCommon.hpp"
@@ -184,6 +185,13 @@ const Vec2 Entity::GetRightVector() const
 
 
 //-----------------------------------------------------------------------------------------------
+const Vec3 Entity::GetUpVector() const
+{
+	return Transform::GetWorldUpVector();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Entity::RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees )
 {
 	UNUSED( pitchDegrees );
@@ -219,8 +227,9 @@ void Entity::MoveInDirection( float speed, const Vec3& direction )
 //-----------------------------------------------------------------------------------------------
 void Entity::MoveInRelativeDirection( float speed, const Vec3& direction )
 {
-	Vec2 translationVector( direction.x * GetForwardVector()
-							+ direction.y * GetRightVector() );
+	Vec3 translationVector( direction.x * Vec3( GetForwardVector(), 0.f )
+							+ direction.y * Vec3( GetRightVector(), 0.f )
+							+ direction.z * GetUpVector() );
 
 	Translate( translationVector * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
 }
