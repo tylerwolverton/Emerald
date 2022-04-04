@@ -115,9 +115,11 @@ bool			IsPointInForwardSector2D( const Vec2& point, const Vec2& observerPos, flo
 
 // Geometric Queries 3D
 bool			DoSpheresOverlap			( const Vec3& center1, float radius1, const Vec3& center2, float radius2 );
+bool			DoSphereAndOBBOverlap3D		( const Vec3& sphereCenter, float sphereRadius, const OBB3& obb );
 bool			DoCylinderAndOBBOverlap3D	( const Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb );
 
-void			PushCylinderOutOfOBB3D( Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb );
+void			PushCylinderOutOfOBB3D	( Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb );
+void			PushSphereOutOfOBB3D	( Vec3& sphereCenter, float sphereRadius, const OBB3& obb );
 
 
 // Turning 2D 
@@ -129,7 +131,9 @@ float			DotProduct2D					( const Vec2& a, const Vec2& b );
 float			DotProduct3D					( const Vec3& a, const Vec3& b );
 float			DotProduct4D					( const Vec4& a, const Vec4& b );
 float			GetProjectedLength2D			( const Vec2& a, const Vec2& b );
+float			GetProjectedLength3D			( const Vec3& a, const Vec3& b );
 const Vec2		GetProjectedOnto2D				( const Vec2& a, const Vec2& onto );
+const Vec3		GetProjectedOnto3D				( const Vec3& a, const Vec3& onto );
 float			GetAngleDegreesBetweenVectors2D	( const Vec2& a, const Vec2& b );
 
 Vec3			CrossProduct3D					( const Vec3& a, const Vec3& b );

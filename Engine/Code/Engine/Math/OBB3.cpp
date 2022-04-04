@@ -83,7 +83,7 @@ float OBB3::GetOuterRadius() const
 
 
 //-----------------------------------------------------------------------------------------------
-const Vec3 OBB3::GetFurthestPointInDirection( const Vec3& direction ) const
+const Vec3 OBB3::GetFurthestCornerInDirection( const Vec3& direction ) const
 {
 	Vec3 corners[8];
 	GetCornerPositions( corners );
@@ -100,6 +100,81 @@ const Vec3 OBB3::GetFurthestPointInDirection( const Vec3& direction ) const
 	}
 
 	return furthestPoint;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+const Vec3 OBB3::GetNearestPoint( const Vec3& point ) const
+{
+	/*if ( IsPointInside( point ) )
+	{
+		return point;
+	}*/
+
+	return GetNearestPointOnBox( point );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+const Vec3 OBB3::GetNearestPointOnBox( const Vec3& point ) const
+{
+	Vec3 pointIJK = point - m_center;
+
+	float iLength = DotProduct3D( pointIJK, m_iBasis );
+	float jLength = DotProduct3D( pointIJK, m_jBasis );
+	float kLength = DotProduct3D( pointIJK, GetKBasisNormal() );
+
+	Vec3 nearestPoint( ClampMinMax( iLength, -m_halfDimensions.x, m_halfDimensions.x ) * m_iBasis
+					   + ClampMinMax( jLength, -m_halfDimensions.y, m_halfDimensions.y ) * m_jBasis
+					   + ClampMinMax( kLength, -m_halfDimensions.z, m_halfDimensions.z ) * GetKBasisNormal() );
+
+	nearestPoint += m_center;
+
+	// TODO: Account for point inside obb
+	/*if ( IsPointInside( nearestPoint ) )
+	{
+		float iAbs = Abs( iLength );
+		float jAbs = Abs( jLength );
+		float kAbs = Abs( kLength );
+
+		if ( iAbs > jAbs
+			 && iAbs > kAbs )
+		{
+			nearestPoint
+		}
+	}*/
+
+	return nearestPoint;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool OBB3::IsPointInside( const Vec3& point ) const
+{
+	Vec3 pointIJK = point - m_center;
+
+	float iLength = DotProduct3D( pointIJK, m_iBasis );
+	if ( iLength > m_halfDimensions.x
+		 || iLength < -m_halfDimensions.x )
+	{
+		return false;
+	}
+
+	float jLength = DotProduct3D( pointIJK, m_jBasis );
+	if ( jLength > m_halfDimensions.y
+		 || jLength < -m_halfDimensions.y )
+	{
+		return false;
+	}
+
+	float kLength = DotProduct3D( pointIJK, GetKBasisNormal() );
+	if ( kLength > m_halfDimensions.z
+		 || kLength < -m_halfDimensions.z )
+	{
+		return false;
+	}
+
+	return true;
 }
 
 

@@ -169,6 +169,7 @@ void LineMap::ResolveEntityVsWallCollision( Entity& entity )
 {
 	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
-		PushCylinderOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), entity.GetHeight(), m_walls[wallIdx] );
+		//PushCylinderOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), entity.GetHeight(), m_walls[wallIdx] );
+		PushSphereOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), m_walls[wallIdx] );
 	}
 }

@@ -293,6 +293,16 @@ bool DoSpheresOverlap( const Vec3& center1, float radius1, const Vec3& center2, 
 
 
 //-----------------------------------------------------------------------------------------------
+bool DoSphereAndOBBOverlap3D( const Vec3& sphereCenter, float sphereRadius, const OBB3& obb )
+{
+	Vec3 nearestPointOnBox = obb.GetNearestPointOnBox( sphereCenter );
+	float distFromCenterToBox = GetDistanceSquared3D( sphereCenter, nearestPointOnBox );
+	
+	return distFromCenterToBox < sphereRadius * sphereRadius;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool DoesRayIntersectPlane2D( const Vec2& rayStartPos, const Vec2& rayForwardNormal, const Plane2D& plane )
 {
 	if ( plane.IsPointInFront( rayStartPos ) )
@@ -1148,6 +1158,22 @@ float GetProjectedLength2D( const Vec2& a, const Vec2& b )
 
 
 //-----------------------------------------------------------------------------------------------
+float GetProjectedLength3D( const Vec3& a, const Vec3& b )
+{
+	if ( a == Vec3::ZERO
+		 || b == Vec3::ZERO )
+	{
+		return 0;
+	}
+
+	Vec3 normalizedB = b.GetNormalized();
+	float length = DotProduct3D( a, normalizedB );
+
+	return length;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 const Vec2 GetProjectedOnto2D( const Vec2& a, const Vec2& onto )
 {
 	if ( a == Vec2::ZERO
@@ -1161,6 +1187,26 @@ const Vec2 GetProjectedOnto2D( const Vec2& a, const Vec2& onto )
 	// ( A dot onto ) / onto.length / onto.length or / lengthSquared
 
 	float dotResult = DotProduct2D( a, onto );
+	float ontoLengthSquared = onto.GetLengthSquared();
+
+	return ( dotResult * onto ) / ontoLengthSquared;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+const Vec3 GetProjectedOnto3D( const Vec3& a, const Vec3& onto )
+{
+	if ( a == Vec3::ZERO
+		 || onto == Vec3::ZERO )
+	{
+		return Vec3::ZERO;
+	}
+
+	// Since we aren't normalizing onto, the dot product needs to be divided by the magnitude of onto,
+	// then we need to divide onto by its length to get a unit vector in the direction of onto. This results in
+	// ( A dot onto ) / onto.length / onto.length or / lengthSquared
+
+	float dotResult = DotProduct3D( a, onto );
 	float ontoLengthSquared = onto.GetLengthSquared();
 
 	return ( dotResult * onto ) / ontoLengthSquared;
@@ -1296,8 +1342,8 @@ bool DoCylinderAndOBBOverlap3D( const Vec3& cylinderBottomCenter, float cylinder
 	// Check bounding spheres
 	Vec3 cylinderHeightVec = Transform::GetWorldUpVector() * cylinderHeight;
 	Vec3 cylinderCenter = cylinderBottomCenter + cylinderHeightVec * .5f;
-	DebugAddWorldWireSphere( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, Rgba8::YELLOW );
-	DebugAddWorldWireSphere( obb.GetCenter(), obb.GetOuterRadius(), Rgba8::GREEN );
+	//DebugAddWorldWireSphere( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, Rgba8::YELLOW );
+	//DebugAddWorldWireSphere( obb.GetCenter(), obb.GetOuterRadius(), Rgba8::GREEN );
 	if ( !DoSpheresOverlap( cylinderCenter, cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius, 
 							obb.GetCenter(), obb.GetOuterRadius() ) )
 	{
@@ -1334,23 +1380,56 @@ bool DoCylinderAndOBBOverlap3D( const Vec3& cylinderBottomCenter, float cylinder
 //-----------------------------------------------------------------------------------------------
 void PushCylinderOutOfOBB3D( Vec3& cylinderBottomCenter, float cylinderRadius, float cylinderHeight, const OBB3& obb )
 {
-	if ( !DoCylinderAndOBBOverlap3D( cylinderBottomCenter, cylinderRadius, cylinderHeight, obb ) )
+
+	/*if ( !DoCylinderAndOBBOverlap3D( cylinderBottomCenter, cylinderRadius, cylinderHeight, obb ) )
 	{
 		return;
 	}
 
-	DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Overlap!" );
+	DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Overlap!" );*/
 	
 	// Sphere v sphere
 	Vec3 cylinderHeightVec = Transform::GetWorldUpVector() * cylinderHeight;
 	Vec3 cylinderCenter = cylinderBottomCenter + cylinderHeightVec * .5f;
 	Vec3 pushDirection = GetNormalizedDirectionFromAToB( obb.GetCenter(), cylinderCenter );
+
+
+	DebugAddWorldPoint( obb.GetNearestPointOnBox( cylinderCenter ), Rgba8::GREEN );
+
 	//Vec3 obbEdge = obb.GetFurthestPointInDirection( pushDirection );
-	Vec3 obbPoint = obb.GetCenter() + obb.GetOuterRadius() * pushDirection;
+	/*Vec3 obbPoint = obb.GetCenter() + obb.GetOuterRadius() * pushDirection;
 	Vec3 cylinderPoint = cylinderCenter + ( ( cylinderHeight > cylinderRadius ? cylinderHeight : cylinderRadius ) * -pushDirection );
 	float pushDist = GetDistance3D( obbPoint, cylinderPoint );
 
-	cylinderBottomCenter += pushDist * pushDirection;
+	cylinderBottomCenter += pushDist * pushDirection;*/
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PushSphereOutOfOBB3D( Vec3& sphereCenter, float sphereRadius, const OBB3& obb )
+{
+	if ( !DoSpheresOverlap( sphereCenter, sphereRadius,
+							obb.GetCenter(), obb.GetOuterRadius() ) )
+	{
+		DebugAddScreenText( Vec4::ZERO, Vec2::ZERO, 24.f, Rgba8::GREEN, Rgba8::GREEN, 0.f, "Outside sphere!" );
+		return;
+	}
+
+	DebugAddWorldWireSphere( sphereCenter, sphereRadius, Rgba8::YELLOW );
+	DebugAddWorldWireSphere( obb.GetCenter(), obb.GetOuterRadius(), Rgba8::GREEN );
+
+	Vec3 nearestPointOnBox = obb.GetNearestPointOnBox( sphereCenter );
+	DebugAddWorldPoint( nearestPointOnBox, Rgba8::ORANGE );
+
+	Vec3 displacementFromBox = sphereCenter - nearestPointOnBox;
+	Vec3 directionToPush = displacementFromBox.GetNormalized();
+	float displacementLength = displacementFromBox.GetLength();
+	float penetrationDist = sphereRadius - displacementLength;
+
+	if ( penetrationDist > 0.f )
+	{
+		sphereCenter += penetrationDist * directionToPush;
+	}
 }
 
 
