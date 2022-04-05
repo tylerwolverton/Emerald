@@ -125,7 +125,8 @@ protected:
 	bool							m_isPossessed = false;							
 
 	// Physics
-	Vec3							m_position = Vec3::ZERO;						
+	Vec3							m_position = Vec3::ZERO;
+	Vec3							m_collisionCenterOffset = Vec3::ZERO;
 	Vec3							m_velocity = Vec3::ZERO;					
 	Vec3							m_linearAcceleration = Vec3::ZERO;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees

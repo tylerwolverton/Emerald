@@ -156,7 +156,7 @@ Vec3 Transform::GetUpVector() const
 
 
 //-----------------------------------------------------------------------------------------------
-Vec3 Transform::GetWorldUpVector()
+const Vec3 Transform::GetWorldUpVector()
 {
 	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
 	{
@@ -178,7 +178,7 @@ Vec3 Transform::GetWorldUpVector()
 
 
 //-----------------------------------------------------------------------------------------------
-Vec3 Transform::GetWorldRightVector()
+const Vec3 Transform::GetWorldRightVector()
 {
 	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
 	{
@@ -195,7 +195,7 @@ Vec3 Transform::GetWorldRightVector()
 
 
 //-----------------------------------------------------------------------------------------------
-Vec3 Transform::GetWorldForwardVector()
+const Vec3 Transform::GetWorldForwardVector()
 {
 	switch ( s_axisOrientation.m_axisYawPitchRollOrder )
 	{

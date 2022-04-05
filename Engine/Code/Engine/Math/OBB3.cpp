@@ -106,11 +106,6 @@ const Vec3 OBB3::GetFurthestCornerInDirection( const Vec3& direction ) const
 //-----------------------------------------------------------------------------------------------
 const Vec3 OBB3::GetNearestPoint( const Vec3& point ) const
 {
-	/*if ( IsPointInside( point ) )
-	{
-		return point;
-	}*/
-
 	return GetNearestPointOnBox( point );
 }
 

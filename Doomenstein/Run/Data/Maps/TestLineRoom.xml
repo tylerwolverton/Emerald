@@ -1,9 +1,10 @@
 <MapDefinition type="LineMap" version="1">
 
 	<Walls>
+		<Wall startPos="-10,-10,-1" endPos="-10,10,-1" height="1" width="20" regionType="WoodWall"/>
 		<Wall startPos="0,0,0" endPos="3,0,0" height="2" width="1" regionType="CobblestoneWall"/>
-		<!-- <Wall startPos="-1,1,0" endPos="0,-2,0" height="4" width=".1" regionType="CobblestoneWall"/> -->
-		<!-- <Wall startPos="0,2,-1" endPos="0,4,2" height=".1" width=".5" regionType="CobblestoneWall"/> -->
+		<Wall startPos="-1,1,0" endPos="0,-2,0" height="4" width=".1" regionType="CobblestoneWall"/>
+		<Wall startPos="0,2,-1" endPos="0,4,2" height=".1" width=".5" regionType="CobblestoneWall"/>
 	</Walls>
 	<Entities>
 		<PlayerStart pos="-1.5,0" yaw="0"/>

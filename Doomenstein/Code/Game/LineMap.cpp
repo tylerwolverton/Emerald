@@ -132,6 +132,8 @@ void LineMap::DebugRender() const
 		{
 			DebugAddWorldPoint( points[pointIdx], Rgba8::GREEN );
 		}
+
+		DebugAddWorldWireSphere( m_walls[wallIdx].GetCenter(), m_walls[wallIdx].GetOuterRadius(), Rgba8::GREEN );
 	}
 }
 
@@ -169,7 +171,8 @@ void LineMap::ResolveEntityVsWallCollision( Entity& entity )
 {
 	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
-		//PushCylinderOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), entity.GetHeight(), m_walls[wallIdx] );
-		PushSphereOutOfOBB3D( entity.m_position, entity.GetPhysicsRadius(), m_walls[wallIdx] );
+		Vec3 newPosition = entity.m_position + entity.m_collisionCenterOffset;
+		PushSphereOutOfOBB3D( newPosition, entity.GetPhysicsRadius(), m_walls[wallIdx] );
+		entity.m_position = newPosition - entity.m_collisionCenterOffset;
 	}
 }

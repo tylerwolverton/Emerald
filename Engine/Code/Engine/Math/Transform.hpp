@@ -67,9 +67,9 @@ public:
 	float GetPitchDegrees() const					{ return m_pitchDegrees; }
 	float GetRollDegrees() const					{ return m_rollDegrees; }
 
-	static Vec3 GetWorldUpVector();
-	static Vec3 GetWorldRightVector();
-	static Vec3 GetWorldForwardVector();
+	static const Vec3 GetWorldUpVector();
+	static const Vec3 GetWorldRightVector();
+	static const Vec3 GetWorldForwardVector();
 
 private:
 	Vec3 m_position = Vec3::ZERO; 

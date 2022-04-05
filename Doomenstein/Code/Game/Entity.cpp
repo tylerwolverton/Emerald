@@ -40,6 +40,8 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	m_gameLight.light.halfCosOfOuterAngle	= m_entityDef.m_lightHalfCosOfOuterAngle;
 	m_gameLight.isEnabled					= m_entityDef.m_isLightEnabled;
 
+	m_collisionCenterOffset = Transform::GetWorldUpVector() * m_entityDef.m_physicsRadius;
+
 	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
 }
 
@@ -167,6 +169,7 @@ void Entity::DebugRender() const
 	}
 
 	DebugAddWorldWireCylinder( m_position, Vec3( m_position.XY(), m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
+	DebugAddWorldWireSphere( m_position + m_collisionCenterOffset, m_entityDef.m_physicsRadius, Rgba8::YELLOW );
 }
 
 
