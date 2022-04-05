@@ -1,32 +1,51 @@
+Bool isJumping = false
+Number jumpCooldown = 1
+Number speed = 5
+
 // TODO: Forward, right, etc? Maybe specify vector
 Function MoveForward()
 {
-    MoveInRelativeDirection( direction: Vec3( 1, 0, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 1, 0, 0 ), speed: speed )
 }
 
 Function MoveBackward()
 {
-    MoveInRelativeDirection( direction: Vec3( -1, 0, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( -1, 0, 0 ), speed: speed )
 }
 
 Function MoveLeft()
 {
-    MoveInRelativeDirection( direction: Vec3( 0, -1, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, -1, 0 ), speed: speed )
 }
 
 Function MoveRight()
 {
-    MoveInRelativeDirection( direction: Vec3( 0, 1, 0 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, 1, 0 ), speed: speed )
 }
 
 Function MoveUp()
 {
-    MoveInRelativeDirection( direction: Vec3( 0, 0, 1 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, 0, 1 ), speed: speed )
 }
 
 Function MoveDown()
 {
-    MoveInRelativeDirection( direction: Vec3( 0, 0, -1 ) )
+    MoveInRelativeDirection( direction: Vec3( 0, 0, -1 ), speed: speed )
+}
+
+Function JumpCooldownExpired()
+{
+    isJumping = false
+}
+
+Function Jump()
+{
+    if( !isJumping )
+    {
+        AddImpulse( impulse: Vec3( 0, 0, 5 ) )
+        isJumping = true
+        StartNewTimer( durationSeconds: jumpCooldown, onCompletedEvent: "JumpCooldownExpired" )
+    }
 }
 
 Function Interact()
@@ -47,8 +66,8 @@ Function OnPossess()
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
     RegisterKeyEvent( key: "S", event: "MoveBackward" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
-    RegisterKeyEvent( key: "space", event: "MoveUp" )
-    RegisterKeyEvent( key: "C", event: "MoveDown" )
+    RegisterKeyEvent( key: "space", event: "Jump" )
+    // RegisterKeyEvent( key: "C", event: "MoveDown" )
     RegisterKeyEvent( key: "leftClick", event: "Interact" )
 
     PushCamera( type: "fps", fovDegrees: 60 )
@@ -63,8 +82,8 @@ Function OnUnPossess()
     UnRegisterKeyEvent( key: "A", event: "MoveLeft" )
     UnRegisterKeyEvent( key: "S", event: "MoveBackward" )
     UnRegisterKeyEvent( key: "D", event: "MoveRight" )
-    UnRegisterKeyEvent( key: "space", event: "MoveUp" )
-    UnRegisterKeyEvent( key: "C", event: "MoveDown"  )
+    UnRegisterKeyEvent( key: "space", event: "Jump" )
+    // UnRegisterKeyEvent( key: "C", event: "MoveDown"  )
     UnRegisterKeyEvent( key: "E", event: "Interact" )
 
     PopCamera()

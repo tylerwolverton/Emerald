@@ -36,6 +36,7 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( MoveInCircle );
 	REGISTER_EVENT( MoveInDirection );
 	REGISTER_EVENT( MoveInRelativeDirection );
+	REGISTER_EVENT( AddImpulse );
 
 	REGISTER_EVENT( StartNewTimer );
 	REGISTER_EVENT( WinGame );
@@ -185,6 +186,23 @@ void ZephyrGameAPI::MoveInRelativeDirection( EventArgs* args )
 	Vec3 direction = args->GetValue( "direction", Vec3::ZERO );
 
 	targetEntity->MoveInRelativeDirection( speed, direction );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::AddImpulse( EventArgs* args )
+{
+	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
+
+	Entity* targetEntity = g_game->GetEntityById( targetId );
+	if ( targetEntity == nullptr )
+	{
+		targetEntity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
+	}
+
+	Vec3 impulse = args->GetValue( "impulse", Vec3::ZERO );
+
+	targetEntity->AddImpulse( impulse );
 }
 
 

@@ -6,11 +6,13 @@
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
+#include "Engine/Time/Clock.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
 #include "Game/MapData.hpp"
 #include "Game/MapMaterialTypeDefinition.hpp"
+#include "Game/World.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -48,6 +50,7 @@ void LineMap::Update( float deltaSeconds )
 {
 	Map::Update( deltaSeconds );
 
+	ApplyGravityToEntities();
 	ResolveEntityVsWallCollisions();
 
 	if ( g_game->g_raytraceFollowCamera )
@@ -176,3 +179,20 @@ void LineMap::ResolveEntityVsWallCollision( Entity& entity )
 		entity.m_position = newPosition - entity.m_collisionCenterOffset;
 	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void LineMap::ApplyGravityToEntities()
+{
+	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	{
+		Entity* const& entity = m_entities[entityIdx];
+		if ( entity == nullptr )
+		{
+			continue;
+		}
+
+		entity->m_position += m_gravityVec * m_world->m_worldClock->GetLastDeltaSeconds();
+	}
+}
+

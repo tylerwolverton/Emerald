@@ -32,6 +32,8 @@ protected:
 	void				  ResolveEntityVsWallCollisions();
 	void				  ResolveEntityVsWallCollision( Entity& entity );
 
+	void				ApplyGravityToEntities();
+
 private:
 	Transform								m_raytraceTransform;
 
@@ -39,4 +41,6 @@ private:
 	std::vector<Vertex_PCUTBN>				m_mesh;
 	std::vector<OBB3>						m_walls;
 	std::vector<MapRegionTypeDefinition*>	m_regionTypeDefs;	
+
+	Vec3									m_gravityVec = Transform::GetWorldUpVector() * -1.5f;
 };

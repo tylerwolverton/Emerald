@@ -68,9 +68,15 @@ void Entity::Update( float deltaSeconds )
 	////update orientation
 	//m_orientationDegrees += m_angularVelocity * deltaSeconds;
 
-	//ApplyFriction();
 
 	ZephyrEntity::Update( deltaSeconds );
+
+	Vec3 acceleration = m_forces;
+	m_velocity += acceleration * deltaSeconds;
+	ApplyFriction();
+	m_position += m_velocity * deltaSeconds;
+
+	m_forces = Vec3::ZERO;
 
 	if ( m_curSpriteAnimSetDef != nullptr )
 	{
@@ -223,7 +229,8 @@ void Entity::MoveInCircle( const Vec3& center, float radius, float speed )
 //-----------------------------------------------------------------------------------------------
 void Entity::MoveInDirection( float speed, const Vec3& direction )
 {
-	Translate( direction * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
+	//Translate( direction * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
+	AddForce( direction * speed );
 }
 
 
@@ -234,7 +241,8 @@ void Entity::MoveInRelativeDirection( float speed, const Vec3& direction )
 							+ direction.y * Vec3( GetRightVector(), 0.f )
 							+ direction.z * GetUpVector() );
 
-	Translate( translationVector * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
+	//Translate( translationVector * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
+	AddForce( translationVector * speed );
 }
 
 
@@ -311,6 +319,13 @@ void Entity::ApplyFriction()
 	{
 		m_velocity = Vec3::ZERO;
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::AddImpulse( const Vec3& impulse )
+{
+	m_velocity += impulse;
 }
 
 

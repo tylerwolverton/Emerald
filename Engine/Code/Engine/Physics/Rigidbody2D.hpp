@@ -41,7 +41,7 @@ public:
 	Vec2 GetVelocity()																{ return m_velocity; }
 	void SetVelocity( const Vec2& velocity );
 	
-	Vec2 GetImpaceVelocityAtPoint( const Vec2& point );
+	Vec2 GetImpactVelocityAtPoint( const Vec2& point );
 	
 	Vec2 GetVerletVelocity()														{ return m_verletVelocity; }
 

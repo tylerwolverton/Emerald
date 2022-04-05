@@ -48,7 +48,7 @@ constexpr float WINDOW_HEIGHT_PIXELS = 1080.f;
 
 constexpr float TILE_SIZE = 1.f;
 
-constexpr float PHYSICS_FRICTION_FRACTION = .2f;
+constexpr float PHYSICS_FRICTION_FRACTION = .05f;
 
 constexpr float DEBUG_LINE_THICKNESS = 0.02f;
 

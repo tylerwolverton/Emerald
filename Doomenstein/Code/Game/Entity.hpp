@@ -99,6 +99,8 @@ public:
 
 	void				TakeDamage( int damage );
 	void				ApplyFriction();
+	void				AddForce( const Vec3& force )							{ m_forces += force; }
+	void				AddImpulse( const Vec3& impulse );
 
 	// Input
 	void				RegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
@@ -129,6 +131,7 @@ protected:
 	Vec3							m_collisionCenterOffset = Vec3::ZERO;
 	Vec3							m_velocity = Vec3::ZERO;					
 	Vec3							m_linearAcceleration = Vec3::ZERO;
+	Vec3							m_forces = Vec3::ZERO;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
 	float							m_angularVelocity = 0.f;						// the Entity's signed angular velocity( spin rate ), in degrees per second
 

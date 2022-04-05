@@ -229,6 +229,11 @@ void Game::UpdateFromKeyboard()
 		LoadStartingMap( m_startingMapName );
 		return;
 	}
+
+	//if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F6 ) )
+	//{
+	//	ReloadScripts();
+	//}
 }
 
 

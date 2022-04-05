@@ -19,6 +19,8 @@ struct MapData;
 //-----------------------------------------------------------------------------------------------
 class World
 {
+	friend class LineMap;
+
 public:
 	World( Clock* gameClock );
 	~World();

@@ -48,6 +48,7 @@ private:
 	void MoveInCircle( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
 	void MoveInRelativeDirection( EventArgs* args );
+	void AddImpulse( EventArgs* args );
 	void GetEntityFromCameraRaytrace( EventArgs* args );
 	void GetEntityFromRaytrace( EventArgs* args );
 
