@@ -10,6 +10,7 @@
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Input/InputSystem.hpp"
+#include "Engine/Physics/3D/PhysicsSystem3D.hpp"
 #include "Engine/Physics/3D/Rigidbody3D.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
@@ -44,6 +45,8 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	m_collisionCenterOffset = Transform::GetWorldUpVector() * m_entityDef.m_physicsRadius;
 
 	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
+
+	m_rigidbody = g_game->GetPhysicsSystem3D()->CreateRigidbody( m_entityDef.m_mass );
 }
 
 

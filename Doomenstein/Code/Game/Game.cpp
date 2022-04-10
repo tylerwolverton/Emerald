@@ -18,6 +18,7 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/OS/Window.hpp"
+#include "Engine/Physics/3D/PhysicsSystem3D.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/GPUMesh.hpp"
@@ -100,6 +101,9 @@ void Game::Startup()
 	m_uiSystem = new UISystem();
 	m_uiSystem->Startup( g_window, g_renderer );
 
+	m_physicsSystem3D = new PhysicsSystem3D();
+	m_physicsSystem3D->Startup( m_gameClock );
+
 	g_physicsConfig->PopulateFromXml();
 	LoadAssets();
 
@@ -151,6 +155,7 @@ void Game::Shutdown()
 	TileDefinition::s_definitions.clear();
 	
 	m_uiSystem->Shutdown();
+	m_physicsSystem3D->Shutdown();
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_playerController );
@@ -158,6 +163,8 @@ void Game::Shutdown()
 	PTR_SAFE_DELETE( m_gameClock );
 	PTR_SAFE_DELETE( m_rng );
 	PTR_SAFE_DELETE( m_uiCamera );
+	PTR_SAFE_DELETE( m_uiSystem );
+	PTR_SAFE_DELETE( m_physicsSystem3D );
 }
 
 
@@ -183,6 +190,8 @@ void Game::Update()
 
 	FreeAllLights();
 	m_world->Update();
+
+	m_physicsSystem3D->Update();
 
 	m_playerController->UpdateTranslation();
 }
@@ -823,6 +832,7 @@ void Game::ReloadGame()
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();
 	g_physicsConfig->PopulateFromXml();
+	m_physicsSystem3D->Reset();
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 

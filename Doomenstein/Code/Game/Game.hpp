@@ -22,6 +22,7 @@ class RandomNumberGenerator;
 class Camera;
 class GPUMesh;
 class Material;
+class PhysicsSystem3D;
 class TextBox;
 class Texture;
 class UIPanel;
@@ -87,6 +88,8 @@ public:
 	void			FreeLight( int lightIdx );
 	void			FreeAllLights();
 
+	PhysicsSystem3D* GetPhysicsSystem3D() const													{ return m_physicsSystem3D; }
+
 	static bool		SetMouseSensitivity( EventArgs* args );
 	static bool		SetAmbientLightColor( EventArgs* args );
 	
@@ -131,6 +134,8 @@ private:
 	Clock* m_gameClock = nullptr;
 
 	EntityController* m_playerController = nullptr;
+
+	PhysicsSystem3D* m_physicsSystem3D = nullptr;
 
 	eGameState m_gameState = eGameState::LOADING;
 	bool m_isDebugRendering = false;

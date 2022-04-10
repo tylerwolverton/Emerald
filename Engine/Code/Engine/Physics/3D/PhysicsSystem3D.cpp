@@ -44,10 +44,11 @@ void PhysicsSystem3D::Reset()
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody3D* PhysicsSystem3D::CreateRigidbody()
+Rigidbody3D* PhysicsSystem3D::CreateRigidbody( float mass )
 {
 	Rigidbody3D* newRigidbody = new Rigidbody3D();
 	newRigidbody->m_system = this;
+	newRigidbody->m_mass = mass;
 
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -81,7 +82,7 @@ void PhysicsSystem3D::DestroyRigidbody( Rigidbody3D* rigidbodyToDestroy )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem3D::AdvanceSimulation( float deltaSeconds )
 {
-	ApplyEffectors(); 					// apply gravity to all dynamic objects
+	//ApplyEffectors(); 					// apply gravity to all dynamic objects
 	MoveRigidbodies( deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
 	//DetectCollisions();					// determine all pairs of intersecting colliders
 	//ClearOldCollisions();

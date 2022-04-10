@@ -37,7 +37,7 @@ public:
 	void Reset();
 
 	// Factory style create/destroy
-	Rigidbody3D* CreateRigidbody();
+	Rigidbody3D* CreateRigidbody( float mass = 1.f );
 	void DestroyRigidbody( Rigidbody3D* rigidbodyToDestroy );
 
 	/*DiscCollider2D* CreateDiscCollider( const Vec2& localPosition, float radius );
