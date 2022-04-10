@@ -19,7 +19,7 @@ void PhysicsSystem3D::Startup( Clock* gameClock )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem3D::Update()
 {
-	AdvanceSimulation( m_physicsClock->GetLastDeltaSeconds() );
+	AdvanceSimulation( (float)m_physicsClock->GetLastDeltaSeconds() );
 }
 
 

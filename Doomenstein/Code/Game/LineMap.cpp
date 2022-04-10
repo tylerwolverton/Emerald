@@ -172,6 +172,8 @@ void LineMap::ResolveEntityVsWallCollisions()
 //-----------------------------------------------------------------------------------------------
 void LineMap::ResolveEntityVsWallCollision( Entity& entity )
 {
+	UNUSED( entity );
+
 	/*for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
 		Vec3 newPosition = entity.m_position + entity.m_collisionCenterOffset;
@@ -192,7 +194,7 @@ void LineMap::ApplyGravityToEntities()
 			continue;
 		}
 
-		entity->AddForce( m_gravityVec * m_world->m_worldClock->GetLastDeltaSeconds() );
+		entity->AddForce( m_gravityVec * (float)m_world->m_worldClock->GetLastDeltaSeconds() );
 	}
 }
 

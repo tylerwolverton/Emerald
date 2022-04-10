@@ -223,6 +223,7 @@ void ZephyrGameAPI::GetEntityFromCameraRaytrace( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameAPI::GetEntityFromRaytrace( EventArgs* args )
 {
+	UNUSED( args );
 	/*Entity* entity = GetTargetEntityFromArgs( args );
 
 	Vec3 startPos = args->GetValue( "startPos", entity->GetPosition() );
@@ -244,9 +245,9 @@ void ZephyrGameAPI::MoveInCircle( EventArgs* args )
 		targetEntity = (Entity*)args->GetValue( "entity", (void*)nullptr );
 	}
 
-	float speed = args->GetValue( "speed", .5f );
-	float radius = args->GetValue( "radius", .5f );
-	Vec3 center = args->GetValue( "center", targetEntity->GetPosition() );
+	//float speed = args->GetValue( "speed", .5f );
+	//float radius = args->GetValue( "radius", .5f );
+	//Vec3 center = args->GetValue( "center", targetEntity->GetPosition() );
 
 	//targetEntity->MoveInCircle( center, radius, speed );
 }
@@ -716,7 +717,9 @@ void ZephyrGameAPI::AddScreenShake( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameAPI::ChangeLight( EventArgs* args )
 {
-	Entity* entity = GetTargetEntityFromArgs( args );
+	UNUSED( args );
+
+	//Entity* entity = GetTargetEntityFromArgs( args );
 
 
 }
