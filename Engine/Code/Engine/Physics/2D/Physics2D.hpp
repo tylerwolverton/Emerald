@@ -1,12 +1,13 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/Vec2.hpp"
-#include "Engine/Physics/2D/Collision2D.hpp"
+#include "Engine/Physics/Collision.hpp"
 
 #include <vector>
 
 //-----------------------------------------------------------------------------------------------
-struct Manifold2;
+template<typename VecType>
+struct Manifold;
 class Polygon2;
 class Clock;
 class Timer;
@@ -14,6 +15,9 @@ class Rigidbody2D;
 class Collider2D;
 class DiscCollider2D;
 class PolygonCollider2D;
+
+using Collision2D = Collision<Collider2D, Vec2>;
+using Manifold2D = Manifold<Vec2>;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -73,12 +77,12 @@ private:
 	bool DoesCollisionInvolveATrigger( const Collision2D& collision ) const;
 	void InvokeCollisionEvents( const Collision2D& collision, eCollisionEventType collisionType ) const;
 	// TODO: Rename to my and theirs or something else that's clear
-	void CorrectCollidingRigidbodies( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold );
-	void ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold );
-	float CalculateImpulseAgainstImmoveableObject( Rigidbody2D* moveableRigidbody, Rigidbody2D* immoveableRigidbody, const Manifold2& collisionManifold );
-	float CalculateImpulseBetweenMoveableObjects( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold );
+	void CorrectCollidingRigidbodies( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold );
+	void ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold );
+	float CalculateImpulseAgainstImmoveableObject( Rigidbody2D* moveableRigidbody, Rigidbody2D* immoveableRigidbody, const Manifold2D& collisionManifold );
+	float CalculateImpulseBetweenMoveableObjects( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold );
 	   
-	float GetRotationalThingOverMomentOfInertia( Rigidbody2D* rigidbody, const Manifold2& collisionManifold );
+	float GetRotationalThingOverMomentOfInertia( Rigidbody2D* rigidbody, const Manifold2D& collisionManifold );
 
 	void AddOrUpdateCollision( const Collision2D& collision );
 

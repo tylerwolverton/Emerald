@@ -63,9 +63,9 @@ private:
 	void AdvanceSimulation( float deltaSeconds );
 	void ApplyEffectors();
 	void MoveRigidbodies( float deltaSeconds );
-	//void DetectCollisions();
-	//void ClearOldCollisions();
-	//void ResolveCollisions();
+	void DetectCollisions();
+	void ClearOldCollisions();
+	void ResolveCollisions();
 	//void ResolveCollision( const Collision3D& collision );
 	//void InvokeCollisionEvents( const Collision2D& collision, eCollisionEventType collisionType ) const;
 	// TODO: Rename to my and theirs or something else that's clear

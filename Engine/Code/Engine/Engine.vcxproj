@@ -352,12 +352,12 @@
     <ClInclude Include="Networking\UDPSocket.hpp" />
     <ClInclude Include="Performance\PerformanceTracker.hpp" />
     <ClInclude Include="Physics\2D\Collider2D.hpp" />
-    <ClInclude Include="Physics\2D\Collision2D.hpp" />
     <ClInclude Include="Physics\2D\DiscCollider2D.hpp" />
-    <ClInclude Include="Physics\2D\Manifold2.hpp" />
     <ClInclude Include="Physics\2D\Physics2D.hpp" />
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
+    <ClInclude Include="Physics\Collision.hpp" />
+    <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\PhysicsMaterial.hpp" />
     <ClInclude Include="Physics\2D\PolygonCollider2D.hpp" />
     <ClInclude Include="Physics\2D\Rigidbody2D.hpp" />

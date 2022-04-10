@@ -3,7 +3,8 @@
 #include "Engine/Physics/2D/DiscCollider2D.hpp"
 #include "Engine/Physics/2D/PolygonCollider2D.hpp"
 #include "Engine/Physics/2D/Rigidbody2D.hpp"
-#include "Engine/Physics/2D/Manifold2.hpp"
+//#include "Engine/Physics/2D/Manifold2.hpp"
+#include "Engine/Physics/Manifold.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Plane2D.hpp"
@@ -11,7 +12,7 @@
 
 
 typedef bool ( *CollisionCheckCallback )( const Collider2D*, const Collider2D* );
-typedef Manifold2( *CollisionManifoldGenerationCallback )( const Collider2D*, const Collider2D* );
+typedef Manifold2D( *CollisionManifoldGenerationCallback )( const Collider2D*, const Collider2D* );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -183,13 +184,13 @@ bool Collider2D::Intersects( const Collider2D* other ) const
 
 
 //-----------------------------------------------------------------------------------------------
-static Manifold2 DiscVDiscCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold2D DiscVDiscCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
 	const DiscCollider2D* discCollider1 = (const DiscCollider2D*)collider1;
 	const DiscCollider2D* discCollider2 = (const DiscCollider2D*)collider2;
 	
-	Manifold2 manifold;
+	Manifold2D manifold;
 	manifold.normal = discCollider2->m_worldPosition - discCollider1->m_worldPosition;
 	manifold.normal.Normalize();
 
@@ -205,7 +206,7 @@ static Manifold2 DiscVDiscCollisionManifoldGenerator( const Collider2D* collider
 
 
 //-----------------------------------------------------------------------------------------------
-static Manifold2 DiscVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold2D DiscVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
 	const DiscCollider2D* discCollider = (const DiscCollider2D*)collider1;
@@ -213,7 +214,7 @@ static Manifold2 DiscVPolygonCollisionManifoldGenerator( const Collider2D* colli
 
 	Vec2 closestPointOnPolygonToDisc = polygonCollider->m_polygon.GetClosestPointOnEdge( discCollider->m_worldPosition );
 	
-	Manifold2 manifold;
+	Manifold2D manifold;
 	manifold.normal = closestPointOnPolygonToDisc - discCollider->m_worldPosition;
 	manifold.normal.Normalize();
 
@@ -371,7 +372,7 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 
 
 //-----------------------------------------------------------------------------------------------
-static Manifold2 PolygonVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold2D PolygonVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
 	const PolygonCollider2D* polygonCollider1 = (const PolygonCollider2D*)collider1;
@@ -380,7 +381,7 @@ static Manifold2 PolygonVPolygonCollisionManifoldGenerator( const Collider2D* co
 	std::vector<Vec2> simplex = GetSimplexForGJKCollision( polygonCollider1, polygonCollider2 );
 	if ( simplex.size() == 0 )
 	{
-		return Manifold2();
+		return Manifold2D();
 	}
 
 	Vec2 edge01 = simplex[1] - simplex[0];
@@ -406,7 +407,7 @@ static Manifold2 PolygonVPolygonCollisionManifoldGenerator( const Collider2D* co
 
 		if ( IsNearlyEqual( DotProduct2D( nextSupportPoint, normal ), distFromOriginToEdge, .0001f ) )
 		{
-			Manifold2 manifold;
+			Manifold2D manifold;
 			manifold.normal = normal;
 			manifold.penetrationDepth = distFromOriginToEdge;
 			manifold.contactPoint1 = startEdge;
@@ -433,7 +434,7 @@ static Manifold2 PolygonVPolygonCollisionManifoldGenerator( const Collider2D* co
 		}
 	}
 
-	return Manifold2();
+	return Manifold2D();
 }
 
 
@@ -447,14 +448,14 @@ static CollisionManifoldGenerationCallback g_ManifoldGenerators[NUM_COLLIDER_TYP
 
 
 //-----------------------------------------------------------------------------------------------
-Manifold2 Collider2D::GetCollisionManifold( const Collider2D* other ) const
+Manifold2D Collider2D::GetCollisionManifold( const Collider2D* other ) const
 {
 	if ( other == nullptr
 		 || !m_rigidbody->IsEnabled()
 		 || !other->m_rigidbody->IsEnabled()
 		 || !DoAABBsOverlap2D( GetWorldBounds(), other->GetWorldBounds() ) )
 	{
-		return Manifold2();
+		return Manifold2D();
 	}
 
 	eCollider2DType myType = m_type;
@@ -471,7 +472,7 @@ Manifold2 Collider2D::GetCollisionManifold( const Collider2D* other ) const
 		// flip the types when looking into the index.
 		int idx = myType * NUM_COLLIDER_TYPES + otherType;
 		CollisionManifoldGenerationCallback manifoldGenerator = g_ManifoldGenerators[idx];
-		Manifold2 manifold = manifoldGenerator( other, this );
+		Manifold2D manifold = manifoldGenerator( other, this );
 		manifold.normal *= -1.f;
 		return manifold;
 	}

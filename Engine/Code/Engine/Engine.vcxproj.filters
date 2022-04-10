@@ -724,13 +724,7 @@
     <ClInclude Include="Physics\2D\Collider2D.hpp">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\2D\Collision2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Physics\2D\DiscCollider2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\2D\Manifold2.hpp">
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="Physics\2D\Physics2D.hpp">
@@ -744,5 +738,7 @@
     </ClInclude>
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
+    <ClInclude Include="Physics\Manifold.hpp" />
+    <ClInclude Include="Physics\Collision.hpp" />
   </ItemGroup>
 </Project>

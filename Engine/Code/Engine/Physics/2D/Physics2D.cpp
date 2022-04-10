@@ -4,10 +4,10 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/2D/Rigidbody2D.hpp"
 #include "Engine/Physics/2D/Collider2D.hpp"
-#include "Engine/Physics/2D/Collision2D.hpp"
 #include "Engine/Physics/2D/DiscCollider2D.hpp"
 #include "Engine/Physics/2D/PolygonCollider2D.hpp"
-#include "Engine/Physics/2D/Manifold2.hpp"
+#include "Engine/Physics/Manifold.hpp"
+#include "Engine/Physics/Collision.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Time/Timer.hpp"
@@ -335,7 +335,7 @@ void Physics2D::ResolveCollision( const Collision2D& collision )
 
 
 //-----------------------------------------------------------------------------------------------
-void Physics2D::CorrectCollidingRigidbodies( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold )
+void Physics2D::CorrectCollidingRigidbodies( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold )
 {
 	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC
 		 || ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_KINEMATIC && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC ) )
@@ -360,9 +360,9 @@ void Physics2D::CorrectCollidingRigidbodies( Rigidbody2D* rigidbody1, Rigidbody2
 
 
 //-----------------------------------------------------------------------------------------------
-void Physics2D::ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold )
+void Physics2D::ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold )
 {
-	Manifold2 tangentManifold = collisionManifold;
+	Manifold2D tangentManifold = collisionManifold;
 	tangentManifold.normal = collisionManifold.normal.GetRotatedMinus90Degrees();
 
 	//DebugAddWorldArrow( collisionManifold.GetCenterOfContactEdge(), collisionManifold.GetCenterOfContactEdge() + collisionManifold.normal, Rgba8::BLUE );
@@ -394,7 +394,7 @@ void Physics2D::ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* ri
 	// Handle other valid simulation mode combinations
 	Rigidbody2D* immoveableObj = nullptr;
 	Rigidbody2D* moveableObj = nullptr;
-	Manifold2 normalManifold = collisionManifold;
+	Manifold2D normalManifold = collisionManifold;
 	if ( ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC || rigidbody1->GetSimulationMode() == SIMULATION_MODE_KINEMATIC )
 		 && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
 	{
@@ -433,7 +433,7 @@ void Physics2D::ApplyCollisionImpulses( Rigidbody2D* rigidbody1, Rigidbody2D* ri
 
 
 //-----------------------------------------------------------------------------------------------
-float Physics2D::CalculateImpulseAgainstImmoveableObject( Rigidbody2D* moveableRigidbody, Rigidbody2D* immoveableRigidbody, const Manifold2& collisionManifold )
+float Physics2D::CalculateImpulseAgainstImmoveableObject( Rigidbody2D* moveableRigidbody, Rigidbody2D* immoveableRigidbody, const Manifold2D& collisionManifold )
 {
 	float e = moveableRigidbody->m_collider->GetBounceWith( immoveableRigidbody->m_collider );
 
@@ -455,7 +455,7 @@ float Physics2D::CalculateImpulseAgainstImmoveableObject( Rigidbody2D* moveableR
 
 
 //-----------------------------------------------------------------------------------------------
-float Physics2D::CalculateImpulseBetweenMoveableObjects( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2& collisionManifold )
+float Physics2D::CalculateImpulseBetweenMoveableObjects( Rigidbody2D* rigidbody1, Rigidbody2D* rigidbody2, const Manifold2D& collisionManifold )
 {
 	Vec2 initialVelocity1 = rigidbody1->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
 	Vec2 initialVelocity2 = rigidbody2->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
@@ -480,7 +480,7 @@ float Physics2D::CalculateImpulseBetweenMoveableObjects( Rigidbody2D* rigidbody1
 
 
 //-----------------------------------------------------------------------------------------------
-float Physics2D::GetRotationalThingOverMomentOfInertia( Rigidbody2D* rigidbody, const Manifold2& collisionManifold )
+float Physics2D::GetRotationalThingOverMomentOfInertia( Rigidbody2D* rigidbody, const Manifold2D& collisionManifold )
 {
 	Vec2 centerOfMassToContact = collisionManifold.GetCenterOfContactEdge() - rigidbody->GetPosition();
 

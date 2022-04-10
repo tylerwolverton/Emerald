@@ -7,12 +7,17 @@
 //-----------------------------------------------------------------------------------------------
 struct Vec2;
 struct Rgba8;
-struct Manifold2;
+template<typename VecType> 
+struct Manifold;
 class Physics2D;
 class Rigidbody2D;
-class Collision2D;
 class RenderContext;
+class Collider2D;
+template<typename ColliderType, typename VecType>
+class Collision;
 
+using Collision2D = Collision<Collider2D, Vec2>;
+using Manifold2D = Manifold<Vec2>;
 
 //-----------------------------------------------------------------------------------------------
 enum eCollider2DType
@@ -43,7 +48,7 @@ public: // Interface
 	virtual bool Contains( const Vec2& pos ) const = 0;
 	bool Intersects( const Collider2D* other ) const;
 
-	Manifold2 GetCollisionManifold( const Collider2D* other ) const;
+	Manifold2D GetCollisionManifold( const Collider2D* other ) const;
 	float GetBounceWith( const Collider2D* otherCollider ) const;
 	float GetFrictionWith( const Collider2D* otherCollider ) const;
 
