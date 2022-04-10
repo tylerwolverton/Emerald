@@ -48,9 +48,9 @@ void LineMap::Unload()
 //-----------------------------------------------------------------------------------------------
 void LineMap::Update( float deltaSeconds )
 {
+	ApplyGravityToEntities();
 	Map::Update( deltaSeconds );
 
-	ApplyGravityToEntities();
 	ResolveEntityVsWallCollisions();
 
 	if ( g_game->g_raytraceFollowCamera )
@@ -192,7 +192,7 @@ void LineMap::ApplyGravityToEntities()
 			continue;
 		}
 
-		entity->m_position += m_gravityVec * m_world->m_worldClock->GetLastDeltaSeconds();
+		entity->AddForce( m_gravityVec * m_world->m_worldClock->GetLastDeltaSeconds() );
 	}
 }
 

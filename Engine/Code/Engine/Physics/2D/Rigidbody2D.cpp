@@ -1,9 +1,9 @@
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/2D/Rigidbody2D.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/Physics2D.hpp"
-#include "Engine/Physics/Collider2D.hpp"
+#include "Engine/Physics/2D/Physics2D.hpp"
+#include "Engine/Physics/2D/Collider2D.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 

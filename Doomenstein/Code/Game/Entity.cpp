@@ -59,16 +59,6 @@ void Entity::Update( float deltaSeconds )
 		}
 	}
 
-	//// vel += acceleration * dt;
-	//m_velocity += m_linearAcceleration * deltaSeconds;
-	//m_linearAcceleration = Vec3::ZERO;
-	//// pos += vel * dt;
-	//m_position += m_velocity * deltaSeconds;
-
-	////update orientation
-	//m_orientationDegrees += m_angularVelocity * deltaSeconds;
-
-
 	ZephyrEntity::Update( deltaSeconds );
 
 	Vec3 acceleration = m_forces;

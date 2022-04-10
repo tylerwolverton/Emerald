@@ -1,13 +1,21 @@
 #pragma once
-#include "Engine/Physics/Collider2D.hpp"
+#include "Engine/Physics/2D/Collider2D.hpp"
 #include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Polygon2.hpp"
+
+#include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
-class DiscCollider2D : public Collider2D
+struct AABB2;
+
+
+//-----------------------------------------------------------------------------------------------
+class PolygonCollider2D : public Collider2D
 {
 public:
-	DiscCollider2D( int id, const Vec2& localPosition, float radius );
+	PolygonCollider2D( int id, const std::vector<Vec2>& points );
+	PolygonCollider2D( int id, const Polygon2& polygon );
 
 	virtual void UpdateWorldShape() override;
 
@@ -16,7 +24,7 @@ public:
 	virtual bool Contains( const Vec2& pos ) const override;
 
 	virtual unsigned int CheckIfOutsideScreen( const AABB2& screenBounds, bool checkForCompletelyOffScreen ) const override;
-	const AABB2 CalculateWorldBounds();
+	virtual const AABB2 GetWorldBounds() const										{ return m_polygon.m_boundingBox; }
 
 	virtual float CalculateMoment( float mass ) override;
 
@@ -26,8 +34,8 @@ public:
 	virtual void DebugRender( RenderContext* renderer, const Rgba8& borderColor, const Rgba8& fillColor ) const override;
 
 protected:
-	virtual ~DiscCollider2D();
+	virtual ~PolygonCollider2D();
 
 public:
-	float	m_radius = 0.f;
+	Polygon2 m_polygon;			// polygon that makes up body of collider
 };

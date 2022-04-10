@@ -42,5 +42,5 @@ private:
 	std::vector<OBB3>						m_walls;
 	std::vector<MapRegionTypeDefinition*>	m_regionTypeDefs;	
 
-	Vec3									m_gravityVec = Transform::GetWorldUpVector() * -1.5f;
+	Vec3									m_gravityVec = Transform::GetWorldUpVector() * -90.8f;
 };

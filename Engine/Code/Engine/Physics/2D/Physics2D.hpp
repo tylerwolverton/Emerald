@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/Vec2.hpp"
-#include "Engine/Physics/Collision2D.hpp"
+#include "Engine/Physics/2D/Collision2D.hpp"
 
 #include <vector>
 

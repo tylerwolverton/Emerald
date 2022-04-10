@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Math/IntVec2.hpp"
-#include "Engine/Physics/Collider2D.hpp"
-#include "Engine/Physics/Manifold2.hpp"
+#include "Engine/Physics/2D/Collider2D.hpp"
+#include "Engine/Physics/2D/Manifold2.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
