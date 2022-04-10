@@ -49,7 +49,7 @@ void Map::Update( float deltaSeconds )
 		entity->Update( deltaSeconds );
 	}
 
-	ResolveEntityVsEntityCollisions();
+	//ResolveEntityVsEntityCollisions();
 	UpdateMeshes();
 }
 

@@ -479,7 +479,7 @@ RaycastResult TileMap::RaycastAgainstEntitiesFast( const Vec3& startPos, const V
 		Vec2 jBasis = iBasis.GetRotated90Degrees();
 
 		// Project disc into forward vector's space
-		Vec2 displacementFromStartToCenterOfDisc = entity->m_position.XY() - startPos.XY();
+		Vec2 displacementFromStartToCenterOfDisc = entity->GetPosition().XY() - startPos.XY();
 		Vec2 posOfCircleCenterAlongRay( DotProduct2D( iBasis, displacementFromStartToCenterOfDisc ), DotProduct2D( jBasis, displacementFromStartToCenterOfDisc ) );
 
 		// TODO: Account for y out of reasonable area also
@@ -670,7 +670,7 @@ void TileMap::ResolveEntityVsWallCollision( Entity& entity )
 			 && g_physicsConfig->DoLayersInteract( tile->GetCollisionLayer(), entity.GetCollisionLayer() )
 			 && tile->IsSolid() )
 		{
-			Vec2 position = entity.m_position.XY();
+			Vec2 position = entity.GetPosition().XY();
 			PushDiscOutOfAABB2D( position, entity.GetPhysicsRadius(), tile->GetBounds() );
 			entity.SetPosition( Vec3( position, 0.f ) );
 		}

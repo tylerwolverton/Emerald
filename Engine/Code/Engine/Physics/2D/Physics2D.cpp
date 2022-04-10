@@ -204,7 +204,7 @@ void Physics2D::DetectCollisions()
 				continue;
 			}
 
-			// Skip if colliders on on non-interacting layers
+			// Skip if colliders on non-interacting layers
 			if ( !DoLayersInteract( collider->m_rigidbody->GetLayer(), 
 									otherCollider->m_rigidbody->GetLayer() ) )
 			{

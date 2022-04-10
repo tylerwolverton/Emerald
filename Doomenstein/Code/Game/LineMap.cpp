@@ -48,10 +48,10 @@ void LineMap::Unload()
 //-----------------------------------------------------------------------------------------------
 void LineMap::Update( float deltaSeconds )
 {
-	ApplyGravityToEntities();
+	//ApplyGravityToEntities();
 	Map::Update( deltaSeconds );
 
-	ResolveEntityVsWallCollisions();
+	//ResolveEntityVsWallCollisions();
 
 	if ( g_game->g_raytraceFollowCamera )
 	{
@@ -172,12 +172,12 @@ void LineMap::ResolveEntityVsWallCollisions()
 //-----------------------------------------------------------------------------------------------
 void LineMap::ResolveEntityVsWallCollision( Entity& entity )
 {
-	for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
+	/*for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
 	{
 		Vec3 newPosition = entity.m_position + entity.m_collisionCenterOffset;
 		PushSphereOutOfOBB3D( newPosition, entity.GetPhysicsRadius(), m_walls[wallIdx] );
 		entity.m_position = newPosition - entity.m_collisionCenterOffset;
-	}
+	}*/
 }
 
 

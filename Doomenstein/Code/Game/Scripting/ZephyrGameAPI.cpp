@@ -248,7 +248,7 @@ void ZephyrGameAPI::MoveInCircle( EventArgs* args )
 	float radius = args->GetValue( "radius", .5f );
 	Vec3 center = args->GetValue( "center", targetEntity->GetPosition() );
 
-	targetEntity->MoveInCircle( center, radius, speed );
+	//targetEntity->MoveInCircle( center, radius, speed );
 }
 
 

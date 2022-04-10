@@ -15,6 +15,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Map;
+class Rigidbody3D;
 class SpriteAnimationSetDefinition;
 class Texture;
 
@@ -58,13 +59,13 @@ public:
 	const Vec2			GetForwardVector() const;
 	const Vec2			GetRightVector() const;
 	const Vec3			GetUpVector() const;
-	const Vec3			GetPosition() const										{ return m_position; }
-	void				SetPosition( const Vec3& position )						{ m_position = position; }
+	const Vec3			GetPosition() const;
+	void				SetPosition( const Vec3& position );
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
 	const float			GetHeight() const										{ return m_entityDef.m_height; }
 	const float			GetEyeHeight() const									{ return m_entityDef.m_eyeHeight; }
 	const float			GetWalkSpeed() const									{ return m_entityDef.m_walkSpeed; }
-	const float			GetMass() const											{ return m_entityDef.m_mass; }
+	const float			GetMass() const;
 	const float			GetOrientationDegrees() const							{ return m_orientationDegrees; }
 	void				SetOrientationDegrees( float orientationDegrees )		{ m_orientationDegrees = orientationDegrees; }
 	std::string			GetType() const											{ return m_entityDef.m_type; }
@@ -77,13 +78,13 @@ public:
 	bool				IsPossessed() const										{ return m_isPossessed; }
 
 	// Physics
-	void				AddVelocity( const Vec2& deltaVelocity )				{ m_velocity += Vec3( deltaVelocity, 0.f); }
-	void				AddVelocity( const Vec3& deltaVelocity )				{ m_velocity += deltaVelocity; }
-	void				Translate( const Vec2& translation )					{ m_position += Vec3( translation, 0.f ); }
-	void				Translate( const Vec3& translation )					{ m_position += translation; }
+	void				AddVelocity( const Vec2& deltaVelocity );
+	void				AddVelocity( const Vec3& deltaVelocity );
+	void				Translate( const Vec2& translation );
+	void				Translate( const Vec3& translation );
 	void				RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees );
 
-	void				MoveInCircle( const Vec3& center, float radius, float speed );
+	//void				MoveInCircle( const Vec3& center, float radius, float speed );
 	void				MoveInDirection( float speed, const Vec3& direction );
 	void				MoveInRelativeDirection( float speed, const Vec3& direction );
 
@@ -98,8 +99,8 @@ public:
 
 
 	void				TakeDamage( int damage );
-	void				ApplyFriction();
-	void				AddForce( const Vec3& force )							{ m_forces += force; }
+	//void				ApplyFriction();
+	void				AddForce( const Vec3& force );
 	void				AddImpulse( const Vec3& impulse );
 
 	// Input
@@ -127,11 +128,12 @@ protected:
 	bool							m_isPossessed = false;							
 
 	// Physics
-	Vec3							m_position = Vec3::ZERO;
+	Rigidbody3D*					m_rigidbody = nullptr;
+	//Vec3							m_position = Vec3::ZERO;
 	Vec3							m_collisionCenterOffset = Vec3::ZERO;
-	Vec3							m_velocity = Vec3::ZERO;					
-	Vec3							m_linearAcceleration = Vec3::ZERO;
-	Vec3							m_forces = Vec3::ZERO;
+	//Vec3							m_velocity = Vec3::ZERO;					
+	//Vec3							m_linearAcceleration = Vec3::ZERO;
+	//Vec3							m_forces = Vec3::ZERO;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
 	float							m_angularVelocity = 0.f;						// the Entity's signed angular velocity( spin rate ), in degrees per second
 
