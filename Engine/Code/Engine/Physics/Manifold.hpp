@@ -1,14 +1,16 @@
 #pragma once
+#include "Engine/Math/Vec3.hpp"
+
+
 //-----------------------------------------------------------------------------------------------
-template<typename VecType>
 struct Manifold
 {
 public:
-	VecType normal = VecType::ZERO;
-	VecType contactPoint1 = VecType::ZERO;
-	VecType contactPoint2 = VecType::ZERO;
+	Vec3 normal = Vec3::ZERO;
+	Vec3 contactPoint1 = Vec3::ZERO;
+	Vec3 contactPoint2 = Vec3::ZERO;
 	float penetrationDepth = 0.f;
 
 public:
-	VecType GetCenterOfContactEdge() const { return ( contactPoint1 + contactPoint2 ) / 2.f; }
+	Vec3 GetCenterOfContactEdge() const { return ( contactPoint1 + contactPoint2 ) / 2.f; }
 };

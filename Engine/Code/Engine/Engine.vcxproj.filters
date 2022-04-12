@@ -400,6 +400,15 @@
     <ClCompile Include="Physics\3D\Rigidbody3D.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\Collider.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\Rigidbody.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -740,5 +749,8 @@
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\Collision.hpp" />
+    <ClInclude Include="Physics\Collider.hpp" />
+    <ClInclude Include="Physics\PhysicsSystem.hpp" />
+    <ClInclude Include="Physics\Rigidbody.hpp" />
   </ItemGroup>
 </Project>

@@ -224,6 +224,9 @@
     <ClCompile Include="Physics\2D\Rigidbody2D.cpp" />
     <ClCompile Include="OS\Window.cpp" />
     <ClCompile Include="Physics\3D\Rigidbody3D.cpp" />
+    <ClCompile Include="Physics\Collider.cpp" />
+    <ClCompile Include="Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="Physics\Rigidbody.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
     <ClCompile Include="Renderer\BufferAttribute.cpp" />
     <ClCompile Include="Renderer\BuiltInShaders.cpp" />
@@ -356,12 +359,15 @@
     <ClInclude Include="Physics\2D\Physics2D.hpp" />
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
+    <ClInclude Include="Physics\Collider.hpp" />
     <ClInclude Include="Physics\Collision.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\PhysicsMaterial.hpp" />
     <ClInclude Include="Physics\2D\PolygonCollider2D.hpp" />
     <ClInclude Include="Physics\2D\Rigidbody2D.hpp" />
     <ClInclude Include="OS\Window.hpp" />
+    <ClInclude Include="Physics\PhysicsSystem.hpp" />
+    <ClInclude Include="Physics\Rigidbody.hpp" />
     <ClInclude Include="Renderer\BitmapFont.hpp" />
     <ClInclude Include="Renderer\BufferAttribute.hpp" />
     <ClInclude Include="Renderer\BuiltInShaders.hpp" />
