@@ -385,9 +385,6 @@
     <ClCompile Include="Physics\2D\DiscCollider2D.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\2D\Physics2D.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\2D\PolygonCollider2D.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
@@ -736,9 +733,6 @@
     <ClInclude Include="Physics\2D\DiscCollider2D.hpp">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\2D\Physics2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Physics\2D\Rigidbody2D.hpp">
       <Filter>Physics</Filter>
     </ClInclude>
@@ -752,5 +746,7 @@
     <ClInclude Include="Physics\Collider.hpp" />
     <ClInclude Include="Physics\PhysicsSystem.hpp" />
     <ClInclude Include="Physics\Rigidbody.hpp" />
+    <ClInclude Include="Physics\PhysicsScene.hpp" />
+    <ClInclude Include="Physics\CollisionResolver.hpp" />
   </ItemGroup>
 </Project>

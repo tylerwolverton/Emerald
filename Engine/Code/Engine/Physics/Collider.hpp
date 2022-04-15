@@ -38,7 +38,10 @@ class Collider
 	friend class Rigidbody;
 
 public: // Interface 
-	int GetId()																	{ return m_id; }
+	int GetId()	const															{ return m_id; }
+	Rigidbody* GetRigidbody() const												{ return m_rigidbody; }
+	bool IsTrigger() const														{ return m_isTrigger; }
+
 	// cache off the world shape representation of this object
 	// taking into account the owning rigidbody (if no owner, local is world)
 	virtual void UpdateWorldShape() = 0;

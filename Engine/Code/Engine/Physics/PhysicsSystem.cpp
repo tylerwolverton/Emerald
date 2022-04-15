@@ -30,33 +30,30 @@ void PhysicsSystem::Startup( Clock* gameClock )
 	m_stepTimer->SetSeconds( s_fixedDeltaSeconds );
 
 	g_eventSystem->RegisterEvent( "set_physics_update", "Usage: set_physics_update hz=NUMBER .Set rate of physics update in hz.", eUsageLocation::DEV_CONSOLE, SetPhysicsUpdateRate );
-
-	// Initialize layers
-	for ( int layerIdx = 0; layerIdx < 32; ++layerIdx )
-	{
-		m_layerInteractions[layerIdx] = ~0U;
-	}
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Update()
+void PhysicsSystem::Update( PhysicsScene& scene )
 {
 	while ( m_stepTimer->CheckAndDecrement() )
 	{
-		AdvanceSimulation( s_fixedDeltaSeconds );
+		AdvanceSimulation( scene, s_fixedDeltaSeconds );
 	}
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::AdvanceSimulation( float deltaSeconds )
+void PhysicsSystem::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 {
 	ApplyEffectors(); 					// apply gravity (or other scene wide effects) to all dynamic objects
-	MoveRigidbodies( deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
-	DetectCollisions();					// determine all pairs of intersecting colliders
-	ClearOldCollisions();
-	ResolveCollisions(); 				// resolve all collisions, firing appropraite events
+	MoveRigidbodies( scene.rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
+	//DetectCollisions( scene );					// determine all pairs of intersecting colliders
+	//ClearOldCollisions();
+	if ( scene.collisionResolver != nullptr )
+	{
+		scene.collisionResolver->ResolveCollisions(); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
+	}
 	CleanupDestroyedObjects();  		// destroy objects 
 
 	++m_frameNum;
@@ -64,20 +61,17 @@ void PhysicsSystem::AdvanceSimulation( float deltaSeconds )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::MoveRigidbodies( float deltaSeconds )
+void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody>& rigidbodies, float deltaSeconds )
 {
-	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
+	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)rigidbodies.size(); ++rigidbodyIdx )
 	{
-		Rigidbody*& rigidbody = m_rigidbodies[rigidbodyIdx];
-		if ( rigidbody != nullptr )
+		Rigidbody& rigidbody = rigidbodies[rigidbodyIdx];
+		switch ( rigidbody.GetSimulationMode() )
 		{
-			switch ( rigidbody->GetSimulationMode() )
+			case SIMULATION_MODE_DYNAMIC:
+			case SIMULATION_MODE_KINEMATIC:
 			{
-				case SIMULATION_MODE_DYNAMIC:
-				case SIMULATION_MODE_KINEMATIC:
-				{
-					rigidbody->Update( deltaSeconds );
-				}
+				rigidbody.Update( deltaSeconds );
 			}
 		}
 	}
@@ -180,6 +174,12 @@ void PhysicsSystem::DetectCollisions()
 				continue;
 			}
 
+			// Skip if colliders have same parent rigidbody
+			if ( collider->m_rigidbody == otherCollider->m_rigidbody )
+			{
+				continue;
+			}
+
 			// Skip if colliders on non-interacting layers
 			if ( !DoLayersInteract( collider->m_rigidbody->GetLayer(), 
 									otherCollider->m_rigidbody->GetLayer() ) )
@@ -254,25 +254,25 @@ void PhysicsSystem::AddOrUpdateCollision( const Collision& collision )
 	m_collisions.push_back( collision );
 }
 
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::DestroyAllRigidbodies()
-{
-	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
-	{
-		m_garbageRigidbodyIndexes.push_back( rigidbodyIdx );		
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::DestroyAllColliders()
-{
-	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
-	{
-		m_garbageColliderIndexes.push_back( colliderIdx );
-	}
-}
+//
+////-----------------------------------------------------------------------------------------------
+//void PhysicsSystem::DestroyAllRigidbodies()
+//{
+//	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
+//	{
+//		m_garbageRigidbodyIndexes.push_back( rigidbodyIdx );		
+//	}
+//}
+//
+//
+////-----------------------------------------------------------------------------------------------
+//void PhysicsSystem::DestroyAllColliders()
+//{
+//	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
+//	{
+//		m_garbageColliderIndexes.push_back( colliderIdx );
+//	}
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -309,30 +309,6 @@ void PhysicsSystem::ResolveCollision( const Collision& collision )
 	ApplyCollisionImpulses( myRigidbody, theirRigidbody, collision.collisionManifold );
 }
 
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
-{
-	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC
-		 || ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_KINEMATIC && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC ) )
-	{
-		rigidbody2->Translate( collisionManifold.penetrationDepth * collisionManifold.normal );
-		return;
-	}
-	else if ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_STATIC
-			  || ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_KINEMATIC && rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC ) )
-	{
-		rigidbody1->Translate( collisionManifold.penetrationDepth * -collisionManifold.normal );
-		return;
-	}
-
-	float sumOfMasses = rigidbody1->GetMass() + rigidbody2->GetMass();
-	float rigidbody1CorrectionDist = ( rigidbody2->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
-	float rigidbody2CorrectionDist = ( rigidbody1->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
-
-	rigidbody1->Translate( rigidbody1CorrectionDist * -collisionManifold.normal );
-	rigidbody2->Translate( rigidbody2CorrectionDist * collisionManifold.normal );
-}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -377,41 +353,6 @@ void PhysicsSystem::Reset()
 
 	m_colliders.clear();
 	m_rigidbodies.clear();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool PhysicsSystem::DoLayersInteract( uint layer0, uint layer1 ) const
-{
-	return ( m_layerInteractions[layer0] & ( 1 << layer1 ) ) != 0 ;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::EnableLayerInteraction( uint layer0, uint layer1 )
-{
-	m_layerInteractions[layer0] |= ( 1 << layer1 );
-	m_layerInteractions[layer1] |= ( 1 << layer0 );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::DisableLayerInteraction( uint layer0, uint layer1 )
-{
-	m_layerInteractions[layer0] &= ~( 1 << layer1 );
-	m_layerInteractions[layer1] &= ~( 1 << layer0 );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::DisableAllLayerInteraction( uint layer )
-{
-	m_layerInteractions[layer] = 0U;
-
-	for ( int layerIdx = 0; layerIdx < 32; ++layerIdx )
-	{
-		m_layerInteractions[layerIdx] &= ~( 1 << layer );
-	}
 }
 
 
