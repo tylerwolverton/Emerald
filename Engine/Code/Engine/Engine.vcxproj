@@ -224,6 +224,8 @@
     <ClCompile Include="OS\Window.cpp" />
     <ClCompile Include="Physics\3D\Rigidbody3D.cpp" />
     <ClCompile Include="Physics\Collider.cpp" />
+    <ClCompile Include="Physics\CollisionResolver.cpp" />
+    <ClCompile Include="Physics\PhysicsScene.cpp" />
     <ClCompile Include="Physics\PhysicsSystem.cpp" />
     <ClCompile Include="Physics\Rigidbody.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
@@ -358,7 +360,6 @@
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
     <ClInclude Include="Physics\Collider.hpp" />
-    <ClInclude Include="Physics\Collision.hpp" />
     <ClInclude Include="Physics\CollisionResolver.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\PhysicsMaterial.hpp" />

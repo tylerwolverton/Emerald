@@ -1,5 +1,7 @@
 <!-- Reserved for general physics settings -->
 <PhysicsConfig>
+    
+  
     <!-- Maximum of 32 layers may be defined -->
     <Layers>
         <Layer name="entity"/>
@@ -14,7 +16,6 @@
         Enable     - enables interaction between 2 layers
         DisableAll - disables a layer from interacting with any others 
     -->
-
     <LayerInteractions>
         <!-- <Disable layer1="entity" layer2="entity" /> -->
          <DisableAll layer="noCollision"/> 

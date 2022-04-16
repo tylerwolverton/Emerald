@@ -9,6 +9,7 @@
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Performance/PerformanceTracker.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
@@ -18,7 +19,6 @@
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
-#include "Game/PhysicsConfig.hpp"
 #include "Game/Scripting/ZephyrGameAPI.hpp"
 
 

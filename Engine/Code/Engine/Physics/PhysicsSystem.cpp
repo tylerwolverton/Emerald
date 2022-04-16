@@ -4,7 +4,9 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/Collision.hpp"
+#include "Engine/Physics/CollisionResolver.hpp"
 #include "Engine/Physics/Manifold.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
@@ -46,13 +48,11 @@ void PhysicsSystem::Update( PhysicsScene& scene )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 {
-	ApplyEffectors(); 					// apply gravity (or other scene wide effects) to all dynamic objects
+	ApplyEffectors(); 										// apply gravity (or other scene wide effects) to all dynamic objects
 	MoveRigidbodies( scene.rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
-	//DetectCollisions( scene );					// determine all pairs of intersecting colliders
-	//ClearOldCollisions();
 	if ( scene.collisionResolver != nullptr )
 	{
-		scene.collisionResolver->ResolveCollisions(); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
+		scene.collisionResolver->ResolveCollisions( scene.colliders, m_frameNum ); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
 	}
 	CleanupDestroyedObjects();  		// destroy objects 
 
@@ -78,182 +78,6 @@ void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody>& rigidbodies, float 
 }
 
 
-//-----------------------------------------------------------------------------------------------
-bool PhysicsSystem::DoesCollisionInvolveATrigger( const Collision& collision ) const
-{
-	return collision.myCollider->m_isTrigger
-		|| collision.theirCollider->m_isTrigger;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const
-{
-	// Inverse collision from perspective of their collider
-	Collision theirCollision = collision;
-	theirCollision.myCollider = collision.theirCollider;
-	theirCollision.theirCollider = collision.myCollider;
-
-	// Fire correct enter events
-	if ( !DoesCollisionInvolveATrigger( collision ) )
-	{
-		switch ( collisionType )
-		{
-			case eCollisionEventType::ENTER:
-			{
-				collision.myCollider->m_onOverlapEnterDelegate.Invoke( collision );
-				collision.theirCollider->m_onOverlapEnterDelegate.Invoke( theirCollision );
-			} 
-			break;
-
-			case eCollisionEventType::STAY:
-			{
-				collision.myCollider->m_onOverlapStayDelegate.Invoke( collision );
-				collision.theirCollider->m_onOverlapStayDelegate.Invoke( theirCollision );
-			} 
-			break;
-
-			case eCollisionEventType::LEAVE:
-			{
-				if ( collision.myCollider != nullptr )
-				{
-					collision.myCollider->m_onOverlapLeaveDelegate.Invoke( collision );
-				}
-				if ( collision.theirCollider != nullptr )
-				{
-					collision.theirCollider->m_onOverlapLeaveDelegate.Invoke( theirCollision );
-				}
-			} 
-			break;
-		}
-	}
-	else
-	{
-		if ( collision.myCollider->m_isTrigger )
-		{
-			switch ( collisionType )
-			{
-				case eCollisionEventType::ENTER: collision.myCollider->m_onTriggerEnterDelegate.Invoke( collision ); break;
-				case eCollisionEventType::STAY:	 collision.myCollider->m_onTriggerStayDelegate.Invoke( collision ); break;
-				case eCollisionEventType::LEAVE: collision.myCollider->m_onTriggerLeaveDelegate.Invoke( collision ); break;
-			}
-		}
-
-		if ( collision.theirCollider->m_isTrigger )
-		{
-			switch ( collisionType )
-			{
-				case eCollisionEventType::ENTER: collision.theirCollider->m_onTriggerEnterDelegate.Invoke( theirCollision ); break;
-				case eCollisionEventType::STAY:  collision.theirCollider->m_onTriggerStayDelegate.Invoke( theirCollision ); break;
-				case eCollisionEventType::LEAVE: collision.theirCollider->m_onTriggerLeaveDelegate.Invoke( theirCollision ); break;
-			}
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::DetectCollisions()
-{
-	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
-	{
-		Collider* collider = m_colliders[colliderIdx];
-		if ( collider == nullptr 
-			 || !collider->IsEnabled() )
-		{
-			continue;
-		}
-		
-		// Check intersection with other game objects
-		for ( int otherColliderIdx = colliderIdx + 1; otherColliderIdx < (int)m_colliders.size(); ++otherColliderIdx )
-		{
-			Collider* otherCollider = m_colliders[otherColliderIdx];
-			if ( otherCollider == nullptr
-				 || !otherCollider->IsEnabled() )
-			{
-				continue;
-			}
-
-			// Skip if colliders have same parent rigidbody
-			if ( collider->m_rigidbody == otherCollider->m_rigidbody )
-			{
-				continue;
-			}
-
-			// Skip if colliders on non-interacting layers
-			if ( !DoLayersInteract( collider->m_rigidbody->GetLayer(), 
-									otherCollider->m_rigidbody->GetLayer() ) )
-			{
-				continue;
-			}
-
-			// TODO: Remove Intersects check
-			if ( collider->Intersects( otherCollider ) )
-			{
-				Collision collision;
-				collision.id = IntVec2( Min( collider->GetId(), otherCollider->GetId() ), Max( collider->GetId(), otherCollider->GetId() ) );
-				collision.frameNum = m_frameNum;
-				collision.myCollider = collider;
-				collision.theirCollider = otherCollider;
-				// Only calculate manifold if not triggers
-				if ( !DoesCollisionInvolveATrigger( collision ) )
-				{
-					collision.collisionManifold = collider->GetCollisionManifold( otherCollider );
-				}
-
-				AddOrUpdateCollision( collision );
-			}
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::ClearOldCollisions()
-{
-	std::vector<int> oldCollisionIds;
-
-	for ( int colIdx = 0; colIdx < (int)m_collisions.size(); ++colIdx )
-	{
-		Collision& collision = m_collisions[colIdx];
-		// Check if collision is old
-		if ( collision.frameNum != m_frameNum )
-		{
-			InvokeCollisionEvents( collision, eCollisionEventType::LEAVE );
-			//collision.myCollider->m_rigidbody->m_collider = nullptr;
-			//collision.theirCollider->m_rigidbody->m_collider = nullptr;
-			collision.myCollider = nullptr;
-			collision.theirCollider = nullptr;
-			oldCollisionIds.push_back( colIdx );
-		}
-	}
-
-	for ( int oldColIdx = (int)oldCollisionIds.size() - 1; oldColIdx >= 0; --oldColIdx )
-	{
-		int idxToRemove = oldCollisionIds[oldColIdx];
-		m_collisions.erase( m_collisions.begin() + idxToRemove );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::AddOrUpdateCollision( const Collision& collision )
-{
-	for ( int colIdx = 0; colIdx < (int)m_collisions.size(); ++colIdx )
-	{
-		// Check if collision is already in progress
-		if ( m_collisions[colIdx].id == collision.id )
-		{
-			InvokeCollisionEvents( collision, eCollisionEventType::STAY );
-			m_collisions[colIdx] = collision;
-			return;
-		}
-	}
-
-	InvokeCollisionEvents( collision, eCollisionEventType::ENTER );
-	m_collisions.push_back( collision );
-}
-
 //
 ////-----------------------------------------------------------------------------------------------
 //void PhysicsSystem::DestroyAllRigidbodies()
@@ -273,42 +97,6 @@ void PhysicsSystem::AddOrUpdateCollision( const Collision& collision )
 //		m_garbageColliderIndexes.push_back( colliderIdx );
 //	}
 //}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::ResolveCollisions()
-{
-	for ( int collisionIdx = 0; collisionIdx < (int)m_collisions.size(); ++collisionIdx )
-	{
-		Collision2D& collision = m_collisions[collisionIdx];
-		if ( !DoesCollisionInvolveATrigger( collision ) )
-		{
-			ResolveCollision( collision );
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::ResolveCollision( const Collision& collision )
-{
-	Rigidbody* myRigidbody = collision.myCollider->m_rigidbody;
-	Rigidbody* theirRigidbody = collision.theirCollider->m_rigidbody;
-
-	GUARANTEE_OR_DIE( myRigidbody != nullptr, "My Collider doesn't have a rigidbody" );
-	GUARANTEE_OR_DIE( theirRigidbody != nullptr, "Their Collider doesn't have a rigidbody" );
-
-	// Do nothing when both are static
-	if ( myRigidbody->GetSimulationMode() == SIMULATION_MODE_STATIC
-		 && theirRigidbody->GetSimulationMode() == SIMULATION_MODE_STATIC )
-	{
-		return;
-	}
-
-	CorrectCollidingRigidbodies( myRigidbody, theirRigidbody, collision.collisionManifold );
-	ApplyCollisionImpulses( myRigidbody, theirRigidbody, collision.collisionManifold );
-}
-
 
 
 //-----------------------------------------------------------------------------------------------

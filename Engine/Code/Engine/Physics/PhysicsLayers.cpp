@@ -1,4 +1,4 @@
-#include "Game/PhysicsConfig.hpp"
+#include "Engine/Physics/PhysicsLayers.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/StringUtils.hpp"
@@ -7,13 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PhysicsConfig::PhysicsConfig()
-{
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsConfig::PopulateFromXml()
+void PhysicsLayers::PopulateFromXml( XmlElement* root )
 {
 	// Initialize layers
 	for ( int layerIdx = 0; layerIdx < 32; ++layerIdx )
@@ -22,19 +16,6 @@ void PhysicsConfig::PopulateFromXml()
 	}
 
 	m_layerToIndexMap.clear();
-
-	std::string path = g_gameConfigBlackboard.GetValue( "physicsConfigPath", "" );
-
-	XmlDocument doc;
-	XmlError loadError = doc.LoadFile( path.c_str() );
-	if ( loadError != tinyxml2::XML_SUCCESS )
-	{
-		return;
-	}
-
-	XmlElement* root = doc.RootElement();
-
-	// Parse root attributes
 
 	// Parse layers
 	XmlElement* layersElem = root->FirstChildElement( "Layers" );
@@ -111,7 +92,7 @@ void PhysicsConfig::PopulateFromXml()
 
 
 //-----------------------------------------------------------------------------------------------
-bool PhysicsConfig::DoLayersInteract( const std::string& layer0, const std::string& layer1 ) const
+bool PhysicsLayers::DoLayersInteract( const std::string& layer0, const std::string& layer1 ) const
 {
 	int layer0Index = GetIndexForLayerName( layer0 );
 	int layer1Index = GetIndexForLayerName( layer1 );
@@ -127,7 +108,7 @@ bool PhysicsConfig::DoLayersInteract( const std::string& layer0, const std::stri
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::EnableLayerInteraction( const std::string& layer0, const std::string& layer1 )
+void PhysicsLayers::EnableLayerInteraction( const std::string& layer0, const std::string& layer1 )
 {
 	int layer0Index = GetIndexForLayerName( layer0 );
 	int layer1Index = GetIndexForLayerName( layer1 );
@@ -143,7 +124,7 @@ void PhysicsConfig::EnableLayerInteraction( const std::string& layer0, const std
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::DisableLayerInteraction( const std::string& layer0, const std::string& layer1 )
+void PhysicsLayers::DisableLayerInteraction( const std::string& layer0, const std::string& layer1 )
 {
 	int layer0Index = GetIndexForLayerName( layer0 );
 	int layer1Index = GetIndexForLayerName( layer1 );
@@ -159,7 +140,7 @@ void PhysicsConfig::DisableLayerInteraction( const std::string& layer0, const st
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::DisableAllLayerInteraction( const std::string& layer )
+void PhysicsLayers::DisableAllLayerInteraction( const std::string& layer )
 {
 	int layerIndex = GetIndexForLayerName( layer );
 
@@ -173,21 +154,21 @@ void PhysicsConfig::DisableAllLayerInteraction( const std::string& layer )
 
 
 //-----------------------------------------------------------------------------------------------
-bool PhysicsConfig::IsLayerDefined( const std::string& layer ) const
+bool PhysicsLayers::IsLayerDefined( const std::string& layer ) const
 {
 	return GetIndexForLayerName( layer ) != -1;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool PhysicsConfig::DoLayersInteract( uint layer0, uint layer1 ) const
+bool PhysicsLayers::DoLayersInteract( uint layer0, uint layer1 ) const
 {
 	return ( m_layerInteractions[layer0] & ( 1 << layer1 ) ) != 0;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::EnableLayerInteraction( uint layer0, uint layer1 )
+void PhysicsLayers::EnableLayerInteraction( uint layer0, uint layer1 )
 {
 	m_layerInteractions[layer0] |= ( 1 << layer1 );
 	m_layerInteractions[layer1] |= ( 1 << layer0 );
@@ -195,7 +176,7 @@ void PhysicsConfig::EnableLayerInteraction( uint layer0, uint layer1 )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::DisableLayerInteraction( uint layer0, uint layer1 )
+void PhysicsLayers::DisableLayerInteraction( uint layer0, uint layer1 )
 {
 	m_layerInteractions[layer0] &= ~( 1 << layer1 );
 	m_layerInteractions[layer1] &= ~( 1 << layer0 );
@@ -203,7 +184,7 @@ void PhysicsConfig::DisableLayerInteraction( uint layer0, uint layer1 )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsConfig::DisableAllLayerInteraction( uint layer )
+void PhysicsLayers::DisableAllLayerInteraction( uint layer )
 {
 	m_layerInteractions[layer] = 0U;
 
@@ -215,7 +196,7 @@ void PhysicsConfig::DisableAllLayerInteraction( uint layer )
 
 
 //-----------------------------------------------------------------------------------------------
-int PhysicsConfig::GetIndexForLayerName( const std::string& layerName ) const
+int PhysicsLayers::GetIndexForLayerName( const std::string& layerName ) const
 {
 	// Errors will be reported by higher level functions
 
