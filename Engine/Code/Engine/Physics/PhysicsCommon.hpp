@@ -22,7 +22,7 @@ extern PhysicsConfig* g_physicsConfig;
 
 //-----------------------------------------------------------------------------------------------
 // Static physics layer methods
-bool IsLayerDefined( const std::string& layer );
+bool IsPhysicsLayerDefined( const std::string& layer );
 
 // Convenience "name based" functions
 bool DoPhysicsLayersInteract( const std::string& layer0, const std::string& layer1 );

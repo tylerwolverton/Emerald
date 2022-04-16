@@ -5,7 +5,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PhysicsConfig* g_physicsConfig - nullptr;
+PhysicsConfig* g_physicsConfig = nullptr;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ void PhysicsConfig::PopulateFromXml()
 	XmlError loadError = doc.LoadFile( path.c_str() );
 	if ( loadError != tinyxml2::XML_SUCCESS )
 	{
-		g_devConsole->PrintError( Stringf( "Could not open PhysicsConfig.xml at %s", path ) );
+		g_devConsole->PrintError( Stringf( "Could not open PhysicsConfig.xml at %s", path.c_str() ) );
 		return;
 	}
 

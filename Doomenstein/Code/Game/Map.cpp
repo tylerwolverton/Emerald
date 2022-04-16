@@ -4,6 +4,9 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Transform.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -13,7 +16,6 @@
 #include "Game/Entity.hpp"
 #include "Game/EntityDefinition.hpp"
 #include "Game/MapData.hpp"
-#include "Game/PhysicsConfig.hpp"
 #include "Game/World.hpp"
 
 
@@ -24,6 +26,7 @@ Map::Map( const MapData& mapData, World* world )
 	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
+	m_physicsScene = new PhysicsScene();
 	LoadEntities( mapData.mapEntityDefs );
 }
 
@@ -31,6 +34,7 @@ Map::Map( const MapData& mapData, World* world )
 //-----------------------------------------------------------------------------------------------
 Map::~Map()
 {
+	PTR_SAFE_DELETE( m_physicsScene );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 
@@ -49,6 +53,7 @@ void Map::Update( float deltaSeconds )
 		entity->Update( deltaSeconds );
 	}
 
+	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
 	//ResolveEntityVsEntityCollisions();
 	UpdateMeshes();
 }
@@ -324,6 +329,8 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		// Note: These will override any initial values already defined in the EntityDefinition
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
+
+		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( newEntity->GetPosition(), newEntity->GetMass(), newEntity->GetPhysicsRadius() ));
 	}
 }
 
@@ -347,7 +354,7 @@ void Map::ResolveEntityVsEntityCollisions()
 				continue;
 			}
 
-			if ( !g_physicsConfig->DoLayersInteract( entity->GetCollisionLayer(), otherEntity->GetCollisionLayer() ) )
+			if ( !DoPhysicsLayersInteract( entity->GetCollisionLayer(), otherEntity->GetCollisionLayer() ) )
 			{
 				continue;
 			}

@@ -31,7 +31,6 @@ extern RenderContext* g_renderer;
 extern NetworkingSystem* g_networkingSystem;
 extern Game* g_game;
 extern PerformanceTracker* g_performanceTracker;
-extern PhysicsConfig* g_physicsConfig;
 
 
 //-----------------------------------------------------------------------------------------------

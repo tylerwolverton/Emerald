@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/XmlUtils.hpp"
 
 #include <map>
 #include <string>

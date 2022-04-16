@@ -2,7 +2,6 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/2D/Physics2D.hpp"
 #include "Engine/Physics/2D/Collider2D.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -67,12 +66,12 @@ void Rigidbody2D::Update( float deltaSeconds )
 //-----------------------------------------------------------------------------------------------
 void Rigidbody2D::Destroy()
 {
-	if ( m_collider != nullptr )
-	{
-		m_system->DestroyCollider( m_collider );
-	}
+	//if ( m_collider != nullptr )
+	//{
+	//	m_system->DestroyCollider( m_collider );
+	//}
 
-	m_system->DestroyRigidbody( this );
+	//m_system->DestroyRigidbody( this );
 }
 
 

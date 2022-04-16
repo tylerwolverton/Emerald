@@ -17,7 +17,6 @@ InputSystem* g_inputSystem = nullptr;				// Owned by the App
 AudioSystem* g_audioSystem = nullptr;				// Owned by the App
 Game* g_game = nullptr;								// Owned by the App
 PerformanceTracker* g_performanceTracker = nullptr;	// Owned by the App
-PhysicsConfig* g_physicsConfig = nullptr;			// Owned by the App
 
 
 //-----------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Map;
-class Rigidbody3D;
+class Rigidbody;
 class SpriteAnimationSetDefinition;
 class Texture;
 
@@ -73,6 +73,8 @@ public:
 	Map*				GetMap() const											{ return m_map; }
 	void				SetMap( Map* map )										{ m_map = map; }
 	std::string			GetCollisionLayer() const								{ return m_collisionLayer; }
+	void				SetRigidbody( Rigidbody* rigidbody )					{ m_rigidbody = rigidbody; }
+
 	virtual bool		IsDead() const											{ return m_isDead; }
 	bool				IsGarbage() const										{ return m_isGarbage; }
 	bool				IsPossessed() const										{ return m_isPossessed; }
@@ -128,7 +130,7 @@ protected:
 	bool							m_isPossessed = false;							
 
 	// Physics
-	Rigidbody3D*					m_rigidbody = nullptr;
+	Rigidbody*						m_rigidbody = nullptr;
 	//Vec3							m_position = Vec3::ZERO;
 	Vec3							m_collisionCenterOffset = Vec3::ZERO;
 	//Vec3							m_velocity = Vec3::ZERO;					

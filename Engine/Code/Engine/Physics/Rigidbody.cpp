@@ -50,7 +50,7 @@ void Rigidbody::Update( float deltaSeconds )
 		m_collider->UpdateWorldShape();
 	}
 
-	m_forces = Vec2::ZERO;
+	m_forces = Vec3::ZERO;
 	m_frameTorque = 0.f;
 }
 
@@ -60,10 +60,10 @@ void Rigidbody::Destroy()
 {
 	if ( m_collider != nullptr )
 	{
-		m_system->DestroyCollider( m_collider );
+		m_scene->DestroyCollider( m_collider );
 	}
 
-	m_system->DestroyRigidbody( this );
+	m_scene->DestroyRigidbody( this );
 }
 
 
@@ -91,14 +91,14 @@ void Rigidbody::SetVelocity( const Vec3& velocity )
 }
 
 
-//-----------------------------------------------------------------------------------------------
-Vec3 Rigidbody::GetImpactVelocityAtPoint( const Vec3& point )
-{
-	Vec2 contactPoint = point - m_worldPosition;
-	Vec2 tangent = contactPoint.GetRotated90Degrees();
-
-	return GetVelocity() + m_angularVelocity * tangent;
-}
+////-----------------------------------------------------------------------------------------------
+//Vec3 Rigidbody::GetImpactVelocityAtPoint( const Vec3& point )
+//{
+//	Vec2 contactPoint = point - m_worldPosition;
+//	Vec2 tangent = contactPoint.GetRotated90Degrees();
+//
+//	return GetVelocity() + m_angularVelocity * tangent;
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -200,20 +200,32 @@ void Rigidbody::AddForce( const Vec3& force )
 
 
 //-----------------------------------------------------------------------------------------------
-void Rigidbody::ApplyImpulseAt( const Vec3& impulse, const Vec3& point )
+void Rigidbody::AddImpulse( const Vec3& impulse )
 {
 	if ( !m_isEnabled )
 	{
 		return;
 	}
 
-	m_velocity += ( impulse * m_inverseMass );
-
-	Vec2 contactPoint = point - m_worldPosition;
-	contactPoint.Rotate90Degrees();
-
-	m_angularVelocity += DotProduct2D( impulse, contactPoint ) * m_inverseMoment;
+	m_velocity += impulse;
 }
+
+
+////-----------------------------------------------------------------------------------------------
+//void Rigidbody::ApplyImpulseAt( const Vec3& impulse, const Vec3& point )
+//{
+//	if ( !m_isEnabled )
+//	{
+//		return;
+//	}
+//
+//	m_velocity += ( impulse * m_inverseMass );
+//
+//	Vec2 contactPoint = point - m_worldPosition;
+//	contactPoint.Rotate90Degrees();
+//
+//	m_angularVelocity += DotProduct2D( impulse, contactPoint ) * m_inverseMoment;
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -227,16 +239,16 @@ void Rigidbody::ApplyDragForce()
 //-----------------------------------------------------------------------------------------------
 void Rigidbody::DebugRender( RenderContext* renderer, const Rgba8& borderColor, const Rgba8& fillColor ) const
 {
-	Rgba8 rigidbodyColor = m_isEnabled ? Rgba8::BLUE : Rgba8::RED;
-	Vec2 crossOffset( .1f, .1f );
-	DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
-	crossOffset.x *= -1.f;
-	DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
+	//Rgba8 rigidbodyColor = m_isEnabled ? Rgba8::BLUE : Rgba8::RED;
+	//Vec2 crossOffset( .1f, .1f );
+	//DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
+	//crossOffset.x *= -1.f;
+	//DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
 
-	if ( m_collider != nullptr )
-	{
-		m_collider->DebugRender( renderer, borderColor, fillColor );
-	}
+	//if ( m_collider != nullptr )
+	//{
+	//	m_collider->DebugRender( renderer, borderColor, fillColor );
+	//}
 }
 
 
@@ -277,5 +289,5 @@ void Rigidbody::SetRotationDegrees( float newRotationDegrees )
 //-----------------------------------------------------------------------------------------------
 Rigidbody::~Rigidbody()
 {
-	Destroy();
+	//Destroy();
 }

@@ -3,6 +3,7 @@
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -16,7 +17,6 @@
 #include "Game/MapData.hpp"
 #include "Game/MapRegionTypeDefinition.hpp"
 #include "Game/MapMaterialTypeDefinition.hpp"
-#include "Game/PhysicsConfig.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -667,7 +667,7 @@ void TileMap::ResolveEntityVsWallCollision( Entity& entity )
 	{
 		const Tile*& tile = surroundingTiles[tileIdx];
 		if ( tile != nullptr
-			 && g_physicsConfig->DoLayersInteract( tile->GetCollisionLayer(), entity.GetCollisionLayer() )
+			 && DoPhysicsLayersInteract( tile->GetCollisionLayer(), entity.GetCollisionLayer() )
 			 && tile->IsSolid() )
 		{
 			Vec2 position = entity.GetPosition().XY();

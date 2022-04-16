@@ -3,7 +3,6 @@
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
-#include "Engine/Physics/Collision.hpp"
 #include "Engine/Physics/CollisionResolver.hpp"
 #include "Engine/Physics/Manifold.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
@@ -48,30 +47,35 @@ void PhysicsSystem::Update( PhysicsScene& scene )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 {
-	ApplyEffectors(); 										// apply gravity (or other scene wide effects) to all dynamic objects
-	MoveRigidbodies( scene.rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
-	if ( scene.collisionResolver != nullptr )
+	//ApplyEffectors(); 										// apply gravity (or other scene wide effects) to all dynamic objects
+	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
+	if ( scene.m_collisionResolver != nullptr )
 	{
-		scene.collisionResolver->ResolveCollisions( scene.colliders, m_frameNum ); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
+		scene.m_collisionResolver->ResolveCollisions( scene.m_colliders, m_frameNum ); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
 	}
-	CleanupDestroyedObjects();  		// destroy objects 
+	scene.CleanupDestroyedObjects();  							// destroy objects 
 
 	++m_frameNum;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody>& rigidbodies, float deltaSeconds )
+void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds )
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)rigidbodies.size(); ++rigidbodyIdx )
 	{
-		Rigidbody& rigidbody = rigidbodies[rigidbodyIdx];
-		switch ( rigidbody.GetSimulationMode() )
+		Rigidbody*& rigidbody = rigidbodies[rigidbodyIdx];
+		if ( rigidbody == nullptr )
+		{
+			continue;
+		}
+
+		switch ( rigidbody->GetSimulationMode() )
 		{
 			case SIMULATION_MODE_DYNAMIC:
 			case SIMULATION_MODE_KINEMATIC:
 			{
-				rigidbody.Update( deltaSeconds );
+				rigidbody->Update( deltaSeconds );
 			}
 		}
 	}
@@ -100,26 +104,26 @@ void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody>& rigidbodies, float 
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::CleanupDestroyedObjects()
-{
-	// Cleanup rigidbodies
-	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_garbageRigidbodyIndexes.size(); ++rigidbodyIdx )
-	{
-		Rigidbody*& garbageRigidbody = m_rigidbodies[m_garbageRigidbodyIndexes[rigidbodyIdx]];
-		PTR_SAFE_DELETE( garbageRigidbody );
-	}
-
-	m_garbageRigidbodyIndexes.clear();
-
-	// Cleanup colliders
-	for ( int colliderIdx = 0; colliderIdx < (int)m_garbageColliderIndexes.size(); ++colliderIdx )
-	{
-		Collider*& garbageCollider = m_colliders[m_garbageColliderIndexes[colliderIdx]];
-		PTR_SAFE_DELETE( garbageCollider );
-	}
-
-	m_garbageColliderIndexes.clear();
-}
+//void PhysicsSystem::CleanupDestroyedObjects()
+//{
+//	// Cleanup rigidbodies
+//	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_garbageRigidbodyIndexes.size(); ++rigidbodyIdx )
+//	{
+//		Rigidbody*& garbageRigidbody = m_rigidbodies[m_garbageRigidbodyIndexes[rigidbodyIdx]];
+//		PTR_SAFE_DELETE( garbageRigidbody );
+//	}
+//
+//	m_garbageRigidbodyIndexes.clear();
+//
+//	// Cleanup colliders
+//	for ( int colliderIdx = 0; colliderIdx < (int)m_garbageColliderIndexes.size(); ++colliderIdx )
+//	{
+//		Collider*& garbageCollider = m_colliders[m_garbageColliderIndexes[colliderIdx]];
+//		PTR_SAFE_DELETE( garbageCollider );
+//	}
+//
+//	m_garbageColliderIndexes.clear();
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -133,14 +137,14 @@ void PhysicsSystem::Shutdown()
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::Reset()
 {
-	ClearOldCollisions();
+	//ClearOldCollisions();
 
-	DestroyAllColliders();
-	DestroyAllRigidbodies();
-	CleanupDestroyedObjects();
+	//DestroyAllColliders();
+	//DestroyAllRigidbodies();
+	//CleanupDestroyedObjects();
 
-	m_colliders.clear();
-	m_rigidbodies.clear();
+	//m_colliders.clear();
+	//m_rigidbodies.clear();
 }
 
 

@@ -33,8 +33,8 @@ public:
 
 protected:
 	void AdvanceSimulation( PhysicsScene& scene, float deltaSeconds );
-	virtual void ApplyEffectors() = 0;
-	void MoveRigidbodies( std::vector<Rigidbody>& rigidbodies, float deltaSeconds );
+	//virtual void ApplyEffectors() = 0;
+	void MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds );
 	void CleanupDestroyedObjects();
 	
 private:

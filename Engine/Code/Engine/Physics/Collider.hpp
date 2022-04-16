@@ -1,23 +1,19 @@
 #pragma once
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Vec3.hpp"
 #include "Engine/Physics/PhysicsMaterial.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 struct Vec2;
 struct Rgba8;
-//template<typename VecType> 
 struct Manifold;
 class PhysicsSystem;
 class Rigidbody;
 class RenderContext;
 class Collider;
-//template<typename ColliderType, typename VecType>
-class Collision;
 
-//using Collision2D = Collision<Collider, Vec2>;
-//using Manifold2D = Manifold<Vec2>;
 
 //-----------------------------------------------------------------------------------------------
 enum eCollider2DType
@@ -34,7 +30,7 @@ enum eCollider2DType
 // Interface for all Collider objects used with our Physics system
 class Collider
 {
-	friend class PhysicsSystem;
+	friend class PhysicsScene;
 	friend class Rigidbody;
 
 public: // Interface 
@@ -78,13 +74,13 @@ protected:
 
 public:
 	// TODO: Privatize these?
-	Delegate<Collision> m_onOverlapEnterDelegate;
+	/*Delegate<Collision> m_onOverlapEnterDelegate;
 	Delegate<Collision> m_onOverlapStayDelegate;
 	Delegate<Collision> m_onOverlapLeaveDelegate;
 
 	Delegate<Collision> m_onTriggerEnterDelegate;
 	Delegate<Collision> m_onTriggerStayDelegate;
-	Delegate<Collision> m_onTriggerLeaveDelegate;
+	Delegate<Collision> m_onTriggerLeaveDelegate;*/
 
 protected:
 	PhysicsSystem* m_system		= nullptr;			

@@ -70,9 +70,6 @@
     <ClCompile Include="MapData.cpp">
       <Filter>DataDefinitions</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsConfig.cpp">
-      <Filter>DataDefinitions</Filter>
-    </ClCompile>
     <ClCompile Include="TileMap.cpp">
       <Filter>Map</Filter>
     </ClCompile>
@@ -142,9 +139,6 @@
       <Filter>DataDefinitions</Filter>
     </ClInclude>
     <ClInclude Include="MapData.hpp">
-      <Filter>DataDefinitions</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsConfig.hpp">
       <Filter>DataDefinitions</Filter>
     </ClInclude>
     <ClInclude Include="TileMap.hpp">

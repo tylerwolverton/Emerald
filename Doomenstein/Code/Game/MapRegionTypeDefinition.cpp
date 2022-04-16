@@ -1,8 +1,8 @@
 #include "Game/MapRegionTypeDefinition.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Game/MapMaterialTypeDefinition.hpp"
-#include "Game/PhysicsConfig.hpp"
 #include "Game/GameCommon.hpp"
 
 
@@ -42,7 +42,7 @@ MapRegionTypeDefinition::MapRegionTypeDefinition( const XmlElement& mapRegionTyp
 	}
 
 	m_collisionLayer = ParseXmlAttribute( mapRegionTypeDefElem, "collisionLayer", defaultMapRegionCollisionLayerStr );
-	if (!g_physicsConfig->IsLayerDefined( m_collisionLayer ))
+	if (!IsPhysicsLayerDefined( m_collisionLayer ))
 	{
 		g_devConsole->PrintError( Stringf( "Layer '%s' has not been defined in PhysicsConfig.xml", m_collisionLayer.c_str() ) );
 		m_collisionLayer = defaultMapRegionCollisionLayerStr;

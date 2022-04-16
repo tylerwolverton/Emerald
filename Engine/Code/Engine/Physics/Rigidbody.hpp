@@ -1,10 +1,11 @@
 #pragma once
 #include "Engine/Core/NamedProperties.hpp"
+#include "Engine/Math/Vec3.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 struct Rgba8;
-class PhysicsSystem;
+class PhysicsScene;
 class Collider;
 class RenderContext;
 
@@ -22,7 +23,7 @@ enum eSimulationMode : unsigned int
 //-----------------------------------------------------------------------------------------------
 class Rigidbody
 {
-	friend class PhysicsSystem;
+	friend class PhysicsScene;
 
 public:
 	Rigidbody( float mass );
@@ -40,7 +41,7 @@ public:
 	Vec3 GetVelocity()																{ return m_velocity; }
 	void SetVelocity( const Vec3& velocity );
 	
-	Vec3 GetPosition()																{ return m_worldPosition; }
+	Vec3 GetWorldPosition()																{ return m_worldPosition; }
 	Vec3 GetCenterOfMass() const;
 	void SetPosition( const Vec3& position );
 	void Translate( const Vec3& translation );
@@ -60,6 +61,7 @@ public:
 	void ChangeDrag( float deltaDrag );
 
 	void AddForce( const Vec3& force );
+	void AddImpulse( const Vec3& impulse );
 	void ApplyImpulseAt( const Vec3& impulse, const Vec3& worldPosition );
 	void ApplyDragForce();
 
@@ -81,8 +83,8 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	PhysicsSystem* m_system = nullptr;			// which scene created/owns this object
-	Vec3 m_worldPosition = Vec3::ZERO;		// where in the world is this rigidbody
+	PhysicsScene* m_scene = nullptr;			// which scene created/owns this object
+	Vec3 m_worldPosition = Vec3::ZERO;			// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 
 	Vec3 m_forces = Vec3::ZERO;

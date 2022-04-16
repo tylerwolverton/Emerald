@@ -379,15 +379,6 @@
     <ClCompile Include="Math\Polygon3.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\2D\Collider2D.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\2D\DiscCollider2D.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\2D\PolygonCollider2D.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\2D\Rigidbody2D.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
@@ -410,6 +401,12 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Physics\PhysicsScene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsLayers.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\PhysicsCommon.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -733,16 +730,7 @@
     <ClInclude Include="ZephyrCore\ZephyrSystem.hpp" />
     <ClInclude Include="Performance\PerformanceTracker.hpp" />
     <ClInclude Include="Math\Polygon3.hpp" />
-    <ClInclude Include="Physics\2D\Collider2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\2D\DiscCollider2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="Physics\2D\Rigidbody2D.hpp">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\2D\PolygonCollider2D.hpp">
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
@@ -753,5 +741,7 @@
     <ClInclude Include="Physics\Rigidbody.hpp" />
     <ClInclude Include="Physics\PhysicsScene.hpp" />
     <ClInclude Include="Physics\CollisionResolver.hpp" />
+    <ClInclude Include="Physics\PhysicsCommon.hpp" />
+    <ClInclude Include="Physics\PhysicsLayers.hpp" />
   </ItemGroup>
 </Project>
