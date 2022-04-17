@@ -51,7 +51,7 @@ void PhysicsSystem::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
 	if ( scene.m_collisionResolver != nullptr )
 	{
-		scene.m_collisionResolver->ResolveCollisions( scene.m_colliders, m_frameNum ); 			// resolve all collisions, firing appropraite events, TODO: Move to this class?
+		scene.m_collisionResolver->ResolveCollisions( scene.m_colliders, m_frameNum ); 			// resolve all collisions, firing appropriate events, TODO: Move to this class?
 	}
 	scene.CleanupDestroyedObjects();  							// destroy objects 
 

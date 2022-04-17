@@ -41,6 +41,7 @@ public:
 	eEntityClass	GetClass() const															{ return m_class; }
 	float			GetWalkSpeed() const														{ return m_walkSpeed; }
 	Vec2			GetVisualSize() const														{ return m_visualSize; }
+	float			GetMass() const																{ return m_mass; }
 
 	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
 	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }

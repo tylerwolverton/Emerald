@@ -4,10 +4,18 @@
 
 
 //-----------------------------------------------------------------------------------------------
+PhysicsScene::~PhysicsScene()
+{
+	Reset();
+	CleanupDestroyedObjects();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius )
 {
 	Rigidbody* newRigidbody = new Rigidbody( mass );
-
+	m_rigidbodies.push_back( newRigidbody );
 	// Create sphere collider
 
 	return newRigidbody;

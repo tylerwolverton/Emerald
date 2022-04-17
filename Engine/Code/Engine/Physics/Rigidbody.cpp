@@ -27,7 +27,7 @@ void Rigidbody::Update( float deltaSeconds )
 
 	Vec3 oldPosition = m_worldPosition;
 
-	Vec3 acceleration = m_forces;
+	Vec3 acceleration = m_sumOfForces;
 	m_velocity += acceleration * deltaSeconds;
 	m_worldPosition += m_velocity * deltaSeconds;
 
@@ -50,7 +50,7 @@ void Rigidbody::Update( float deltaSeconds )
 		m_collider->UpdateWorldShape();
 	}
 
-	m_forces = Vec3::ZERO;
+	m_sumOfForces = Vec3::ZERO;
 	m_frameTorque = 0.f;
 }
 
@@ -195,7 +195,7 @@ void Rigidbody::AddForce( const Vec3& force )
 		return;
 	}
 
-	m_forces += force;
+	m_sumOfForces += force;
 }
 
 

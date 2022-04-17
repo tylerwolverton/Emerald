@@ -330,7 +330,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
-		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( newEntity->GetPosition(), newEntity->GetMass(), newEntity->GetPhysicsRadius() ));
+		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( newEntity->GetPosition(), (*mapEntityDef.entityDef).GetMass(), newEntity->GetPhysicsRadius() ));
 	}
 }
 

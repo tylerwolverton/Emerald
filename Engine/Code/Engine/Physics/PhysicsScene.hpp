@@ -15,6 +15,8 @@ class PhysicsScene
 	friend class PhysicsSystem;
 
 public:	
+	~PhysicsScene();
+
 	// TODO: Make a cylinder def object
 	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius );
 

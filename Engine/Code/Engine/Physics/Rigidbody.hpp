@@ -32,7 +32,7 @@ public:
 
 	void Destroy(); // helper for destroying myself (uses owner to destroy self)
 
-	Collider* GetCollider()														{ return m_collider; }
+	Collider* GetCollider()															{ return m_collider; }
 	void TakeCollider( Collider* collider ); // takes ownership of a collider (destroying my current one if present)
 
 	uint GetLayer() const															{ return m_layer; }
@@ -41,7 +41,7 @@ public:
 	Vec3 GetVelocity()																{ return m_velocity; }
 	void SetVelocity( const Vec3& velocity );
 	
-	Vec3 GetWorldPosition()																{ return m_worldPosition; }
+	Vec3 GetWorldPosition()															{ return m_worldPosition; }
 	Vec3 GetCenterOfMass() const;
 	void SetPosition( const Vec3& position );
 	void Translate( const Vec3& translation );
@@ -87,7 +87,7 @@ private:
 	Vec3 m_worldPosition = Vec3::ZERO;			// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 
-	Vec3 m_forces = Vec3::ZERO;
+	Vec3 m_sumOfForces = Vec3::ZERO;
 	Vec3 m_velocity = Vec3::ZERO;
 	//Vec2 m_verletVelocity = Vec2::ZERO;
 
