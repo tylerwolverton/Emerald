@@ -1,5 +1,6 @@
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/CollisionResolver.hpp"
 
 
@@ -23,10 +24,45 @@ Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, flo
 
 
 //-----------------------------------------------------------------------------------------------
+Rigidbody* PhysicsScene::CreateOBB3Rigidbody( const OBB3& box, float mass )
+{
+	Rigidbody* newRigidbody = new Rigidbody( mass );
+	m_rigidbodies.push_back( newRigidbody );
+	// Create sphere collider
+
+	return newRigidbody;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void PhysicsScene::Reset()
 {
 	DestroyAllColliders();
 	DestroyAllRigidbodies();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PhysicsScene::ApplyAffectors()
+{
+	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
+	{
+		Rigidbody*& rigidbody = m_rigidbodies[rigidbodyIdx];
+		if ( rigidbody->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+		{
+			for ( const auto& affector : m_affectors )
+			{
+				affector( rigidbody );
+			}
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PhysicsScene::AddAffector( AffectorFn affectorFunc )
+{
+	m_affectors.push_back( affectorFunc );
 }
 
 

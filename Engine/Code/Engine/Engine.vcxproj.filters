@@ -409,6 +409,9 @@
     <ClCompile Include="Physics\PhysicsCommon.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -743,5 +746,6 @@
     <ClInclude Include="Physics\CollisionResolver.hpp" />
     <ClInclude Include="Physics\PhysicsCommon.hpp" />
     <ClInclude Include="Physics\PhysicsLayers.hpp" />
+    <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />
   </ItemGroup>
 </Project>

@@ -47,13 +47,13 @@ void PhysicsSystem::Update( PhysicsScene& scene )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 {
-	//ApplyEffectors(); 										// apply gravity (or other scene wide effects) to all dynamic objects
-	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 	// apply an euler step to all rigidbodies, and reset per-frame data
+	scene.ApplyAffectors(); 															// apply gravity (or other scene wide effects) to all dynamic objects
+	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 								// apply an euler step to all rigidbodies, and reset per-frame data
 	if ( scene.m_collisionResolver != nullptr )
 	{
-		scene.m_collisionResolver->ResolveCollisions( scene.m_colliders, m_frameNum ); 			// resolve all collisions, firing appropriate events, TODO: Move to this class?
+		scene.m_collisionResolver->ResolveCollisions( scene.m_colliders, m_frameNum ); 	// resolve all collisions, firing appropriate events, TODO: Move to this class?
 	}
-	scene.CleanupDestroyedObjects();  							// destroy objects 
+	scene.CleanupDestroyedObjects();  													// destroy objects 
 
 	++m_frameNum;
 }
@@ -82,69 +82,11 @@ void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float
 }
 
 
-//
-////-----------------------------------------------------------------------------------------------
-//void PhysicsSystem::DestroyAllRigidbodies()
-//{
-//	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
-//	{
-//		m_garbageRigidbodyIndexes.push_back( rigidbodyIdx );		
-//	}
-//}
-//
-//
-////-----------------------------------------------------------------------------------------------
-//void PhysicsSystem::DestroyAllColliders()
-//{
-//	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
-//	{
-//		m_garbageColliderIndexes.push_back( colliderIdx );
-//	}
-//}
-
-
-//-----------------------------------------------------------------------------------------------
-//void PhysicsSystem::CleanupDestroyedObjects()
-//{
-//	// Cleanup rigidbodies
-//	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_garbageRigidbodyIndexes.size(); ++rigidbodyIdx )
-//	{
-//		Rigidbody*& garbageRigidbody = m_rigidbodies[m_garbageRigidbodyIndexes[rigidbodyIdx]];
-//		PTR_SAFE_DELETE( garbageRigidbody );
-//	}
-//
-//	m_garbageRigidbodyIndexes.clear();
-//
-//	// Cleanup colliders
-//	for ( int colliderIdx = 0; colliderIdx < (int)m_garbageColliderIndexes.size(); ++colliderIdx )
-//	{
-//		Collider*& garbageCollider = m_colliders[m_garbageColliderIndexes[colliderIdx]];
-//		PTR_SAFE_DELETE( garbageCollider );
-//	}
-//
-//	m_garbageColliderIndexes.clear();
-//}
-
-
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::Shutdown()
 {
 	PTR_SAFE_DELETE( m_stepTimer );
 	PTR_SAFE_DELETE( m_physicsClock );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Reset()
-{
-	//ClearOldCollisions();
-
-	//DestroyAllColliders();
-	//DestroyAllRigidbodies();
-	//CleanupDestroyedObjects();
-
-	//m_colliders.clear();
-	//m_rigidbodies.clear();
 }
 
 

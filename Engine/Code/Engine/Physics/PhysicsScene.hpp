@@ -6,7 +6,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct OBB3;
 class CollisionResolver;
+
+typedef void ( *AffectorFn )( Rigidbody* rigidbody );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -17,14 +20,17 @@ class PhysicsScene
 public:	
 	~PhysicsScene();
 
+	void Reset();
+
+	void ApplyAffectors();
+	void AddAffector( AffectorFn affectorFunc );
+
 	// TODO: Make a cylinder def object
 	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius );
-
-	void Reset();
+	Rigidbody* CreateOBB3Rigidbody( const OBB3& box, float mass );
 
 	void DestroyRigidbody( Rigidbody* rigidbody );
 	void DestroyCollider( Collider* collider );
-
 	void CleanupDestroyedObjects();
 
 private:
@@ -38,6 +44,8 @@ private:
 	
 	std::vector<int> m_garbageRigidbodyIndexes;
 	std::vector<int> m_garbageColliderIndexes;
+
+	std::vector<AffectorFn> m_affectors;
 
 	CollisionResolver* m_collisionResolver = nullptr;
 };

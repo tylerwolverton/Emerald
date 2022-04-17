@@ -27,6 +27,14 @@ Map::Map( const MapData& mapData, World* world )
 	, m_world( world )
 {
 	m_physicsScene = new PhysicsScene();
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.2f ) );	 
+	} );
+
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->ApplyDragForce();	 
+	} );
+
 	LoadEntities( mapData.mapEntityDefs );
 }
 

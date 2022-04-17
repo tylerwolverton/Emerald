@@ -2,6 +2,7 @@
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -21,6 +22,12 @@ LineMap::LineMap( const MapData& mapData, World* world )
 {
 	m_walls = mapData.walls;
 	m_regionTypeDefs = mapData.regionTypeDefs;
+
+	for ( const auto& wall : m_walls )
+	{
+		Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( wall, 1.f );
+		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+	}
 }
 
 

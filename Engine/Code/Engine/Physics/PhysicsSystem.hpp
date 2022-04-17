@@ -23,8 +23,6 @@ public:
 	void EndFrame() {}
 	void Shutdown();
 
-	void Reset();
-
 	float GetFixedDeltaSeconds() const;
 	void SetFixedDeltaSeconds( float newDeltaSeconds );
 	void ResetFixedDeltaSecondsToDefault();
@@ -33,9 +31,7 @@ public:
 
 protected:
 	void AdvanceSimulation( PhysicsScene& scene, float deltaSeconds );
-	//virtual void ApplyEffectors() = 0;
 	void MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds );
-	void CleanupDestroyedObjects();
 	
 private:
 	Clock* m_gameClock = nullptr;

@@ -222,6 +222,7 @@
     <ClCompile Include="Physics\3D\Rigidbody3D.cpp" />
     <ClCompile Include="Physics\Collider.cpp" />
     <ClCompile Include="Physics\CollisionResolver.cpp" />
+    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp" />
     <ClCompile Include="Physics\PhysicsCommon.cpp" />
     <ClCompile Include="Physics\PhysicsLayers.cpp" />
     <ClCompile Include="Physics\PhysicsScene.cpp" />
@@ -358,6 +359,7 @@
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
     <ClInclude Include="Physics\Collider.hpp" />
     <ClInclude Include="Physics\CollisionResolver.hpp" />
+    <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\PhysicsCommon.hpp" />
     <ClInclude Include="Physics\PhysicsLayers.hpp" />
