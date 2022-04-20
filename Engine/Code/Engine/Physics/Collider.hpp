@@ -16,13 +16,21 @@ class Collider;
 
 
 //-----------------------------------------------------------------------------------------------
-enum eCollider2DType
+enum eColliderType
 {
-	COLLIDER2D_NONE = -1,
-	COLLIDER2D_DISC,
-	COLLIDER2D_POLYGON,
+	COLLIDER_NONE = -1,
 
-	NUM_COLLIDER_TYPES
+	// 2D
+	COLLIDER_DISC = 0,
+	COLLIDER_POLYGON,
+	
+	NUM_2D_COLLIDER_TYPES,
+
+	// 3D
+	COLLIDER_SPHERE = 0,
+	COLLIDER_OBB3,
+
+	NUM_3D_COLLIDER_TYPES
 };
 
 
@@ -35,6 +43,7 @@ class Collider
 
 public: // Interface 
 	int GetId()	const															{ return m_id; }
+	eColliderType GetType()	const												{ return m_type; }
 	Rigidbody* GetRigidbody() const												{ return m_rigidbody; }
 	bool IsTrigger() const														{ return m_isTrigger; }
 
@@ -43,9 +52,9 @@ public: // Interface
 	virtual void UpdateWorldShape() = 0;
 
 	// queries 
+	virtual const Vec3 GetClosestPoint( const Vec2& pos ) const;
 	virtual const Vec3 GetClosestPoint( const Vec3& pos ) const = 0;
-	virtual const Vec3 GetClosestPoint( const Vec2& pos ) const = 0;
-	virtual bool Contains( const Vec2& pos ) const = 0;
+	virtual bool Contains( const Vec2& pos ) const;
 	virtual bool Contains( const Vec3& pos ) const = 0;
 	bool Intersects( const Collider* other ) const;
 
@@ -55,8 +64,8 @@ public: // Interface
 
 	virtual float CalculateMoment( float mass ) = 0;
 
+	virtual Vec3 GetFarthestPointInDirection( const Vec2& direction ) const;
 	virtual Vec3 GetFarthestPointInDirection( const Vec3& direction ) const = 0;
-	virtual Vec3 GetFarthestPointInDirection( const Vec2& direction ) const = 0;
 
 	void Enable()																{ m_isEnabled = true; }
 	void Disable()																{ m_isEnabled = false; }
@@ -85,10 +94,10 @@ public:
 protected:
 	PhysicsSystem* m_system		= nullptr;			
 	Rigidbody* m_rigidbody		= nullptr;			// owning rigidbody, used for calculating world shape
-	eCollider2DType m_type		= COLLIDER2D_NONE;  // keep track of the type - will help with collision later
+	eColliderType m_type		= COLLIDER_NONE;	// keep track of the type - will help with collision later
 	PhysicsMaterial m_material;
-	bool m_isEnabled			= true;
 	int m_id					= -1;
+	bool m_isEnabled			= true;
 	bool m_isTrigger			= false;
 
 	//AABB2 m_worldBounds;

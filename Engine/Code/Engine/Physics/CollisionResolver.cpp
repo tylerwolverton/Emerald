@@ -58,22 +58,26 @@ void CollisionResolver::DetectCollisions( const std::vector<Collider*>& collider
 				continue;
 			}
 
-			// TODO: Remove Intersects check
-			if ( collider->Intersects( otherCollider ) )
+			Manifold collisionManifold = GetCollisionManifoldForColliders( *collider, *otherCollider );
+			
+			// Skip if no collision
+			if ( collisionManifold.normal == Vec3::ZERO )
 			{
-				Collision collision;
-				collision.id = IntVec2( Min( collider->GetId(), otherCollider->GetId() ), Max( collider->GetId(), otherCollider->GetId() ) );
-				collision.frameNum = frameNum;
-				collision.myCollider = collider;
-				collision.theirCollider = otherCollider;
-				// Only calculate manifold if not triggers
-				if ( !DoesCollisionInvolveATrigger( collision ) )
-				{
-					collision.collisionManifold = collider->GetCollisionManifold( otherCollider );
-				}
-
-				AddOrUpdateCollision( collision );
+				continue;
 			}
+
+			Collision collision;
+			collision.id = IntVec2( Min( collider->GetId(), otherCollider->GetId() ), Max( collider->GetId(), otherCollider->GetId() ) );
+			collision.frameNum = frameNum;
+			collision.myCollider = collider;
+			collision.theirCollider = otherCollider;
+			// Only set manifold if not triggers
+			if ( !DoesCollisionInvolveATrigger( collision ) )
+			{
+				collision.collisionManifold = collisionManifold;
+			}
+
+			AddOrUpdateCollision( collision );
 		}
 	}
 }

@@ -220,6 +220,7 @@
     <ClCompile Include="Physics\2D\Rigidbody2D.cpp" />
     <ClCompile Include="OS\Window.cpp" />
     <ClCompile Include="Physics\3D\Rigidbody3D.cpp" />
+    <ClCompile Include="Physics\3D\SphereCollider.cpp" />
     <ClCompile Include="Physics\Collider.cpp" />
     <ClCompile Include="Physics\CollisionResolver.cpp" />
     <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp" />
@@ -355,8 +356,10 @@
     <ClInclude Include="Networking\TCPSocket.hpp" />
     <ClInclude Include="Networking\UDPSocket.hpp" />
     <ClInclude Include="Performance\PerformanceTracker.hpp" />
+    <ClInclude Include="Physics\3D\OBB3Collider.hpp" />
     <ClInclude Include="Physics\3D\PhysicsSystem3D.hpp" />
     <ClInclude Include="Physics\3D\Rigidbody3D.hpp" />
+    <ClInclude Include="Physics\3D\SphereCollider.hpp" />
     <ClInclude Include="Physics\Collider.hpp" />
     <ClInclude Include="Physics\CollisionResolver.hpp" />
     <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />

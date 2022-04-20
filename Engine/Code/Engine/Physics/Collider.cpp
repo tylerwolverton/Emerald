@@ -476,6 +476,20 @@ typedef bool ( *CollisionCheckCallback )( const Collider*, const Collider* );
 
 
 //-----------------------------------------------------------------------------------------------
+const Vec3 Collider::GetClosestPoint( const Vec2& pos ) const
+{
+	return GetClosestPoint( Vec3( pos, 0.f ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool Collider::Contains( const Vec2& pos ) const
+{
+	return Contains( Vec3( pos, 0.f ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 float Collider::GetBounceWith( const Collider* otherCollider ) const
 {
 	return m_material.m_bounciness * otherCollider->m_material.m_bounciness;
@@ -489,3 +503,11 @@ float Collider::GetFrictionWith( const Collider* otherCollider ) const
 	combinedFriction = ClampZeroToOne( combinedFriction );
 	return combinedFriction;
 }
+
+
+//-----------------------------------------------------------------------------------------------
+Vec3 Collider::GetFarthestPointInDirection( const Vec2& direction ) const
+{
+	return GetFarthestPointInDirection( Vec3( direction, 0.f ) );
+}
+

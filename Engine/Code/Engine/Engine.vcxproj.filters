@@ -412,6 +412,9 @@
     <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\3D\SphereCollider.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -747,5 +750,7 @@
     <ClInclude Include="Physics\PhysicsCommon.hpp" />
     <ClInclude Include="Physics\PhysicsLayers.hpp" />
     <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />
+    <ClInclude Include="Physics\3D\SphereCollider.hpp" />
+    <ClInclude Include="Physics\3D\OBB3Collider.hpp" />
   </ItemGroup>
 </Project>
