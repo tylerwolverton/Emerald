@@ -106,7 +106,18 @@ const Vec3 OBB3::GetFurthestCornerInDirection( const Vec3& direction ) const
 //-----------------------------------------------------------------------------------------------
 const Vec3 OBB3::GetNearestPoint( const Vec3& point ) const
 {
-	return GetNearestPointOnBox( point );
+	Vec3 pointIJK = point - m_center;
+
+	float iLength = DotProduct3D( pointIJK, m_iBasis );
+	float jLength = DotProduct3D( pointIJK, m_jBasis );
+	float kLength = DotProduct3D( pointIJK, GetKBasisNormal() );
+
+	Vec3 nearestPoint( ClampMinMax( iLength, -m_halfDimensions.x, m_halfDimensions.x ) * m_iBasis
+					   + ClampMinMax( jLength, -m_halfDimensions.y, m_halfDimensions.y ) * m_jBasis
+					   + ClampMinMax( kLength, -m_halfDimensions.z, m_halfDimensions.z ) * GetKBasisNormal() );
+
+	nearestPoint += m_center;
+	return nearestPoint;
 }
 
 
@@ -119,26 +130,80 @@ const Vec3 OBB3::GetNearestPointOnBox( const Vec3& point ) const
 	float jLength = DotProduct3D( pointIJK, m_jBasis );
 	float kLength = DotProduct3D( pointIJK, GetKBasisNormal() );
 
-	Vec3 nearestPoint( ClampMinMax( iLength, -m_halfDimensions.x, m_halfDimensions.x ) * m_iBasis
-					   + ClampMinMax( jLength, -m_halfDimensions.y, m_halfDimensions.y ) * m_jBasis
-					   + ClampMinMax( kLength, -m_halfDimensions.z, m_halfDimensions.z ) * GetKBasisNormal() );
+	float iClampedLength = ClampMinMax( iLength, -m_halfDimensions.x, m_halfDimensions.x );
+	float jClampedLength = ClampMinMax( jLength, -m_halfDimensions.y, m_halfDimensions.y );
+	float kClampedLength = ClampMinMax( kLength, -m_halfDimensions.z, m_halfDimensions.z );
+
+	// Adjust for point inside box
+	//if ( IsNearlyEqual( iLength, iClampedLength, .00001f )
+	//	 && IsNearlyEqual( jLength, jClampedLength, .00001f )
+	//	 && IsNearlyEqual( kLength, kClampedLength, .00001f ) )
+	//{
+	//	float iOffsetFromInside = 0.f;
+	//	if ( IsNearlyEqual( iLength, iClampedLength, .00001f ) )
+	//	{
+	//		if ( iLength > 0.f )
+	//		{
+	//			iOffsetFromInside = m_halfDimensions.x - iLength;
+	//		}
+	//		else
+	//		{
+	//			iOffsetFromInside = -m_halfDimensions.x + iLength;
+	//		}
+	//	}
+
+	//	float jOffsetFromInside = 0.f;
+	//	if ( IsNearlyEqual( jLength, jClampedLength, .00001f ) )
+	//	{
+	//		if ( jLength > 0.f )
+	//		{
+	//			jOffsetFromInside = m_halfDimensions.y - jLength;
+	//		}
+	//		else
+	//		{
+	//			jOffsetFromInside = -m_halfDimensions.y + jLength;
+	//		}
+	//	}
+
+	//	float kOffsetFromInside = 0.f;
+	//	if ( IsNearlyEqual( kLength, kClampedLength, .00001f ) )
+	//	{
+	//		if ( kLength > 0.f )
+	//		{
+	//			kOffsetFromInside = m_halfDimensions.z - kLength;
+	//		}
+	//		else
+	//		{
+	//			kOffsetFromInside = -m_halfDimensions.z + kLength;
+	//		}
+	//	}
+
+	//	if ( !IsNearlyEqual( iOffsetFromInside, 0.f, .00001f )
+	//		 && Abs( iOffsetFromInside ) < Abs( jOffsetFromInside )
+	//		 && Abs( iOffsetFromInside ) < Abs( kOffsetFromInside ) )
+	//	{
+	//		// Need to snap i
+	//		iClampedLength = SnapMinMax( iLength, -m_halfDimensions.x, m_halfDimensions.x );
+	//	}
+	//	else if ( !IsNearlyEqual( jOffsetFromInside, 0.f, .00001f )
+	//			  && Abs( jOffsetFromInside ) < Abs( iOffsetFromInside )
+	//			  && Abs( jOffsetFromInside ) < Abs( kOffsetFromInside ) )
+	//	{
+	//		// Need to snap j
+	//		jClampedLength = SnapMinMax( jLength, -m_halfDimensions.y, m_halfDimensions.y );
+	//	}
+	//	else if ( !IsNearlyEqual( kOffsetFromInside, 0.f, .00001f ) )
+	//	{
+	//		// Need to snap k
+	//		kClampedLength = SnapMinMax( kLength, -m_halfDimensions.z, m_halfDimensions.z );
+	//	}
+	//}
+
+	Vec3 nearestPoint( iClampedLength * m_iBasis
+					   + jClampedLength * m_jBasis
+					   + kClampedLength * GetKBasisNormal() );
 
 	nearestPoint += m_center;
-
-	// TODO: Account for point inside obb
-	/*if ( IsPointInside( nearestPoint ) )
-	{
-		float iAbs = Abs( iLength );
-		float jAbs = Abs( jLength );
-		float kAbs = Abs( kLength );
-
-		if ( iAbs > jAbs
-			 && iAbs > kAbs )
-		{
-			nearestPoint
-		}
-	}*/
-
 	return nearestPoint;
 }
 

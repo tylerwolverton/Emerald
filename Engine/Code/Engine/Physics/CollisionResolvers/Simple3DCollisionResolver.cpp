@@ -18,14 +18,15 @@ static Manifold SphereVSphereCollisionManifoldGenerator( const Collider* collide
 	const SphereCollider* sphereCollider1 = (const SphereCollider*)collider1;
 	const SphereCollider* sphereCollider2 = (const SphereCollider*)collider2;
 	
+	Manifold manifold;
+
 	// Broadphase
 	if ( !DoSpheresOverlap( sphereCollider1->GetWorldPosition(), sphereCollider1->GetRadius(),
 							sphereCollider2->GetWorldPosition(), sphereCollider2->GetRadius() ) )
 	{
-		return Manifold();
+		return manifold;
 	}
 
-	Manifold manifold;
 	manifold.normal = sphereCollider2->GetWorldPosition() - sphereCollider1->GetWorldPosition();
 	
 	if ( IsNearlyEqual( manifold.normal, Vec3::ZERO ) )
@@ -49,11 +50,34 @@ static Manifold SphereVSphereCollisionManifoldGenerator( const Collider* collide
 static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const SphereCollider* sphereCollider1 = (const SphereCollider*)collider1;
-	const OBB3Collider* obb3Collider1 = (const OBB3Collider*)collider2;
+	const SphereCollider* sphereCollider = (const SphereCollider*)collider1;
+	const OBB3Collider* obb3Collider = (const OBB3Collider*)collider2;
 
 	Manifold manifold;
 	
+	// Broadphase
+	if ( !DoSpheresOverlap( sphereCollider->GetWorldPosition(), sphereCollider->GetRadius(),
+							obb3Collider->GetWorldPosition(), obb3Collider->GetOuterRadius() ) )
+	{
+		return manifold;
+	}
+
+	const OBB3& obb3 = obb3Collider->GetOBB3();
+
+	Vec3 nearestPointOnBox = obb3.GetNearestPointOnBox( sphereCollider->GetWorldPosition() );
+
+	Vec3 displacementFromBox = nearestPointOnBox - sphereCollider->GetWorldPosition();
+	
+	float displacementLength = displacementFromBox.GetLength();
+	manifold.penetrationDepth = sphereCollider->GetRadius() - displacementLength;
+	
+	// Check if sphere actually intersects
+	if ( manifold.penetrationDepth < 0.f )
+	{
+		return manifold;
+	}
+	
+	manifold.normal = displacementFromBox.GetNormalized();
 
 	return manifold;
 }

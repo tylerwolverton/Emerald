@@ -1476,3 +1476,26 @@ int ClampMinMaxInt( int value, int minimumValue, int maximumValue )
 		return value;
 	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+float SnapMinMax( float value, float minimumValue, float maximumValue )
+{
+	if ( value < minimumValue )
+	{
+		return minimumValue;
+	}
+	else if ( value > maximumValue )
+	{
+		return maximumValue;
+	}
+	else if( value >= ( minimumValue + maximumValue ) * .5f )
+	{
+		return maximumValue;
+	}
+	else
+	{
+		return minimumValue;
+	}
+}
+

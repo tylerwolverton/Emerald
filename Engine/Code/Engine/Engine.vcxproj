@@ -216,6 +216,7 @@
     <ClCompile Include="Networking\TCPSocket.cpp" />
     <ClCompile Include="Networking\UDPSocket.cpp" />
     <ClCompile Include="Performance\PerformanceTracker.cpp" />
+    <ClCompile Include="Physics\3D\OBB3Collider.cpp" />
     <ClCompile Include="Physics\3D\PhysicsSystem3D.cpp" />
     <ClCompile Include="Physics\2D\Rigidbody2D.cpp" />
     <ClCompile Include="OS\Window.cpp" />

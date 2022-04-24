@@ -415,6 +415,9 @@
     <ClCompile Include="Physics\3D\SphereCollider.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\3D\OBB3Collider.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">

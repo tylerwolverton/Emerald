@@ -64,6 +64,7 @@ double			ClampMinMax			( double value, double minimumValue, double maximumValue 
 unsigned char	ClampMinMax			( unsigned char value, unsigned char minimumValue, unsigned char maximumValue );
 float			ClampZeroToOne		( float value );
 int				ClampMinMaxInt		( int value, int minimumValue, int maximumValue );
+float			SnapMinMax			( float value, float minimumValue, float maximumValue );
 float			RangeMapFloat		( float inputBegin, float inputEnd, float outputBegin, float outputEnd, float value );
 const Vec2		RangeMapFloatVec2	( float inputBegin, float inputEnd, const Vec2& outputBegin, const Vec2& outputEnd, float value );
 const Vec3		RangeMapVec3		( const Vec3& inputBegin, const Vec3& inputEnd, const Vec3& outputBegin, const Vec3& outputEnd, const Vec3& value );

@@ -3,6 +3,7 @@
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/CollisionResolver.hpp"
+#include "Engine/Physics/3D/OBB3Collider.hpp"
 #include "Engine/Physics/3D/SphereCollider.hpp"
 
 
@@ -47,7 +48,7 @@ Rigidbody* PhysicsScene::CreateOBB3Rigidbody( const OBB3& box, float mass )
 	newRigidbody->SetPosition( box.m_center );
 	m_rigidbodies.push_back( newRigidbody );
 	
-	SphereCollider* collider = new SphereCollider( 0, Vec3::ZERO, box.GetOuterRadius() );
+	OBB3Collider* collider = new OBB3Collider( 0, Vec3::ZERO, box );
 	m_colliders.push_back( collider );
 
 	newRigidbody->TakeCollider( collider );

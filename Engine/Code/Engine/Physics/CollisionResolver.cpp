@@ -245,12 +245,15 @@ void CollisionResolver::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigi
 	{
 		rigidbody1->Translate( collisionManifold.penetrationDepth * -collisionManifold.normal );
 	}
+	// Push out of each other based on mass
+	else
+	{
+		float sumOfMasses = rigidbody1->GetMass() + rigidbody2->GetMass();
+		float rigidbody1CorrectionDist = ( rigidbody2->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
+		float rigidbody2CorrectionDist = ( rigidbody1->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
 
-	float sumOfMasses = rigidbody1->GetMass() + rigidbody2->GetMass();
-	float rigidbody1CorrectionDist = ( rigidbody2->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
-	float rigidbody2CorrectionDist = ( rigidbody1->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
-
-	rigidbody1->Translate( rigidbody1CorrectionDist * -collisionManifold.normal );
-	rigidbody2->Translate( rigidbody2CorrectionDist * collisionManifold.normal );
+		rigidbody1->Translate( rigidbody1CorrectionDist * -collisionManifold.normal );
+		rigidbody2->Translate( rigidbody2CorrectionDist * collisionManifold.normal );
+	}
 }
 
