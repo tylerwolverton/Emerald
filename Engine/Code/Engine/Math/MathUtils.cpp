@@ -288,7 +288,8 @@ bool DoDiscsOverlap( const Vec2& center1, float radius1, const Vec2& center2, fl
 //-----------------------------------------------------------------------------------------------
 bool DoSpheresOverlap( const Vec3& center1, float radius1, const Vec3& center2, float radius2 )
 {
-	return GetDistance3D( center1, center2 ) < ( radius1 + radius2 );
+	float sumOfRadiiSquared = ( radius1 + radius2 ) * ( radius1 + radius2 );
+	return GetDistanceSquared3D( center1, center2 ) < sumOfRadiiSquared;
 }
 
 

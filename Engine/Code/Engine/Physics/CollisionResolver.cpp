@@ -10,8 +10,7 @@ void CollisionResolver::ResolveCollisions( std::vector<Collider*>& colliders, ui
 {
 	DetectCollisions( colliders, frameNum );					// determine all pairs of intersecting colliders
 	ClearOldCollisions( frameNum );
-
-	ResolveCollisions( colliders, frameNum );
+	ResolveCollisions();
 }
 
 
@@ -58,7 +57,7 @@ void CollisionResolver::DetectCollisions( const std::vector<Collider*>& collider
 				continue;
 			}
 
-			Manifold collisionManifold = GetCollisionManifoldForColliders( *collider, *otherCollider );
+			Manifold collisionManifold = GetCollisionManifoldForColliders( collider, otherCollider );
 			
 			// Skip if no collision
 			if ( collisionManifold.normal == Vec3::ZERO )
@@ -229,3 +228,29 @@ void CollisionResolver::ResolveCollision( const Collision& collision )
 	CorrectCollidingRigidbodies( myRigidbody, theirRigidbody, collision.collisionManifold );
 	ApplyCollisionImpulses( myRigidbody, theirRigidbody, collision.collisionManifold );
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void CollisionResolver::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
+{
+	// Push rigidbody 2 out completely
+	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC
+		 || rigidbody1->GetSimulationMode() == SIMULATION_MODE_KINEMATIC && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		rigidbody2->Translate( collisionManifold.penetrationDepth * collisionManifold.normal );
+	}
+	// Push rigidbody 1 out completely
+	else if ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_STATIC
+			  || rigidbody2->GetSimulationMode() == SIMULATION_MODE_KINEMATIC && rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		rigidbody1->Translate( collisionManifold.penetrationDepth * -collisionManifold.normal );
+	}
+
+	float sumOfMasses = rigidbody1->GetMass() + rigidbody2->GetMass();
+	float rigidbody1CorrectionDist = ( rigidbody2->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
+	float rigidbody2CorrectionDist = ( rigidbody1->GetMass() / sumOfMasses ) * collisionManifold.penetrationDepth;
+
+	rigidbody1->Translate( rigidbody1CorrectionDist * -collisionManifold.normal );
+	rigidbody2->Translate( rigidbody2CorrectionDist * collisionManifold.normal );
+}
+

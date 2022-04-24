@@ -237,18 +237,14 @@ void Rigidbody::ApplyDragForce()
 
 
 //-----------------------------------------------------------------------------------------------
-void Rigidbody::DebugRender( RenderContext* renderer, const Rgba8& borderColor, const Rgba8& fillColor ) const
+void Rigidbody::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const
 {
 	//Rgba8 rigidbodyColor = m_isEnabled ? Rgba8::BLUE : Rgba8::RED;
-	//Vec2 crossOffset( .1f, .1f );
-	//DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
-	//crossOffset.x *= -1.f;
-	//DrawLine2D( renderer, m_worldPosition + crossOffset, m_worldPosition - crossOffset, rigidbodyColor, .03f );
-
-	//if ( m_collider != nullptr )
-	//{
-	//	m_collider->DebugRender( renderer, borderColor, fillColor );
-	//}
+	
+	if ( m_collider != nullptr )
+	{
+		m_collider->DebugRender( borderColor, fillColor );
+	}
 }
 
 

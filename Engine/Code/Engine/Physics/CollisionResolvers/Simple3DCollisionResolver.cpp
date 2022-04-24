@@ -1,5 +1,7 @@
 #include "Engine/Physics/CollisionResolvers/Simple3DCollisionResolver.hpp"
+#include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Physics/3D/SphereCollider.hpp"
 #include "Engine/Physics/3D/OBB3Collider.hpp"
 
@@ -16,16 +18,28 @@ static Manifold SphereVSphereCollisionManifoldGenerator( const Collider* collide
 	const SphereCollider* sphereCollider1 = (const SphereCollider*)collider1;
 	const SphereCollider* sphereCollider2 = (const SphereCollider*)collider2;
 	
+	// Broadphase
+	if ( !DoSpheresOverlap( sphereCollider1->GetWorldPosition(), sphereCollider1->GetRadius(),
+							sphereCollider2->GetWorldPosition(), sphereCollider2->GetRadius() ) )
+	{
+		return Manifold();
+	}
+
 	Manifold manifold;
-	/*manifold.normal = sphereCollider2->m_worldPosition - sphereCollider1->m_worldPosition;
-	manifold.normal.Normalize();
+	manifold.normal = sphereCollider2->GetWorldPosition() - sphereCollider1->GetWorldPosition();
+	
+	if ( IsNearlyEqual( manifold.normal, Vec3::ZERO ) )
+	{
+		return manifold;
+	}
 
-	Vec2 disc1Edge = discCollider1->m_worldPosition + ( manifold.normal * discCollider1->m_radius );
-	Vec2 disc2Edge = discCollider2->m_worldPosition + ( -manifold.normal * discCollider2->m_radius );
-	manifold.penetrationDepth = GetDistance2D( disc1Edge, disc2Edge );
+	float normalLength = manifold.normal.GetLength();
+	manifold.penetrationDepth = ( sphereCollider1->GetRadius() + sphereCollider2->GetRadius() ) - normalLength;
+	
+	// Normalize normal
+	manifold.normal /= normalLength;
 
-	manifold.contactPoint1 = disc1Edge - ( manifold.normal * manifold.penetrationDepth * .5f );
-	manifold.contactPoint2 = manifold.contactPoint1;*/
+	// Ignoring contact points for now
 
 	return manifold;
 }
@@ -73,7 +87,6 @@ Manifold Simple3DCollisionResolver::GetCollisionManifoldForColliders( const Coll
 {
 	if ( !collider->IsEnabled()
 		 || !otherCollider->IsEnabled() )
-		// || !DoAABBsOverlap2D( GetWorldBounds(), other->GetWorldBounds() ) )
 	{
 		return Manifold();
 	}
@@ -100,16 +113,11 @@ Manifold Simple3DCollisionResolver::GetCollisionManifoldForColliders( const Coll
 
 
 //-----------------------------------------------------------------------------------------------
-void Simple3DCollisionResolver::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
-{
-
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Simple3DCollisionResolver::ApplyCollisionImpulses( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
 {
 	UNUSED( rigidbody1 );
 	UNUSED( rigidbody2 );
 	UNUSED( collisionManifold );
+
+	// Do nothing for now
 }

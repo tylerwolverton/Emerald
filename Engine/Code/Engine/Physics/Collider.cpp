@@ -505,9 +505,9 @@ float Collider::GetFrictionWith( const Collider* otherCollider ) const
 }
 
 
-//-----------------------------------------------------------------------------------------------
-Vec3 Collider::GetFarthestPointInDirection( const Vec2& direction ) const
-{
-	return GetFarthestPointInDirection( Vec3( direction, 0.f ) );
-}
+////-----------------------------------------------------------------------------------------------
+//Vec3 Collider::GetFarthestPointInDirection( const Vec2& direction ) const
+//{
+//	return GetFarthestPointInDirection( Vec3( direction, 0.f ) );
+//}
 

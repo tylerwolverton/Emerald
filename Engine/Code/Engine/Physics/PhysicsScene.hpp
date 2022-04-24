@@ -18,12 +18,15 @@ class PhysicsScene
 	friend class PhysicsSystem;
 
 public:	
-	~PhysicsScene();
+	virtual ~PhysicsScene();
+	void DebugRender() const;
 
 	void Reset();
 
 	void ApplyAffectors();
 	void AddAffector( AffectorFn affectorFunc );
+
+	void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
 	// TODO: Make a cylinder def object
 	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius );

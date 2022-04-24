@@ -65,7 +65,7 @@ public:
 	void ApplyImpulseAt( const Vec3& impulse, const Vec3& worldPosition );
 	void ApplyDragForce();
 
-	void DebugRender( RenderContext* renderer, const Rgba8& borderColor, const Rgba8& fillColor ) const;
+	void DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const;
 
 	bool IsEnabled() const															{ return m_isEnabled; }
 	void Enable();

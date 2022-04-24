@@ -7,6 +7,7 @@
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
+#include "Engine/Physics/CollisionResolvers/Simple3DCollisionResolver.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -27,13 +28,15 @@ Map::Map( const MapData& mapData, World* world )
 	, m_world( world )
 {
 	m_physicsScene = new PhysicsScene();
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-		rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.2f ) );	 
-	} );
+	m_curCollisionResolver = new Simple3DCollisionResolver();
+	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
+	//m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+	//	rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.2f ) );	 
+	//} );
 
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-		rigidbody->ApplyDragForce();	 
-	} );
+	//m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+	//	rigidbody->ApplyDragForce();	 
+	//} );
 
 	LoadEntities( mapData.mapEntityDefs );
 }
@@ -43,6 +46,7 @@ Map::Map( const MapData& mapData, World* world )
 Map::~Map()
 {
 	PTR_SAFE_DELETE( m_physicsScene );
+	PTR_SAFE_DELETE( m_curCollisionResolver );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 
@@ -338,7 +342,8 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
-		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( newEntity->GetPosition(), (*mapEntityDef.entityDef).GetMass(), newEntity->GetPhysicsRadius() ));
+		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( mapEntityDef.position, (*mapEntityDef.entityDef).GetMass(), newEntity->GetPhysicsRadius() ));
+		newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
 	}
 }
 

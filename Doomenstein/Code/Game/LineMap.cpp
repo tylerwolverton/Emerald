@@ -27,6 +27,7 @@ LineMap::LineMap( const MapData& mapData, World* world )
 	{
 		Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( wall, 1.f );
 		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+		break;
 	}
 }
 
@@ -143,7 +144,7 @@ void LineMap::DebugRender() const
 			DebugAddWorldPoint( points[pointIdx], Rgba8::GREEN );
 		}
 
-		DebugAddWorldWireSphere( m_walls[wallIdx].GetCenter(), m_walls[wallIdx].GetOuterRadius(), Rgba8::GREEN );
+		//DebugAddWorldWireSphere( m_walls[wallIdx].GetCenter(), m_walls[wallIdx].GetOuterRadius(), Rgba8::GREEN );
 	}
 }
 

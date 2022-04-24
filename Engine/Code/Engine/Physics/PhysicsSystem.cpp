@@ -41,6 +41,8 @@ void PhysicsSystem::Update( PhysicsScene& scene )
 	{
 		AdvanceSimulation( scene, s_fixedDeltaSeconds );
 	}
+		
+	scene.DebugRender();
 }
 
 

@@ -12,5 +12,5 @@ public:
 	float penetrationDepth = 0.f;
 
 public:
-	Vec3 GetCenterOfContactEdge() const { return ( contactPoint1 + contactPoint2 ) / 2.f; }
+	Vec3 GetCenterOfContactEdge() const { return ( contactPoint1 + contactPoint2 ) * .5f; }
 };

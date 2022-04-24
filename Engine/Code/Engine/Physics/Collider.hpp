@@ -45,6 +45,7 @@ public: // Interface
 	int GetId()	const															{ return m_id; }
 	eColliderType GetType()	const												{ return m_type; }
 	Rigidbody* GetRigidbody() const												{ return m_rigidbody; }
+	Vec3 GetWorldPosition() const												{ return m_worldPosition; }
 	bool IsTrigger() const														{ return m_isTrigger; }
 
 	// cache off the world shape representation of this object
@@ -56,16 +57,15 @@ public: // Interface
 	virtual const Vec3 GetClosestPoint( const Vec3& pos ) const = 0;
 	virtual bool Contains( const Vec2& pos ) const;
 	virtual bool Contains( const Vec3& pos ) const = 0;
-	bool Intersects( const Collider* other ) const;
 
-	virtual Manifold GetCollisionManifold( const Collider* other ) const = 0;
+	//virtual Manifold GetCollisionManifold( const Collider* other ) const = 0;
 	float GetBounceWith( const Collider* otherCollider ) const;
 	float GetFrictionWith( const Collider* otherCollider ) const;
 
 	virtual float CalculateMoment( float mass ) = 0;
 
-	virtual Vec3 GetFarthestPointInDirection( const Vec2& direction ) const;
-	virtual Vec3 GetFarthestPointInDirection( const Vec3& direction ) const = 0;
+	//virtual Vec3 GetFarthestPointInDirection( const Vec2& direction ) const;
+	//virtual Vec3 GetFarthestPointInDirection( const Vec3& direction ) const = 0;
 
 	void Enable()																{ m_isEnabled = true; }
 	void Disable()																{ m_isEnabled = false; }
@@ -76,7 +76,7 @@ public: // Interface
 	virtual const AABB2 GetWorldBounds() const																				{ return m_worldBounds; };*/
 
 	// debug helpers
-	virtual void DebugRender( RenderContext* renderer, const Rgba8& borderColor, const Rgba8& fillColor ) const = 0;
+	virtual void DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const = 0;
 
 protected:
 	virtual ~Collider() {}; // private - make sure this is virtual so correct deconstructor gets called

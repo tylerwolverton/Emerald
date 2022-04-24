@@ -1,14 +1,25 @@
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/CollisionResolver.hpp"
+#include "Engine/Physics/3D/SphereCollider.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 PhysicsScene::~PhysicsScene()
 {
 	Reset();
-	CleanupDestroyedObjects();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PhysicsScene::DebugRender() const
+{
+	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
+	{
+		m_rigidbodies[rigidbodyIdx]->DebugRender( Rgba8::YELLOW, Rgba8::RED );
+	}
 }
 
 
@@ -16,8 +27,14 @@ PhysicsScene::~PhysicsScene()
 Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius )
 {
 	Rigidbody* newRigidbody = new Rigidbody( mass );
+	newRigidbody->SetPosition( worldPosition );
 	m_rigidbodies.push_back( newRigidbody );
 	// Create sphere collider
+
+	SphereCollider* collider = new SphereCollider( 0, Vec3::ZERO, radius );
+	m_colliders.push_back( collider );
+	
+	newRigidbody->TakeCollider( collider );
 
 	return newRigidbody;
 }
@@ -27,8 +44,13 @@ Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, flo
 Rigidbody* PhysicsScene::CreateOBB3Rigidbody( const OBB3& box, float mass )
 {
 	Rigidbody* newRigidbody = new Rigidbody( mass );
+	newRigidbody->SetPosition( box.m_center );
 	m_rigidbodies.push_back( newRigidbody );
-	// Create sphere collider
+	
+	SphereCollider* collider = new SphereCollider( 0, Vec3::ZERO, box.GetOuterRadius() );
+	m_colliders.push_back( collider );
+
+	newRigidbody->TakeCollider( collider );
 
 	return newRigidbody;
 }
@@ -39,6 +61,8 @@ void PhysicsScene::Reset()
 {
 	DestroyAllColliders();
 	DestroyAllRigidbodies();
+	CleanupDestroyedObjects();
+	m_affectors.clear();
 }
 
 

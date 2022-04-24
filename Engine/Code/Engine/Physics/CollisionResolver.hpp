@@ -38,6 +38,8 @@ enum class eCollisionEventType
 class CollisionResolver
 {
 public:
+	virtual ~CollisionResolver() {};
+
 	virtual void ResolveCollisions( std::vector<Collider*>& colliders, uint frameNum );
 
 protected:
@@ -45,9 +47,9 @@ protected:
 	void ClearOldCollisions( uint frameNum );
 	void ResolveCollisions();
 	void ResolveCollision( const Collision& collision );
+	virtual void CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold );
 
 	virtual Manifold GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider ) = 0;
-	virtual void CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold ) = 0;
 	virtual void ApplyCollisionImpulses( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold ) = 0;
 
 	void InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const;

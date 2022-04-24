@@ -209,7 +209,7 @@ void Entity::SetPosition( const Vec3& position )
 		return;
 	}
 
-	
+	m_rigidbody->SetPosition( position );
 }
 
 
