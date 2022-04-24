@@ -1,9 +1,11 @@
 #include "Engine/Physics/CollisionResolvers/Simple3DCollisionResolver.hpp"
+#include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Physics/3D/SphereCollider.hpp"
 #include "Engine/Physics/3D/OBB3Collider.hpp"
+#include "Engine/Renderer/DebugRender.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -65,6 +67,7 @@ static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1
 	const OBB3& obb3 = obb3Collider->GetOBB3();
 
 	Vec3 nearestPointOnBox = obb3.GetNearestPointOnBox( sphereCollider->GetWorldPosition() );
+	DebugAddWorldPoint( nearestPointOnBox, Rgba8::PURPLE );
 
 	Vec3 displacementFromBox = nearestPointOnBox - sphereCollider->GetWorldPosition();
 	
@@ -139,9 +142,19 @@ Manifold Simple3DCollisionResolver::GetCollisionManifoldForColliders( const Coll
 //-----------------------------------------------------------------------------------------------
 void Simple3DCollisionResolver::ApplyCollisionImpulses( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
 {
-	UNUSED( rigidbody1 );
-	UNUSED( rigidbody2 );
-	UNUSED( collisionManifold );
+	// Apply friction and normal force
+	float frictionCoef = rigidbody1->GetCollider()->GetFrictionWith( rigidbody2->GetCollider() );
+	Vec3 normalForce = collisionManifold.normal * collisionManifold.penetrationDepth;
 
-	// Do nothing for now
+	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		rigidbody1->AddForce( rigidbody1->GetVelocity() * frictionCoef * -collisionManifold.normal );
+		rigidbody1->AddImpulse( rigidbody1->GetVelocity() * collisionManifold.normal );
+	}
+	
+	if ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		rigidbody2->AddForce( rigidbody2->GetVelocity() * frictionCoef * collisionManifold.normal );
+		rigidbody1->AddImpulse( rigidbody2->GetVelocity() * -collisionManifold.normal );
+	}
 }

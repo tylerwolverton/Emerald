@@ -41,11 +41,12 @@ class Collider
 	friend class PhysicsScene;
 	friend class Rigidbody;
 
-public: // Interface 
+public: 
 	int GetId()	const															{ return m_id; }
 	eColliderType GetType()	const												{ return m_type; }
 	Rigidbody* GetRigidbody() const												{ return m_rigidbody; }
 	Vec3 GetWorldPosition() const												{ return m_worldPosition; }
+	void SetPhysicsMaterial( const PhysicsMaterial& material )					{ m_material = material; }
 	bool IsTrigger() const														{ return m_isTrigger; }
 
 	// cache off the world shape representation of this object

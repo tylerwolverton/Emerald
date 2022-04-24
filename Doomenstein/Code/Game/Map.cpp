@@ -30,13 +30,15 @@ Map::Map( const MapData& mapData, World* world )
 	m_physicsScene = new PhysicsScene();
 	m_curCollisionResolver = new Simple3DCollisionResolver();
 	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
-	//m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-	//	rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.2f ) );	 
-	//} );
 
-	//m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-	//	rigidbody->ApplyDragForce();	 
-	//} );
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.098f ) );	 
+		//rigidbody->Translate( -Vec3( 0.f, 0.f, 0.0098f ) );	 
+	} );
+
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->ApplyDragForce();	 
+	} );
 
 	LoadEntities( mapData.mapEntityDefs );
 }

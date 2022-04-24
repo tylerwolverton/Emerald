@@ -37,11 +37,12 @@ void PhysicsSystem::Startup( Clock* gameClock )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::Update( PhysicsScene& scene )
 {
-	while ( m_stepTimer->CheckAndDecrement() )
-	{
-		AdvanceSimulation( scene, s_fixedDeltaSeconds );
-	}
+	//while ( m_stepTimer->CheckAndDecrement() )
+	//{
+	//	AdvanceSimulation( scene, s_fixedDeltaSeconds );
+	//}
 		
+	AdvanceSimulation( scene, m_physicsClock->GetLastDeltaSeconds() );
 	scene.DebugRender();
 }
 
