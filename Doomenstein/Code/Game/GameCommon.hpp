@@ -76,7 +76,7 @@ enum class eBillboardStyle
 eBillboardStyle GetBillboardStyleFromString( const std::string& billboardStyleStr );
 
 //-----------------------------------------------------------------------------------------------
-void BillboardSpriteCameraFacingXY( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
-void BillboardSpriteCameraOpposingXY( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
-void BillboardSpriteCameraFacingXYZ( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
-void BillboardSpriteCameraOpposingXYZ( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
+void BillboardSpriteCameraFacingXY( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
+void BillboardSpriteCameraOpposingXY( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
+void BillboardSpriteCameraFacingXYZ( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );
+void BillboardSpriteCameraOpposingXYZ( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners );

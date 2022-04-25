@@ -47,14 +47,14 @@ eBillboardStyle GetBillboardStyleFromString( const std::string& billboardStyleSt
 
 
 //-----------------------------------------------------------------------------------------------
-void BillboardSpriteCameraFacingXY( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
+void BillboardSpriteCameraFacingXY( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
 {
-	Vec3 forward = Vec3( camera.GetTransform().GetPosition().XY() - pos, 0.f ).GetNormalized();
+	Vec3 forward = ( camera.GetTransform().GetPosition() - pos).GetNormalized();
 	Vec3 left( forward.XY().GetRotated90Degrees(), 0.f );
 	Vec3 up( 0.f, 0.f, 1.f );
 
-	Vec3 bottomLeft( Vec3( pos, 0.f ) - ( left * dimensions.x * .5f ) );
-	Vec3 bottomRight( Vec3( pos, 0.f ) + ( left * dimensions.x * .5f ) );
+	Vec3 bottomLeft( pos - ( left * dimensions.x * .5f ) );
+	Vec3 bottomRight( pos + ( left * dimensions.x * .5f ) );
 	Vec3 topLeft( bottomLeft + ( up * dimensions.y ) );
 	Vec3 topRight( bottomRight + ( up * dimensions.y ) );
 
@@ -66,14 +66,14 @@ void BillboardSpriteCameraFacingXY( const Vec2& pos, const Vec2& dimensions, con
 
 
 //-----------------------------------------------------------------------------------------------
-void BillboardSpriteCameraOpposingXY( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
+void BillboardSpriteCameraOpposingXY( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
 {
-	Vec3 forward = Vec3( -camera.GetTransform().GetForwardVector().XY(), 0.f ).GetNormalized();
+	Vec3 forward = ( -camera.GetTransform().GetForwardVector() ).GetNormalized();
 	Vec3 left( forward.XY().GetRotated90Degrees(), 0.f );
 	Vec3 up( 0.f, 0.f, 1.f );
 
-	Vec3 bottomLeft( Vec3( pos, 0.f ) - ( left * dimensions.x * .5f ) );
-	Vec3 bottomRight( Vec3( pos, 0.f ) + ( left * dimensions.x * .5f ) );
+	Vec3 bottomLeft( pos - ( left * dimensions.x * .5f ) );
+	Vec3 bottomRight( pos + ( left * dimensions.x * .5f ) );
 	Vec3 topLeft( bottomLeft + ( up * dimensions.y ) );
 	Vec3 topRight( bottomRight + ( up * dimensions.y ) );
 
@@ -85,14 +85,14 @@ void BillboardSpriteCameraOpposingXY( const Vec2& pos, const Vec2& dimensions, c
 
 
 //-----------------------------------------------------------------------------------------------
-void BillboardSpriteCameraFacingXYZ( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
+void BillboardSpriteCameraFacingXYZ( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
 {
-	Vec3 forward = Vec3( camera.GetTransform().GetPosition() - Vec3( pos, dimensions.y * .5f ) ).GetNormalized();
+	Vec3 forward = ( camera.GetTransform().GetPosition() - pos ).GetNormalized();
 	Vec3 left = CrossProduct3D( Vec3( 0.f, 0.f, 1.f ), forward ).GetNormalized();
 	Vec3 up = CrossProduct3D( forward, left );
 
-	Vec3 bottomLeft( Vec3( pos, 0.f ) - ( left * dimensions.x * .5f ) );
-	Vec3 bottomRight( Vec3( pos, 0.f ) + ( left * dimensions.x * .5f ) );
+	Vec3 bottomLeft( pos - ( left * dimensions.x * .5f ) );
+	Vec3 bottomRight( pos + ( left * dimensions.x * .5f ) );
 	Vec3 topLeft( bottomLeft + ( up * dimensions.y ) );
 	Vec3 topRight( bottomRight + ( up * dimensions.y ) );
 
@@ -104,15 +104,15 @@ void BillboardSpriteCameraFacingXYZ( const Vec2& pos, const Vec2& dimensions, co
 
 
 //-----------------------------------------------------------------------------------------------
-void BillboardSpriteCameraOpposingXYZ( const Vec2& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
+void BillboardSpriteCameraOpposingXYZ( const Vec3& pos, const Vec2& dimensions, const Camera& camera, Vec3* out_fourCorners )
 {
 	Vec3 forward = Vec3( -camera.GetTransform().GetForwardVector() ).GetNormalized();
 	// negative left vector to maintain right handed coordinate system after flipping forward vector
 	Vec3 left = Vec3( camera.GetTransform().GetRightVector() ).GetNormalized(); 
 	Vec3 up = Vec3( camera.GetTransform().GetUpVector() ).GetNormalized();
 
-	Vec3 bottomLeft( Vec3( pos, 0.f ) - ( left * dimensions.x * .5f ) );
-	Vec3 bottomRight( Vec3( pos, 0.f ) + ( left * dimensions.x * .5f ) );
+	Vec3 bottomLeft( pos - ( left * dimensions.x * .5f ) );
+	Vec3 bottomRight( pos + ( left * dimensions.x * .5f ) );
 	Vec3 topLeft( bottomLeft + ( up * dimensions.y ) );
 	Vec3 topRight( bottomRight + ( up * dimensions.y ) );
 

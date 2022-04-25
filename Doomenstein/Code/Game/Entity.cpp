@@ -106,12 +106,12 @@ void Entity::Render() const
 	Vec3 position = GetPosition();
 	switch ( m_entityDef.m_billboardStyle )
 	{
-		case eBillboardStyle::CAMERA_FACING_XY:		BillboardSpriteCameraFacingXY( position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_OPPOSING_XY:	BillboardSpriteCameraOpposingXY( position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_FACING_XYZ:	BillboardSpriteCameraFacingXYZ( position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
-		case eBillboardStyle::CAMERA_OPPOSING_XYZ:	BillboardSpriteCameraOpposingXYZ( position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
+		case eBillboardStyle::CAMERA_FACING_XY:		BillboardSpriteCameraFacingXY( position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_OPPOSING_XY:	BillboardSpriteCameraOpposingXY( position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_FACING_XYZ:	BillboardSpriteCameraFacingXYZ( position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners );	 break;
+		case eBillboardStyle::CAMERA_OPPOSING_XYZ:	BillboardSpriteCameraOpposingXYZ( position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
 		
-		default: BillboardSpriteCameraFacingXY( position.XY(), m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
+		default: BillboardSpriteCameraFacingXY( position, m_entityDef.GetVisualSize(), *g_game->GetWorldCamera(), corners ); break;
 	}
 	
 	// Get UVs for sprite
