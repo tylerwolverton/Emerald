@@ -6,10 +6,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-SphereCollider::SphereCollider( int id, const Vec3& localPosition, float radius )
-	: m_radius( radius )
+SphereCollider::SphereCollider( const Vec3& localPosition, float radius )
+	: Collider()
+	, m_radius( radius )
 {
-	m_id = id;
 	m_type = COLLIDER_SPHERE;
 	m_localPosition = localPosition;
 }

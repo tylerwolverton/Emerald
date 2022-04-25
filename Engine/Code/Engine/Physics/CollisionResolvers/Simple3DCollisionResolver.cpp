@@ -69,9 +69,10 @@ static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1
 	Vec3 nearestPointOnBox = obb3.GetNearestPointOnBox( sphereCollider->GetWorldPosition() );
 	DebugAddWorldPoint( nearestPointOnBox, Rgba8::PURPLE );
 
-	Vec3 displacementFromBox = nearestPointOnBox - sphereCollider->GetWorldPosition();
+	Vec3 displacementToBox = nearestPointOnBox - sphereCollider->GetWorldPosition();
+	DebugAddWorldArrow( nearestPointOnBox, nearestPointOnBox - displacementToBox, Rgba8::YELLOW );
 	
-	float displacementLength = displacementFromBox.GetLength();
+	float displacementLength = displacementToBox.GetLength();
 	manifold.penetrationDepth = sphereCollider->GetRadius() - displacementLength;
 	
 	// Check if sphere actually intersects
@@ -80,7 +81,7 @@ static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1
 		return manifold;
 	}
 	
-	manifold.normal = displacementFromBox.GetNormalized();
+	manifold.normal = displacementToBox.GetNormalized();
 
 	return manifold;
 }
@@ -148,13 +149,15 @@ void Simple3DCollisionResolver::ApplyCollisionImpulses( Rigidbody* rigidbody1, R
 
 	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
 	{
-		rigidbody1->AddForce( rigidbody1->GetVelocity() * frictionCoef * -collisionManifold.normal );
-		rigidbody1->AddImpulse( rigidbody1->GetVelocity() * collisionManifold.normal );
+		rigidbody1->AddForce( -rigidbody1->GetVelocity() * frictionCoef );
+		float magnitudeOfVelocityInNormalDirection = DotProduct3D( rigidbody1->GetVelocity(), collisionManifold.normal );
+		rigidbody1->AddImpulse( -collisionManifold.normal * magnitudeOfVelocityInNormalDirection );
 	}
 	
 	if ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
 	{
-		rigidbody2->AddForce( rigidbody2->GetVelocity() * frictionCoef * collisionManifold.normal );
-		rigidbody1->AddImpulse( rigidbody2->GetVelocity() * -collisionManifold.normal );
+		rigidbody2->AddForce( -rigidbody2->GetVelocity() * frictionCoef );
+		float magnitudeOfVelocityInNormalDirection = DotProduct3D( rigidbody2->GetVelocity(), collisionManifold.normal );
+		rigidbody2->AddImpulse( collisionManifold.normal * magnitudeOfVelocityInNormalDirection );
 	}
 }

@@ -42,6 +42,8 @@ class Collider
 	friend class Rigidbody;
 
 public: 
+	Collider();
+
 	int GetId()	const															{ return m_id; }
 	eColliderType GetType()	const												{ return m_type; }
 	Rigidbody* GetRigidbody() const												{ return m_rigidbody; }
@@ -104,4 +106,6 @@ protected:
 	//AABB2 m_worldBounds;
 	Vec3	m_localPosition; // my local offset from my parent
 	Vec3	m_worldPosition; // calculated from local position and owning rigidbody if present
+
+	static int s_nextId;
 };

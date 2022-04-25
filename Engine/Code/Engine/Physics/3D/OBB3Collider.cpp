@@ -4,10 +4,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-OBB3Collider::OBB3Collider( int id, const Vec3& localPosition, const OBB3& obb3 )
-	: m_obb3( obb3 )
+OBB3Collider::OBB3Collider( const Vec3& localPosition, const OBB3& obb3 )
+	: Collider()
+	, m_obb3( obb3 )
 {
-	m_id = id;
 	m_type = COLLIDER_OBB3;
 	m_localPosition = localPosition;
 

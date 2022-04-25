@@ -11,6 +11,18 @@ void CollisionResolver::ResolveCollisions( std::vector<Collider*>& colliders, ui
 	DetectCollisions( colliders, frameNum );					// determine all pairs of intersecting colliders
 	ClearOldCollisions( frameNum );
 	ResolveCollisions();
+
+	//for ( int colliderIdx = 0; colliderIdx < (int)colliders.size(); ++colliderIdx )
+	//{
+	//	Collider* collider = colliders[colliderIdx];
+	//	if ( collider == nullptr
+	//		 || !collider->IsEnabled() )
+	//	{
+	//		continue;
+	//	}
+
+	//	collider->UpdateWorldShape();
+	//}
 }
 
 

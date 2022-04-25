@@ -32,8 +32,7 @@ Map::Map( const MapData& mapData, World* world )
 	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 
 	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-		rigidbody->AddForce( -Vec3( 0.f, 0.f, 0.098f ) );	 
-		//rigidbody->Translate( -Vec3( 0.f, 0.f, 0.0098f ) );	 
+		rigidbody->AddForce( Vec3( 0.f, 0.f, -9.8f ) );	 
 	} );
 
 	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
@@ -68,7 +67,6 @@ void Map::Update( float deltaSeconds )
 	}
 
 	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
-	//ResolveEntityVsEntityCollisions();
 	UpdateMeshes();
 }
 

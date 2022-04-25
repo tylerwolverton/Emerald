@@ -42,7 +42,7 @@ void PhysicsSystem::Update( PhysicsScene& scene )
 	//	AdvanceSimulation( scene, s_fixedDeltaSeconds );
 	//}
 		
-	AdvanceSimulation( scene, m_physicsClock->GetLastDeltaSeconds() );
+	AdvanceSimulation( scene, (float)m_physicsClock->GetLastDeltaSeconds() );
 	scene.DebugRender();
 }
 

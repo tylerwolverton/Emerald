@@ -42,7 +42,7 @@ Function Jump()
 {
     if( !isJumping )
     {
-        AddImpulse( impulse: Vec3( 0, 0, 2 ) )
+        AddImpulse( impulse: Vec3( 0, 0, 6 ) )
         isJumping = true
         StartNewTimer( durationSeconds: jumpCooldown, onCompletedEvent: "JumpCooldownExpired" )
     }

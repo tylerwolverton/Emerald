@@ -32,9 +32,9 @@ Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, flo
 	m_rigidbodies.push_back( newRigidbody );
 	// Create sphere collider
 
-	SphereCollider* collider = new SphereCollider( 0, Vec3::ZERO, radius );
+	SphereCollider* collider = new SphereCollider( Vec3::ZERO, radius );
 	PhysicsMaterial material;
-	material.m_friction = .5f;
+	material.m_friction = .75f;
 	collider->SetPhysicsMaterial( material );
 	m_colliders.push_back( collider );
 	
@@ -51,9 +51,9 @@ Rigidbody* PhysicsScene::CreateOBB3Rigidbody( const OBB3& box, float mass )
 	newRigidbody->SetPosition( box.m_center );
 	m_rigidbodies.push_back( newRigidbody );
 	
-	OBB3Collider* collider = new OBB3Collider( 0, Vec3::ZERO, box );
+	OBB3Collider* collider = new OBB3Collider( Vec3::ZERO, box );
 	PhysicsMaterial material;
-	material.m_friction = .5f;
+	material.m_friction = 1.f;
 	collider->SetPhysicsMaterial( material );
 	m_colliders.push_back( collider );
 

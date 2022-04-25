@@ -10,6 +10,8 @@
 
 typedef bool ( *CollisionCheckCallback )( const Collider*, const Collider* );
 
+int Collider::s_nextId = 1000;
+
 //
 ////-----------------------------------------------------------------------------------------------
 //static bool DiscVDiscCollisionCheck( const Collider* collider1, const Collider* collider2 )
@@ -473,6 +475,13 @@ typedef bool ( *CollisionCheckCallback )( const Collider*, const Collider* );
 //		return manifold;
 //	}
 //}
+
+
+//-----------------------------------------------------------------------------------------------
+Collider::Collider()
+	: m_id( s_nextId++ )
+{
+}
 
 
 //-----------------------------------------------------------------------------------------------
