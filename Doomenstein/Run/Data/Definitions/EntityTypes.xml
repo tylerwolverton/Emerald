@@ -18,7 +18,7 @@
   ​
   <Entity name="Pinky">
     <Physics radius="0.22" height="0.56" eyeHeight="0.40" collisionLayer="entity">
-      <Collider type="sphere" radius="0.22" offsetFromCenter="0,0,-0.17" />
+      <Collider type="sphere" radius="0.22" offsetFromCenter="0,0,0.22" />
     </Physics>
     <Appearance size="1.5,1.5" billboard="CameraFacingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9" spriteMaterial="Data/Materials/Pinky.material">
     <!--<Appearance size="1.5,1.5" billboard="CameraOpposingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9">-->

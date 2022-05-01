@@ -158,7 +158,9 @@ void Entity::DebugRender() const
 		return;
 	}
 
-	DebugAddWorldWireCylinder( GetPosition(), Vec3( GetPosition().XY(), m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
+	Vec3 position = GetPosition();
+
+	DebugAddWorldWireCylinder( position, Vec3( position.XY(), m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
 	//DebugAddWorldWireSphere( GetPosition() + m_collisionCenterOffset, m_entityDef.m_physicsRadius, Rgba8::YELLOW );
 }
 
