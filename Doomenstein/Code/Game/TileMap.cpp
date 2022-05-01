@@ -57,8 +57,6 @@ void TileMap::Update( float deltaSeconds )
 {
 	Map::Update( deltaSeconds );
 
-	ResolveEntityVsWallCollisions();
-
 	if ( g_game->g_raytraceFollowCamera )
 	{
 		m_raytraceTransform = g_game->GetWorldCamera()->GetTransform();
@@ -634,47 +632,6 @@ void TileMap::BuildCardinalDirectionsArray()
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::NORTHEAST] = Vec2( TILE_SIZE, TILE_SIZE );
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::SOUTHEAST] = Vec2( TILE_SIZE, -TILE_SIZE );
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::SOUTHWEST] = Vec2( -TILE_SIZE, -TILE_SIZE );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void TileMap::ResolveEntityVsWallCollisions()
-{
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		ResolveEntityVsWallCollision( *entity );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void TileMap::ResolveEntityVsWallCollision( Entity& entity )
-{
-	const Tile* entityTile = GetTileFromWorldCoords( entity.GetPosition().XY() );
-	if ( entityTile == nullptr )
-	{
-		return;
-	}
-
-	std::vector<const Tile*> surroundingTiles = GetTilesInRadius( *entityTile, 1, true );
-	for ( int tileIdx = 0; tileIdx < (int)surroundingTiles.size(); ++tileIdx )
-	{
-		const Tile*& tile = surroundingTiles[tileIdx];
-		if ( tile != nullptr
-			 && DoPhysicsLayersInteract( tile->GetCollisionLayer(), entity.GetCollisionLayer() )
-			 && tile->IsSolid() )
-		{
-			Vec2 position = entity.GetPosition().XY();
-			PushDiscOutOfAABB2D( position, entity.GetPhysicsRadius(), tile->GetBounds() );
-			entity.SetPosition( Vec3( position, 0.f ) );
-		}
-	}
 }
 
 

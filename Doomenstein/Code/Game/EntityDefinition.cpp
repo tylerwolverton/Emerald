@@ -58,7 +58,7 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 	{
 		m_class = eEntityClass::ENTITY;
 	}
-	else if ( typeStr == "Actor" )
+/*	else if ( typeStr == "Actor" )
 	{
 		m_class = eEntityClass::ACTOR;
 	}
@@ -69,7 +69,7 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 	else if ( typeStr == "Portal" )
 	{
 		m_class = eEntityClass::PORTAL;
-	}
+	}*/
 	else
 	{
 		g_devConsole->PrintError( Stringf( "EntityTypes.xml: Unsupported entity type seen, '%s'", typeStr.c_str() ) );
@@ -83,7 +83,6 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 		m_physicsRadius = ParseXmlAttribute( *physicsElem, "radius", m_physicsRadius );
 		m_height = ParseXmlAttribute( *physicsElem, "height", m_height );
 		m_eyeHeight = ParseXmlAttribute( *physicsElem, "eyeHeight", m_eyeHeight );
-		m_walkSpeed = ParseXmlAttribute( *physicsElem, "walkSpeed", m_walkSpeed );
 		
 		m_initialCollisionLayer = ParseXmlAttribute( *physicsElem, "collisionLayer", m_initialCollisionLayer );
 		if ( !IsPhysicsLayerDefined( m_initialCollisionLayer ) )
@@ -92,8 +91,33 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 			m_initialCollisionLayer = "";
 		}
 
-		m_initialCanBePushed = ParseXmlAttribute( *physicsElem, "canBePushed", m_initialCanBePushed );
-		m_initialCanPush = ParseXmlAttribute( *physicsElem, "canPush", m_initialCanPush );
+		// Parse colliders
+		const XmlElement* colliderElem = physicsElem->FirstChildElement( "Collider" );
+		while ( colliderElem != nullptr )
+		{
+			ColliderData colData;
+			std::string colliderTypeStr = ParseXmlAttribute( *colliderElem, "type", "" );
+			if ( IsEqualIgnoreCase( colliderTypeStr, "sphere" ) )
+			{
+				colData.type = COLLIDER_SPHERE;
+				colData.radius = ParseXmlAttribute( *colliderElem, "radius", colData.radius );
+
+			}
+			else if ( IsEqualIgnoreCase( colliderTypeStr, "obb3" ) )
+			{
+				colData.type = COLLIDER_OBB3;
+			}
+			else
+			{
+				g_devConsole->PrintError( Stringf( "Unsupported collider type '%s'", colliderTypeStr.c_str() ) );
+			}
+
+			colData.offsetFromCenter = ParseXmlAttribute( *colliderElem, "offsetFromCenter", colData.offsetFromCenter );
+
+			m_colliderDataVec.push_back( colData );
+
+			colliderElem = colliderElem->NextSiblingElement( "Collider" );
+		}
 	}
 
 	// Appearance

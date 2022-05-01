@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/OBB3.hpp"
+#include "Engine/Physics/Collider.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/ZephyrCore/ZephyrEntityDefinition.hpp"
 #include "Game/GameCommon.hpp"
@@ -28,6 +30,52 @@ std::string GetEntityClassAsString( eEntityClass entityType );
 
 
 //-----------------------------------------------------------------------------------------------
+struct ColliderData
+{
+public:
+	Vec3 offsetFromCenter = Vec3::ZERO;
+	eColliderType type = COLLIDER_NONE;
+
+	//union
+	//{
+		float radius = 1.f;
+		OBB3 obb3;
+	//};
+
+public:
+	/*ColliderData() {}
+	~ColliderData() {}
+
+	ColliderData( ColliderData& other ) 
+	{ 
+		offsetFromCenter = other.offsetFromCenter; 
+		type = other.type; 
+		if ( other.type == COLLIDER_SPHERE )
+		{
+			radius = other.radius;
+		}
+		else
+		{
+			obb3 = other.obb3;
+		}
+	}
+	ColliderData( ColliderData&& other )
+	{
+		offsetFromCenter = other.offsetFromCenter;
+		type = other.type;
+		if ( other.type == COLLIDER_SPHERE )
+		{
+			radius = other.radius;
+		}
+		else
+		{
+			obb3 = other.obb3;
+		}
+	}*/
+};
+
+
+//-----------------------------------------------------------------------------------------------
 class EntityDefinition : public ZephyrEntityDefinition
 {
 	friend class Entity;
@@ -39,7 +87,6 @@ public:
 	bool			IsValid() const																{ return m_isValid; }
 	std::string		GetName() const																{ return m_type; }
 	eEntityClass	GetClass() const															{ return m_class; }
-	float			GetWalkSpeed() const														{ return m_walkSpeed; }
 	Vec2			GetVisualSize() const														{ return m_visualSize; }
 	float			GetMass() const																{ return m_mass; }
 
@@ -61,11 +108,9 @@ protected:
 	float			m_height = 0.f;
 	float			m_eyeHeight = 0.f;
 	float			m_mass = 1.f;
-	float			m_walkSpeed = 0.f;
 
 	std::string		m_initialCollisionLayer;
-	bool			m_initialCanBePushed = false;
-	bool			m_initialCanPush = false;
+	std::vector<ColliderData> m_colliderDataVec;
 
 	Vec2			m_visualSize = Vec2::ZERO;
 	eBillboardStyle m_billboardStyle = eBillboardStyle::CAMERA_FACING_INVALID;

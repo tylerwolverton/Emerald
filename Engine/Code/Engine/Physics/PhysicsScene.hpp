@@ -32,6 +32,9 @@ public:
 	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius );
 	Rigidbody* CreateOBB3Rigidbody( const OBB3& box, float mass );
 
+	Collider* CreateSphereCollider( float radius, const Vec3& localPosition );
+	Collider* CreateOBB3Collider( const OBB3& box, const Vec3& localPosition );
+
 	void DestroyRigidbody( Rigidbody* rigidbody );
 	void DestroyCollider( Collider* collider );
 	void CleanupDestroyedObjects();

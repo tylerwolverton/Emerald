@@ -344,44 +344,19 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 
 		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( mapEntityDef.position, (*mapEntityDef.entityDef).GetMass(), newEntity->GetPhysicsRadius() ));
 		newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
-	}
-}
 
-
-//-----------------------------------------------------------------------------------------------
-void Map::ResolveEntityVsEntityCollisions()
-{
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
+		for ( const ColliderData& colData : newEntity->GetColliderDataVec() )
 		{
-			continue;
-		}
-
-		for ( int otherEntityIdx = entityIdx + 1; otherEntityIdx < (int)m_entities.size(); ++otherEntityIdx )
-		{
-			Entity* const& otherEntity = m_entities[otherEntityIdx];
-			if ( otherEntity == nullptr )
+			switch ( colData.type )
 			{
-				continue;
+				case COLLIDER_SPHERE:
+					newEntity->m_rigidbody->TakeCollider( m_physicsScene->CreateSphereCollider( colData.radius, colData.offsetFromCenter ) );
+					break;
+
+				case COLLIDER_OBB3:
+					newEntity->m_rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( colData.obb3, colData.offsetFromCenter ) );
+					break;
 			}
-
-			if ( !DoPhysicsLayersInteract( entity->GetCollisionLayer(), otherEntity->GetCollisionLayer() ) )
-			{
-				continue;
-			}
-
-			ResolveCollisionEvents( entity, otherEntity );
-
-			// Account for the case where a collision event removes an entity from the map
-			if ( entity == nullptr
-				 || otherEntity == nullptr )
-			{
-				continue;
-			}
-
-			ResolveEntityVsEntityCollision( *entity, *otherEntity );
 		}
 	}
 }
@@ -452,75 +427,4 @@ void Map::ResolveCollisionEvents( Entity* entity, Entity* otherEntity )
 			}
 		}
 	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-// TODO: 3D positions
-void Map::ResolveEntityVsEntityCollision( Entity& entity1, Entity& entity2 )
-{
-	// Neither can be moved
-	if ( !entity1.m_canBePushed
-		 && !entity2.m_canBePushed )
-	{
-		return;
-	}
-
-	// Neither can push
-	if ( !entity1.m_canPush
-		 && !entity2.m_canPush )
-	{
-		return;
-	}
-
-	Vec2 position1 = entity1.GetPosition().XY();
-	Vec2 position2 = entity2.GetPosition().XY();
-	float radius1 = entity1.GetPhysicsRadius();
-	float radius2 = entity2.GetPhysicsRadius();
-
-	// Both can be moved
-	if ( entity1.m_canBePushed
-		 && entity2.m_canBePushed )
-	{
-		if ( entity1.m_canPush
-			 && entity2.m_canPush )
-		{
-			PushDiscsOutOfEachOtherRelativeToMass2D( position1, radius1, entity1.GetMass(), position2, radius2, entity2.GetMass() );
-		}
-		
-		if ( entity1.m_canPush
-			  && !entity2.m_canPush )
-		{
-			PushDiscOutOfDisc2D( position2, radius2, position1, radius1 );
-		}
-
-		if ( entity2.m_canPush
-			  && !entity1.m_canPush )
-		{
-			PushDiscOutOfDisc2D( position1, radius1, position2, radius2 );
-		}
-	}
-
-	// Only entity1 can be moved
-	if ( entity1.m_canBePushed
-		 && !entity2.m_canBePushed )
-	{
-		if ( entity2.m_canPush )
-		{
-			PushDiscOutOfDisc2D( position1, radius1, position2, radius2 );
-		}
-	}
-
-	// Only entity2 can be moved
-	if ( entity2.m_canBePushed
-		 && !entity1.m_canBePushed )
-	{
-		if ( entity1.m_canPush )
-		{
-			PushDiscOutOfDisc2D( position2, radius2, position1, radius1 );
-		}
-	}
-
-	entity1.SetPosition( Vec3( position1, 0.f ) );
-	entity2.SetPosition( Vec3( position2, 0.f ) );
 }

@@ -64,7 +64,7 @@ public:
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
 	const float			GetHeight() const										{ return m_entityDef.m_height; }
 	const float			GetEyeHeight() const									{ return m_entityDef.m_eyeHeight; }
-	const float			GetWalkSpeed() const									{ return m_entityDef.m_walkSpeed; }
+	std::vector<ColliderData> GetColliderDataVec() const						{ return m_entityDef.m_colliderDataVec; }
 	const float			GetMass() const;
 	const float			GetOrientationDegrees() const							{ return m_orientationDegrees; }
 	void				SetOrientationDegrees( float orientationDegrees )		{ m_orientationDegrees = orientationDegrees; }
@@ -72,7 +72,6 @@ public:
 	eEntityClass		GetClass() const										{ return m_entityDef.m_class; }
 	Map*				GetMap() const											{ return m_map; }
 	void				SetMap( Map* map )										{ m_map = map; }
-	std::string			GetCollisionLayer() const								{ return m_collisionLayer; }
 	void				SetRigidbody( Rigidbody* rigidbody )					{ m_rigidbody = rigidbody; }
 
 	virtual bool		IsDead() const											{ return m_isDead; }
@@ -80,8 +79,6 @@ public:
 	bool				IsPossessed() const										{ return m_isPossessed; }
 
 	// Physics
-	void				AddVelocity( const Vec2& deltaVelocity );
-	void				AddVelocity( const Vec3& deltaVelocity );
 	void				Translate( const Vec2& translation );
 	void				Translate( const Vec3& translation );
 	void				RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees );
@@ -101,7 +98,6 @@ public:
 
 
 	void				TakeDamage( int damage );
-	//void				ApplyFriction();
 	void				AddForce( const Vec3& force );
 	void				AddImpulse( const Vec3& impulse );
 
@@ -131,17 +127,7 @@ protected:
 
 	// Physics
 	Rigidbody*						m_rigidbody = nullptr;
-	//Vec3							m_position = Vec3::ZERO;
-	Vec3							m_collisionCenterOffset = Vec3::ZERO;
-	//Vec3							m_velocity = Vec3::ZERO;					
-	//Vec3							m_linearAcceleration = Vec3::ZERO;
-	//Vec3							m_forces = Vec3::ZERO;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
-	float							m_angularVelocity = 0.f;						// the Entity's signed angular velocity( spin rate ), in degrees per second
-
-	std::string						m_collisionLayer;
-	bool							m_canBePushed = false;
-	bool							m_canPush = false;
 
 	std::unordered_set<EntityId>	m_collidingEntities;
 

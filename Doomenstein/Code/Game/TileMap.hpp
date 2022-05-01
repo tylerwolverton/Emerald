@@ -68,9 +68,6 @@ private:
 	
 	void				BuildCardinalDirectionsArray();
 
-	void				ResolveEntityVsWallCollisions();
-	void				ResolveEntityVsWallCollision( Entity& entity );
-
 private:
 	Transform			m_raytraceTransform;
 

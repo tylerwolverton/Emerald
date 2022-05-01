@@ -10,7 +10,6 @@
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Input/InputSystem.hpp"
-//#include "Engine/Physics/3D/PhysicsSystem3D.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
@@ -30,10 +29,6 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	, m_entityDef( entityDef )
 	, m_map( map )
 {
-	m_collisionLayer = m_entityDef.m_initialCollisionLayer;
-	m_canBePushed = m_entityDef.m_initialCanBePushed;
-	m_canPush = m_entityDef.m_initialCanPush;
-
 	m_gameLight.light.intensity				= m_entityDef.m_lightIntensity;
 	m_gameLight.light.color					= m_entityDef.m_lightColor;
 	m_gameLight.light.attenuation			= m_entityDef.m_lightAttenuation;
@@ -42,7 +37,7 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	m_gameLight.light.halfCosOfOuterAngle	= m_entityDef.m_lightHalfCosOfOuterAngle;
 	m_gameLight.isEnabled					= m_entityDef.m_isLightEnabled;
 
-	m_collisionCenterOffset = Transform::GetWorldUpVector() * m_entityDef.m_physicsRadius;
+	//m_collisionCenterOffset = Transform::GetWorldUpVector() * m_entityDef.m_physicsRadius;
 
 	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
 
@@ -164,7 +159,7 @@ void Entity::DebugRender() const
 	}
 
 	DebugAddWorldWireCylinder( GetPosition(), Vec3( GetPosition().XY(), m_entityDef.m_height ), m_entityDef.m_physicsRadius, Rgba8::CYAN );
-	DebugAddWorldWireSphere( GetPosition() + m_collisionCenterOffset, m_entityDef.m_physicsRadius, Rgba8::YELLOW );
+	//DebugAddWorldWireSphere( GetPosition() + m_collisionCenterOffset, m_entityDef.m_physicsRadius, Rgba8::YELLOW );
 }
 
 
@@ -279,7 +274,6 @@ void Entity::RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegr
 //-----------------------------------------------------------------------------------------------
 void Entity::MoveInDirection( float speed, const Vec3& direction )
 {
-	//Translate( direction * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
 	AddForce( direction * speed );
 }
 
@@ -291,7 +285,6 @@ void Entity::MoveInRelativeDirection( float speed, const Vec3& direction )
 							+ direction.y * Vec3( GetRightVector(), 0.f )
 							+ direction.z * GetUpVector() );
 
-	//Translate( translationVector * speed * (float)g_game->GetGameClock()->GetLastDeltaSeconds() );
 	AddForce( translationVector * speed );
 }
 
@@ -356,20 +349,6 @@ void Entity::TakeDamage( int damage )
 	
 	g_game->AddScreenShakeIntensity(.05f);
 }
-
-
-//-----------------------------------------------------------------------------------------------
-//void Entity::ApplyFriction()
-//{
-//	if ( m_velocity.GetLength() > PHYSICS_FRICTION_FRACTION )
-//	{
-//		m_velocity -= m_velocity * PHYSICS_FRICTION_FRACTION;
-//	}
-//	else
-//	{
-//		m_velocity = Vec3::ZERO;
-//	}
-//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -452,7 +431,6 @@ ZephyrValue Entity::GetGlobalVariable( const std::string& varName )
 	if ( varName == "id" ) { return ZephyrValue( (float)GetId() ); }
 	if ( varName == "name" ) { return ZephyrValue( GetName() ); }
 	if ( varName == "health" ) { return ZephyrValue( (float)m_curHealth ); }
-	//if ( varName == "maxHealth" ) { return ZephyrValue( (float)m_entityDef.GetMaxHealth() ); }
 	if ( varName == "position" ) { return ZephyrValue( GetPosition() ); }
 	if ( varName == "forwardVec" ) { return ZephyrValue( GetForwardVector() ); }
 

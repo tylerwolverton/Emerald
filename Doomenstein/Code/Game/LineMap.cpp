@@ -27,6 +27,8 @@ LineMap::LineMap( const MapData& mapData, World* world )
 	{
 		Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( wall, 1.f );
 		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+
+		rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( wall, Vec3::ZERO ) );
 	}
 }
 
@@ -55,10 +57,7 @@ void LineMap::Unload()
 //-----------------------------------------------------------------------------------------------
 void LineMap::Update( float deltaSeconds )
 {
-	//ApplyGravityToEntities();
 	Map::Update( deltaSeconds );
-
-	//ResolveEntityVsWallCollisions();
 
 	if ( g_game->g_raytraceFollowCamera )
 	{
@@ -158,50 +157,3 @@ RaycastResult LineMap::Raycast( const Vec3& startPos, const Vec3& forwardNormal,
 
 	return result;
 }
-
-
-//-----------------------------------------------------------------------------------------------
-void LineMap::ResolveEntityVsWallCollisions()
-{
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		ResolveEntityVsWallCollision( *entity );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void LineMap::ResolveEntityVsWallCollision( Entity& entity )
-{
-	UNUSED( entity );
-
-	/*for ( int wallIdx = 0; wallIdx < (int)m_walls.size(); ++wallIdx )
-	{
-		Vec3 newPosition = entity.m_position + entity.m_collisionCenterOffset;
-		PushSphereOutOfOBB3D( newPosition, entity.GetPhysicsRadius(), m_walls[wallIdx] );
-		entity.m_position = newPosition - entity.m_collisionCenterOffset;
-	}*/
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void LineMap::ApplyGravityToEntities()
-{
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->AddForce( m_gravityVec * (float)m_world->m_worldClock->GetLastDeltaSeconds() );
-	}
-}
-

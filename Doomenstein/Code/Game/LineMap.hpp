@@ -29,11 +29,6 @@ public:
 protected:
 	virtual RaycastResult Raycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const override;
 
-	void				  ResolveEntityVsWallCollisions();
-	void				  ResolveEntityVsWallCollision( Entity& entity );
-
-	void				ApplyGravityToEntities();
-
 private:
 	Transform								m_raytraceTransform;
 
@@ -41,6 +36,4 @@ private:
 	std::vector<Vertex_PCUTBN>				m_mesh;
 	std::vector<OBB3>						m_walls;
 	std::vector<MapRegionTypeDefinition*>	m_regionTypeDefs;	
-
-	Vec3									m_gravityVec = Transform::GetWorldUpVector() * -90.8f;
 };

@@ -67,10 +67,10 @@ static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1
 	const OBB3& obb3 = obb3Collider->GetOBB3();
 
 	Vec3 nearestPointOnBox = obb3.GetNearestPointOnBox( sphereCollider->GetWorldPosition() );
-	DebugAddWorldPoint( nearestPointOnBox, Rgba8::PURPLE );
+	//DebugAddWorldPoint( nearestPointOnBox, Rgba8::PURPLE );
 
 	Vec3 displacementToBox = nearestPointOnBox - sphereCollider->GetWorldPosition();
-	DebugAddWorldArrow( nearestPointOnBox, nearestPointOnBox - displacementToBox, Rgba8::YELLOW );
+	//DebugAddWorldArrow( nearestPointOnBox, nearestPointOnBox - displacementToBox, Rgba8::YELLOW );
 	
 	float displacementLength = displacementToBox.GetLength();
 	manifold.penetrationDepth = sphereCollider->GetRadius() - displacementLength;
