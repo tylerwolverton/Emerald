@@ -37,6 +37,13 @@ bool IsPhysicsLayerDefined( const std::string& layer )
 
 
 //-----------------------------------------------------------------------------------------------
+uint GetPhysicsLayerFromName( const std::string& layer )
+{
+	return g_physicsConfig->GetLayers().GetIndexForLayerName( layer );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool DoPhysicsLayersInteract( const std::string& layer0, const std::string& layer1 )
 {
 	return g_physicsConfig->GetLayers().DoLayersInteract( layer0, layer1 );

@@ -1,9 +1,11 @@
 #include "Engine/Physics/Rigidbody.hpp"
+#include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 
@@ -81,6 +83,19 @@ void Rigidbody::TakeCollider( Collider* collider )
 		m_inverseMoment = 1.f / m_moment;
 	}
 
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Rigidbody::SetLayer( const std::string& layerStr )
+{
+	if ( !IsPhysicsLayerDefined( layerStr ) )
+	{
+		g_devConsole->PrintError( Stringf( "Can't set undefined physics layer '%s'", layerStr.c_str() ) );
+		return;
+	}
+
+	m_layer = GetPhysicsLayerFromName( layerStr );
 }
 
 

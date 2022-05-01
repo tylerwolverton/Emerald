@@ -25,7 +25,6 @@ public:
 	void DisableLayerInteraction( uint layer0, uint layer1 );
 	void DisableAllLayerInteraction( uint layer );
 
-private:
 	int GetIndexForLayerName( const std::string& layerName ) const;
 
 private:

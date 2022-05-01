@@ -37,6 +37,7 @@ public:
 
 	uint GetLayer() const															{ return m_layer; }
 	void SetLayer( uint layer )														{ m_layer = layer; }
+	void SetLayer( const std::string& collisionLayerStr );
 
 	Vec3 GetVelocity()																{ return m_velocity; }
 	void SetVelocity( const Vec3& velocity );

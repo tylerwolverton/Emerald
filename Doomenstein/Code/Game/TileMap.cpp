@@ -4,6 +4,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -611,9 +612,30 @@ void TileMap::CreateInitialTiles( const std::vector<MapRegionTypeDefinition*>& r
 	{
 		for ( int x = 0; x < m_dimensions.x; ++x )
 		{
-			m_tiles.push_back( Tile( IntVec2( x, y ), regionTypeDefs[( y * m_dimensions.x ) + x] ) );
+			MapRegionTypeDefinition* regionTypeDef = regionTypeDefs[( y * m_dimensions.x ) + x];
+			m_tiles.push_back( Tile( IntVec2( x, y ), regionTypeDef ) );
+
+			if ( regionTypeDef->IsSolid() )
+			{
+				OBB3 obb3( Vec3( (float)x + .5f, (float)y + .5f, .5f ), Vec3::ONE );
+
+				Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( obb3, 1.f );
+				rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+				rigidbody->SetLayer( "environment" );
+
+				rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( obb3, Vec3::ZERO ) );
+			}
 		}
 	}
+
+	// Add floor collider
+	OBB3 obb3( Vec3( (float)m_dimensions.x * .5f, (float)m_dimensions.y * .5f, -.5f ), Vec3( (float)m_dimensions.x, (float)m_dimensions.y, 1.f ) );
+
+	Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( obb3, 1.f );
+	rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+	rigidbody->SetLayer( "environment" );
+
+	rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( obb3, Vec3::ZERO ) );
 }
 
 

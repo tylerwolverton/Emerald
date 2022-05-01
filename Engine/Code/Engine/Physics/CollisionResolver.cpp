@@ -64,7 +64,7 @@ void CollisionResolver::DetectCollisions( const std::vector<Collider*>& collider
 
 			// Skip if colliders on non-interacting layers
 			if ( !DoPhysicsLayersInteract( collider->GetRigidbody()->GetLayer(),
-									otherCollider->GetRigidbody()->GetLayer() ) )
+										   otherCollider->GetRigidbody()->GetLayer() ) )
 			{
 				continue;
 			}

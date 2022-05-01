@@ -31,14 +31,6 @@ Map::Map( const MapData& mapData, World* world )
 	m_curCollisionResolver = new Simple3DCollisionResolver();
 	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-		rigidbody->AddForce( Vec3( 0.f, 0.f, -9.8f ) );	 
-	} );
-
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
-		rigidbody->ApplyDragForce();	 
-	} );
-
 	LoadEntities( mapData.mapEntityDefs );
 }
 
@@ -102,6 +94,8 @@ void Map::DebugRender() const
 		/*DebugAddWorldWireCylinder( Vec3( entity->GetPosition(), 0.f ), Vec3( entity->GetPosition(), entity->GetHeight() ), 
 								   entity->GetPhysicsRadius(), Rgba8::CYAN );*/
 	}
+
+	m_physicsScene->DebugRender();
 }
 
 

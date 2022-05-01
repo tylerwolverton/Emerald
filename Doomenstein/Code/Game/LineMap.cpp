@@ -23,10 +23,21 @@ LineMap::LineMap( const MapData& mapData, World* world )
 	m_walls = mapData.walls;
 	m_regionTypeDefs = mapData.regionTypeDefs;
 
+	// Add gravity
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->AddForce( Vec3( 0.f, 0.f, -9.8f ) );	 
+	} );
+
+	// Add drag
+	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+		rigidbody->ApplyDragForce();	 
+	} );
+
 	for ( const auto& wall : m_walls )
 	{
 		Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( wall, 1.f );
 		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+		rigidbody->SetLayer( "environment" );
 
 		rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( wall, Vec3::ZERO ) );
 	}
