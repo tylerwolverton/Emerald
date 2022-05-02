@@ -103,7 +103,7 @@ void CollisionResolver::InvokeCollisionEvents( const Collision& collision, eColl
 	theirCollision.theirCollider = collision.myCollider;
 
 	// Fire correct enter events
-	/*if ( !DoesCollisionInvolveATrigger( collision ) )
+	if ( !DoesCollisionInvolveATrigger( collision ) )
 	{
 		switch ( collisionType )
 		{
@@ -156,7 +156,7 @@ void CollisionResolver::InvokeCollisionEvents( const Collision& collision, eColl
 				case eCollisionEventType::LEAVE: collision.theirCollider->m_onTriggerLeaveDelegate.Invoke( theirCollision ); break;
 			}
 		}
-	}*/
+	}
 }
 
 

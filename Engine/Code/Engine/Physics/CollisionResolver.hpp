@@ -13,19 +13,6 @@ class Rigidbody;
 
 
 //-----------------------------------------------------------------------------------------------
-class Collision
-{
-public:
-	IntVec2 id = IntVec2( -1, -1 );
-	uint frameNum = 0;
-
-	Collider* myCollider = nullptr;
-	Collider* theirCollider = nullptr;
-	Manifold collisionManifold;
-};
-
-
-//-----------------------------------------------------------------------------------------------
 enum class eCollisionEventType
 {
 	ENTER,

@@ -2,6 +2,7 @@
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsMaterial.hpp"
 
 
@@ -67,9 +68,6 @@ public:
 
 	virtual float CalculateMoment( float mass ) = 0;
 
-	//virtual Vec3 GetFarthestPointInDirection( const Vec2& direction ) const;
-	//virtual Vec3 GetFarthestPointInDirection( const Vec3& direction ) const = 0;
-
 	void Enable()																{ m_isEnabled = true; }
 	void Disable()																{ m_isEnabled = false; }
 	bool IsEnabled() const														{ return m_isEnabled; }
@@ -86,13 +84,13 @@ protected:
 
 public:
 	// TODO: Privatize these?
-	/*Delegate<Collision> m_onOverlapEnterDelegate;
+	Delegate<Collision> m_onOverlapEnterDelegate;
 	Delegate<Collision> m_onOverlapStayDelegate;
 	Delegate<Collision> m_onOverlapLeaveDelegate;
 
 	Delegate<Collision> m_onTriggerEnterDelegate;
 	Delegate<Collision> m_onTriggerStayDelegate;
-	Delegate<Collision> m_onTriggerLeaveDelegate;*/
+	Delegate<Collision> m_onTriggerLeaveDelegate;
 
 protected:
 	PhysicsSystem* m_system		= nullptr;			
