@@ -7,12 +7,12 @@
 
 
 //-----------------------------------------------------------------------------------------------
-DiscCollider::DiscCollider( const Vec2& localPosition, float radius )
+DiscCollider::DiscCollider( float radius, const Vec3& localPosition )
 	:  m_radius( radius )
 {
 	m_type = COLLIDER_DISC;
 	m_worldBounds = CalculateWorldBounds();
-	m_localPosition = Vec3( localPosition, 0.f );
+	m_localPosition = localPosition;
 }
 
 

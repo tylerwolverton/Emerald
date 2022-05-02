@@ -9,7 +9,7 @@ class SphereCollider : public Collider
 	friend class Rigidbody;
 
 public:
-	SphereCollider( const Vec3& localPosition, float radius );
+	SphereCollider( float radius, const Vec3& localPosition );
 
 	float GetRadius() const													{ return m_radius; }
 

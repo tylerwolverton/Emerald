@@ -16,8 +16,8 @@
 
 //-----------------------------------------------------------------------------------------------
 class Map;
-class Collision2D;
-class Rigidbody2D;
+class Collision;
+class Rigidbody;
 class SpriteAnimDefinition;
 class ZephyrScript;
 
@@ -74,9 +74,9 @@ public:
 
 
 	const Vec2			GetForwardVector() const;
-	virtual const Vec2	GetPosition() const override;
-	void				SetPosition( const Vec2& position );
-	void				SetRigidbody2D( Rigidbody2D* rigidbody2D )				{ m_rigidbody2D = rigidbody2D; }
+	virtual const Vec3	GetPosition() const override;
+	void				SetPosition( const Vec3& position );
+	void				SetRigidbody( Rigidbody* rigidbody )					{ m_rigidbody = rigidbody; }
 	void				SetCollisionLayer( uint layer );
 	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
 	const float			GetSpeed() const										{ return m_entityDef.m_speed; }
@@ -126,13 +126,13 @@ public:
 	virtual void		AddGameEventParams( EventArgs* args ) const override;
 
 protected:
-	void				EnterCollisionEvent( Collision2D collision );
-	void				StayCollisionEvent( Collision2D collision );
-	void				ExitCollisionEvent( Collision2D collision );
-	void				EnterTriggerEvent( Collision2D collision );
-	void				StayTriggerEvent( Collision2D collision );
-	void				ExitTriggerEvent( Collision2D collision );
-	void				SendPhysicsEventToScript( Collision2D collision, const std::string& eventName );
+	void				EnterCollisionEvent( Collision collision );
+	void				StayCollisionEvent( Collision collision );
+	void				ExitCollisionEvent( Collision collision );
+	void				EnterTriggerEvent( Collision collision );
+	void				StayTriggerEvent( Collision collision );
+	void				ExitTriggerEvent( Collision collision );
+	void				SendPhysicsEventToScript( Collision collision, const std::string& eventName );
 
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );
 
@@ -154,7 +154,7 @@ protected:
 
 	// Physics
 	float									m_lastDeltaSeconds = .0016f;
-	Rigidbody2D*							m_rigidbody2D = nullptr;
+	Rigidbody*								m_rigidbody = nullptr;
 	float									m_orientationDegrees = 0.f;						// the Entity’s forward - facing direction, as an angle in degrees
 	Vec2									m_forwardVector = Vec2( 1.f, 0.f );
 	

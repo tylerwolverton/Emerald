@@ -11,15 +11,6 @@
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody::Rigidbody( float mass )
-{
-	GUARANTEE_OR_DIE( mass > 0.f, "Mass must be positive" );
-	m_mass = mass;
-	m_inverseMass = 1.f / m_mass;
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Rigidbody::Update( float deltaSeconds )
 {
 	if ( !m_isEnabled )
@@ -180,6 +171,20 @@ void Rigidbody::ChangeAngularVelocity( float deltaRadians )
 void Rigidbody::SetAngularVelocity( float newAngularVelocity )
 {
 	m_angularVelocity = newAngularVelocity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Rigidbody::SetMass( float mass )
+{
+	if ( mass <= 0.f )
+	{
+		g_devConsole->PrintError( "Mass must be positive" );
+		return;
+	}
+
+	m_mass = mass;
+	m_inverseMass = 1.f / m_mass;
 }
 
 

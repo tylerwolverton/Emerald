@@ -1,8 +1,8 @@
 #include "Game/Pickup.hpp"
 #include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Physics/DiscCollider2D.hpp"
-#include "Engine/Physics/Physics2D.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
 #include "Game/Map.hpp"
@@ -12,9 +12,9 @@
 Pickup::Pickup( const EntityDefinition& entityDef, Map* map )
 	: Entity( entityDef, map )
 {
-	m_rigidbody2D->SetLayer( eCollisionLayer::PICKUP );
+	m_rigidbody->SetLayer( eCollisionLayer::PICKUP );
 
-	m_rigidbody2D->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Pickup::EnterCollisionEvent );
+	m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Pickup::EnterCollisionEvent );
 }
 
 
@@ -25,11 +25,11 @@ Pickup::~Pickup()
 
 
 //-----------------------------------------------------------------------------------------------
-void Pickup::EnterCollisionEvent( Collision2D collision )
+void Pickup::EnterCollisionEvent( Collision collision )
 {
 	if ( !IsDead() )
 	{
-		EntityId theirEntityId = collision.theirCollider->m_rigidbody->m_userProperties.GetValue( "entityId", (EntityId)-1 );
+		EntityId theirEntityId = collision.theirCollider->GetRigidbody()->m_userProperties.GetValue( "entityId", (EntityId)-1 );
 
 		Entity* theirEntity = g_game->GetEntityById( theirEntityId );
 		if ( theirEntity != nullptr )

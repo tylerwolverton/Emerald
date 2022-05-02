@@ -3,6 +3,8 @@
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/CollisionResolver.hpp"
+#include "Engine/Physics/2D/DiscCollider.hpp"
+#include "Engine/Physics/2D/PolygonCollider2D.hpp"
 #include "Engine/Physics/3D/OBB3Collider.hpp"
 #include "Engine/Physics/3D/SphereCollider.hpp"
 
@@ -25,10 +27,9 @@ void PhysicsScene::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, float mass )
+Rigidbody* PhysicsScene::CreateRigidbody()
 {
-	Rigidbody* newRigidbody = new Rigidbody( mass );
-	newRigidbody->SetPosition( worldPosition );
+	Rigidbody* newRigidbody = new Rigidbody();
 	m_rigidbodies.push_back( newRigidbody );
 
 	return newRigidbody;
@@ -36,20 +37,46 @@ Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, flo
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody* PhysicsScene::CreateOBB3Rigidbody( const OBB3& box, float mass )
+Collider* PhysicsScene::CreateDiscCollider( float radius, const Vec3& localPosition )
 {
-	Rigidbody* newRigidbody = new Rigidbody( mass );
-	newRigidbody->SetPosition( box.m_center );
-	m_rigidbodies.push_back( newRigidbody );
-	
-	return newRigidbody;
+	DiscCollider* collider = new DiscCollider( radius, localPosition );
+	PhysicsMaterial material;
+	material.m_friction = .9f;
+	collider->SetPhysicsMaterial( material );
+	m_colliders.push_back( collider );
+
+	return collider;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* PhysicsScene::CreateDiscTrigger( float radius, const Vec3& localPosition /*= Vec3::ZERO */ )
+{
+	DiscCollider* collider = new DiscCollider( radius, localPosition );
+	collider->m_isTrigger = true;
+	m_colliders.push_back( collider );
+
+	return collider;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* PhysicsScene::CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition )
+{
+	PolygonCollider2D* collider = new PolygonCollider2D( polygon, localPosition );
+	PhysicsMaterial material;
+	material.m_friction = .9f;
+	collider->SetPhysicsMaterial( material );
+	m_colliders.push_back( collider );
+
+	return collider;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 Collider* PhysicsScene::CreateSphereCollider( float radius, const Vec3& localPosition )
 {
-	SphereCollider* collider = new SphereCollider( localPosition, radius );
+	SphereCollider* collider = new SphereCollider( radius, localPosition );
 	PhysicsMaterial material;
 	material.m_friction = .9f;
 	collider->SetPhysicsMaterial( material );
@@ -62,7 +89,7 @@ Collider* PhysicsScene::CreateSphereCollider( float radius, const Vec3& localPos
 //-----------------------------------------------------------------------------------------------
 Collider* PhysicsScene::CreateOBB3Collider( const OBB3& box, const Vec3& localPosition )
 {
-	OBB3Collider* collider = new OBB3Collider( localPosition, box );
+	OBB3Collider* collider = new OBB3Collider( box, localPosition );
 	PhysicsMaterial material;
 	material.m_friction = 1.f;
 	collider->SetPhysicsMaterial( material );

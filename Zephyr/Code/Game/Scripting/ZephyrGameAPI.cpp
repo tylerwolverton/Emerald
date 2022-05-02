@@ -379,7 +379,7 @@ void ZephyrGameAPI::PrintDebugText( EventArgs* args )
 
 	if ( entity != nullptr )
 	{
-		textLocation.SetTranslation2D( entity->GetPosition() );
+		textLocation.SetTranslation2D( entity->GetPosition().XY() );
 	}
 	
 	DebugAddWorldText( textLocation, Vec2::HALF, color, color, duration, .1f, eDebugRenderMode::DEBUG_RENDER_ALWAYS, text.c_str() );
@@ -476,7 +476,7 @@ void ZephyrGameAPI::SpawnEntity( EventArgs* args )
 
 	std::string name = args->GetValue( "name", "" );
 	std::string mapName = args->GetValue( "map", "" );
-	Vec2 position = args->GetValue( "position", entity->GetPosition() );
+	Vec2 position = args->GetValue( "position", entity->GetPosition().XY() );
 	float orientation = args->GetValue( "orientation", entity->GetOrientationDegrees() );
 
 	Map* mapToSpawnIn = entity->GetMap();
@@ -542,7 +542,7 @@ void ZephyrGameAPI::MoveToLocation( EventArgs* args )
 		return;
 	}
 
-	Vec2 moveDirection = targetPos - entity->GetPosition();
+	Vec2 moveDirection = targetPos - entity->GetPosition().XY();
 	moveDirection.Normalize();
 
 	float speed = args->GetValue( "speed", entity->GetSpeed() );
@@ -613,7 +613,7 @@ void ZephyrGameAPI::ChaseTargetEntity( EventArgs* args )
 		return;
 	}
 
-	Vec2 moveDirection = targetEntity->GetPosition() - entity->GetPosition();
+	Vec2 moveDirection = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
 	moveDirection.Normalize();
 
 	float speed = args->GetValue( "speed", entity->GetSpeed() );
@@ -650,7 +650,7 @@ void ZephyrGameAPI::FleeTargetEntity( EventArgs* args )
 		return;
 	}
 
-	Vec2 moveDirection = targetEntity->GetPosition() - entity->GetPosition();
+	Vec2 moveDirection = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
 	moveDirection.Normalize();
 
 	float speed = args->GetValue( "speed", entity->GetSpeed() );
@@ -748,7 +748,7 @@ void ZephyrGameAPI::CheckForTarget( EventArgs* args )
 		return;
 	}
 
-	Vec2 displacement = targetEntity->GetPosition() - entity->GetPosition();
+	Vec2 displacement = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
 	float distBetween = displacement.GetLength();
 	
 	args->SetValue( "targetFound", distBetween < maxDist );
@@ -768,7 +768,7 @@ void ZephyrGameAPI::GetDistanceToTarget( EventArgs* args )
 		return;
 	}
 
-	Vec2 displacementToTarget = targetEntity->GetPosition() - entity->GetPosition();
+	Vec2 displacementToTarget = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
 
 	args->SetValue( "distance", displacementToTarget.GetLength() );
 }

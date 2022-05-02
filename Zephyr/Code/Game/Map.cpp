@@ -3,7 +3,11 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Transform.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
+#include "Engine/Physics/CollisionResolvers/GJK2DCollisionResolver.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -31,6 +35,9 @@ Map::Map( const MapData& mapData, World* world )
 	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
+	m_physicsScene = new PhysicsScene();
+	m_curCollisionResolver = new GJK2DCollisionResolver();
+	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 }
 
 
@@ -46,6 +53,9 @@ Map::~Map()
 	}
 
 	m_entities.clear();
+
+	PTR_SAFE_DELETE( m_physicsScene );
+	PTR_SAFE_DELETE( m_curCollisionResolver );
 }
 
 
@@ -124,6 +134,8 @@ void Map::Update( float deltaSeconds )
 
 	DebugAddScreenTextf( Vec4( 0.f, .05f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Entity Count: %d", (int)m_entities.size() );
 	DebugAddScreenTextf( Vec4( 0.f, 0.f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Update Time: %.2f ms", msElapsed );
+
+	g_physicsSystem->Update( *m_physicsScene );
 
 	UpdateMesh();
 
@@ -238,7 +250,7 @@ Entity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos )
 {
 	Entity* entity = SpawnNewEntityOfType( entityDefName );
-	entity->SetPosition( pos );
+	entity->SetPosition( Vec3( pos, 0.f ) );
 
 	return entity;
 }
@@ -357,7 +369,7 @@ void Map::AddItemToTargetInventory( Entity* item, Entity* targetEntity )
 
 	targetEntity->AddItemToInventory( item );
 
-	item->m_rigidbody2D->Disable();
+	item->m_rigidbody->Disable();
 
 	RemoveOwnershipOfEntity( item );
 }
@@ -386,7 +398,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		
 		newEntity->CreateZephyrScript( *mapEntityDef.entityDef );
 
-		newEntity->SetPosition( mapEntityDef.position );
+		newEntity->SetPosition( Vec3( mapEntityDef.position, 0.f ) );
 		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
 
 		if ( mapEntityDef.entityDef->GetClass() == eEntityClass::PORTAL )
@@ -505,7 +517,7 @@ Entity* Map::GetEntityAtPosition( const Vec2& position )
 			continue;
 		}
 
-		if ( IsPointInsideDisc( position, entity->GetPosition(), entity->GetPhysicsRadius() ) )
+		if ( IsPointInsideDisc( position, entity->GetPosition().XY(), entity->GetPhysicsRadius() ) )
 		{
 			return entity;
 		}

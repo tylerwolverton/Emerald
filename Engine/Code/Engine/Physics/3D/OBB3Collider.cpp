@@ -4,7 +4,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-OBB3Collider::OBB3Collider( const Vec3& localPosition, const OBB3& obb3 )
+OBB3Collider::OBB3Collider( const OBB3& obb3, const Vec3& localPosition )
 	: Collider()
 	, m_obb3( obb3 )
 {

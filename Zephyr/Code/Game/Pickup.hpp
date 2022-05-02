@@ -4,7 +4,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class EntityDefinition;
-class Collision2D;
+class Collision;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -15,5 +15,5 @@ public:
 	~Pickup();
 
 private:
-	void EnterCollisionEvent( Collision2D collision );
+	void EnterCollisionEvent( Collision collision );
 };

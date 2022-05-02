@@ -3,9 +3,8 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
-#include "Engine/Physics/DiscCollider2D.hpp"
-#include "Engine/Physics/Physics2D.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -84,7 +83,7 @@ void Actor::Render() const
 
 	AppendVertsForAABB2D( hpVertices, hpRemaining, hpColor );
 
-	Vec2 hpPosition( GetPosition() );
+	Vec2 hpPosition( GetPosition().XY() );
 	hpPosition.y += m_entityDef.m_localDrawBounds.GetHeight() + .001f;
 
 	Vertex_PCU::TransformVertexArray( hpVertices, 1.f, 0.f, hpPosition );
@@ -100,7 +99,7 @@ void Actor::Die()
 	if ( m_isPlayer )
 	{
 		m_curHealth = m_entityDef.GetMaxHealth();
-		m_rigidbody2D->SetPosition( m_map->GetPlayerStartPos() );
+		m_rigidbody->SetPosition( m_map->GetPlayerStartPos() );
 	}
 	else
 	{
@@ -117,10 +116,10 @@ void Actor::SetAsPlayer()
 
 	m_name = "player";
 	m_faction = eFaction::GOOD;
-	m_rigidbody2D->SetLayer( eCollisionLayer::PLAYER );
+	m_rigidbody->SetLayer( eCollisionLayer::PLAYER );
 
-	DiscCollider2D* discCollider = g_physicsSystem2D->CreateDiscCollider( Vec2::ZERO, GetPhysicsRadius() );
-	m_rigidbody2D->TakeCollider( discCollider );
+	//Collider* discCollider = m_map->m_physicsScene->CreateDiscCollider( GetPhysicsRadius() );
+	//m_rigidbody->TakeCollider( discCollider );
 }
 
 
@@ -153,7 +152,7 @@ void Actor::UpdateFromKeyboard( float deltaSeconds )
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ENTER )
 				 || g_inputSystem->ConsumeAllKeyPresses( KEY_SPACEBAR ) )
 			{
-				Vec2 testPoint = GetPosition() + m_forwardVector * ( GetPhysicsRadius() + .1f );
+				Vec2 testPoint = GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f );
 				Entity* targetEntity = m_map->GetEntityAtPosition( testPoint );
 				if ( targetEntity != nullptr )
 				{
@@ -169,7 +168,7 @@ void Actor::UpdateFromKeyboard( float deltaSeconds )
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ENTER )
 				 || g_inputSystem->ConsumeAllKeyPresses( KEY_SPACEBAR ) )
 			{
-				Vec2 testPoint = GetPosition() + m_forwardVector * ( GetPhysicsRadius() + .15f );
+				Vec2 testPoint = GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .15f );
 				Entity* targetEntity = m_map->GetEntityAtPosition( testPoint );
 				if ( targetEntity != nullptr )
 				{

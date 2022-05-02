@@ -1,9 +1,10 @@
 #include "Game/Entity.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/DiscCollider2D.hpp"
-#include "Engine/Physics/Physics2D.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/2D/DiscCollider.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
+#include "Engine/Physics/CollisionResolvers/GJK2DCollisionResolver.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/Rgba8.hpp"
@@ -33,45 +34,49 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 {
 	m_curHealth = m_entityDef.GetMaxHealth();
 
-	m_rigidbody2D = g_physicsSystem2D->CreateRigidbody();
-	m_rigidbody2D->SetMass( m_entityDef.GetMass() );
+	if ( map != nullptr )
+	{
+		m_rigidbody = map->m_physicsScene->CreateRigidbody();
+	}
+
+	m_rigidbody->SetMass( m_entityDef.GetMass() );
 	
-	m_rigidbody2D->SetDrag( m_entityDef.GetDrag() );
-	m_rigidbody2D->SetLayer( m_entityDef.GetCollisionLayer() );
+	m_rigidbody->SetDrag( m_entityDef.GetDrag() );
+	m_rigidbody->SetLayer( m_entityDef.GetCollisionLayer() );
 	
 	switch( m_entityDef.GetCollisionLayer() )
 	{
-		case eCollisionLayer::STATIC_ENVIRONMENT: m_rigidbody2D->SetSimulationMode( SIMULATION_MODE_STATIC ); break;
-		case eCollisionLayer::NPC: m_rigidbody2D->SetSimulationMode( SIMULATION_MODE_KINEMATIC ); break;
-		default: m_rigidbody2D->SetSimulationMode( SIMULATION_MODE_DYNAMIC ); break;
+		case eCollisionLayer::STATIC_ENVIRONMENT: m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC ); break;
+		case eCollisionLayer::NPC: m_rigidbody->SetSimulationMode( SIMULATION_MODE_KINEMATIC ); break;
+		default: m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC ); break;
 	}
 
 	if ( m_entityDef.GetSimMode() != eSimulationMode::SIMULATION_MODE_NONE )
 	{
-		m_rigidbody2D->SetSimulationMode( m_entityDef.GetSimMode() );
+		m_rigidbody->SetSimulationMode( m_entityDef.GetSimMode() );
 	}
 
-	m_rigidbody2D->m_userProperties.SetValue( "entityId", m_id );
+	m_rigidbody->m_userProperties.SetValue( "entityId", m_id );
 	
 	if ( m_entityDef.IsTrigger() )
 	{
-		DiscCollider2D* discTrigger = g_physicsSystem2D->CreateDiscTrigger( Vec2::ZERO, GetPhysicsRadius() );
+		Collider* discTrigger = map->m_physicsScene->CreateDiscTrigger( GetPhysicsRadius() );
 
 		discTrigger->m_onTriggerEnterDelegate.SubscribeMethod( this, &Entity::EnterTriggerEvent );
 		discTrigger->m_onTriggerStayDelegate.SubscribeMethod( this, &Entity::StayTriggerEvent );
 		discTrigger->m_onTriggerLeaveDelegate.SubscribeMethod( this, &Entity::ExitTriggerEvent );
 
-		m_rigidbody2D->TakeCollider( discTrigger );
+		m_rigidbody->TakeCollider( discTrigger );
 	}
 	else
 	{
-		DiscCollider2D* discCollider = g_physicsSystem2D->CreateDiscCollider( Vec2::ZERO, GetPhysicsRadius() );
+		Collider* discCollider = map->m_physicsScene->CreateDiscCollider( GetPhysicsRadius() );
 
 		discCollider->m_onOverlapEnterDelegate.SubscribeMethod( this, &Entity::EnterCollisionEvent );
 		discCollider->m_onOverlapStayDelegate.SubscribeMethod( this, &Entity::StayCollisionEvent );
 		discCollider->m_onOverlapLeaveDelegate.SubscribeMethod( this, &Entity::ExitCollisionEvent );
 
-		m_rigidbody2D->TakeCollider( discCollider );
+		m_rigidbody->TakeCollider( discCollider );
 	}
 
 	Unload();
@@ -85,21 +90,21 @@ Entity::~Entity()
 {
 	if ( m_entityDef.IsTrigger() )
 	{
-		m_rigidbody2D->GetCollider()->m_onTriggerEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody2D->GetCollider()->m_onTriggerStayDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody2D->GetCollider()->m_onTriggerLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onTriggerStayDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onTriggerLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
 	}
 	else
 	{
-		m_rigidbody2D->GetCollider()->m_onOverlapEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody2D->GetCollider()->m_onOverlapStayDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody2D->GetCollider()->m_onOverlapLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onOverlapEnterDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onOverlapStayDelegate.UnsubscribeAllMethodsFromObject( this );
+		m_rigidbody->GetCollider()->m_onOverlapLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
 	}
 
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->Destroy();
-		m_rigidbody2D = nullptr;
+		m_rigidbody->Destroy();
+		m_rigidbody = nullptr;
 	}
 
 	g_eventSystem->DeRegisterObject( this );
@@ -132,12 +137,12 @@ void Entity::Render() const
 {
 	SpriteAnimDefinition* animDef = nullptr;
 	if ( m_curSpriteAnimSetDef == nullptr
-		 || m_rigidbody2D == nullptr )
+		 || m_rigidbody == nullptr )
 	{
 		return;
 	}
 
-	animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_rigidbody2D->GetVelocity() );
+	animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_rigidbody->GetVelocity().XY() );
 	
 	const SpriteDefinition& spriteDef = animDef->GetSpriteDefAtTime( m_cumulativeTime );
 
@@ -172,9 +177,9 @@ void Entity::Die()
 void Entity::DebugRender() const
 {
 	g_renderer->BindTexture( 0, nullptr );
-	DrawRing2D( g_renderer, GetPosition(), m_entityDef.m_physicsRadius, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
-	DrawAABB2Outline( g_renderer, GetPosition(), m_entityDef.m_localDrawBounds, Rgba8::MAGENTA, DEBUG_LINE_THICKNESS );
-	DrawRing2D( g_renderer, GetPosition() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
+	DrawRing2D( g_renderer, GetPosition().XY(), m_entityDef.m_physicsRadius, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
+	DrawAABB2Outline( g_renderer, GetPosition().XY(), m_entityDef.m_localDrawBounds, Rgba8::MAGENTA, DEBUG_LINE_THICKNESS );
+	DrawRing2D( g_renderer, GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
 }
 
 
@@ -186,26 +191,26 @@ const Vec2 Entity::GetForwardVector() const
 
 
 //-----------------------------------------------------------------------------------------------
-const Vec2 Entity::GetPosition() const
+const Vec3 Entity::GetPosition() const
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		return m_rigidbody2D->GetPosition();
+		return m_rigidbody->GetWorldPosition();
 	}
 
-	return Vec2::ZERO;
+	return Vec3::ZERO;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::SetPosition( const Vec2& position )
+void Entity::SetPosition( const Vec3& position )
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->SetPosition( position );
+		m_rigidbody->SetPosition( position );
 
 		EventArgs args;
-		args.SetValue( "newPos", m_rigidbody2D->GetPosition() );
+		args.SetValue( "newPos", m_rigidbody->GetWorldPosition() );
 
 		FireScriptEvent( "PositionUpdated", &args );
 	}
@@ -215,9 +220,9 @@ void Entity::SetPosition( const Vec2& position )
 //-----------------------------------------------------------------------------------------------
 void Entity::SetCollisionLayer( uint layer )
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->SetLayer( layer );
+		m_rigidbody->SetLayer( layer );
 	}
 }
 
@@ -428,13 +433,13 @@ void Entity::TakeDamage( float damage, const std::string& type )
 //-----------------------------------------------------------------------------------------------
 void Entity::MoveWithPhysics( float speed, const Vec2& direction )
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->ApplyImpulseAt( speed * direction * m_lastDeltaSeconds, GetPosition() );
+		m_rigidbody->ApplyImpulseAt( speed * Vec3( direction, 0.f ) * m_lastDeltaSeconds, GetPosition() );
 		m_forwardVector = direction;
 
 		EventArgs args;
-		args.SetValue( "newPos", m_rigidbody2D->GetPosition() );
+		args.SetValue( "newPos", m_rigidbody->GetWorldPosition() );
 
 		FireScriptEvent( "OnPositionChange", &args );
 	}
@@ -444,9 +449,9 @@ void Entity::MoveWithPhysics( float speed, const Vec2& direction )
 //-----------------------------------------------------------------------------------------------
 void Entity::EnableRigidbody()
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->Enable();
+		m_rigidbody->Enable();
 	}
 }
 
@@ -454,9 +459,9 @@ void Entity::EnableRigidbody()
 //-----------------------------------------------------------------------------------------------
 void Entity::DisableRigidbody()
 {
-	if ( m_rigidbody2D != nullptr )
+	if ( m_rigidbody != nullptr )
 	{
-		m_rigidbody2D->Disable();
+		m_rigidbody->Disable();
 	}
 }
 
@@ -572,19 +577,19 @@ void Entity::Load()
 		return;
 	}
 
-	m_rigidbody2D->Enable();
+	m_rigidbody->Enable();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Entity::Unload()
 {
-	if ( m_rigidbody2D == nullptr )
+	if ( m_rigidbody == nullptr )
 	{
 		return;
 	}
 
-	m_rigidbody2D->Disable();
+	m_rigidbody->Disable();
 }
 
 
@@ -620,54 +625,54 @@ void Entity::PlaySpriteAnimation( const std::string& spriteAnimDefSetName )
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::EnterCollisionEvent( Collision2D collision )
+void Entity::EnterCollisionEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnCollisionEnter" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::StayCollisionEvent( Collision2D collision )
+void Entity::StayCollisionEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnCollisionStay" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::ExitCollisionEvent( Collision2D collision )
+void Entity::ExitCollisionEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnCollisionExit" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::EnterTriggerEvent( Collision2D collision )
+void Entity::EnterTriggerEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnTriggerEnter" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::StayTriggerEvent( Collision2D collision )
+void Entity::StayTriggerEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnTriggerStay" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::ExitTriggerEvent( Collision2D collision )
+void Entity::ExitTriggerEvent( Collision collision )
 {
 	SendPhysicsEventToScript( collision, "OnTriggerExit" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::SendPhysicsEventToScript( Collision2D collision, const std::string& eventName )
+void Entity::SendPhysicsEventToScript( Collision collision, const std::string& eventName )
 {
 	if ( !IsDead() )
 	{
 		//Entity* theirEntity = (Entity*)collision.theirCollider->m_rigidbody->m_userProperties.GetValue( "entityId", (EntityId)-1 );
-		EntityId theirEntityId = collision.theirCollider->m_rigidbody->m_userProperties.GetValue( "entityId", (EntityId)-1 );
+		EntityId theirEntityId = collision.theirCollider->GetRigidbody()->m_userProperties.GetValue( "entityId", (EntityId)-1 );
 
 		Entity* theirEntity = g_game->GetEntityById( theirEntityId );
 

@@ -10,7 +10,7 @@ class OBB3Collider : public Collider
 	friend class Rigidbody;
 
 public:
-	OBB3Collider( const Vec3& localPosition, const OBB3& obb3 );
+	OBB3Collider( const OBB3& obb3, const Vec3& localPosition );
 
 	OBB3 GetOBB3() const				{ return m_obb3; }
 	float GetOuterRadius() const		{ return m_outerRadius; }

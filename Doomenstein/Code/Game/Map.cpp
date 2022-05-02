@@ -336,7 +336,10 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
-		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( mapEntityDef.position, (*mapEntityDef.entityDef).GetMass()));
+		Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+		newEntity->SetRigidbody( rigidbody );
+		rigidbody->SetPosition( mapEntityDef.position );
+		rigidbody->SetMass( mapEntityDef.entityDef->GetMass() );
 		newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
 
 		for ( const ColliderData& colData : newEntity->GetColliderDataVec() )
@@ -344,11 +347,11 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 			switch ( colData.type )
 			{
 				case COLLIDER_SPHERE:
-					newEntity->m_rigidbody->TakeCollider( m_physicsScene->CreateSphereCollider( colData.radius, colData.offsetFromCenter ) );
+					rigidbody->TakeCollider( m_physicsScene->CreateSphereCollider( colData.radius, colData.offsetFromCenter ) );
 					break;
 
 				case COLLIDER_OBB3:
-					newEntity->m_rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( colData.obb3, colData.offsetFromCenter ) );
+					rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( colData.obb3, colData.offsetFromCenter ) );
 					break;
 			}
 		}

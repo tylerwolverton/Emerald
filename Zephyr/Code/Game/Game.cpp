@@ -14,7 +14,8 @@
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/OS/Window.hpp"
-#include "Engine/Physics/Physics2D.hpp"
+#include "Engine/Physics/PhysicsSystem.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/Camera.hpp"
@@ -77,20 +78,20 @@ void Game::Startup()
 	Clock::GetMaster()->SetFrameLimits( 1.0/60.0, .1 );
 
 	g_renderer->Setup( m_gameClock );
-	g_physicsSystem2D->Startup( m_gameClock );
-	g_physicsSystem2D->SetSceneGravity( 0.f );
+	g_physicsSystem->Startup( m_gameClock );
+	g_physicsConfig->PopulateFromXml();
 
-	g_physicsSystem2D->DisableAllLayerInteraction( eCollisionLayer::NONE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::STATIC_ENVIRONMENT, eCollisionLayer::STATIC_ENVIRONMENT );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PLAYER_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::ENEMY, eCollisionLayer::ENEMY_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::PLAYER_PROJECTILE, eCollisionLayer::PLAYER_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::ENEMY_PROJECTILE, eCollisionLayer::ENEMY_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::PLAYER_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::ENEMY_PROJECTILE );
-	g_physicsSystem2D->DisableLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::STATIC_ENVIRONMENT );
-	g_physicsSystem2D->DisableAllLayerInteraction( eCollisionLayer::PICKUP );
-	g_physicsSystem2D->EnableLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PICKUP );
+	DisableAllPhysicsLayerInteraction( eCollisionLayer::NONE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::STATIC_ENVIRONMENT, eCollisionLayer::STATIC_ENVIRONMENT );
+	DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PLAYER_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY, eCollisionLayer::ENEMY_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER_PROJECTILE, eCollisionLayer::PLAYER_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY_PROJECTILE, eCollisionLayer::ENEMY_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::PLAYER_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::ENEMY_PROJECTILE );
+	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::STATIC_ENVIRONMENT );
+	DisableAllPhysicsLayerInteraction( eCollisionLayer::PICKUP );
+	EnablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PICKUP );
 
 	g_inputSystem->PushMouseOptions( CURSOR_ABSOLUTE, true, false );
 
@@ -187,8 +188,6 @@ void Game::Update()
 			UpdateFromKeyboard();
 
 			m_world->Update();
-
-			g_physicsSystem2D->Update();
 		}
 		break;
 	}
@@ -703,6 +702,8 @@ void Game::ReloadGame()
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();
+	g_physicsConfig->PopulateFromXml();
+
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
 	m_player = nullptr;
@@ -713,7 +714,7 @@ void Game::ReloadGame()
 	PTR_MAP_SAFE_DELETE( TileDefinition::s_definitions );
 	PTR_VECTOR_SAFE_DELETE( SpriteSheet::s_definitions );
 
-	g_physicsSystem2D->Reset();
+	//g_physicsSystem->Reset();
 	m_loadedSoundIds.clear();
 
 	LoadSounds();

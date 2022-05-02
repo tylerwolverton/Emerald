@@ -10,20 +10,22 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PolygonCollider2D::PolygonCollider2D( const std::vector<Vec2>& points )
+PolygonCollider2D::PolygonCollider2D( const std::vector<Vec2>& points, const Vec3& localPosition )
 {
 	m_polygon = Polygon2( points );
 	m_type = COLLIDER_POLYGON;
+	m_localPosition = localPosition;
 
 	GUARANTEE_OR_DIE( m_polygon.IsConvex(), "Polygon collider is not convex");
 }
 
 
 //-----------------------------------------------------------------------------------------------
-PolygonCollider2D::PolygonCollider2D( const Polygon2& polygon )
+PolygonCollider2D::PolygonCollider2D( const Polygon2& polygon, const Vec3& localPosition )
 	: m_polygon( polygon )
 {
 	m_type = COLLIDER_POLYGON;
+	m_localPosition = localPosition;
 
 	GUARANTEE_OR_DIE( m_polygon.IsConvex(), "Polygon collider is not convex" );
 }

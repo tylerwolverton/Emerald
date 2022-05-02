@@ -9,6 +9,8 @@
 
 //-----------------------------------------------------------------------------------------------
 class Portal;
+class CollisionResolver;
+class PhysicsScene;
 class World;
 struct MapData;
 struct MapEntityDefinition;
@@ -32,6 +34,7 @@ struct RaycastResult
 //-----------------------------------------------------------------------------------------------
 class Map
 {
+	friend class Entity;
 	friend class World;
 
 public:
@@ -58,7 +61,7 @@ public:
 
 	void			CallAllMapEntityZephyrSpawnEvents( Entity* player );
 
-	Vec2 GetPlayerStartPos() const										{ return m_playerStartPos; }
+	Vec3 GetPlayerStartPos() const										{ return m_playerStartPos; }
 	std::string GetName() const											{ return m_name; }
 
 	void RemoveOwnershipOfEntity( Entity* entityToRemove );
@@ -85,9 +88,11 @@ private:
 protected:
 	std::string					m_name;
 	World*						m_world = nullptr;
+	PhysicsScene*				m_physicsScene = nullptr;
+	CollisionResolver*			m_curCollisionResolver = nullptr;
 
 	// Multiplayer TODO: Make this into an array
-	Vec2						m_playerStartPos = Vec2::ZERO;
+	Vec3						m_playerStartPos = Vec3::ZERO;
 	float						m_playerStartYaw = 0.f;
 
 	Entity*						m_player = nullptr;

@@ -3,7 +3,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class EntityDefinition;
-class Collision2D;
+class Collision;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ public:
 	void SetDestinationYawOffset( float destYawOffset )				{ m_destYawOffset = destYawOffset; }
 
 private:
-	void EnterTriggerEvent( Collision2D collision );
+	void EnterTriggerEvent( Collision collision );
 
 private:
 	std::string m_destMap = "";

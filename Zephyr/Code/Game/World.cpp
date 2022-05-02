@@ -151,7 +151,7 @@ void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapNam
 		//m_curMap->TakeOwnershipOfEntity( entityToWarp );
 	}
 
-	entityToWarp->SetPosition( newPos );
+	entityToWarp->SetPosition( Vec3( newPos, 0.f ) );
 	entityToWarp->SetOrientationDegrees( newYawDegrees );
 }
 

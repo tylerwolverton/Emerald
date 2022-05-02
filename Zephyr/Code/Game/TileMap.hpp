@@ -83,5 +83,5 @@ private:
 
 	std::vector<Vertex_PCU> m_mesh;
 
-	std::vector<Rigidbody2D*> m_tileRigidbodies;
+	std::vector<Rigidbody*> m_tileRigidbodies;
 };

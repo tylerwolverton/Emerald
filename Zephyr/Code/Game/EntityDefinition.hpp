@@ -2,7 +2,7 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/FloatRange.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/ZephyrCore/ZephyrCommon.hpp"
 #include "Engine/ZephyrCore/ZephyrEntityDefinition.hpp"
 #include "Game/GameCommon.hpp"

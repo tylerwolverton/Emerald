@@ -29,11 +29,16 @@ public:
 	void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
 	// TODO: Make a cylinder def object
-	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass );
-	Rigidbody* CreateOBB3Rigidbody( const OBB3& box, float mass );
+	Rigidbody* CreateRigidbody();
 
-	Collider* CreateSphereCollider( float radius, const Vec3& localPosition );
-	Collider* CreateOBB3Collider( const OBB3& box, const Vec3& localPosition );
+	// 2D
+	Collider* CreateDiscCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
+	Collider* CreateDiscTrigger( float radius, const Vec3& localPosition = Vec3::ZERO );
+	Collider* CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition = Vec3::ZERO );
+
+	// 3D
+	Collider* CreateSphereCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
+	Collider* CreateOBB3Collider( const OBB3& box, const Vec3& localPosition = Vec3::ZERO );
 
 	void DestroyRigidbody( Rigidbody* rigidbody );
 	void DestroyCollider( Collider* collider );

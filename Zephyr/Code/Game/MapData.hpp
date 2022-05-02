@@ -47,7 +47,7 @@ public:
 	std::vector<TileDefinition*> tileDefs;					// TileMap
 
 	// Multiplayer TODO: Make this into an array
-	Vec2 playerStartPos = Vec2::ZERO;
+	Vec3 playerStartPos = Vec3::ZERO;
 	float playerStartYaw = 0.f;
 
 public:

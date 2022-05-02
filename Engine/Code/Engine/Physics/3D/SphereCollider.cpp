@@ -6,7 +6,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-SphereCollider::SphereCollider( const Vec3& localPosition, float radius )
+SphereCollider::SphereCollider( float radius, const Vec3& localPosition )
 	: Collider()
 	, m_radius( radius )
 {

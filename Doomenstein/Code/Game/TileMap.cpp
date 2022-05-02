@@ -619,7 +619,9 @@ void TileMap::CreateInitialTiles( const std::vector<MapRegionTypeDefinition*>& r
 			{
 				OBB3 obb3( Vec3( (float)x + .5f, (float)y + .5f, .5f ), Vec3::ONE );
 
-				Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( obb3, 1.f );
+				Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+				rigidbody->SetPosition( obb3.GetCenter() );
+				rigidbody->SetMass( 1.f );
 				rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 				rigidbody->SetLayer( "environment" );
 
@@ -631,7 +633,9 @@ void TileMap::CreateInitialTiles( const std::vector<MapRegionTypeDefinition*>& r
 	// Add floor collider
 	OBB3 obb3( Vec3( (float)m_dimensions.x * .5f, (float)m_dimensions.y * .5f, -.5f ), Vec3( (float)m_dimensions.x, (float)m_dimensions.y, 1.f ) );
 
-	Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( obb3, 1.f );
+	Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+	rigidbody->SetPosition( obb3.GetCenter() );
+	rigidbody->SetMass( 1.f );
 	rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 	rigidbody->SetLayer( "environment" );
 

@@ -7,7 +7,7 @@
 class DiscCollider : public Collider
 {
 public:
-	DiscCollider( const Vec2& localPosition, float radius );
+	DiscCollider( float radius, const Vec3& localPosition );
 
 	virtual void UpdateWorldShape() override;
 

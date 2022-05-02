@@ -26,8 +26,6 @@ class Rigidbody
 	friend class PhysicsScene;
 
 public:
-	Rigidbody( float mass );
-
 	void Update( float deltaSeconds );
 
 	void Destroy(); // helper for destroying myself (uses owner to destroy self)
@@ -55,7 +53,7 @@ public:
 	void SetAngularVelocity( float newAngularVelocity );
 
 	float GetMass() const															{ return m_mass; }
-	void SetMass( float mass )														{ m_mass = mass; }
+	void SetMass( float mass );
 	void ChangeMass( float deltaMass );
 	float GetInverseMass() const													{ return m_inverseMass; }
 

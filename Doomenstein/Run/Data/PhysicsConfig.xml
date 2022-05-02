@@ -17,8 +17,8 @@
         DisableAll - disables a layer from interacting with any others 
     -->
     <LayerInteractions>
-        <!-- <Disable layer1="entity" layer2="entity" /> -->
          <DisableAll layer="noCollision"/> 
+         <Disable layer1="environment" layer2="environment"/>
         <!-- <Enable layer1="entity" layer2="environment"/> -->
     </LayerInteractions>
 

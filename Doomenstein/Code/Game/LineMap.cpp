@@ -35,11 +35,13 @@ LineMap::LineMap( const MapData& mapData, World* world )
 
 	for ( const auto& wall : m_walls )
 	{
-		Rigidbody* rigidbody = m_physicsScene->CreateOBB3Rigidbody( wall, 1.f );
+		Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+		rigidbody->SetPosition( wall.GetCenter() );
+		rigidbody->SetMass( 1.f );
 		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 		rigidbody->SetLayer( "environment" );
 
-		rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( wall, Vec3::ZERO ) );
+		rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( wall ) );
 	}
 }
 

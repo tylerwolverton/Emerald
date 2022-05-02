@@ -2,10 +2,12 @@
 #include "Engine/Core/Vertex_PCUTBN.hpp"
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Polygon2.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
-#include "Engine/Physics/PolygonCollider2D.hpp"
-#include "Engine/Physics/Physics2D.hpp"
-#include "Engine/Physics/Rigidbody2D.hpp"
+#include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -112,7 +114,7 @@ void TileMap::CenterCameraOnPlayer() const
 	if ( m_player != nullptr )
 	{
 		Vec2 halfWindowSize( WINDOW_WIDTH * .5f, WINDOW_HEIGHT * .5f );
-		AABB2 cameraBounds( m_player->GetPosition() - halfWindowSize, m_player->GetPosition() + halfWindowSize );
+		AABB2 cameraBounds( m_player->GetPosition().XY() - halfWindowSize, m_player->GetPosition().XY() + halfWindowSize );
 
 		AABB2 windowBox( Vec2( 0.f, 0.f ), Vec2( (float)m_dimensions.x, (float)m_dimensions.y ) );
 		cameraBounds.CenterWithinBounds( windowBox );
@@ -333,15 +335,15 @@ void TileMap::CreateTileRigidbodies()
 	{
 		if ( m_tiles[tileIdx].IsSolid() )
 		{
-			Rigidbody2D* rigidbody2D = g_physicsSystem2D->CreateRigidbody();
+			Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
 
-			PolygonCollider2D* polygonCollider = g_physicsSystem2D->CreatePolygon2Collider( m_tiles[tileIdx].GetBounds().GetAsPolygon2() );
-			rigidbody2D->TakeCollider( polygonCollider );
-			rigidbody2D->SetSimulationMode( SIMULATION_MODE_STATIC );
-			rigidbody2D->SetPosition( m_tiles[tileIdx].GetBounds().GetCenter() );
-			rigidbody2D->SetLayer( eCollisionLayer::STATIC_ENVIRONMENT );
+			Collider* polygonCollider = m_physicsScene->CreatePolygon2Collider( m_tiles[tileIdx].GetBounds().GetAsPolygon2() );
+			rigidbody->TakeCollider( polygonCollider );
+			rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+			rigidbody->SetPosition( Vec3( m_tiles[tileIdx].GetBounds().GetCenter(), 0.f ) );
+			rigidbody->SetLayer( eCollisionLayer::STATIC_ENVIRONMENT );
 
-			m_tileRigidbodies.push_back( rigidbody2D );
+			m_tileRigidbodies.push_back( rigidbody );
 		}
 	}
 }
