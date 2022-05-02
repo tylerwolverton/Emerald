@@ -153,6 +153,16 @@ void Rigidbody::Translate( const Vec3& translation )
 
 
 //-----------------------------------------------------------------------------------------------
+Vec3 Rigidbody::GetImpactVelocityAtPoint( const Vec3& point )
+{
+	Vec3 contactPoint = point - m_worldPosition;
+	Vec3 tangent = Vec3( contactPoint.XY().GetRotated90Degrees(), 0.f );
+
+	return GetVelocity() + m_angularVelocity * tangent;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Rigidbody::RotateDegrees( float deltaDegrees )
 {
 	m_orientationRadians += ConvertDegreesToRadians( deltaDegrees );
@@ -226,21 +236,21 @@ void Rigidbody::AddImpulse( const Vec3& impulse )
 }
 
 
-////-----------------------------------------------------------------------------------------------
-//void Rigidbody::ApplyImpulseAt( const Vec3& impulse, const Vec3& point )
-//{
-//	if ( !m_isEnabled )
-//	{
-//		return;
-//	}
-//
-//	m_velocity += ( impulse * m_inverseMass );
-//
-//	Vec2 contactPoint = point - m_worldPosition;
-//	contactPoint.Rotate90Degrees();
-//
-//	m_angularVelocity += DotProduct2D( impulse, contactPoint ) * m_inverseMoment;
-//}
+//-----------------------------------------------------------------------------------------------
+void Rigidbody::ApplyImpulseAt( const Vec3& impulse, const Vec3& point )
+{
+	if ( !m_isEnabled )
+	{
+		return;
+	}
+
+	m_velocity += ( impulse * m_inverseMass );
+
+	Vec3 contactPoint = point - m_worldPosition;
+	contactPoint = Vec3( contactPoint.XY().GetRotated90Degrees(), 0.f );
+
+	m_angularVelocity += DotProduct3D( impulse, contactPoint ) * m_inverseMoment;
+}
 
 
 //-----------------------------------------------------------------------------------------------

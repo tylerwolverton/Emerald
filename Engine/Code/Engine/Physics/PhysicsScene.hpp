@@ -29,7 +29,7 @@ public:
 	void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
 	// TODO: Make a cylinder def object
-	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius );
+	Rigidbody* CreateCylinderRigidbody( const Vec3& worldPosition, float mass );
 	Rigidbody* CreateOBB3Rigidbody( const OBB3& box, float mass );
 
 	Collider* CreateSphereCollider( float radius, const Vec3& localPosition );

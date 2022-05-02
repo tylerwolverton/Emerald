@@ -3,10 +3,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class Simple3DCollisionResolver : public CollisionResolver
+class GJK2DCollisionResolver : public CollisionResolver
 {
 public:
-	virtual ~Simple3DCollisionResolver() {};
+	virtual ~GJK2DCollisionResolver() {};
 
 protected:
 	virtual Manifold GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider ) override;

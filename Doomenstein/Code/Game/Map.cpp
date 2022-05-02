@@ -336,7 +336,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
-		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( mapEntityDef.position, (*mapEntityDef.entityDef).GetMass(), newEntity->GetPhysicsRadius() ));
+		newEntity->SetRigidbody( m_physicsScene->CreateCylinderRigidbody( mapEntityDef.position, (*mapEntityDef.entityDef).GetMass()));
 		newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
 
 		for ( const ColliderData& colData : newEntity->GetColliderDataVec() )

@@ -47,6 +47,8 @@ public:
 	void SetPosition( const Vec3& position );
 	void Translate( const Vec3& translation );
 
+	Vec3 GetImpactVelocityAtPoint( const Vec3& point );
+
 	void SetRotationDegrees( float newRotationDegrees );
 	void RotateDegrees( float deltaDegrees );
 	void ChangeAngularVelocity( float deltaRadians );

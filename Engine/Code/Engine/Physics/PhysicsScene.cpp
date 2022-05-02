@@ -25,7 +25,7 @@ void PhysicsScene::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, float mass, float radius )
+Rigidbody* PhysicsScene::CreateCylinderRigidbody( const Vec3& worldPosition, float mass )
 {
 	Rigidbody* newRigidbody = new Rigidbody( mass );
 	newRigidbody->SetPosition( worldPosition );

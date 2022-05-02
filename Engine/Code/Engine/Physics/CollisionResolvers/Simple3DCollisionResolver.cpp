@@ -9,7 +9,6 @@
 
 
 //-----------------------------------------------------------------------------------------------
-typedef bool ( *CollisionCheckCallback )( const Collider*, const Collider* );
 typedef Manifold( *CollisionManifoldGenerationCallback )( const Collider*, const Collider* );
 
 

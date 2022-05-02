@@ -1,45 +1,16 @@
-#include "Engine/Physics/2D/Collider2D.hpp"
-#include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Physics/2D/DiscCollider2D.hpp"
-#include "Engine/Physics/2D/PolygonCollider2D.hpp"
-#include "Engine/Physics/2D/Rigidbody2D.hpp"
-//#include "Engine/Physics/2D/Manifold2.hpp"
-#include "Engine/Physics/Manifold.hpp"
-#include "Engine/Math/AABB2.hpp"
+#include "Engine/Physics/CollisionResolvers/GJK2DCollisionResolver.hpp"
+#include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Plane2D.hpp"
+#include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/Rigidbody.hpp"
+#include "Engine/Physics/2D/DiscCollider.hpp"
+#include "Engine/Physics/2D/PolygonCollider2D.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 
 
-typedef bool ( *CollisionCheckCallback )( const Collider2D*, const Collider2D* );
-typedef Manifold2D( *CollisionManifoldGenerationCallback )( const Collider2D*, const Collider2D* );
-
-
 //-----------------------------------------------------------------------------------------------
-static bool DiscVDiscCollisionCheck( const Collider2D* collider1, const Collider2D* collider2 )
-{
-	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const DiscCollider2D* discCollider1 = (const DiscCollider2D*)collider1;
-	const DiscCollider2D* discCollider2 = (const DiscCollider2D*)collider2;
-
-	return DoDiscsOverlap( discCollider1->m_worldPosition, 
-						   discCollider1->m_radius, 
-						   discCollider2->m_worldPosition,
-						   discCollider2->m_radius );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-static bool DiscVPolygonCollisionCheck( const Collider2D* collider1, const Collider2D* collider2 )
-{
-	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const DiscCollider2D* discCollider = (const DiscCollider2D*)collider1;
-	const PolygonCollider2D* polygonCollider = (const PolygonCollider2D*)collider2;
-
-	Vec2 nearestPoint = polygonCollider->GetClosestPoint( discCollider->m_worldPosition );
-
-	return IsPointInsideDisc( nearestPoint, discCollider->m_worldPosition, discCollider->m_radius );
-}
+typedef Manifold( *CollisionManifoldGenerationCallback )( const Collider*, const Collider* );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -53,7 +24,7 @@ static Vec2 GetSupportPoint( const PolygonCollider2D* polygonCollider1, const Po
 static std::vector<Vec2> GetSimplexForGJKCollision( const PolygonCollider2D* polygonCollider1, const PolygonCollider2D* polygonCollider2 )
 {
 	// Initial point calculation
-	Vec2 direction = polygonCollider2->m_worldPosition - polygonCollider1->m_worldPosition;
+	Vec2 direction = polygonCollider2->GetWorldPosition().XY() - polygonCollider1->GetWorldPosition().XY();
 	Vec2 supportPoint0 = GetSupportPoint( polygonCollider1, polygonCollider2, direction );
 	Vec2 supportPoint1 = GetSupportPoint( polygonCollider1, polygonCollider2, -direction );
 
@@ -104,7 +75,7 @@ static std::vector<Vec2> GetSimplexForGJKCollision( const PolygonCollider2D* pol
 			direction = orthogonal20;
 			continue;
 		}
-		
+
 		// Make sure simplex is in ccw order
 		if ( orthogonal21.GetNormalized() != supportEdge21.GetRotated90Degrees().GetNormalized() )
 		{
@@ -119,84 +90,26 @@ static std::vector<Vec2> GetSimplexForGJKCollision( const PolygonCollider2D* pol
 
 
 //-----------------------------------------------------------------------------------------------
-static bool PolygonVPolygonCollisionCheck( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold DiscVDiscCollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const PolygonCollider2D* polygonCollider1 = (const PolygonCollider2D*)collider1;
-	const PolygonCollider2D* polygonCollider2 = (const PolygonCollider2D*)collider2;
+	const DiscCollider* discCollider1 = (const DiscCollider*)collider1;
+	const DiscCollider* discCollider2 = (const DiscCollider*)collider2;
 
-	std::vector<Vec2> simplex = GetSimplexForGJKCollision( polygonCollider1, polygonCollider2 );
-	if ( simplex.size() == 0 )
+	Manifold manifold;
+
+	if ( !DoAABBsOverlap2D( discCollider1->GetWorldBounds(), discCollider2->GetWorldBounds() ) )
 	{
-		return false;
+		return manifold;
 	}
 
-	return true;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-// a "matrix" lookup is just a 2D array
-static CollisionCheckCallback g_CollisionChecks[NUM_COLLIDER_TYPES * NUM_COLLIDER_TYPES] = {
-	/*             disc,                         polygon, */
-	/*    disc */  DiscVDiscCollisionCheck,      nullptr,
-	/* polygon */  DiscVPolygonCollisionCheck,   PolygonVPolygonCollisionCheck
-};
-
-
-//-----------------------------------------------------------------------------------------------
-void Collider2D::ChangeFriction( float deltaFriction )
-{
-	m_material.m_friction += deltaFriction;
-
-	m_material.m_friction = ClampZeroToOne( m_material.m_friction );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool Collider2D::Intersects( const Collider2D* other ) const
-{
-	if ( other == nullptr
-		 || !m_rigidbody->IsEnabled()
-		 || !other->m_rigidbody->IsEnabled()
-		 || !DoAABBsOverlap2D( GetWorldBounds(), other->GetWorldBounds() ) )
-	{
-		return false;
-	}
-
-	eCollider2DType myType = m_type;
-	eCollider2DType otherType = other->m_type;
-
-	if ( myType <= otherType ) 
-	{
-		int idx = otherType * NUM_COLLIDER_TYPES + myType;
-		CollisionCheckCallback callback = g_CollisionChecks[idx];
-		return callback( this, other );
-	}
-	else 
-	{
-		// flip the types when looking into the index.
-		int idx = myType * NUM_COLLIDER_TYPES + otherType;
-		CollisionCheckCallback callback = g_CollisionChecks[idx];
-		return callback( other, this );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-static Manifold2D DiscVDiscCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
-{
-	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const DiscCollider2D* discCollider1 = (const DiscCollider2D*)collider1;
-	const DiscCollider2D* discCollider2 = (const DiscCollider2D*)collider2;
-	
-	Manifold2D manifold;
-	manifold.normal = discCollider2->m_worldPosition - discCollider1->m_worldPosition;
+	manifold.normal = discCollider2->GetWorldPosition() - discCollider1->GetWorldPosition();
+	manifold.normal.z = 0.f;
 	manifold.normal.Normalize();
 
-	Vec2 disc1Edge = discCollider1->m_worldPosition + ( manifold.normal * discCollider1->m_radius );
-	Vec2 disc2Edge = discCollider2->m_worldPosition + ( -manifold.normal * discCollider2->m_radius );
-	manifold.penetrationDepth = GetDistance2D( disc1Edge, disc2Edge );
+	Vec3 disc1Edge = discCollider1->GetWorldPosition() + ( manifold.normal * discCollider1->m_radius );
+	Vec3 disc2Edge = discCollider2->GetWorldPosition() + ( -manifold.normal * discCollider2->m_radius );
+	manifold.penetrationDepth = GetDistance2D( disc1Edge.XY(), disc2Edge.XY() );
 
 	manifold.contactPoint1 = disc1Edge - ( manifold.normal * manifold.penetrationDepth * .5f );
 	manifold.contactPoint2 = manifold.contactPoint1;
@@ -206,26 +119,33 @@ static Manifold2D DiscVDiscCollisionManifoldGenerator( const Collider2D* collide
 
 
 //-----------------------------------------------------------------------------------------------
-static Manifold2D DiscVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold DiscVPolygonCollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const DiscCollider2D* discCollider = (const DiscCollider2D*)collider1;
+	const DiscCollider* discCollider = (const DiscCollider*)collider1;
 	const PolygonCollider2D* polygonCollider = (const PolygonCollider2D*)collider2;
 
-	Vec2 closestPointOnPolygonToDisc = polygonCollider->m_polygon.GetClosestPointOnEdge( discCollider->m_worldPosition );
-	
-	Manifold2D manifold;
-	manifold.normal = closestPointOnPolygonToDisc - discCollider->m_worldPosition;
+	Vec2 closestPointOnPolygonToDisc = polygonCollider->m_polygon.GetClosestPointOnEdge( discCollider->GetWorldPosition().XY() );
+
+	Manifold manifold;
+
+	if ( !DoAABBsOverlap2D( discCollider->GetWorldBounds(), polygonCollider->GetWorldBounds() ) )
+	{
+		return manifold;
+	}
+
+	manifold.normal = Vec3( closestPointOnPolygonToDisc, 0.f ) - discCollider->GetWorldPosition();
+	manifold.normal.z = 0.f;
 	manifold.normal.Normalize();
 
 	// If disc is inside polygon flip the normal to ensure it is pushed out
-	if ( polygonCollider->m_polygon.Contains( discCollider->m_worldPosition ) )
+	if ( polygonCollider->m_polygon.Contains( discCollider->GetWorldPosition().XY() ) )
 	{
 		manifold.normal *= -1.f;
 	}
 
-	Vec2 closestPointOnDiscToPolygon = discCollider->m_worldPosition + ( manifold.normal * discCollider->m_radius );
-	manifold.penetrationDepth = GetDistance2D( closestPointOnDiscToPolygon, closestPointOnPolygonToDisc );
+	Vec3 closestPointOnDiscToPolygon = discCollider->GetWorldPosition() + ( manifold.normal * discCollider->m_radius );
+	manifold.penetrationDepth = GetDistance2D( closestPointOnDiscToPolygon.XY(), closestPointOnPolygonToDisc );
 
 	manifold.contactPoint1 = closestPointOnDiscToPolygon - ( manifold.normal * manifold.penetrationDepth * .5f );
 	manifold.contactPoint2 = manifold.contactPoint1;
@@ -237,7 +157,7 @@ static Manifold2D DiscVPolygonCollisionManifoldGenerator( const Collider2D* coll
 //-----------------------------------------------------------------------------------------------
 static bool GetClippedSegmentToSegment( const Vec2& segmentToClipStart, const Vec2& segmentToClipEnd,
 										const Vec2& refEdgeStart, const Vec2& refEdgeEnd,
-										Vec2* out_clippedMin, Vec2* out_clippedMax )
+										Vec3* out_clippedMin, Vec3* out_clippedMax )
 {
 	Vec2 refDir = ( refEdgeEnd - refEdgeStart ).GetNormalized();
 
@@ -249,16 +169,16 @@ static bool GetClippedSegmentToSegment( const Vec2& segmentToClipStart, const Ve
 
 	float minClippedDist = Max( minDistAlongRefEdge, minDistAlongSegToClip );
 	float maxClippedDist = Min( maxDistAlongRefEdge, maxDistAlongSegToClip );
-		
+
 	// Check for no intersection
 	if ( minClippedDist > maxClippedDist )
 	{
 		return false;
 	}
 
-	*out_clippedMin = RangeMapFloatVec2( minDistAlongSegToClip, maxDistAlongSegToClip, segmentToClipStart, segmentToClipEnd, minClippedDist );
-	*out_clippedMax = RangeMapFloatVec2( minDistAlongSegToClip, maxDistAlongSegToClip, segmentToClipStart, segmentToClipEnd, maxClippedDist );
-	
+	*out_clippedMin = Vec3( RangeMapFloatVec2( minDistAlongSegToClip, maxDistAlongSegToClip, segmentToClipStart, segmentToClipEnd, minClippedDist ), 0.f );
+	*out_clippedMax = Vec3( RangeMapFloatVec2( minDistAlongSegToClip, maxDistAlongSegToClip, segmentToClipStart, segmentToClipEnd, maxClippedDist ), 0.f );
+
 	return true;
 }
 
@@ -266,7 +186,7 @@ static bool GetClippedSegmentToSegment( const Vec2& segmentToClipStart, const Ve
 //-----------------------------------------------------------------------------------------------
 static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonCollider1, const PolygonCollider2D* polygonCollider2,
 										   const Vec2& normal, float penetrationDepth,
-										   Vec2* out_contactMin, Vec2* out_contactMax )
+										   Vec3* out_contactMin, Vec3* out_contactMax )
 {
 	Vec2 pointOnB = polygonCollider2->GetFarthestPointInDirection( normal );
 	Plane2D referencePlane( normal, pointOnB );
@@ -310,8 +230,8 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 	if ( IsNearlyEqual( minPointOnReferenceEdge, maxPointOnReferenceEdge, .0001f ) )
 	{
 		Vec2 contactPoint = minPointOnReferenceEdge - referencePlane.normal * penetrationDepth;
-		*out_contactMin = contactPoint;
-		*out_contactMax = contactPoint;
+		*out_contactMin = Vec3( contactPoint, 0.f );
+		*out_contactMax = Vec3( contactPoint, 0.f );
 
 		//DebugAddWorldPoint( *out_contactMin, Rgba8::GREEN, .03f );
 		//DebugAddWorldPoint( *out_contactMax, Rgba8::GREEN, .03f );
@@ -328,15 +248,15 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 		Vec2 edgeEnd;
 		polygonCollider1->m_polygon.GetEdge( edgeIdx, &edgeStart, &edgeEnd );
 
-		Vec2 clippedMin;
-		Vec2 clippedMax;
+		Vec3 clippedMin;
+		Vec3 clippedMax;
 		if ( GetClippedSegmentToSegment( edgeStart, edgeEnd, minPointOnReferenceEdge, maxPointOnReferenceEdge, &clippedMin, &clippedMax ) )
 		{
 			// Check if clipped points are behind the normal, meaning they are inside polygon2 and should be considered contact points
 			// Keep track of max and min as we go so no further pruning is needed
-			if ( DotProduct2D( normal, clippedMin - originPoint ) < 0.f )
+			if ( DotProduct2D( normal, clippedMin.XY() - originPoint ) < 0.f )
 			{
-				float distAlongTangent = DotProduct2D( clippedMin, tangent );
+				float distAlongTangent = DotProduct2D( clippedMin.XY(), tangent );
 				if ( distAlongTangent > maxDistAlongTangent )
 				{
 					maxDistAlongTangent = distAlongTangent;
@@ -349,9 +269,9 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 				}
 			}
 
-			if ( DotProduct2D( normal, clippedMax - originPoint ) < 0.f )
+			if ( DotProduct2D( normal, clippedMax.XY() - originPoint ) < 0.f )
 			{
-				float distAlongTangent = DotProduct2D( clippedMax, tangent );
+				float distAlongTangent = DotProduct2D( clippedMax.XY(), tangent );
 				if ( distAlongTangent > maxDistAlongTangent )
 				{
 					maxDistAlongTangent = distAlongTangent;
@@ -372,16 +292,21 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 
 
 //-----------------------------------------------------------------------------------------------
-static Manifold2D PolygonVPolygonCollisionManifoldGenerator( const Collider2D* collider1, const Collider2D* collider2 )
+static Manifold PolygonVPolygonCollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
 	const PolygonCollider2D* polygonCollider1 = (const PolygonCollider2D*)collider1;
 	const PolygonCollider2D* polygonCollider2 = (const PolygonCollider2D*)collider2;
 
+	if ( !DoAABBsOverlap2D( polygonCollider1->GetWorldBounds(), polygonCollider2->GetWorldBounds() ) )
+	{
+		return Manifold();
+	}
+
 	std::vector<Vec2> simplex = GetSimplexForGJKCollision( polygonCollider1, polygonCollider2 );
 	if ( simplex.size() == 0 )
 	{
-		return Manifold2D();
+		return Manifold();
 	}
 
 	Vec2 edge01 = simplex[1] - simplex[0];
@@ -407,11 +332,11 @@ static Manifold2D PolygonVPolygonCollisionManifoldGenerator( const Collider2D* c
 
 		if ( IsNearlyEqual( DotProduct2D( nextSupportPoint, normal ), distFromOriginToEdge, .0001f ) )
 		{
-			Manifold2D manifold;
-			manifold.normal = normal;
+			Manifold manifold;
+			manifold.normal = Vec3( normal, 0.f);
 			manifold.penetrationDepth = distFromOriginToEdge;
-			manifold.contactPoint1 = startEdge;
-			manifold.contactPoint2 = endEdge;
+			manifold.contactPoint1 = Vec3( startEdge, 0.f );
+			manifold.contactPoint2 = Vec3( endEdge, 0.f );
 
 			// For this next algorithm we need to use the normal from 2 to 1
 			GetContactEdgeBetweenPolygons( polygonCollider1, polygonCollider2, -normal, distFromOriginToEdge, &manifold.contactPoint1, &manifold.contactPoint2 );
@@ -434,13 +359,13 @@ static Manifold2D PolygonVPolygonCollisionManifoldGenerator( const Collider2D* c
 		}
 	}
 
-	return Manifold2D();
+	return Manifold();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 // a "matrix" lookup is just a 2D array
-static CollisionManifoldGenerationCallback g_ManifoldGenerators[NUM_COLLIDER_TYPES * NUM_COLLIDER_TYPES] = {
+static CollisionManifoldGenerationCallback g_ManifoldGenerators[NUM_2D_COLLIDER_TYPES * NUM_2D_COLLIDER_TYPES] = {
 	/*             disc,                         polygon, */
 	/*    disc */  DiscVDiscCollisionManifoldGenerator,      nullptr,
 	/* polygon */  DiscVPolygonCollisionManifoldGenerator,   PolygonVPolygonCollisionManifoldGenerator
@@ -448,31 +373,29 @@ static CollisionManifoldGenerationCallback g_ManifoldGenerators[NUM_COLLIDER_TYP
 
 
 //-----------------------------------------------------------------------------------------------
-Manifold2D Collider2D::GetCollisionManifold( const Collider2D* other ) const
+Manifold GJK2DCollisionResolver::GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider )
 {
-	if ( other == nullptr
-		 || !m_rigidbody->IsEnabled()
-		 || !other->m_rigidbody->IsEnabled()
-		 || !DoAABBsOverlap2D( GetWorldBounds(), other->GetWorldBounds() ) )
+	if ( !collider->IsEnabled()
+		 || !otherCollider->IsEnabled() )
 	{
-		return Manifold2D();
+		return Manifold();
 	}
 
-	eCollider2DType myType = m_type;
-	eCollider2DType otherType = other->m_type;
+	eColliderType myType = collider->GetType();
+	eColliderType otherType = otherCollider->GetType();
 
 	if ( myType <= otherType )
 	{
-		int idx = otherType * NUM_COLLIDER_TYPES + myType;
+		int idx = otherType * NUM_2D_COLLIDER_TYPES + myType;
 		CollisionManifoldGenerationCallback manifoldGenerator = g_ManifoldGenerators[idx];
-		return manifoldGenerator( this, other );
+		return manifoldGenerator( collider, otherCollider );
 	}
 	else
 	{
 		// flip the types when looking into the index.
-		int idx = myType * NUM_COLLIDER_TYPES + otherType;
+		int idx = myType * NUM_2D_COLLIDER_TYPES + otherType;
 		CollisionManifoldGenerationCallback manifoldGenerator = g_ManifoldGenerators[idx];
-		Manifold2D manifold = manifoldGenerator( other, this );
+		Manifold manifold = manifoldGenerator( otherCollider, collider );
 		manifold.normal *= -1.f;
 		return manifold;
 	}
@@ -480,16 +403,136 @@ Manifold2D Collider2D::GetCollisionManifold( const Collider2D* other ) const
 
 
 //-----------------------------------------------------------------------------------------------
-float Collider2D::GetBounceWith( const Collider2D* otherCollider ) const
+float GetRotationalThingOverMomentOfInertia( Rigidbody* rigidbody, const Manifold& collisionManifold )
 {
-	return m_material.m_bounciness * otherCollider->m_material.m_bounciness;
+	Vec2 centerOfMassToContact = collisionManifold.GetCenterOfContactEdge().XY() - rigidbody->GetWorldPosition().XY();
+
+	// This algorithm uses normal from b to a, so flip our normal
+	float rigidbodyRotationOverInertia = DotProduct2D( centerOfMassToContact.GetRotated90Degrees(), -collisionManifold.normal.XY() );
+
+	rigidbodyRotationOverInertia *= rigidbodyRotationOverInertia;
+
+	rigidbodyRotationOverInertia /= rigidbody->GetMomentOfInertia();
+
+	return rigidbodyRotationOverInertia;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-float Collider2D::GetFrictionWith( const Collider2D* otherCollider ) const
+float CalculateImpulseAgainstImmoveableObject( Rigidbody* moveableRigidbody, Rigidbody* immoveableRigidbody, const Manifold& collisionManifold )
 {
-	float combinedFriction = m_material.m_friction * otherCollider->m_material.m_friction;
-	combinedFriction = ClampZeroToOne( combinedFriction );
-	return combinedFriction;
+	float e = moveableRigidbody->GetCollider()->GetBounceWith( immoveableRigidbody->GetCollider() );
+
+	Vec3 initialVelocity1 = immoveableRigidbody->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
+	Vec3 initialVelocity2 = moveableRigidbody->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
+	Vec2 differenceOfInitialVelocities = initialVelocity2.XY() - initialVelocity1.XY();
+
+	float numerator = ( 1.f + e ) * DotProduct2D( differenceOfInitialVelocities, -collisionManifold.normal.XY() );
+
+	float moveableRigidbodyRotation = GetRotationalThingOverMomentOfInertia( moveableRigidbody, collisionManifold );
+
+	float inverseMassSum = moveableRigidbody->GetInverseMass();
+
+	float denominator = inverseMassSum + moveableRigidbodyRotation;
+
+	float impulseMagnitude = numerator / denominator;
+	return impulseMagnitude;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+float CalculateImpulseBetweenMoveableObjects( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
+{
+	Vec3 initialVelocity1 = rigidbody1->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
+	Vec3 initialVelocity2 = rigidbody2->GetImpactVelocityAtPoint( collisionManifold.GetCenterOfContactEdge() );
+	Vec2 differenceOfInitialVelocities = initialVelocity2.XY() - initialVelocity1.XY();
+
+	float e = rigidbody1->GetCollider()->GetBounceWith( rigidbody2->GetCollider() );
+
+	// This algorithm uses normal from b to a, so flip our normal
+	float numerator = ( 1.f + e ) * DotProduct2D( differenceOfInitialVelocities, -collisionManifold.normal.XY() );
+
+	float rigidbody1Rotational = GetRotationalThingOverMomentOfInertia( rigidbody1, collisionManifold );
+	float rigidbody2Rotational = GetRotationalThingOverMomentOfInertia( rigidbody2, collisionManifold );
+
+	float inverseMassSum = rigidbody1->GetInverseMass() + rigidbody2->GetInverseMass();
+
+	float denominator = inverseMassSum + rigidbody1Rotational + rigidbody2Rotational;
+
+	float impulseMagnitude = numerator / denominator;
+	return impulseMagnitude;
+
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void GJK2DCollisionResolver::ApplyCollisionImpulses( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
+{
+	Manifold tangentManifold = collisionManifold;
+	tangentManifold.normal = Vec3( collisionManifold.normal.XY().GetRotatedMinus90Degrees(), 0.f );
+
+	//DebugAddWorldArrow( collisionManifold.GetCenterOfContactEdge(), collisionManifold.GetCenterOfContactEdge() + collisionManifold.normal, Rgba8::BLUE );
+	//DebugAddWorldArrow( tangentManifold.GetCenterOfContactEdge(), tangentManifold.GetCenterOfContactEdge() + tangentManifold.normal, Rgba8::GREEN );
+
+	// Handle dynamic vs dynamic
+	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC
+		 && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		float normalImpulseMagnitude = CalculateImpulseBetweenMoveableObjects( rigidbody1, rigidbody2, collisionManifold );
+		Vec2 impulsePosition1 = GetNearestPointOnLineSegment2D( rigidbody1->GetCenterOfMass().XY(), collisionManifold.contactPoint1.XY(), collisionManifold.contactPoint2.XY() );
+		Vec2 impulsePosition2 = GetNearestPointOnLineSegment2D( rigidbody2->GetCenterOfMass().XY(), collisionManifold.contactPoint1.XY(), collisionManifold.contactPoint2.XY() );
+
+		rigidbody1->ApplyImpulseAt( normalImpulseMagnitude * -collisionManifold.normal, Vec3( impulsePosition1, 0.f ) );
+		rigidbody2->ApplyImpulseAt( normalImpulseMagnitude * collisionManifold.normal, Vec3( impulsePosition2, 0.f ) );
+
+		float tangentImpulseMagnitude = CalculateImpulseBetweenMoveableObjects( rigidbody1, rigidbody2, tangentManifold );
+		if ( fabsf( tangentImpulseMagnitude ) > fabsf( normalImpulseMagnitude ) )
+		{
+			tangentImpulseMagnitude = SignFloat( tangentImpulseMagnitude ) * fabsf( normalImpulseMagnitude );
+		}
+
+		rigidbody1->ApplyImpulseAt( tangentImpulseMagnitude * -tangentManifold.normal, tangentManifold.GetCenterOfContactEdge() );
+		rigidbody2->ApplyImpulseAt( tangentImpulseMagnitude * tangentManifold.normal, tangentManifold.GetCenterOfContactEdge() );
+
+		return;
+	}
+
+	// Handle other valid simulation mode combinations
+	Rigidbody* immoveableObj = nullptr;
+	Rigidbody* moveableObj = nullptr;
+	Manifold normalManifold = collisionManifold;
+	if ( ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC || rigidbody1->GetSimulationMode() == SIMULATION_MODE_KINEMATIC )
+		 && rigidbody2->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		immoveableObj = rigidbody1;
+		moveableObj = rigidbody2;
+	}
+	else if ( ( rigidbody2->GetSimulationMode() == SIMULATION_MODE_STATIC || rigidbody2->GetSimulationMode() == SIMULATION_MODE_KINEMATIC )
+			  && rigidbody1->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+	{
+		immoveableObj = rigidbody2;
+		moveableObj = rigidbody1;
+
+		normalManifold.normal *= -1.f;
+		tangentManifold.normal = Vec3( collisionManifold.normal.XY().GetRotatedMinus90Degrees(), 0.f );
+	}
+	else
+	{
+		// Don't apply impulse in this situation
+		return;
+	}
+
+	float impulseMagnitude = CalculateImpulseAgainstImmoveableObject( moveableObj, immoveableObj, normalManifold );
+	Vec2 impulsePosition = GetNearestPointOnLineSegment2D( moveableObj->GetCenterOfMass().XY(), normalManifold.contactPoint1.XY(), normalManifold.contactPoint2.XY() );
+
+	moveableObj->ApplyImpulseAt( impulseMagnitude * normalManifold.normal, Vec3( impulsePosition, 0.f ) );
+
+	float tangentMagnitude = CalculateImpulseAgainstImmoveableObject( moveableObj, immoveableObj, tangentManifold );
+	float friction = rigidbody1->GetCollider()->GetFrictionWith( rigidbody2->GetCollider() );
+	if ( fabsf( tangentMagnitude ) > fabsf( impulseMagnitude * friction ) )
+	{
+		tangentMagnitude = SignFloat( tangentMagnitude ) * fabsf( impulseMagnitude * friction );
+	}
+
+	moveableObj->ApplyImpulseAt( tangentMagnitude * tangentManifold.normal, tangentManifold.GetCenterOfContactEdge() );
 }
