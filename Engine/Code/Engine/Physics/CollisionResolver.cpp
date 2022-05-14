@@ -1,4 +1,5 @@
 #include "Engine/Physics/CollisionResolver.hpp"
+#include "Engine/Physics/CollisionResolvers/CollisionPolicies.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/Collider.hpp"
@@ -6,23 +7,11 @@
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::ResolveCollisions( std::vector<Collider*>& colliders, uint frameNum )
+void CollisionResolver<class CollisionPolicy>::ResolveCollisions( std::vector<Collider*>& colliders, uint frameNum )
 {
 	DetectCollisions( colliders, frameNum );					// determine all pairs of intersecting colliders
 	ClearOldCollisions( frameNum );
 	ResolveCollisions();
-
-	//for ( int colliderIdx = 0; colliderIdx < (int)colliders.size(); ++colliderIdx )
-	//{
-	//	Collider* collider = colliders[colliderIdx];
-	//	if ( collider == nullptr
-	//		 || !collider->IsEnabled() )
-	//	{
-	//		continue;
-	//	}
-
-	//	collider->UpdateWorldShape();
-	//}
 }
 
 
@@ -35,7 +24,8 @@ bool DoesCollisionInvolveATrigger( const Collision& collision )
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::DetectCollisions( const std::vector<Collider*>& colliders, uint frameNum )
+template <class CollisionPolicy>
+void CollisionResolver<class CollisionPolicy>::DetectCollisions( const std::vector<Collider*>& colliders, uint frameNum )
 {
 	for ( int colliderIdx = 0; colliderIdx < (int)colliders.size(); ++colliderIdx )
 	{
@@ -69,7 +59,7 @@ void CollisionResolver::DetectCollisions( const std::vector<Collider*>& collider
 				continue;
 			}
 
-			Manifold collisionManifold = GetCollisionManifoldForColliders( collider, otherCollider );
+			Manifold collisionManifold = CollisionPolicy::GetCollisionManifoldForColliders( collider, otherCollider );
 			
 			// Skip if no collision
 			if ( collisionManifold.normal == Vec3::ZERO )
@@ -95,7 +85,7 @@ void CollisionResolver::DetectCollisions( const std::vector<Collider*>& collider
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const
+void CollisionResolver<class CollisionPolicy>::InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const
 {
 	// Inverse collision from perspective of their collider
 	Collision theirCollision = collision;
@@ -161,7 +151,7 @@ void CollisionResolver::InvokeCollisionEvents( const Collision& collision, eColl
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::AddOrUpdateCollision( const Collision& collision )
+void CollisionResolver<class CollisionPolicy>::AddOrUpdateCollision( const Collision& collision )
 {
 	for ( int colIdx = 0; colIdx < (int)collisions.size(); ++colIdx )
 	{
@@ -180,7 +170,7 @@ void CollisionResolver::AddOrUpdateCollision( const Collision& collision )
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::ClearOldCollisions( uint frameNum )
+void CollisionResolver<class CollisionPolicy>::ClearOldCollisions( uint frameNum )
 {
 	std::vector<int> oldCollisionIds;
 
@@ -208,7 +198,7 @@ void CollisionResolver::ClearOldCollisions( uint frameNum )
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::ResolveCollisions()
+void CollisionResolver<class CollisionPolicy>::ResolveCollisions()
 {
 	for ( int collisionIdx = 0; collisionIdx < (int)collisions.size(); ++collisionIdx )
 	{
@@ -222,7 +212,8 @@ void CollisionResolver::ResolveCollisions()
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::ResolveCollision( const Collision& collision )
+template <class CollisionPolicy>
+void CollisionResolver<class CollisionPolicy>::ResolveCollision( const Collision& collision )
 {
 	Rigidbody* myRigidbody = collision.myCollider->GetRigidbody();
 	Rigidbody* theirRigidbody = collision.theirCollider->GetRigidbody();
@@ -238,12 +229,12 @@ void CollisionResolver::ResolveCollision( const Collision& collision )
 	}
 
 	CorrectCollidingRigidbodies( myRigidbody, theirRigidbody, collision.collisionManifold );
-	ApplyCollisionImpulses( myRigidbody, theirRigidbody, collision.collisionManifold );
+	CollisionPolicy::ApplyCollisionImpulses( myRigidbody, theirRigidbody, collision.collisionManifold );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void CollisionResolver::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
+void CollisionResolver<class CollisionPolicy>::CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold )
 {
 	// Push rigidbody 2 out completely
 	if ( rigidbody1->GetSimulationMode() == SIMULATION_MODE_STATIC

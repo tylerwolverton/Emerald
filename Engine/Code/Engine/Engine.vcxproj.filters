@@ -388,19 +388,10 @@
     <ClCompile Include="Physics\Rigidbody.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\CollisionResolver.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\PhysicsScene.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\PhysicsLayers.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Physics\PhysicsCommon.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Physics\3D\SphereCollider.cpp">
@@ -412,10 +403,13 @@
     <ClCompile Include="Physics\2D\DiscCollider.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\CollisionResolvers\GJK2DCollisionResolver.cpp">
+    <ClCompile Include="Physics\2D\PolygonCollider2D.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\2D\PolygonCollider2D.cpp">
+    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollision.hpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\CollisionResolvers\GJK2DCollision.hpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -747,11 +741,14 @@
     <ClInclude Include="Physics\CollisionResolver.hpp" />
     <ClInclude Include="Physics\PhysicsCommon.hpp" />
     <ClInclude Include="Physics\PhysicsLayers.hpp" />
-    <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />
     <ClInclude Include="Physics\3D\SphereCollider.hpp" />
     <ClInclude Include="Physics\3D\OBB3Collider.hpp" />
     <ClInclude Include="Physics\2D\DiscCollider.hpp" />
-    <ClInclude Include="Physics\CollisionResolvers\GJK2DCollisionResolver.hpp" />
     <ClInclude Include="Physics\2D\PolygonCollider2D.hpp" />
+    <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Physics\PhysicsScene.inl" />
+    <None Include="Physics\CollisionResolver.inl" />
   </ItemGroup>
 </Project>

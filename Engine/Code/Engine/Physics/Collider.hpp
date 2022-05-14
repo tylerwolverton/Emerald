@@ -39,6 +39,7 @@ enum eColliderType
 // Interface for all Collider objects used with our Physics system
 class Collider
 {
+	template <class CollisionPolicy>
 	friend class PhysicsScene;
 	friend class Rigidbody;
 

@@ -222,12 +222,10 @@
     <ClCompile Include="OS\Window.cpp" />
     <ClCompile Include="Physics\3D\SphereCollider.cpp" />
     <ClCompile Include="Physics\Collider.cpp" />
-    <ClCompile Include="Physics\CollisionResolver.cpp" />
-    <ClCompile Include="Physics\CollisionResolvers\GJK2DCollisionResolver.cpp" />
-    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollisionResolver.cpp" />
+    <ClCompile Include="Physics\CollisionResolvers\GJK2DCollision.hpp" />
+    <ClCompile Include="Physics\CollisionResolvers\Simple3DCollision.hpp" />
     <ClCompile Include="Physics\PhysicsCommon.cpp" />
     <ClCompile Include="Physics\PhysicsLayers.cpp" />
-    <ClCompile Include="Physics\PhysicsScene.cpp" />
     <ClCompile Include="Physics\PhysicsSystem.cpp" />
     <ClCompile Include="Physics\Rigidbody.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
@@ -363,8 +361,7 @@
     <ClInclude Include="Physics\3D\SphereCollider.hpp" />
     <ClInclude Include="Physics\Collider.hpp" />
     <ClInclude Include="Physics\CollisionResolver.hpp" />
-    <ClInclude Include="Physics\CollisionResolvers\GJK2DCollisionResolver.hpp" />
-    <ClInclude Include="Physics\CollisionResolvers\Simple3DCollisionResolver.hpp" />
+    <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
     <ClInclude Include="Physics\PhysicsCommon.hpp" />
     <ClInclude Include="Physics\PhysicsLayers.hpp" />
@@ -422,6 +419,10 @@
     <ClInclude Include="ZephyrCore\ZephyrToken.hpp" />
     <ClInclude Include="ZephyrCore\ZephyrUtils.hpp" />
     <ClInclude Include="ZephyrCore\ZephyrVirtualMachine.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Physics\CollisionResolver.inl" />
+    <None Include="Physics\PhysicsScene.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

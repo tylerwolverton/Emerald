@@ -5,6 +5,7 @@
 
 //-----------------------------------------------------------------------------------------------
 struct Rgba8;
+template <class CollisionPolicy>
 class PhysicsScene;
 class Collider;
 class RenderContext;
@@ -23,6 +24,7 @@ enum eSimulationMode : unsigned int
 //-----------------------------------------------------------------------------------------------
 class Rigidbody
 {
+	template <class CollisionPolicy>
 	friend class PhysicsScene;
 
 public:
@@ -84,8 +86,8 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	PhysicsScene* m_scene = nullptr;			// which scene created/owns this object
-	Vec3 m_worldPosition = Vec3::ZERO;			// where in the world is this rigidbody
+	PhysicsScene<CollisionPolicy>* m_scene = nullptr;			// which scene created/owns this object
+	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 
 	Vec3 m_sumOfForces = Vec3::ZERO;

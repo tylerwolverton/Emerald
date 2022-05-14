@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------------------------------
 class SphereCollider : public Collider
 {
+	template <class CollisionPolicy>
 	friend class PhysicsScene;
 	friend class Rigidbody;
 

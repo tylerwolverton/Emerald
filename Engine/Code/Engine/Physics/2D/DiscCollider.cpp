@@ -126,6 +126,7 @@ Vec2 DiscCollider::GetFarthestPointInDirection( const Vec2& direction ) const
 //-----------------------------------------------------------------------------------------------
 void DiscCollider::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const
 {
+	UNUSED( borderColor ); UNUSED( fillColor );
 	/*DrawDisc2D( m_worldPosition, m_radius, fillColor );
 	DrawRing2D( m_worldPosition, m_radius, borderColor, .04f );
 

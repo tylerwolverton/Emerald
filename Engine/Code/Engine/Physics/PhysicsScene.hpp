@@ -7,12 +7,14 @@
 
 //-----------------------------------------------------------------------------------------------
 struct OBB3;
+template <class CollisionPolicy>
 class CollisionResolver;
 
 typedef void ( *AffectorFn )( Rigidbody* rigidbody );
 
 
 //-----------------------------------------------------------------------------------------------
+template <class CollisionPolicy>
 class PhysicsScene
 {
 	friend class PhysicsSystem;
@@ -26,7 +28,8 @@ public:
 	void ApplyAffectors();
 	void AddAffector( AffectorFn affectorFunc );
 
-	void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
+	void ResolveCollisions( int frameNum );
+	//void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
 	// TODO: Make a cylinder def object
 	Rigidbody* CreateRigidbody();
@@ -57,9 +60,11 @@ private:
 	std::vector<int> m_garbageColliderIndexes;
 
 	std::vector<AffectorFn> m_affectors;
-
-	CollisionResolver* m_collisionResolver = nullptr;
+	//template <class CollisionPolicy>
+	CollisionResolver<CollisionPolicy> m_collisionResolver;// = nullptr;
 };
+
+#include "Engine/Physics/PhysicsScene.inl"
 
 // ApplyAffectors
 //  Data: Rigidbodies, Affectors

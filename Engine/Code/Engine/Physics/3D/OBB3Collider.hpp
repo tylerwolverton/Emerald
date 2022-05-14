@@ -6,6 +6,7 @@
 //-----------------------------------------------------------------------------------------------
 class OBB3Collider : public Collider
 {
+	template <class CollisionPolicy>
 	friend class PhysicsScene;
 	friend class Rigidbody;
 

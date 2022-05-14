@@ -8,7 +8,8 @@
 
 //-----------------------------------------------------------------------------------------------
 class Entity;
-class CollisionResolver;
+//class CollisionResolver;
+template <class CollisionPolicy>
 class PhysicsScene;
 class World;
 struct MapData;
@@ -73,10 +74,11 @@ protected:
 	virtual RaycastResult Raycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const = 0;
 
 protected:
-	std::string				m_name;
-	World*					m_world = nullptr;
-	PhysicsScene*			m_physicsScene = nullptr;
-	CollisionResolver*		m_curCollisionResolver = nullptr;
+	std::string							m_name;
+	World*								m_world = nullptr;
+	template <class CollisionPolicy>
+	PhysicsScene<CollisionPolicy>*		m_physicsScene = nullptr;
+	//CollisionResolver*		m_curCollisionResolver = nullptr;
 
 	// Multiplayer TODO: Make this into an array
 	Vec3					m_playerStartPos = Vec3::ZERO;
