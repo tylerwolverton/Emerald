@@ -8,9 +8,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Entity;
-//class CollisionResolver;
-template <class CollisionPolicy>
-class PhysicsScene;
+class PhysicsSceneBase;
 class World;
 struct MapData;
 struct MapEntityDefinition;
@@ -76,9 +74,9 @@ protected:
 protected:
 	std::string							m_name;
 	World*								m_world = nullptr;
-	template <class CollisionPolicy>
-	PhysicsScene<CollisionPolicy>*		m_physicsScene = nullptr;
-	//CollisionResolver*		m_curCollisionResolver = nullptr;
+	
+	PhysicsSceneBase*					m_physicsScene = nullptr;
+	//CollisionResolver*				m_curCollisionResolver = nullptr;
 
 	// Multiplayer TODO: Make this into an array
 	Vec3					m_playerStartPos = Vec3::ZERO;

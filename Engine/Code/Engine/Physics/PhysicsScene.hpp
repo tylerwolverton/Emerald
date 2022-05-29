@@ -1,26 +1,24 @@
 #pragma once
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
+#include "Engine/Physics/CollisionResolver.hpp"
 
 #include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
 struct OBB3;
-template <class CollisionPolicy>
-class CollisionResolver;
 
 typedef void ( *AffectorFn )( Rigidbody* rigidbody );
 
 
 //-----------------------------------------------------------------------------------------------
-template <class CollisionPolicy>
-class PhysicsScene
+class PhysicsSceneBase
 {
 	friend class PhysicsSystem;
 
-public:	
-	virtual ~PhysicsScene();
+public:
+	virtual ~PhysicsSceneBase();
 	void DebugRender() const;
 
 	void Reset();
@@ -28,7 +26,7 @@ public:
 	void ApplyAffectors();
 	void AddAffector( AffectorFn affectorFunc );
 
-	void ResolveCollisions( int frameNum );
+	virtual void ResolveCollisions( int frameNum ) = 0;
 	//void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
 	// TODO: Make a cylinder def object
@@ -51,20 +49,37 @@ private:
 	void DestroyAllRigidbodies();
 	void DestroyAllColliders();
 
-private:
+protected:
 	// TODO: Change these from pointers to flat data
 	std::vector<Rigidbody*> m_rigidbodies;
 	std::vector<Collider*> m_colliders;
-	
+
 	std::vector<int> m_garbageRigidbodyIndexes;
 	std::vector<int> m_garbageColliderIndexes;
 
 	std::vector<AffectorFn> m_affectors;
 	//template <class CollisionPolicy>
+};
+
+
+//-----------------------------------------------------------------------------------------------
+template <class CollisionPolicy>
+class PhysicsScene : public PhysicsSceneBase
+{
+public:
+	virtual void ResolveCollisions( int frameNum ) override;
+
+private:
+	template <class CollisionPolicy>
 	CollisionResolver<CollisionPolicy> m_collisionResolver;// = nullptr;
 };
 
-#include "Engine/Physics/PhysicsScene.inl"
+
+template <class CollisionPolicy>
+void PhysicsScene<CollisionPolicy>::ResolveCollisions( int frameNum )
+{
+	m_collisionResolver.ResolveCollisions( m_colliders, frameNum );
+}
 
 // ApplyAffectors
 //  Data: Rigidbodies, Affectors

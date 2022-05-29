@@ -19,7 +19,7 @@ class PhysicsSystem
 public:
 	void Startup( Clock* gameClock );
 	void BeginFrame() {}
-	void Update( PhysicsScene<CollisionPolicy>& scene );
+	void Update( PhysicsSceneBase& scene );
 	void EndFrame() {}
 	void Shutdown();
 
@@ -30,7 +30,7 @@ public:
 	static bool SetPhysicsUpdateRate( EventArgs* args );
 
 protected:
-	void AdvanceSimulation( PhysicsScene<CollisionPolicy>& scene, float deltaSeconds );
+	void AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds );
 	void MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds );
 	
 private:

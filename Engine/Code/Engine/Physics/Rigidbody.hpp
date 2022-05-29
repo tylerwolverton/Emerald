@@ -24,8 +24,8 @@ enum eSimulationMode : unsigned int
 //-----------------------------------------------------------------------------------------------
 class Rigidbody
 {
-	template <class CollisionPolicy>
-	friend class PhysicsScene;
+	//template <class CollisionPolicy>
+	friend class PhysicsSceneBase;
 
 public:
 	void Update( float deltaSeconds );
@@ -86,7 +86,7 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	PhysicsScene<CollisionPolicy>* m_scene = nullptr;			// which scene created/owns this object
+	PhysicsSceneBase* m_scene = nullptr;						// which scene created/owns this object
 	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 

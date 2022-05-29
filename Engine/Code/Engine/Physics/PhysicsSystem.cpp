@@ -35,7 +35,7 @@ void PhysicsSystem::Startup( Clock* gameClock )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Update( PhysicsScene<CollisionPolicy>& scene )
+void PhysicsSystem::Update( PhysicsSceneBase& scene )
 {
 	//while ( m_stepTimer->CheckAndDecrement() )
 	//{
@@ -47,11 +47,11 @@ void PhysicsSystem::Update( PhysicsScene<CollisionPolicy>& scene )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::AdvanceSimulation( PhysicsScene<CollisionPolicy>& scene, float deltaSeconds )
+void PhysicsSystem::AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds )
 {
 	scene.ApplyAffectors(); 															// apply gravity (or other scene wide effects) to all dynamic objects
 	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 								// apply an euler step to all rigidbodies, and reset per-frame data
-	scene.ResolveCollisions( m_frameNum ); 											// resolve all collisions, firing appropriate events
+	scene.ResolveCollisions( m_frameNum ); 												// resolve all collisions, firing appropriate events
 	scene.CleanupDestroyedObjects();  													// destroy objects 
 
 	++m_frameNum;

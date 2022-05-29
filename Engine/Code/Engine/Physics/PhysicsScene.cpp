@@ -10,14 +10,14 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PhysicsScene<typename CollisionResolver>::~PhysicsScene()
+PhysicsSceneBase::~PhysicsSceneBase()
 {
 	Reset();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::DebugRender() const
+void PhysicsSceneBase::DebugRender() const
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -27,7 +27,7 @@ void PhysicsScene<typename CollisionResolver>::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody* PhysicsScene<typename CollisionResolver>::CreateRigidbody()
+Rigidbody* PhysicsSceneBase::CreateRigidbody()
 {
 	Rigidbody* newRigidbody = new Rigidbody();
 	m_rigidbodies.push_back( newRigidbody );
@@ -37,7 +37,7 @@ Rigidbody* PhysicsScene<typename CollisionResolver>::CreateRigidbody()
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PhysicsScene<typename CollisionResolver>::CreateDiscCollider( float radius, const Vec3& localPosition )
+Collider* PhysicsSceneBase::CreateDiscCollider( float radius, const Vec3& localPosition )
 {
 	DiscCollider* collider = new DiscCollider( radius, localPosition );
 	PhysicsMaterial material;
@@ -50,7 +50,7 @@ Collider* PhysicsScene<typename CollisionResolver>::CreateDiscCollider( float ra
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PhysicsScene<typename CollisionResolver>::CreateDiscTrigger( float radius, const Vec3& localPosition /*= Vec3::ZERO */ )
+Collider* PhysicsSceneBase::CreateDiscTrigger( float radius, const Vec3& localPosition /*= Vec3::ZERO */ )
 {
 	DiscCollider* collider = new DiscCollider( radius, localPosition );
 	collider->m_isTrigger = true;
@@ -61,7 +61,7 @@ Collider* PhysicsScene<typename CollisionResolver>::CreateDiscTrigger( float rad
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PhysicsScene<typename CollisionResolver>::CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition )
+Collider* PhysicsSceneBase::CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition )
 {
 	PolygonCollider2D* collider = new PolygonCollider2D( polygon, localPosition );
 	PhysicsMaterial material;
@@ -74,7 +74,7 @@ Collider* PhysicsScene<typename CollisionResolver>::CreatePolygon2Collider( cons
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PhysicsScene<typename CollisionResolver>::CreateSphereCollider( float radius, const Vec3& localPosition )
+Collider* PhysicsSceneBase::CreateSphereCollider( float radius, const Vec3& localPosition )
 {
 	SphereCollider* collider = new SphereCollider( radius, localPosition );
 	PhysicsMaterial material;
@@ -87,7 +87,7 @@ Collider* PhysicsScene<typename CollisionResolver>::CreateSphereCollider( float 
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PhysicsScene<typename CollisionResolver>::CreateOBB3Collider( const OBB3& box, const Vec3& localPosition )
+Collider* PhysicsSceneBase::CreateOBB3Collider( const OBB3& box, const Vec3& localPosition )
 {
 	OBB3Collider* collider = new OBB3Collider( box, localPosition );
 	PhysicsMaterial material;
@@ -100,7 +100,7 @@ Collider* PhysicsScene<typename CollisionResolver>::CreateOBB3Collider( const OB
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::Reset()
+void PhysicsSceneBase::Reset()
 {
 	DestroyAllColliders();
 	DestroyAllRigidbodies();
@@ -110,7 +110,7 @@ void PhysicsScene<typename CollisionResolver>::Reset()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::ApplyAffectors()
+void PhysicsSceneBase::ApplyAffectors()
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -127,22 +127,14 @@ void PhysicsScene<typename CollisionResolver>::ApplyAffectors()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::AddAffector( AffectorFn affectorFunc )
+void PhysicsSceneBase::AddAffector( AffectorFn affectorFunc )
 {
 	m_affectors.push_back( affectorFunc );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-//template <typename CollisionResolver>
-void PhysicsScene<typename CollisionResolver>::ResolveCollisions( int frameNum )
-{
-	m_collisionResolver.ResolveCollisions( m_colliders, frameNum );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::DestroyRigidbody( Rigidbody* rigidbody )
+void PhysicsSceneBase::DestroyRigidbody( Rigidbody* rigidbody )
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -157,7 +149,7 @@ void PhysicsScene<typename CollisionResolver>::DestroyRigidbody( Rigidbody* rigi
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::DestroyCollider( Collider* collider )
+void PhysicsSceneBase::DestroyCollider( Collider* collider )
 {
 	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
 	{
@@ -172,7 +164,7 @@ void PhysicsScene<typename CollisionResolver>::DestroyCollider( Collider* collid
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::CleanupDestroyedObjects()
+void PhysicsSceneBase::CleanupDestroyedObjects()
 {
 	// Cleanup rigidbodies
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_garbageRigidbodyIndexes.size(); ++rigidbodyIdx )
@@ -195,7 +187,7 @@ void PhysicsScene<typename CollisionResolver>::CleanupDestroyedObjects()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::DestroyAllRigidbodies()
+void PhysicsSceneBase::DestroyAllRigidbodies()
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -205,7 +197,7 @@ void PhysicsScene<typename CollisionResolver>::DestroyAllRigidbodies()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene<typename CollisionResolver>::DestroyAllColliders()
+void PhysicsSceneBase::DestroyAllColliders()
 {
 	for ( int colliderIdx = 0; colliderIdx < (int)m_colliders.size(); ++colliderIdx )
 	{

@@ -412,6 +412,9 @@
     <ClCompile Include="Physics\CollisionResolvers\GJK2DCollision.hpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\PhysicsScene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -748,7 +751,6 @@
     <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Physics\PhysicsScene.inl" />
     <None Include="Physics\CollisionResolver.inl" />
   </ItemGroup>
 </Project>
