@@ -49,7 +49,7 @@ void PhysicsSystem::Update( PhysicsSceneBase& scene )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystem::AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds )
 {
-	scene.ApplyAffectors(); 															// apply gravity (or other scene wide effects) to all dynamic objects
+	ApplyAffectors( scene.m_rigidbodies, scene.m_affectors ); 							// apply gravity (or other scene wide effects) to all dynamic objects
 	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 								// apply an euler step to all rigidbodies, and reset per-frame data
 	scene.ResolveCollisions( m_frameNum ); 												// resolve all collisions, firing appropriate events
 	scene.CleanupDestroyedObjects();  													// destroy objects 
@@ -59,7 +59,23 @@ void PhysicsSystem::AdvanceSimulation( PhysicsSceneBase& scene, float deltaSecon
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds )
+void PhysicsSystem::ApplyAffectors( RigidbodyVector& rigidbodies, const AffectorVector& affectors )
+{
+	for ( auto& rigidbody : rigidbodies )
+	{
+		if ( rigidbody->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
+		{
+			for ( const auto& affector : affectors )
+			{
+				affector( rigidbody );
+			}
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PhysicsSystem::MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSeconds )
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)rigidbodies.size(); ++rigidbodyIdx )
 	{

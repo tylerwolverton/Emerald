@@ -110,23 +110,6 @@ void PhysicsSceneBase::Reset()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSceneBase::ApplyAffectors()
-{
-	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_rigidbodies.size(); ++rigidbodyIdx )
-	{
-		Rigidbody*& rigidbody = m_rigidbodies[rigidbodyIdx];
-		if ( rigidbody->GetSimulationMode() == SIMULATION_MODE_DYNAMIC )
-		{
-			for ( const auto& affector : m_affectors )
-			{
-				affector( rigidbody );
-			}
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void PhysicsSceneBase::AddAffector( AffectorFn affectorFunc )
 {
 	m_affectors.push_back( affectorFunc );

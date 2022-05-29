@@ -31,7 +31,8 @@ public:
 
 protected:
 	void AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds );
-	void MoveRigidbodies( std::vector<Rigidbody*>& rigidbodies, float deltaSeconds );
+	void ApplyAffectors( RigidbodyVector& rigidbodies, const AffectorVector& affectors );
+	void MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSeconds );
 	
 private:
 	Clock* m_gameClock = nullptr;

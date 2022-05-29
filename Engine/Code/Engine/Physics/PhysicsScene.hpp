@@ -10,6 +10,9 @@
 struct OBB3;
 
 typedef void ( *AffectorFn )( Rigidbody* rigidbody );
+typedef std::vector<Rigidbody*> RigidbodyVector;
+typedef std::vector<Collider*> ColliderVector;
+typedef std::vector<AffectorFn> AffectorVector;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -23,13 +26,11 @@ public:
 
 	void Reset();
 
-	void ApplyAffectors();
 	void AddAffector( AffectorFn affectorFunc );
 
 	virtual void ResolveCollisions( int frameNum ) = 0;
 	//void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
 
-	// TODO: Make a cylinder def object
 	Rigidbody* CreateRigidbody();
 
 	// 2D
@@ -51,13 +52,13 @@ private:
 
 protected:
 	// TODO: Change these from pointers to flat data
-	std::vector<Rigidbody*> m_rigidbodies;
+	RigidbodyVector m_rigidbodies;
 	std::vector<Collider*> m_colliders;
 
 	std::vector<int> m_garbageRigidbodyIndexes;
 	std::vector<int> m_garbageColliderIndexes;
 
-	std::vector<AffectorFn> m_affectors;
+	AffectorVector m_affectors;
 	//template <class CollisionPolicy>
 };
 
