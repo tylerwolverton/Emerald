@@ -5,10 +5,15 @@
 #include "Engine/Physics/Manifold.hpp"
 
 #include <string>
+#include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
 class Collider;
+class Rigidbody;
+template <class CollisionPolicy>
+class PhysicsSystem;
+class Simple3DCollision;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -39,6 +44,17 @@ public:
 	Collider* theirCollider = nullptr;
 	Manifold collisionManifold;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef void ( *AffectorFn )( Rigidbody* rigidbody );
+// TODO: Change these from pointers to flat data
+typedef std::vector<Rigidbody*> RigidbodyVector;
+typedef std::vector<Collider*> ColliderVector;
+typedef std::vector<Collision> CollisionVector;
+typedef std::vector<AffectorFn> AffectorVector;
+
+typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
 
 
 //-----------------------------------------------------------------------------------------------

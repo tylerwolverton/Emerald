@@ -3,9 +3,9 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 

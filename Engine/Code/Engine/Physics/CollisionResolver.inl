@@ -1,6 +1,5 @@
 //#include "Engine/Physics/CollisionResolver.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Physics/CollisionResolvers/CollisionPolicies.hpp"
@@ -8,16 +7,17 @@
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::ResolveCollisions( std::vector<Collider*>& colliders, uint frameNum )
+void CollisionResolver<CollisionPolicy>::ResolveCollisions( std::vector<Collider*>& colliders, CollisionVector& collisions, uint frameNum )
 {
-	DetectCollisions( colliders, frameNum );					// determine all pairs of intersecting colliders
-	ClearOldCollisions( frameNum );
-	ResolveCollisions();
+	DetectCollisions( colliders, collisions, frameNum );					// determine all pairs of intersecting colliders
+	ClearOldCollisions( collisions, frameNum );
+	ResolveCollisions( collisions );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool DoesCollisionInvolveATrigger( const Collision& collision )
+template <class CollisionPolicy>
+bool CollisionResolver<CollisionPolicy>::DoesCollisionInvolveATrigger( const Collision& collision )
 {
 	return collision.myCollider->IsTrigger()
 		|| collision.theirCollider->IsTrigger();
@@ -26,7 +26,7 @@ bool DoesCollisionInvolveATrigger( const Collision& collision )
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::DetectCollisions( const std::vector<Collider*>& colliders, uint frameNum )
+void CollisionResolver<CollisionPolicy>::DetectCollisions( const std::vector<Collider*>& colliders, CollisionVector& collisions, uint frameNum )
 {
 	for ( int colliderIdx = 0; colliderIdx < (int)colliders.size(); ++colliderIdx )
 	{
@@ -79,7 +79,7 @@ void CollisionResolver<CollisionPolicy>::DetectCollisions( const std::vector<Col
 				collision.collisionManifold = collisionManifold;
 			}
 
-			AddOrUpdateCollision( collision );
+			AddOrUpdateCollision( collisions, collision );
 		}
 	}
 }
@@ -87,7 +87,7 @@ void CollisionResolver<CollisionPolicy>::DetectCollisions( const std::vector<Col
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const
+void CollisionResolver<CollisionPolicy>::InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType )
 {
 	// Inverse collision from perspective of their collider
 	Collision theirCollision = collision;
@@ -154,7 +154,7 @@ void CollisionResolver<CollisionPolicy>::InvokeCollisionEvents( const Collision&
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::AddOrUpdateCollision( const Collision& collision )
+void CollisionResolver<CollisionPolicy>::AddOrUpdateCollision( CollisionVector& collisions, const Collision& collision )
 {
 	for ( int colIdx = 0; colIdx < (int)collisions.size(); ++colIdx )
 	{
@@ -174,7 +174,7 @@ void CollisionResolver<CollisionPolicy>::AddOrUpdateCollision( const Collision& 
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::ClearOldCollisions( uint frameNum )
+void CollisionResolver<CollisionPolicy>::ClearOldCollisions( CollisionVector& collisions, uint frameNum )
 {
 	std::vector<int> oldCollisionIds;
 
@@ -203,7 +203,7 @@ void CollisionResolver<CollisionPolicy>::ClearOldCollisions( uint frameNum )
 
 //-----------------------------------------------------------------------------------------------
 template <class CollisionPolicy>
-void CollisionResolver<CollisionPolicy>::ResolveCollisions()
+void CollisionResolver<CollisionPolicy>::ResolveCollisions( CollisionVector& collisions )
 {
 	for ( int collisionIdx = 0; collisionIdx < (int)collisions.size(); ++collisionIdx )
 	{

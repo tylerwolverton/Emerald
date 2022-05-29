@@ -5,8 +5,7 @@
 //-----------------------------------------------------------------------------------------------
 class SphereCollider : public Collider
 {
-	template <class CollisionPolicy>
-	friend class PhysicsScene;
+	friend struct PhysicsScene;
 	friend class Rigidbody;
 
 public:

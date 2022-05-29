@@ -6,8 +6,7 @@
 //-----------------------------------------------------------------------------------------------
 class OBB3Collider : public Collider
 {
-	template <class CollisionPolicy>
-	friend class PhysicsScene;
+	friend struct PhysicsScene;
 	friend class Rigidbody;
 
 public:

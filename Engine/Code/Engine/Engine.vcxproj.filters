@@ -382,9 +382,6 @@
     <ClCompile Include="Physics\Collider.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\PhysicsSystem.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\Rigidbody.cpp">
       <Filter>Core</Filter>
     </ClCompile>

@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Physics/Manifold.hpp"
+#include "Engine/Physics/CollisionResolver.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -9,7 +10,7 @@ class Rigidbody;
 
 
 //-----------------------------------------------------------------------------------------------
-class NullCollision
+class NullCollision : public CollisionResolver<NullCollision>
 {
 public:
 	static Manifold GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider ) 
@@ -25,7 +26,7 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-class Simple3DCollision
+class Simple3DCollision : public CollisionResolver<Simple3DCollision>
 {
 public:
 	static Manifold GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider );
@@ -34,7 +35,7 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-class GJK2DCollision
+class GJK2DCollision : public CollisionResolver<GJK2DCollision>
 {
 public:
 	static Manifold GetCollisionManifoldForColliders( const Collider* collider, const Collider* otherCollider );

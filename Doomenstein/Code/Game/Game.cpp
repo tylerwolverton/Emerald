@@ -101,7 +101,7 @@ void Game::Startup()
 	m_uiSystem = new UISystem();
 	m_uiSystem->Startup( g_window, g_renderer );
 
-	m_physicsSystem = new PhysicsSystem();
+	m_physicsSystem = new PhysicsSystem3D();
 	m_physicsSystem->Startup( m_gameClock );
 
 	g_physicsConfig->PopulateFromXml();

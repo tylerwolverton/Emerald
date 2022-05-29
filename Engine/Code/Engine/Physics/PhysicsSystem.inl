@@ -1,13 +1,11 @@
-#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
-#include "Engine/Physics/CollisionResolver.hpp"
+#include "Engine/Physics/CollisionResolvers/CollisionPolicies.hpp"
 #include "Engine/Physics/Manifold.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
-#include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Time/Timer.hpp"
 
@@ -17,7 +15,8 @@ static float s_fixedDeltaSeconds = 1.0f / 120.0f;
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Startup( Clock* gameClock )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::Startup( Clock* gameClock )
 {
 	m_gameClock = gameClock;
 	if ( m_gameClock == nullptr )
@@ -35,7 +34,8 @@ void PhysicsSystem::Startup( Clock* gameClock )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Update( PhysicsSceneBase& scene )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::Update( PhysicsScene& scene )
 {
 	//while ( m_stepTimer->CheckAndDecrement() )
 	//{
@@ -47,19 +47,21 @@ void PhysicsSystem::Update( PhysicsSceneBase& scene )
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::AdvanceSimulation( PhysicsScene& scene, float deltaSeconds )
 {
-	ApplyAffectors( scene.m_rigidbodies, scene.m_affectors ); 							// apply gravity (or other scene wide effects) to all dynamic objects
-	MoveRigidbodies( scene.m_rigidbodies, deltaSeconds ); 								// apply an euler step to all rigidbodies, and reset per-frame data
-	scene.ResolveCollisions( m_frameNum ); 												// resolve all collisions, firing appropriate events
-	scene.CleanupDestroyedObjects();  													// destroy objects 
+	ApplyAffectors( scene.rigidbodies, scene.affectors ); 									// apply gravity (or other scene wide effects) to all dynamic objects
+	MoveRigidbodies( scene.rigidbodies, deltaSeconds ); 									// apply an euler step to all rigidbodies, and reset per-frame data
+	CollisionPolicy::ResolveCollisions( scene.colliders, scene.collisions, m_frameNum );	// resolve all collisions, firing appropriate events
+	scene.CleanupDestroyedObjects();  														// destroy objects 
 
 	++m_frameNum;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::ApplyAffectors( RigidbodyVector& rigidbodies, const AffectorVector& affectors )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::ApplyAffectors( RigidbodyVector& rigidbodies, const AffectorVector& affectors )
 {
 	for ( auto& rigidbody : rigidbodies )
 	{
@@ -75,7 +77,8 @@ void PhysicsSystem::ApplyAffectors( RigidbodyVector& rigidbodies, const Affector
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSeconds )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSeconds )
 {
 	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)rigidbodies.size(); ++rigidbodyIdx )
 	{
@@ -98,7 +101,8 @@ void PhysicsSystem::MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSe
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::Shutdown()
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::Shutdown()
 {
 	PTR_SAFE_DELETE( m_stepTimer );
 	PTR_SAFE_DELETE( m_physicsClock );
@@ -106,28 +110,32 @@ void PhysicsSystem::Shutdown()
 
 
 //-----------------------------------------------------------------------------------------------
-float PhysicsSystem::GetFixedDeltaSeconds() const
+template <class CollisionPolicy>
+float PhysicsSystem<CollisionPolicy>::GetFixedDeltaSeconds() const
 {
 	return s_fixedDeltaSeconds;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::SetFixedDeltaSeconds( float newDeltaSeconds )
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::SetFixedDeltaSeconds( float newDeltaSeconds )
 {
 	s_fixedDeltaSeconds = newDeltaSeconds;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsSystem::ResetFixedDeltaSecondsToDefault()
+template <class CollisionPolicy>
+void PhysicsSystem<CollisionPolicy>::ResetFixedDeltaSecondsToDefault()
 {
 	SetFixedDeltaSeconds( 1.f / 120.f );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool PhysicsSystem::SetPhysicsUpdateRate( EventArgs* args )
+template <class CollisionPolicy>
+bool PhysicsSystem<CollisionPolicy>::SetPhysicsUpdateRate( EventArgs* args )
 {
 	float hz = args->GetValue( "hz", 120.f );
 

@@ -2,6 +2,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Physics/Manifold.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 
 #include <vector>
 
@@ -26,22 +27,19 @@ template <class CollisionPolicy>
 class CollisionResolver
 {
 public:
-	virtual ~CollisionResolver() {};
-
-	virtual void ResolveCollisions( std::vector<Collider*>& colliders, uint frameNum );
+	static void ResolveCollisions( std::vector<Collider*>& colliders, CollisionVector& collisions, uint frameNum );
 
 protected:
-	void DetectCollisions( const std::vector<Collider*>& colliders, uint frameNum );
-	void ClearOldCollisions( uint frameNum );
-	void ResolveCollisions();
-	void ResolveCollision( const Collision& collision );
-	virtual void CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold );
+	static void DetectCollisions( const std::vector<Collider*>& colliders, CollisionVector& collisions, uint frameNum );
+	static void ClearOldCollisions( CollisionVector& collisions, uint frameNum );
+	static void ResolveCollisions( CollisionVector& collisions );
+	static void ResolveCollision( const Collision& collision );
+	static void CorrectCollidingRigidbodies( Rigidbody* rigidbody1, Rigidbody* rigidbody2, const Manifold& collisionManifold );
+	 
+	static void InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType );
+	static void AddOrUpdateCollision( CollisionVector& collisions, const Collision& collision );
 
-	void InvokeCollisionEvents( const Collision& collision, eCollisionEventType collisionType ) const;
-	void AddOrUpdateCollision( const Collision& collision );
-
-protected:
-	std::vector<Collision> collisions;
+	static bool DoesCollisionInvolveATrigger( const Collision& collision );
 };
 
 #include "Engine/Physics/CollisionResolver.inl"

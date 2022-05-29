@@ -10,7 +10,7 @@
 struct Vec2;
 struct Rgba8;
 struct Manifold;
-class PhysicsSystem;
+struct PhysicsScene;
 class Rigidbody;
 class RenderContext;
 class Collider;
@@ -39,8 +39,7 @@ enum eColliderType
 // Interface for all Collider objects used with our Physics system
 class Collider
 {
-	//template <class CollisionPolicy>
-	friend class PhysicsSceneBase;
+	friend struct PhysicsScene;
 	friend class Rigidbody;
 
 public: 
@@ -94,7 +93,7 @@ public:
 	Delegate<Collision> m_onTriggerLeaveDelegate;
 
 protected:
-	PhysicsSystem* m_system		= nullptr;			
+	PhysicsScene* m_system		= nullptr;			
 	Rigidbody* m_rigidbody		= nullptr;			// owning rigidbody, used for calculating world shape
 	eColliderType m_type		= COLLIDER_NONE;	// keep track of the type - will help with collision later
 	PhysicsMaterial m_material;

@@ -227,7 +227,6 @@
     <ClCompile Include="Physics\PhysicsCommon.cpp" />
     <ClCompile Include="Physics\PhysicsLayers.cpp" />
     <ClCompile Include="Physics\PhysicsScene.cpp" />
-    <ClCompile Include="Physics\PhysicsSystem.cpp" />
     <ClCompile Include="Physics\Rigidbody.cpp" />
     <ClCompile Include="Renderer\BitmapFont.cpp" />
     <ClCompile Include="Renderer\BufferAttribute.cpp" />

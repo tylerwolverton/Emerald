@@ -3,6 +3,7 @@
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Transform.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Time/Timer.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -22,7 +23,6 @@ class RandomNumberGenerator;
 class Camera;
 class GPUMesh;
 class Material;
-class PhysicsSystem;
 class TextBox;
 class Texture;
 class UIPanel;
@@ -88,7 +88,7 @@ public:
 	void			FreeLight( int lightIdx );
 	void			FreeAllLights();
 
-	PhysicsSystem*  GetCurrentPhysicsSystem() const									 { return m_physicsSystem; }
+	PhysicsSystem3D* GetCurrentPhysicsSystem() const												{ return m_physicsSystem; }
 
 	static bool		SetMouseSensitivity( EventArgs* args );
 	static bool		SetAmbientLightColor( EventArgs* args );
@@ -135,7 +135,7 @@ private:
 
 	EntityController* m_playerController = nullptr;
 
-	PhysicsSystem* m_physicsSystem = nullptr;
+	PhysicsSystem3D* m_physicsSystem = nullptr;
 
 	eGameState m_gameState = eGameState::LOADING;
 	bool m_isDebugRendering = false;

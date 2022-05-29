@@ -1,26 +1,23 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 
 #include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
-struct Manifold;
+struct PhysicsScene;
 class Clock;
 class Timer;
-class Rigidbody;
-class Collider;
 
 
 //-----------------------------------------------------------------------------------------------
+template <class CollisionPolicy>
 class PhysicsSystem
 {
 public:
 	void Startup( Clock* gameClock );
-	void BeginFrame() {}
-	void Update( PhysicsSceneBase& scene );
-	void EndFrame() {}
+	void Update( PhysicsScene& scene );
 	void Shutdown();
 
 	float GetFixedDeltaSeconds() const;
@@ -30,7 +27,7 @@ public:
 	static bool SetPhysicsUpdateRate( EventArgs* args );
 
 protected:
-	void AdvanceSimulation( PhysicsSceneBase& scene, float deltaSeconds );
+	void AdvanceSimulation( PhysicsScene& scene, float deltaSeconds );
 	void ApplyAffectors( RigidbodyVector& rigidbodies, const AffectorVector& affectors );
 	void MoveRigidbodies( RigidbodyVector& rigidbodies, float deltaSeconds );
 	
@@ -40,3 +37,5 @@ private:
 	Timer* m_stepTimer = nullptr;
 	uint m_frameNum = 0;
 };
+
+#include "Engine/Physics/PhysicsSystem.inl"

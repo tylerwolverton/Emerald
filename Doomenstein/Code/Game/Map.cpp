@@ -7,7 +7,6 @@
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
-#include "Engine/Physics/CollisionResolvers/Simple3DCollision.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -27,7 +26,7 @@ Map::Map( const MapData& mapData, World* world )
 	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
-	m_physicsScene = new PhysicsScene<Simple3DCollision>();
+	m_physicsScene = new PhysicsScene();
 	//m_curCollisionResolver = new Simple3DCollisionResolver();
 	//m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
-#include "Engine/Physics/CollisionResolver.hpp"
 
 #include <vector>
 
@@ -9,28 +9,29 @@
 //-----------------------------------------------------------------------------------------------
 struct OBB3;
 
-typedef void ( *AffectorFn )( Rigidbody* rigidbody );
-typedef std::vector<Rigidbody*> RigidbodyVector;
-typedef std::vector<Collider*> ColliderVector;
-typedef std::vector<AffectorFn> AffectorVector;
-
 
 //-----------------------------------------------------------------------------------------------
-class PhysicsSceneBase
+struct PhysicsScene 
 {
-	friend class PhysicsSystem;
+public:
+	AffectorVector affectors;
+
+	RigidbodyVector rigidbodies;
+	ColliderVector colliders;
+	CollisionVector collisions;
+
+protected:
+	std::vector<int> m_garbageRigidbodyIndexes;
+	std::vector<int> m_garbageColliderIndexes;
 
 public:
-	virtual ~PhysicsSceneBase();
 	void DebugRender() const;
 
 	void Reset();
 
 	void AddAffector( AffectorFn affectorFunc );
 
-	virtual void ResolveCollisions( int frameNum ) = 0;
-	//void SetCollisionResolver( CollisionResolver* resolver )										{ m_collisionResolver = resolver; }
-
+	// TODO: Move to factory policy
 	Rigidbody* CreateRigidbody();
 
 	// 2D
@@ -49,38 +50,8 @@ public:
 private:
 	void DestroyAllRigidbodies();
 	void DestroyAllColliders();
-
-protected:
-	// TODO: Change these from pointers to flat data
-	RigidbodyVector m_rigidbodies;
-	std::vector<Collider*> m_colliders;
-
-	std::vector<int> m_garbageRigidbodyIndexes;
-	std::vector<int> m_garbageColliderIndexes;
-
-	AffectorVector m_affectors;
-	//template <class CollisionPolicy>
 };
 
-
-//-----------------------------------------------------------------------------------------------
-template <class CollisionPolicy>
-class PhysicsScene : public PhysicsSceneBase
-{
-public:
-	virtual void ResolveCollisions( int frameNum ) override;
-
-private:
-	template <class CollisionPolicy>
-	CollisionResolver<CollisionPolicy> m_collisionResolver;// = nullptr;
-};
-
-
-template <class CollisionPolicy>
-void PhysicsScene<CollisionPolicy>::ResolveCollisions( int frameNum )
-{
-	m_collisionResolver.ResolveCollisions( m_colliders, frameNum );
-}
 
 // ApplyAffectors
 //  Data: Rigidbodies, Affectors
