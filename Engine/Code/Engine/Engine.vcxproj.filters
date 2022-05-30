@@ -746,6 +746,7 @@
     <ClInclude Include="Physics\2D\DiscCollider.hpp" />
     <ClInclude Include="Physics\2D\PolygonCollider2D.hpp" />
     <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
+    <ClInclude Include="Core\Factory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

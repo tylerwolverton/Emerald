@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Core/ObjectFactory.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
@@ -31,9 +32,9 @@ public:
 
 	void AddAffector( AffectorFn affectorFunc );
 
-	// TODO: Move to factory policy
 	Rigidbody* CreateRigidbody();
 
+	// TODO: Move to factory policy
 	// 2D
 	Collider* CreateDiscCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
 	Collider* CreateDiscTrigger( float radius, const Vec3& localPosition = Vec3::ZERO );
