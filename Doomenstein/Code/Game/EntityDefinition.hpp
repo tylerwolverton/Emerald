@@ -1,4 +1,5 @@
 #pragma once
+#include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/OBB3.hpp"
@@ -36,42 +37,9 @@ public:
 	Vec3 offsetFromCenter = Vec3::ZERO;
 	eColliderType type = COLLIDER_NONE;
 
-	//union
-	//{
-		float radius = 1.f;
-		OBB3 obb3;
-	//};
-
-public:
-	/*ColliderData() {}
-	~ColliderData() {}
-
-	ColliderData( ColliderData& other ) 
-	{ 
-		offsetFromCenter = other.offsetFromCenter; 
-		type = other.type; 
-		if ( other.type == COLLIDER_SPHERE )
-		{
-			radius = other.radius;
-		}
-		else
-		{
-			obb3 = other.obb3;
-		}
-	}
-	ColliderData( ColliderData&& other )
-	{
-		offsetFromCenter = other.offsetFromCenter;
-		type = other.type;
-		if ( other.type == COLLIDER_SPHERE )
-		{
-			radius = other.radius;
-		}
-		else
-		{
-			obb3 = other.obb3;
-		}
-	}*/
+	float radius = 1.f;
+	OBB3 obb3;
+	
 };
 
 
@@ -111,6 +79,7 @@ protected:
 
 	std::string		m_initialCollisionLayer;
 	std::vector<ColliderData> m_colliderDataVec;
+	NamedProperties* m_colliderParams = nullptr; // TODO: Account for multiple colliders later if needed
 
 	Vec2			m_visualSize = Vec2::ZERO;
 	eBillboardStyle m_billboardStyle = eBillboardStyle::CAMERA_FACING_INVALID;

@@ -3,7 +3,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-template< typename BaseObject, typename CreatorId, typename CreationFunc, typename ConstructionParam >
+template< typename BaseObject, typename CreatorId, typename CreationFunc, typename ConstructionParams >
 class ObjectFactory
 {
 public:
@@ -17,7 +17,7 @@ public:
 		return m_creatorMap.erase( id ) == 1;
 	}
 
-	BaseObject* CreateObject( const CreatorId& id, const ConstructionParam& params )
+	BaseObject* CreateObject( const CreatorId& id, ConstructionParams params )
 	{
 		const auto creatorIter = m_creatorMap.find( id );
 		if ( creatorIter == m_creatorMap.end() )

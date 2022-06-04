@@ -1,4 +1,5 @@
 #include "Engine/Physics/PhysicsScene.hpp"
+#include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/OBB3.hpp"
@@ -62,6 +63,20 @@ Collider* PhysicsScene::CreatePolygon2Collider( const Polygon2& polygon, const V
 	collider->SetPhysicsMaterial( material );
 	colliders.push_back( collider );
 
+	return collider;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* PhysicsScene::CreateCollider( const std::string& type, NamedProperties* params )
+{
+	Collider* collider = g_colliderFactory->CreateObject( type, params );
+	if ( collider == nullptr )
+	{
+		g_devConsole->PrintError( Stringf( "Can't create collider with unknown type '%s'", type.c_str() ) );
+		return nullptr;
+	}
+	colliders.push_back( collider );
 	return collider;
 }
 

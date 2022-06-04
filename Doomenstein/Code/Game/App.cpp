@@ -40,6 +40,7 @@ void App::Startup()
 	// Load XML config files for game and physics
 	PopulateGameConfig();
 	g_physicsConfig = new PhysicsConfig();
+	g_colliderFactory = new ColliderFactory();
 
 	std::string windowTitle = g_gameConfigBlackboard.GetValue( "windowTitle", "ProtoZephyr3D" );
 	float windowAspect = g_gameConfigBlackboard.GetValue( "windowAspect", 16.f / 9.f );
@@ -108,6 +109,7 @@ void App::Shutdown()
 	g_window->Close();
 
 	PTR_SAFE_DELETE( g_game );
+	PTR_SAFE_DELETE( g_colliderFactory );
 	PTR_SAFE_DELETE( g_physicsConfig );
 	PTR_SAFE_DELETE( g_performanceTracker );
 	PTR_SAFE_DELETE( g_zephyrAPI );

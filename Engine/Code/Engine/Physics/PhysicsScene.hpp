@@ -39,6 +39,7 @@ public:
 	Collider* CreateDiscCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
 	Collider* CreateDiscTrigger( float radius, const Vec3& localPosition = Vec3::ZERO );
 	Collider* CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition = Vec3::ZERO );
+	Collider* CreateCollider( const std::string& type, NamedProperties* params );
 
 	// 3D
 	Collider* CreateSphereCollider( float radius, const Vec3& localPosition = Vec3::ZERO );

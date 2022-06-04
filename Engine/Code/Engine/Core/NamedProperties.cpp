@@ -17,7 +17,7 @@ NamedProperties::~NamedProperties()
 
 
 //-----------------------------------------------------------------------------------------------
-void NamedProperties::PopulateFromXMLAttributes( const XmlElement& element )
+void NamedProperties::PopulateFromXmlAttributes( const XmlElement& element )
 {
 	const XmlAttribute* attr = element.FirstAttribute();
 
@@ -63,17 +63,3 @@ TypedPropertyBase* NamedProperties::FindInMap( const std::string& key ) const
 		return nullptr;
 	}
 }
-
-
-//-----------------------------------------------------------------------------------------------
-//void NamedProperties::SetValue( const std::string& keyName, const std::string& value )
-//{
-//	m_keyValuePairs[keyName] = value;
-//}
-//
-//
-////-----------------------------------------------------------------------------------------------
-//std::string NamedProperties::GetValue( const std::string& keyName, const std::string& defValue ) const
-//{
-//
-//}

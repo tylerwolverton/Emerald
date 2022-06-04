@@ -300,7 +300,7 @@
     <ClInclude Include="Core\EngineCommon.hpp" />
     <ClInclude Include="Core\ErrorWarningAssert.hpp" />
     <ClInclude Include="Core\EventSystem.hpp" />
-    <ClInclude Include="Core\Factory.hpp" />
+    <ClInclude Include="Core\ObjectFactory.hpp" />
     <ClInclude Include="Core\FileUtils.hpp" />
     <ClInclude Include="Core\HashedString.hpp" />
     <ClInclude Include="Core\HashUtils.hpp" />

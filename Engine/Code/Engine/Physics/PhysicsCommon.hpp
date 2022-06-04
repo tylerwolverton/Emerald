@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/ObjectFactory.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Physics/PhysicsLayers.hpp"
 #include "Engine/Physics/Manifold.hpp"
@@ -11,6 +12,7 @@
 //-----------------------------------------------------------------------------------------------
 class Collider;
 class Rigidbody;
+class NamedProperties;
 template <class CollisionPolicy>
 class PhysicsSystem;
 class Simple3DCollision;
@@ -27,10 +29,6 @@ public:
 private:
 	PhysicsLayers m_layers;
 };
-
-
-//-----------------------------------------------------------------------------------------------
-extern PhysicsConfig* g_physicsConfig;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -55,6 +53,13 @@ typedef std::vector<Collision> CollisionVector;
 typedef std::vector<AffectorFn> AffectorVector;
 
 typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
+typedef Collider* ( *ColliderCreationFunc )( NamedProperties* );
+typedef ObjectFactory< Collider, std::string, ColliderCreationFunc, NamedProperties* > ColliderFactory;
+
+
+//-----------------------------------------------------------------------------------------------
+extern PhysicsConfig* g_physicsConfig;
+extern ColliderFactory* g_colliderFactory;
 
 
 //-----------------------------------------------------------------------------------------------

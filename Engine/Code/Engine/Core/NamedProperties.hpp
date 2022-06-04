@@ -62,7 +62,7 @@ public:
 	NamedProperties() = default;
 	~NamedProperties();
 	
-	void PopulateFromXMLAttributes( const XmlElement& element );
+	void PopulateFromXmlAttributes( const XmlElement& element );
 
 	void SetValue( const std::string& keyname, const char* value );
 	std::string GetValue( const std::string& keyName, const char* defaultValue ) const;
