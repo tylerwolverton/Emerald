@@ -256,87 +256,15 @@ bool IsEqualIgnoreCase( const char* a, const char* b )
 
 
 //-----------------------------------------------------------------------------------------------
-std::string ToString( bool value )
-{
-	return value ? "true" : "false";
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( int value )
-{
-	return std::string( Stringf( "%i", value ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( uint value )
-{
-	return std::string( Stringf( "%u", value ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( float value )
-{
-	return std::string( Stringf( "%.2f", value ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( double value )
-{
-	return std::string( Stringf( "%d", value ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const std::string& value )
-{
-	return value;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const Rgba8& value )
-{
-	return value.ToString();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const Vec2& value )
-{
-	return value.ToString();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const Vec3& value )
-{
-	return value.ToString();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const IntVec2& value )
-{
-	return value.ToString();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const OBB3& value )
-{
-	return value.ToString();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( const Polygon2& value )
-{
-	return value.ToString();
-}
+template<> std::string ToString( bool value )					{ return value ? "true" : "false"; }
+template<> std::string ToString( int value )					{ return std::string( Stringf( "%i", value ) ); }
+template<> std::string ToString( uint value )					{ return std::string( Stringf( "%u", value ) ); }
+template<> std::string ToString( float value )					{ return std::string( Stringf( "%.2f", value ) ); }
+template<> std::string ToString( double value )					{ return std::string( Stringf( "%d", value ) ); }
+template<> std::string ToString( const std::string& value )		{ return value; }
+template<> std::string ToString( std::string value )			{ return value; }
+template<> std::string ToString( char* value )					{ return value; }
+template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
 
 
 //-----------------------------------------------------------------------------------------------
@@ -401,77 +329,11 @@ std::string FromString( const std::string& value, std::string defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-std::string FromString( const std::string& value, const char* defaultValue )
+const char* FromString( const std::string& value, const char* defaultValue )
 {
 	UNUSED( defaultValue );
 
 	return value.c_str();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Rgba8 FromString( const std::string& value, const Rgba8& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	Rgba8 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Vec2 FromString( const std::string& value, const Vec2& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	Vec2 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-IntVec2 FromString( const std::string& value, const IntVec2& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	IntVec2 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Vec3 FromString( const std::string& value, const Vec3& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	Vec3 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-OBB3 FromString( const std::string& value, const OBB3& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	OBB3 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Polygon2 FromString( const std::string& value, const Polygon2& defaultValue )
-{
-	UNUSED( defaultValue );
-
-	Polygon2 convertedValue;
-	convertedValue.SetFromText( value.c_str() );
-	return convertedValue;
 }
 
 
