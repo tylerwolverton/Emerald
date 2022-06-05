@@ -24,8 +24,8 @@ void PhysicsScene::DebugRender() const
 Rigidbody* PhysicsScene::CreateRigidbody()
 {
 	Rigidbody* newRigidbody = new Rigidbody();
-	rigidbodies.push_back( newRigidbody );
 
+	rigidbodies.push_back( newRigidbody );
 	return newRigidbody;
 }
 
@@ -34,12 +34,8 @@ Rigidbody* PhysicsScene::CreateRigidbody()
 Collider* PhysicsScene::CreateCollider( const ColliderId& type, ColliderParams* params )
 {
 	Collider* collider = g_colliderFactory->CreateObject( type, params );
-	if ( collider == nullptr )
-	{
-		g_devConsole->PrintError( Stringf( "Can't create collider with unknown type '%s'", type.c_str() ) );
-		return nullptr;
-	}
-
+	GUARANTEE_OR_DIE( collider != nullptr, Stringf( "Can't create collider with unknown type '%s'", type.c_str() ));
+	
 	colliders.push_back( collider );
 	return collider;
 }
@@ -49,12 +45,8 @@ Collider* PhysicsScene::CreateCollider( const ColliderId& type, ColliderParams* 
 Collider* PhysicsScene::CreateTrigger( const ColliderId& type, ColliderParams* params )
 {
 	Collider* collider = CreateCollider( type, params );
-	if ( collider == nullptr )
-	{
-		return nullptr;
-	}
-
 	collider->m_isTrigger = true;
+
 	return collider;
 }
 

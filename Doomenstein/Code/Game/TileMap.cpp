@@ -625,7 +625,9 @@ void TileMap::CreateInitialTiles( const std::vector<MapRegionTypeDefinition*>& r
 				rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 				rigidbody->SetLayer( "environment" );
 
-				rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( obb3, Vec3::ZERO ) );
+				NamedProperties params;
+				params.SetValue( "obb3", obb3 );
+				rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
 			}
 		}
 	}
@@ -639,7 +641,9 @@ void TileMap::CreateInitialTiles( const std::vector<MapRegionTypeDefinition*>& r
 	rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 	rigidbody->SetLayer( "environment" );
 
-	rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( obb3, Vec3::ZERO ) );
+	NamedProperties params;
+	params.SetValue( "obb3", obb3 );
+	rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
 }
 
 

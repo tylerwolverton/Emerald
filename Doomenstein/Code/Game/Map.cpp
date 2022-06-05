@@ -343,14 +343,19 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 
 		for ( const ColliderData& colData : newEntity->GetColliderDataVec() )
 		{
+			NamedProperties params;
+			params.SetValue( "localPosition", colData.offsetFromCenter );
+
 			switch ( colData.type )
 			{
 				case COLLIDER_SPHERE:
-					rigidbody->TakeCollider( m_physicsScene->CreateSphereCollider( colData.radius, colData.offsetFromCenter ) );
+					params.SetValue( "radius", colData.radius );
+					rigidbody->TakeCollider( m_physicsScene->CreateCollider( "sphere", &params ) );
 					break;
 
 				case COLLIDER_OBB3:
-					rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( colData.obb3, colData.offsetFromCenter ) );
+					params.SetValue( "obb3", colData.obb3 );
+					rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
 					break;
 			}
 		}

@@ -9,7 +9,8 @@ class ObjectFactory
 public:
 	bool RegisterCreator( CreatorId id, CreationFunc creationFunc )
 	{
-		return m_creatorMap.insert( std::make_pair<CreatorId, CreationFunc>( id, creationFunc ) ).second;
+		m_creatorMap[id] = creationFunc;
+		return m_creatorMap[id];
 	}
 
 	bool UnRegisterCreator( const CreatorId& id )

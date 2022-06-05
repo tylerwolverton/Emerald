@@ -2,6 +2,8 @@
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/Collider.hpp"
+#include "Engine/Physics/3D/OBB3Collider.hpp"
+#include "Engine/Physics/3D/SphereCollider.hpp"
 #include "Engine/Physics/CollisionResolvers/CollisionPolicies.hpp"
 #include "Engine/Physics/Manifold.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
@@ -30,6 +32,9 @@ void PhysicsSystem<CollisionPolicy>::Startup( Clock* gameClock )
 	m_stepTimer->SetSeconds( s_fixedDeltaSeconds );
 
 	g_eventSystem->RegisterEvent( "set_physics_update", "Usage: set_physics_update hz=NUMBER .Set rate of physics update in hz.", eUsageLocation::DEV_CONSOLE, SetPhysicsUpdateRate );
+
+	g_colliderFactory->RegisterCreator( "obb3", &OBB3Collider::Create );
+	g_colliderFactory->RegisterCreator( "sphere", &SphereCollider::Create );
 }
 
 

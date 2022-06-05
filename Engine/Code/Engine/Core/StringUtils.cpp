@@ -268,7 +268,7 @@ template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_D
 
 
 //-----------------------------------------------------------------------------------------------
-bool FromString( const std::string& value, bool defaultValue )
+template<> bool FromString( const std::string& value, bool defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -277,7 +277,7 @@ bool FromString( const std::string& value, bool defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-int FromString( const std::string& value, int defaultValue )
+template<> int FromString( const std::string& value, int defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -286,7 +286,7 @@ int FromString( const std::string& value, int defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-uint FromString( const std::string& value, uint defaultValue )
+template<> uint FromString( const std::string& value, uint defaultValue )
 {
 	int intVal = atoi( value.c_str() );
 
@@ -302,7 +302,7 @@ uint FromString( const std::string& value, uint defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-float FromString( const std::string& value, float defaultValue )
+template<> float FromString( const std::string& value, float defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -311,7 +311,7 @@ float FromString( const std::string& value, float defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-double FromString( const std::string& value, double defaultValue )
+template<> double FromString( const std::string& value, double defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -320,7 +320,7 @@ double FromString( const std::string& value, double defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-std::string FromString( const std::string& value, std::string defaultValue )
+template<> std::string FromString( const std::string& value, std::string defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -329,7 +329,7 @@ std::string FromString( const std::string& value, std::string defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-const char* FromString( const std::string& value, const char* defaultValue )
+template<> const char* FromString( const std::string& value, const char* defaultValue )
 {
 	UNUSED( defaultValue );
 
@@ -338,7 +338,7 @@ const char* FromString( const std::string& value, const char* defaultValue )
 
 
 //-----------------------------------------------------------------------------------------------
-void* FromString( const std::string& value, void* defaultValue )
+template<> void* FromString( const std::string& value, void* defaultValue )
 {
 	UNUSED( value );
 	UNUSED( defaultValue );

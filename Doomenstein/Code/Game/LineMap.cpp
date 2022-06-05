@@ -41,7 +41,9 @@ LineMap::LineMap( const MapData& mapData, World* world )
 		rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 		rigidbody->SetLayer( "environment" );
 
-		rigidbody->TakeCollider( m_physicsScene->CreateOBB3Collider( wall ) );
+		NamedProperties params;
+		params.SetValue( "obb3", wall );
+		rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
 	}
 }
 
