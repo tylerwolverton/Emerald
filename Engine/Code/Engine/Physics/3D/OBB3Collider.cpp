@@ -4,14 +4,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-OBB3Collider::OBB3Collider( const OBB3& obb3, const Vec3& localPosition )
+OBB3Collider::OBB3Collider()
 	: Collider()
-	, m_obb3( obb3 )
 {
 	m_type = COLLIDER_OBB3;
-	m_localPosition = localPosition;
-
-	m_outerRadius = m_obb3.GetOuterRadius();
 }
 
 
@@ -59,3 +55,13 @@ void OBB3Collider::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor
 }
 
 
+//-----------------------------------------------------------------------------------------------
+Collider* OBB3Collider::Create( ColliderParams* params )
+{
+	OBB3Collider* collider = new OBB3Collider();
+	collider->m_localPosition = params->GetValue( "localPosition", Vec3::ZERO );
+	collider->m_obb3 = params->GetValue( "obb3", OBB3() );
+	collider->m_outerRadius = collider->m_obb3.GetOuterRadius();
+
+	return collider;
+}

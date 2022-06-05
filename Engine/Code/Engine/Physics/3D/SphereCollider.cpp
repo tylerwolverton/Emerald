@@ -6,12 +6,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-SphereCollider::SphereCollider( float radius, const Vec3& localPosition )
+SphereCollider::SphereCollider()
 	: Collider()
-	, m_radius( radius )
 {
 	m_type = COLLIDER_SPHERE;
-	m_localPosition = localPosition;
 }
 
 
@@ -55,3 +53,15 @@ void SphereCollider::DebugRender( const Rgba8& borderColor, const Rgba8& fillCol
 
 	DebugAddWorldWireSphere( m_worldPosition, m_radius, borderColor );
 }
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* SphereCollider::Create( ColliderParams* params )
+{
+	SphereCollider* collider = new SphereCollider();
+	collider->m_localPosition = params->GetValue( "localPosition", Vec3::ZERO );
+	collider->m_radius = params->GetValue( "radius", 1.f );
+
+	return collider;
+}
+

@@ -1,4 +1,5 @@
 #include "Engine/Math/OBB3.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/AABB3.hpp"
 #include "Engine/Math/Mat44.hpp"
 #include "Engine/Math/Transform.hpp"
@@ -24,6 +25,27 @@ OBB3::OBB3( const Vec3& center, const Vec3& fullDimensions, const Vec3& iBasisNo
 	, m_iBasis( iBasisNormal )
 	, m_jBasis( jBasisNormal )
 {
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void OBB3::SetFromText( const char* asText )
+{
+	ERROR_AND_DIE( Stringf( "Why are we trying to construct an OBB3 from text? '%s'", asText ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string OBB3::GetAsString() const
+{
+	return ToString();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string OBB3::ToString() const
+{
+	return Stringf( "%s %s %s %s", m_center.ToString().c_str(), m_halfDimensions.ToString().c_str(), m_iBasis.ToString().c_str(), m_jBasis.ToString().c_str() );
 }
 
 

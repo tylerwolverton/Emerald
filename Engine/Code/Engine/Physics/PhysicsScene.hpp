@@ -8,10 +8,6 @@
 
 
 //-----------------------------------------------------------------------------------------------
-struct OBB3;
-
-
-//-----------------------------------------------------------------------------------------------
 struct PhysicsScene 
 {
 public:
@@ -21,7 +17,7 @@ public:
 	ColliderVector colliders;
 	CollisionVector collisions;
 
-protected:
+private:
 	std::vector<int> m_garbageRigidbodyIndexes;
 	std::vector<int> m_garbageColliderIndexes;
 
@@ -33,17 +29,8 @@ public:
 	void AddAffector( AffectorFn affectorFunc );
 
 	Rigidbody* CreateRigidbody();
-
-	// TODO: Move to factory policy
-	// 2D
-	Collider* CreateDiscCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
-	Collider* CreateDiscTrigger( float radius, const Vec3& localPosition = Vec3::ZERO );
-	Collider* CreatePolygon2Collider( const Polygon2& polygon, const Vec3& localPosition = Vec3::ZERO );
-	Collider* CreateCollider( const std::string& type, NamedProperties* params );
-
-	// 3D
-	Collider* CreateSphereCollider( float radius, const Vec3& localPosition = Vec3::ZERO );
-	Collider* CreateOBB3Collider( const OBB3& box, const Vec3& localPosition = Vec3::ZERO );
+	Collider* CreateCollider( const ColliderId& type, ColliderParams* params );
+	Collider* CreateTrigger( const ColliderId& type, ColliderParams* params );
 
 	void DestroyRigidbody( Rigidbody* rigidbody );
 	void DestroyCollider( Collider* collider );
@@ -82,5 +69,3 @@ private:
 //  Data: Rigidbodies, Colliders, (Collisions?)
 //  Customize: No
 //  Nullable: No
-//
-//

@@ -7,7 +7,7 @@
 class DiscCollider : public Collider
 {
 public:
-	DiscCollider( float radius, const Vec3& localPosition );
+	DiscCollider();
 
 	virtual void UpdateWorldShape() override;
 
@@ -25,6 +25,9 @@ public:
 
 	// debug helpers
 	virtual void DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const override;
+
+	// factory create
+	static Collider* Create( ColliderParams* params );
 
 protected:
 	virtual ~DiscCollider() {}

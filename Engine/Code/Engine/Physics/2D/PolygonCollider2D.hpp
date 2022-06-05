@@ -14,8 +14,7 @@ struct AABB2;
 class PolygonCollider2D : public Collider
 {
 public:
-	PolygonCollider2D( const std::vector<Vec2>& points, const Vec3& localPosition );
-	PolygonCollider2D( const Polygon2& polygon, const Vec3& localPosition );
+	PolygonCollider2D();
 
 	virtual void UpdateWorldShape() override;
 
@@ -32,6 +31,9 @@ public:
 
 	// debug helpers
 	virtual void DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const override;
+
+	// factory create
+	static Collider* Create( ColliderParams* params );
 
 protected:
 	virtual ~PolygonCollider2D() {}

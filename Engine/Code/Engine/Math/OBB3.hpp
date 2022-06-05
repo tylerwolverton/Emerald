@@ -17,6 +17,9 @@ public:
 	~OBB3() = default;
 	OBB3( const OBB3& copyFrom );
 	explicit OBB3( const Vec3& center, const Vec3& fullDimensions, const Vec3& iBasisNormal = Vec3( 1.f, 0.f, 0.f ), const Vec3& jBasisNormal = Vec3( 0.f, 1.f, 0.f ) );
+	void SetFromText( const char* asText );
+	std::string GetAsString() const;
+	std::string ToString() const;
 
 	// Accessors (const methods)
 	const Vec3	GetCenter() const							{ return m_center; }

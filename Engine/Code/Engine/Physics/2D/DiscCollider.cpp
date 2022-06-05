@@ -7,12 +7,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-DiscCollider::DiscCollider( float radius, const Vec3& localPosition )
-	:  m_radius( radius )
+DiscCollider::DiscCollider()
 {
 	m_type = COLLIDER_DISC;
-	m_worldBounds = CalculateWorldBounds();
-	m_localPosition = localPosition;
 }
 
 
@@ -138,3 +135,16 @@ void DiscCollider::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor
 	Vec2 endPoint = m_worldPosition + Vec2::MakeFromPolarRadians( m_rigidbody->GetOrientationRadians() ) * m_radius;
 	DrawLine2D( m_worldPosition, endPoint, borderColor, .04f );*/
 }
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* DiscCollider::Create( ColliderParams* params )
+{
+	DiscCollider* collider = new DiscCollider();
+	collider->m_localPosition = params->GetValue( "localPosition", Vec3::ZERO );
+	collider->m_radius = params->GetValue( "radius", 1.f );
+	collider->m_worldBounds = collider->CalculateWorldBounds();
+
+	return collider;
+}
+

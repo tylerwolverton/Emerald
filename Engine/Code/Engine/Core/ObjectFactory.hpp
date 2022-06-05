@@ -7,7 +7,7 @@ template< typename BaseObject, typename CreatorId, typename CreationFunc, typena
 class ObjectFactory
 {
 public:
-	bool RegisterCreator( const CreatorId& id, CreationFunc creationFunc )
+	bool RegisterCreator( CreatorId id, CreationFunc creationFunc )
 	{
 		return m_creatorMap.insert( std::make_pair<CreatorId, CreationFunc>( id, creationFunc ) ).second;
 	}
@@ -17,12 +17,12 @@ public:
 		return m_creatorMap.erase( id ) == 1;
 	}
 
-	BaseObject* CreateObject( const CreatorId& id, ConstructionParams params )
+	BaseObject* CreateObject( CreatorId id, ConstructionParams params )
 	{
 		const auto creatorIter = m_creatorMap.find( id );
 		if ( creatorIter == m_creatorMap.end() )
 		{
-			// Log error
+			// Log error... or leave to caller
 			return nullptr;
 		}
 

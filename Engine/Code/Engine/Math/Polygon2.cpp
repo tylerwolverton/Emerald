@@ -1,5 +1,6 @@
 #include "Engine/Math/Polygon2.hpp"
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/ConvexHull2D.hpp"
 #include "Engine/Math/Plane2D.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -46,6 +47,27 @@ void Polygon2::SetPoints( Vec2* points, int numPoints )
 
 	CalculateBoundingBox();
 	m_centerOfMass = m_boundingBox.GetCenter();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Polygon2::SetFromText( const char* asText )
+{
+	ERROR_AND_DIE( Stringf( "Why are we trying to construct a polygon2 from text? '%s'", asText ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string Polygon2::GetAsString() const
+{
+	return ToString();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string Polygon2::ToString() const
+{
+	ERROR_AND_DIE( Stringf( "Why are we trying to serialize a polygon2 to text?" ) );
 }
 
 

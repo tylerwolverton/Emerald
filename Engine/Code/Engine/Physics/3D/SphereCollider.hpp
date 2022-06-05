@@ -9,12 +9,10 @@ class SphereCollider : public Collider
 	friend class Rigidbody;
 
 public:
-	SphereCollider( float radius, const Vec3& localPosition );
+	SphereCollider();
 
 	float GetRadius() const													{ return m_radius; }
 
-	// cache off the world shape representation of this object
-	// taking into account the owning rigidbody (if no owner, local is world)
 	virtual void UpdateWorldShape() override;
 
 	// queries 
@@ -26,9 +24,13 @@ public:
 	// debug helpers
 	virtual void DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const override;
 
+	// factory create
+	static Collider* Create( ColliderParams* params );
+
 protected:
 	virtual ~SphereCollider() {}; // private - make sure this is virtual so correct deconstructor gets called
 
 private:
 	float m_radius = 1.f;
 };
+

@@ -10,6 +10,8 @@ struct Rgba8;
 struct Vec2;
 struct IntVec2;
 struct Vec3;
+struct OBB3;
+class Polygon2;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -40,6 +42,7 @@ bool IsEqualIgnoreCase( const char* a, const char* b );
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: Templatize this
 std::string ToString( bool value );
 std::string ToString( int value );
 std::string ToString( uint value );
@@ -50,6 +53,8 @@ std::string ToString( const Rgba8& value );
 std::string ToString( const Vec2& value );
 std::string ToString( const Vec3& value );
 std::string ToString( const IntVec2& value );
+std::string ToString( const OBB3& value );
+std::string ToString( const Polygon2& value );
 
 bool		FromString( const std::string& value, bool defaultValue );
 int			FromString( const std::string& value, int defaultValue );
@@ -62,4 +67,6 @@ Rgba8		FromString( const std::string& value, const Rgba8& defaultValue );
 Vec2		FromString( const std::string& value, const Vec2& defaultValue );
 Vec3		FromString( const std::string& value, const Vec3& defaultValue );
 IntVec2		FromString( const std::string& value, const IntVec2& defaultValue );
+OBB3		FromString( const std::string& value, const OBB3& defaultValue );
+Polygon2	FromString( const std::string& value, const Polygon2& defaultValue );
 void*		FromString( const std::string& value, void* defaultValue );

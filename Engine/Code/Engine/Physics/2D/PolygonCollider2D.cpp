@@ -10,24 +10,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PolygonCollider2D::PolygonCollider2D( const std::vector<Vec2>& points, const Vec3& localPosition )
-{
-	m_polygon = Polygon2( points );
-	m_type = COLLIDER_POLYGON;
-	m_localPosition = localPosition;
-
-	GUARANTEE_OR_DIE( m_polygon.IsConvex(), "Polygon collider is not convex");
-}
-
-
-//-----------------------------------------------------------------------------------------------
-PolygonCollider2D::PolygonCollider2D( const Polygon2& polygon, const Vec3& localPosition )
-	: m_polygon( polygon )
+PolygonCollider2D::PolygonCollider2D()
 {
 	m_type = COLLIDER_POLYGON;
-	m_localPosition = localPosition;
-
-	GUARANTEE_OR_DIE( m_polygon.IsConvex(), "Polygon collider is not convex" );
 }
 
 
@@ -187,3 +172,15 @@ void PolygonCollider2D::DebugRender( const Rgba8& borderColor, const Rgba8& fill
 	boundingBoxColor.a = 100;
 	DrawAABB2( renderer, m_polygon.m_boundingBox, boundingBoxColor );*/
 }
+
+
+//-----------------------------------------------------------------------------------------------
+Collider* PolygonCollider2D::Create( ColliderParams* params )
+{
+	PolygonCollider2D* collider = new PolygonCollider2D();
+	collider->m_localPosition = params->GetValue( "localPosition", Vec3::ZERO );
+	collider->m_polygon = params->GetValue( "polygon", Polygon2() );
+
+	return collider;
+}
+

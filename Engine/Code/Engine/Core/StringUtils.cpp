@@ -5,6 +5,8 @@
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Math/OBB3.hpp"
+#include "Engine/Math/Polygon2.hpp"
 
 #include <stdarg.h>
 #include <cctype>
@@ -324,6 +326,20 @@ std::string ToString( const IntVec2& value )
 
 
 //-----------------------------------------------------------------------------------------------
+std::string ToString( const OBB3& value )
+{
+	return value.ToString();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string ToString( const Polygon2& value )
+{
+	return value.ToString();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool FromString( const std::string& value, bool defaultValue )
 {
 	UNUSED( defaultValue );
@@ -432,6 +448,28 @@ Vec3 FromString( const std::string& value, const Vec3& defaultValue )
 	UNUSED( defaultValue );
 
 	Vec3 convertedValue;
+	convertedValue.SetFromText( value.c_str() );
+	return convertedValue;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+OBB3 FromString( const std::string& value, const OBB3& defaultValue )
+{
+	UNUSED( defaultValue );
+
+	OBB3 convertedValue;
+	convertedValue.SetFromText( value.c_str() );
+	return convertedValue;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Polygon2 FromString( const std::string& value, const Polygon2& defaultValue )
+{
+	UNUSED( defaultValue );
+
+	Polygon2 convertedValue;
 	convertedValue.SetFromText( value.c_str() );
 	return convertedValue;
 }

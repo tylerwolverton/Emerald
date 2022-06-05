@@ -23,6 +23,9 @@ public:
 	void SetPoints( Vec2* points, int numPoints );
 	void SetPoints( const std::vector<Vec2>& points );
 	std::vector<Vec2> GetPoints() const											{ return m_points; };
+	void SetFromText( const char* asText );
+	std::string GetAsString() const;
+	std::string ToString() const;
 
 	bool IsValid() const; // must have at least 3 points to be considered a polygon
 

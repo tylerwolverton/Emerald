@@ -53,8 +53,11 @@ typedef std::vector<Collision> CollisionVector;
 typedef std::vector<AffectorFn> AffectorVector;
 
 typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
-typedef Collider* ( *ColliderCreationFunc )( NamedProperties* );
-typedef ObjectFactory< Collider, std::string, ColliderCreationFunc, NamedProperties* > ColliderFactory;
+
+typedef std::string ColliderId;
+typedef NamedProperties ColliderParams;
+typedef Collider* ( *ColliderCreationFunc )( ColliderParams* );
+typedef ObjectFactory< Collider, ColliderId, ColliderCreationFunc, ColliderParams* > ColliderFactory;
 
 
 //-----------------------------------------------------------------------------------------------
