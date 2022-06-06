@@ -412,6 +412,9 @@
     <ClCompile Include="Physics\PhysicsScene.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\PhysicsSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">

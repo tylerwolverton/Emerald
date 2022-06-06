@@ -93,7 +93,6 @@ public:
 	Delegate<Collision> m_onTriggerLeaveDelegate;
 
 protected:
-	PhysicsScene* m_system		= nullptr;			
 	Rigidbody* m_rigidbody		= nullptr;			// owning rigidbody, used for calculating world shape
 	eColliderType m_type		= COLLIDER_NONE;	// keep track of the type - will help with collision later
 	PhysicsMaterial m_material;

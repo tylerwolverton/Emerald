@@ -5,6 +5,7 @@
 #include "Engine/Physics/PhysicsLayers.hpp"
 #include "Engine/Physics/Manifold.hpp"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -50,7 +51,7 @@ typedef void ( *AffectorFn )( Rigidbody* rigidbody );
 typedef std::vector<Rigidbody*> RigidbodyVector;
 typedef std::vector<Collider*> ColliderVector;
 typedef std::vector<Collision> CollisionVector;
-typedef std::vector<AffectorFn> AffectorVector;
+typedef std::map<std::string, AffectorFn> AffectorMap;
 
 typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
 

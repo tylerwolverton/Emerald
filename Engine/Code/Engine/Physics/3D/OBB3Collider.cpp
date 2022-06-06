@@ -42,6 +42,8 @@ bool OBB3Collider::Contains( const Vec3& pos ) const
 //-----------------------------------------------------------------------------------------------
 float OBB3Collider::CalculateMoment( float mass )
 {
+	UNUSED( mass );
+
 	return 1.f;
 }
 

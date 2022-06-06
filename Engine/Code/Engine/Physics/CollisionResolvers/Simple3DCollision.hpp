@@ -89,14 +89,16 @@ static Manifold SphereVOBB3CollisionManifoldGenerator( const Collider* collider1
 //-----------------------------------------------------------------------------------------------
 static Manifold OBB3VOBB3CollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
-	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const OBB3Collider* obb3Collider1 = (const OBB3Collider*)collider1;
-	const OBB3Collider* obb3Collider2 = (const OBB3Collider*)collider2;
+	UNUSED( collider1 ); UNUSED( collider2 );
 
-	Manifold manifold;
+	ERROR_AND_DIE( "OBB3 v OBB3 collision is not implemented" );
+	//const OBB3Collider* obb3Collider1 = (const OBB3Collider*)collider1;
+	//const OBB3Collider* obb3Collider2 = (const OBB3Collider*)collider2;
+
+	//Manifold manifold;
 	
 
-	return manifold;
+	//return manifold;
 }
 
 

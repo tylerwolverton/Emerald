@@ -85,7 +85,7 @@ void PhysicsLayers::PopulateFromXml( XmlElement* root )
 				g_devConsole->PrintError( Stringf( "Unknown LayerInteraction '%s' seen, ignoring", layerInteractionElem->Name() ) );
 			}
 
-			layerInteractionElem = layerInteractionsElem->NextSiblingElement();
+			layerInteractionElem = layerInteractionElem->NextSiblingElement();
 		}
 	}
 }

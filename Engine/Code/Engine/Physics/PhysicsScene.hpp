@@ -11,7 +11,7 @@
 struct PhysicsScene 
 {
 public:
-	AffectorVector affectors;
+	AffectorMap affectors;
 
 	RigidbodyVector rigidbodies;
 	ColliderVector colliders;
@@ -26,7 +26,8 @@ public:
 
 	void Reset();
 
-	void AddAffector( AffectorFn affectorFunc );
+	void AddAffector( const std::string& name, AffectorFn affectorFunc );
+	void RemoveAffector( const std::string& name );
 
 	Rigidbody* CreateRigidbody();
 	Collider* CreateCollider( const ColliderId& type, ColliderParams* params );

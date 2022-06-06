@@ -2,12 +2,6 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
-#include "Engine/Math/OBB3.hpp"
-#include "Engine/Physics/CollisionResolver.hpp"
-#include "Engine/Physics/2D/DiscCollider.hpp"
-#include "Engine/Physics/2D/PolygonCollider2D.hpp"
-#include "Engine/Physics/3D/OBB3Collider.hpp"
-#include "Engine/Physics/3D/SphereCollider.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -88,9 +82,16 @@ void PhysicsScene::Reset()
 
 
 //-----------------------------------------------------------------------------------------------
-void PhysicsScene::AddAffector( AffectorFn affectorFunc )
+void PhysicsScene::AddAffector( const std::string& name, AffectorFn affectorFunc )
 {
-	affectors.push_back( affectorFunc );
+	affectors[name] = affectorFunc;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void PhysicsScene::RemoveAffector( const std::string& name )
+{
+	affectors.erase( name );
 }
 
 

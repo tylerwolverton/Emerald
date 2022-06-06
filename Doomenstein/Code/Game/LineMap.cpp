@@ -23,13 +23,12 @@ LineMap::LineMap( const MapData& mapData, World* world )
 	m_walls = mapData.walls;
 	m_regionTypeDefs = mapData.regionTypeDefs;
 
-	// Add gravity
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+	// Add gravity and drag to scene
+	m_physicsScene->AddAffector( "gravity", []( Rigidbody* rigidbody ) {
 		rigidbody->AddForce( Vec3( 0.f, 0.f, -9.8f ) );	 
 	} );
 
-	// Add drag
-	m_physicsScene->AddAffector( []( Rigidbody* rigidbody ) {
+	m_physicsScene->AddAffector( "drag", []( Rigidbody* rigidbody ) {
 		rigidbody->ApplyDragForce();	 
 	} );
 

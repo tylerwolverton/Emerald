@@ -20,6 +20,8 @@
 #include "Engine/OS/Window.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
+#include "Engine/Physics/3D/OBB3Collider.hpp"
+#include "Engine/Physics/3D/SphereCollider.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/GPUMesh.hpp"
@@ -103,6 +105,8 @@ void Game::Startup()
 
 	m_physicsSystem = new PhysicsSystem3D();
 	m_physicsSystem->Startup( m_gameClock );
+	g_colliderFactory->RegisterCreator( "obb3", &OBB3Collider::Create );
+	g_colliderFactory->RegisterCreator( "sphere", &SphereCollider::Create );
 
 	g_physicsConfig->PopulateFromXml();
 	LoadAssets();

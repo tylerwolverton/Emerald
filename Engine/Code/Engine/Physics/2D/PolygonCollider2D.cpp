@@ -165,6 +165,8 @@ Vec2 PolygonCollider2D::GetFarthestPointInDirection( const Vec2& direction ) con
 //-----------------------------------------------------------------------------------------------
 void PolygonCollider2D::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const
 {
+	UNUSED( borderColor ); UNUSED( fillColor );
+
 	//DrawPolygon2( renderer, m_polygon.GetPoints(), fillColor );
 	//DrawPolygon2Outline( renderer, m_polygon.GetPoints(), borderColor, .04f );
 
