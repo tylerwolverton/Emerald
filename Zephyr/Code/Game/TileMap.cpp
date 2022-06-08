@@ -337,7 +337,10 @@ void TileMap::CreateTileRigidbodies()
 		{
 			Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
 
-			Collider* polygonCollider = m_physicsScene->CreatePolygon2Collider( m_tiles[tileIdx].GetBounds().GetAsPolygon2() );
+			NamedProperties params;
+			params.SetValue( "polygon2", m_tiles[tileIdx].GetBounds().GetAsPolygon2() );
+
+			Collider* polygonCollider = m_physicsScene->CreateCollider( "polygon2", &params );
 			rigidbody->TakeCollider( polygonCollider );
 			rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
 			rigidbody->SetPosition( Vec3( m_tiles[tileIdx].GetBounds().GetCenter(), 0.f ) );

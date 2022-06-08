@@ -400,9 +400,6 @@
     <ClCompile Include="Physics\2D\DiscCollider.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\2D\PolygonCollider2D.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\CollisionResolvers\Simple3DCollision.hpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -413,6 +410,9 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Physics\PhysicsSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\2D\Polygon2Collider.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -747,9 +747,9 @@
     <ClInclude Include="Physics\3D\SphereCollider.hpp" />
     <ClInclude Include="Physics\3D\OBB3Collider.hpp" />
     <ClInclude Include="Physics\2D\DiscCollider.hpp" />
-    <ClInclude Include="Physics\2D\PolygonCollider2D.hpp" />
     <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
     <ClInclude Include="Core\ObjectFactory.hpp" />
+    <ClInclude Include="Physics\2D\Polygon2Collider.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

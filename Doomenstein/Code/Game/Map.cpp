@@ -27,8 +27,6 @@ Map::Map( const MapData& mapData, World* world )
 	, m_world( world )
 {
 	m_physicsScene = new PhysicsScene();
-	//m_curCollisionResolver = new Simple3DCollisionResolver();
-	//m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 
 	LoadEntities( mapData.mapEntityDefs );
 }

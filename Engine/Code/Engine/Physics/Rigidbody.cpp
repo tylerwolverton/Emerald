@@ -11,6 +11,13 @@
 
 
 //-----------------------------------------------------------------------------------------------
+Rigidbody::Rigidbody( PhysicsScene* owningScene )
+	: m_physicsScene( owningScene )
+{
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Rigidbody::Update( float deltaSeconds )
 {
 	if ( !m_isEnabled )
@@ -53,10 +60,10 @@ void Rigidbody::Destroy()
 {
 	if ( m_collider != nullptr )
 	{
-		m_scene->DestroyCollider( m_collider );
+		m_physicsScene->DestroyCollider( m_collider );
 	}
 
-	m_scene->DestroyRigidbody( this );
+	m_physicsScene->DestroyRigidbody( this );
 }
 
 

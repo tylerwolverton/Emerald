@@ -12,7 +12,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Performance/PerformanceTracker.hpp"
-#include "Engine/Physics/PhysicsSystem.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/Camera.hpp"
@@ -46,6 +46,7 @@ void App::Startup()
 {
 	PopulateGameConfig();
 	g_physicsConfig = new PhysicsConfig();
+	g_colliderFactory = new ColliderFactory();
 
 	std::string windowTitle = g_gameConfigBlackboard.GetValue( "windowTitle", "Protogame2D" );
 	float windowAspect = g_gameConfigBlackboard.GetValue( "windowAspect", 16.f / 9.f );
@@ -62,7 +63,6 @@ void App::Startup()
 	g_audioSystem = new AudioSystem();
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
-	g_physicsSystem = new PhysicsSystem();
 	g_zephyrSystem = new ZephyrSystem();
 	g_zephyrAPI = new ZephyrGameAPI();
 	g_performanceTracker = new PerformanceTracker();
@@ -104,7 +104,6 @@ void App::Shutdown()
 {
 	g_zephyrSystem->Shutdown();
 	g_game->Shutdown();
-	g_physicsSystem->Shutdown();
 	g_devConsole->Shutdown();
 	DebugRenderSystemShutdown();
 	g_renderer->Shutdown();
@@ -115,10 +114,10 @@ void App::Shutdown()
 
 	Clock::MasterShutdown();
 		
-	PTR_SAFE_DELETE( g_physicsConfig );
 	PTR_SAFE_DELETE( g_game );
+	PTR_SAFE_DELETE( g_colliderFactory );
+	PTR_SAFE_DELETE( g_physicsConfig );
 	PTR_SAFE_DELETE( g_performanceTracker );
-	PTR_SAFE_DELETE( g_physicsSystem );
 	PTR_SAFE_DELETE( g_zephyrAPI );
 	PTR_SAFE_DELETE( g_zephyrSystem );
 	PTR_SAFE_DELETE( g_devConsole );
@@ -172,7 +171,6 @@ void App::BeginFrame()
 	g_audioSystem->BeginFrame();
 	g_renderer->BeginFrame();
 	DebugRenderBeginFrame();
-	g_physicsSystem->BeginFrame();
 	g_game->BeginFrame();
 }
 
@@ -228,7 +226,6 @@ void App::Render() const
 void App::EndFrame()
 {
 	g_game->EndFrame();
-	g_physicsSystem->EndFrame();
 	DebugRenderEndFrame();
 	g_renderer->EndFrame();
 	g_audioSystem->EndFrame();

@@ -5,7 +5,6 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 
 
@@ -15,7 +14,6 @@ Window* g_window = nullptr;							// Owned by Main_Windows.cpp
 RenderContext* g_renderer = nullptr;				// Owned by the App
 InputSystem* g_inputSystem = nullptr;				// Owned by the App
 AudioSystem* g_audioSystem = nullptr;				// Owned by the App
-PhysicsSystem* g_physicsSystem = nullptr;			// Owned by the App
 PerformanceTracker* g_performanceTracker = nullptr;	// Owned by the App
 Game* g_game = nullptr;								// Owned by the App
 

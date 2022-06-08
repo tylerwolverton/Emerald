@@ -9,8 +9,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Portal;
-class CollisionResolver;
-class PhysicsScene;
+struct PhysicsScene;
 class World;
 struct MapData;
 struct MapEntityDefinition;
@@ -89,7 +88,6 @@ protected:
 	std::string					m_name;
 	World*						m_world = nullptr;
 	PhysicsScene*				m_physicsScene = nullptr;
-	CollisionResolver*			m_curCollisionResolver = nullptr;
 
 	// Multiplayer TODO: Make this into an array
 	Vec3						m_playerStartPos = Vec3::ZERO;

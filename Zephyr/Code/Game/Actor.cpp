@@ -116,7 +116,7 @@ void Actor::SetAsPlayer()
 
 	m_name = "player";
 	m_faction = eFaction::GOOD;
-	m_rigidbody->SetLayer( eCollisionLayer::PLAYER );
+	//m_rigidbody->SetLayer( eCollisionLayer::PLAYER );
 
 	//Collider* discCollider = m_map->m_physicsScene->CreateDiscCollider( GetPhysicsRadius() );
 	//m_rigidbody->TakeCollider( discCollider );

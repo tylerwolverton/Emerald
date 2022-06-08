@@ -8,7 +8,6 @@ class AudioSystem;
 class RenderContext;
 class Game;
 class PerformanceTracker;
-class PhysicsSystem;
 class SpriteSheet;
 struct Vec2;
 struct Rgba8;
@@ -19,7 +18,6 @@ struct Rgba8;
 //
 extern Window* g_window;
 extern App* g_app;
-extern PhysicsSystem* g_physicsSystem;
 extern InputSystem* g_inputSystem;
 extern AudioSystem* g_audioSystem;
 extern RenderContext* g_renderer;

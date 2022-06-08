@@ -26,6 +26,8 @@ class Rigidbody
 	friend struct PhysicsScene;
 
 public:
+	Rigidbody( PhysicsScene* owningScene );
+
 	void Update( float deltaSeconds );
 
 	void Destroy(); // helper for destroying myself (uses owner to destroy self)
@@ -52,6 +54,7 @@ public:
 	void ChangeAngularVelocity( float deltaRadians );
 	void SetAngularVelocity( float newAngularVelocity );
 
+	PhysicsScene* GetPhysicsScene() const											{ return m_physicsScene; }
 	float GetMass() const															{ return m_mass; }
 	void SetMass( float mass );
 	void ChangeMass( float deltaMass );
@@ -84,7 +87,7 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	PhysicsScene* m_scene = nullptr;							// which scene created/owns this object
+	PhysicsScene* m_physicsScene = nullptr;							// which scene created/owns this object
 	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 

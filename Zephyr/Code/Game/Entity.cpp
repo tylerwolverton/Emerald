@@ -4,7 +4,6 @@
 #include "Engine/Physics/2D/DiscCollider.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
-#include "Engine/Physics/CollisionResolvers/GJK2DCollisionResolver.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/Rgba8.hpp"
@@ -36,15 +35,59 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 
 	if ( map != nullptr )
 	{
-		m_rigidbody = map->m_physicsScene->CreateRigidbody();
+		InitPhysics( map->m_physicsScene->CreateRigidbody() );
 	}
 
+	Unload();
+
+	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Entity::~Entity()
+{
+	if ( m_rigidbody != nullptr )
+	{
+		if ( m_entityDef.IsTrigger() )
+		{
+			m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.UnsubscribeAllMethodsFromObject( this );
+			m_rigidbody->GetCollider()->m_onTriggerStayDelegate.UnsubscribeAllMethodsFromObject( this );
+			m_rigidbody->GetCollider()->m_onTriggerLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
+		}
+		else
+		{
+			m_rigidbody->GetCollider()->m_onOverlapEnterDelegate.UnsubscribeAllMethodsFromObject( this );
+			m_rigidbody->GetCollider()->m_onOverlapStayDelegate.UnsubscribeAllMethodsFromObject( this );
+			m_rigidbody->GetCollider()->m_onOverlapLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
+		}
+
+		m_rigidbody->Destroy();
+		m_rigidbody = nullptr;
+	}
+
+	g_eventSystem->DeRegisterObject( this );
+
+	PTR_VECTOR_SAFE_DELETE( m_inventory );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::InitPhysics( Rigidbody* newRigidbody )
+{
+	if ( m_rigidbody != nullptr )
+	{
+		m_rigidbody->Destroy();
+	}
+
+	m_rigidbody = newRigidbody;
+
 	m_rigidbody->SetMass( m_entityDef.GetMass() );
-	
+
 	m_rigidbody->SetDrag( m_entityDef.GetDrag() );
 	m_rigidbody->SetLayer( m_entityDef.GetCollisionLayer() );
-	
-	switch( m_entityDef.GetCollisionLayer() )
+
+	switch ( m_entityDef.GetCollisionLayer() )
 	{
 		case eCollisionLayer::STATIC_ENVIRONMENT: m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC ); break;
 		case eCollisionLayer::NPC: m_rigidbody->SetSimulationMode( SIMULATION_MODE_KINEMATIC ); break;
@@ -57,10 +100,13 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	}
 
 	m_rigidbody->m_userProperties.SetValue( "entityId", m_id );
-	
+
+	NamedProperties params;
+	params.SetValue( "radius", GetPhysicsRadius() );
+
 	if ( m_entityDef.IsTrigger() )
 	{
-		Collider* discTrigger = map->m_physicsScene->CreateDiscTrigger( GetPhysicsRadius() );
+		Collider* discTrigger = m_rigidbody->GetPhysicsScene()->CreateTrigger( "disc", &params );
 
 		discTrigger->m_onTriggerEnterDelegate.SubscribeMethod( this, &Entity::EnterTriggerEvent );
 		discTrigger->m_onTriggerStayDelegate.SubscribeMethod( this, &Entity::StayTriggerEvent );
@@ -70,7 +116,7 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 	}
 	else
 	{
-		Collider* discCollider = map->m_physicsScene->CreateDiscCollider( GetPhysicsRadius() );
+		Collider* discCollider = m_rigidbody->GetPhysicsScene()->CreateCollider( "disc", &params );
 
 		discCollider->m_onOverlapEnterDelegate.SubscribeMethod( this, &Entity::EnterCollisionEvent );
 		discCollider->m_onOverlapStayDelegate.SubscribeMethod( this, &Entity::StayCollisionEvent );
@@ -78,38 +124,6 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 
 		m_rigidbody->TakeCollider( discCollider );
 	}
-
-	Unload();
-
-	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Entity::~Entity()
-{
-	if ( m_entityDef.IsTrigger() )
-	{
-		m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody->GetCollider()->m_onTriggerStayDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody->GetCollider()->m_onTriggerLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
-	}
-	else
-	{
-		m_rigidbody->GetCollider()->m_onOverlapEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody->GetCollider()->m_onOverlapStayDelegate.UnsubscribeAllMethodsFromObject( this );
-		m_rigidbody->GetCollider()->m_onOverlapLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
-	}
-
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->Destroy();
-		m_rigidbody = nullptr;
-	}
-
-	g_eventSystem->DeRegisterObject( this );
-
-	PTR_VECTOR_SAFE_DELETE( m_inventory );
 }
 
 

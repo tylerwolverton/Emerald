@@ -68,6 +68,8 @@ public:
 	virtual void		Load();
 	virtual void		Unload();
 
+	void				InitPhysics( Rigidbody* newRigidbody );
+
 	void				ChangeSpriteAnimation( const std::string& spriteAnimDefSetName );
 	void				PlaySpriteAnimation( const std::string& spriteAnimDefSetName );
 	SpriteAnimationSetDefinition* GetSpriteAnimSetDef( const std::string& animSetName ) const { return m_entityDef.GetSpriteAnimSetDef( animSetName ); }

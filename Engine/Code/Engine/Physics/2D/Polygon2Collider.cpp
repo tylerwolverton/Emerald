@@ -1,4 +1,4 @@
-#include "Engine/Physics/2D/PolygonCollider2D.hpp"
+#include "Engine/Physics/2D/Polygon2Collider.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Math/AABB2.hpp"
@@ -10,14 +10,14 @@
 
 
 //-----------------------------------------------------------------------------------------------
-PolygonCollider2D::PolygonCollider2D()
+Polygon2Collider::Polygon2Collider()
 {
 	m_type = COLLIDER_POLYGON;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void PolygonCollider2D::UpdateWorldShape()
+void Polygon2Collider::UpdateWorldShape()
 {
 	m_worldPosition = m_localPosition;
 
@@ -38,14 +38,14 @@ void PolygonCollider2D::UpdateWorldShape()
 
 
 //-----------------------------------------------------------------------------------------------
-const Vec3 PolygonCollider2D::GetClosestPoint( const Vec3& pos ) const
+const Vec3 Polygon2Collider::GetClosestPoint( const Vec3& pos ) const
 {
 	return Vec3( m_polygon.GetClosestPoint( pos.XY() ), 0.f );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool PolygonCollider2D::Contains( const Vec3& pos ) const
+bool Polygon2Collider::Contains( const Vec3& pos ) const
 {
 	return m_polygon.Contains( pos.XY() );
 }
@@ -104,7 +104,7 @@ bool PolygonCollider2D::Contains( const Vec3& pos ) const
 
 
 //-----------------------------------------------------------------------------------------------
-float PolygonCollider2D::CalculateMoment( float mass )
+float Polygon2Collider::CalculateMoment( float mass )
 {
 	Vec2 v0 = m_polygon.m_points[0];
 	float totalI = 0.f;
@@ -141,7 +141,7 @@ float PolygonCollider2D::CalculateMoment( float mass )
 
 
 //-----------------------------------------------------------------------------------------------
-Vec2 PolygonCollider2D::GetFarthestPointInDirection( const Vec2& direction ) const
+Vec2 Polygon2Collider::GetFarthestPointInDirection( const Vec2& direction ) const
 {
 	const std::vector<Vec2>& points = m_polygon.GetPoints();
 
@@ -163,7 +163,7 @@ Vec2 PolygonCollider2D::GetFarthestPointInDirection( const Vec2& direction ) con
 
 
 //-----------------------------------------------------------------------------------------------
-void PolygonCollider2D::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const
+void Polygon2Collider::DebugRender( const Rgba8& borderColor, const Rgba8& fillColor ) const
 {
 	UNUSED( borderColor ); UNUSED( fillColor );
 
@@ -177,11 +177,11 @@ void PolygonCollider2D::DebugRender( const Rgba8& borderColor, const Rgba8& fill
 
 
 //-----------------------------------------------------------------------------------------------
-Collider* PolygonCollider2D::Create( ColliderParams* params )
+Collider* Polygon2Collider::Create( ColliderParams* params )
 {
-	PolygonCollider2D* collider = new PolygonCollider2D();
+	Polygon2Collider* collider = new Polygon2Collider();
 	collider->m_localPosition = params->GetValue( "localPosition", Vec3::ZERO );
-	collider->m_polygon = params->GetValue( "polygon", Polygon2() );
+	collider->m_polygon = params->GetValue( "polygon2", Polygon2() );
 
 	return collider;
 }

@@ -5,7 +5,7 @@
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Physics/Rigidbody.hpp"
 #include "Engine/Physics/2D/DiscCollider.hpp"
-#include "Engine/Physics/2D/PolygonCollider2D.hpp"
+#include "Engine/Physics/2D/Polygon2Collider.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 
 
@@ -14,14 +14,14 @@ typedef Manifold( *CollisionManifoldGenerationCallback )( const Collider*, const
 
 
 //-----------------------------------------------------------------------------------------------
-static Vec2 GetSupportPoint( const PolygonCollider2D* polygonCollider1, const PolygonCollider2D* polygonCollider2, const Vec2& direction )
+static Vec2 GetSupportPoint( const Polygon2Collider* polygonCollider1, const Polygon2Collider* polygonCollider2, const Vec2& direction )
 {
 	return polygonCollider1->GetFarthestPointInDirection( direction ) - polygonCollider2->GetFarthestPointInDirection( -direction );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-static std::vector<Vec2> GetSimplexForGJKCollision( const PolygonCollider2D* polygonCollider1, const PolygonCollider2D* polygonCollider2 )
+static std::vector<Vec2> GetSimplexForGJKCollision( const Polygon2Collider* polygonCollider1, const Polygon2Collider* polygonCollider2 )
 {
 	// Initial point calculation
 	Vec2 direction = polygonCollider2->GetWorldPosition().XY() - polygonCollider1->GetWorldPosition().XY();
@@ -123,7 +123,7 @@ static Manifold DiscVPolygonCollisionManifoldGenerator( const Collider* collider
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
 	const DiscCollider* discCollider = (const DiscCollider*)collider1;
-	const PolygonCollider2D* polygonCollider = (const PolygonCollider2D*)collider2;
+	const Polygon2Collider* polygonCollider = (const Polygon2Collider*)collider2;
 
 	Vec2 closestPointOnPolygonToDisc = polygonCollider->m_polygon.GetClosestPointOnEdge( discCollider->GetWorldPosition().XY() );
 
@@ -184,7 +184,7 @@ static bool GetClippedSegmentToSegment( const Vec2& segmentToClipStart, const Ve
 
 
 //-----------------------------------------------------------------------------------------------
-static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonCollider1, const PolygonCollider2D* polygonCollider2,
+static void GetContactEdgeBetweenPolygons( const Polygon2Collider* polygonCollider1, const Polygon2Collider* polygonCollider2,
 										   const Vec2& normal, float penetrationDepth,
 										   Vec3* out_contactMin, Vec3* out_contactMax )
 {
@@ -295,8 +295,8 @@ static void GetContactEdgeBetweenPolygons( const PolygonCollider2D* polygonColli
 static Manifold PolygonVPolygonCollisionManifoldGenerator( const Collider* collider1, const Collider* collider2 )
 {
 	// this function is only called if the types tell me these casts are safe - so no need to a dynamic cast or type checks here.
-	const PolygonCollider2D* polygonCollider1 = (const PolygonCollider2D*)collider1;
-	const PolygonCollider2D* polygonCollider2 = (const PolygonCollider2D*)collider2;
+	const Polygon2Collider* polygonCollider1 = (const Polygon2Collider*)collider1;
+	const Polygon2Collider* polygonCollider2 = (const Polygon2Collider*)collider2;
 
 	if ( !DoAABBsOverlap2D( polygonCollider1->GetWorldBounds(), polygonCollider2->GetWorldBounds() ) )
 	{

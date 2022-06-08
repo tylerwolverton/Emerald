@@ -7,7 +7,6 @@
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsScene.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
-#include "Engine/Physics/CollisionResolvers/GJK2DCollisionResolver.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -36,8 +35,6 @@ Map::Map( const MapData& mapData, World* world )
 	, m_world( world )
 {
 	m_physicsScene = new PhysicsScene();
-	m_curCollisionResolver = new GJK2DCollisionResolver();
-	m_physicsScene->SetCollisionResolver( m_curCollisionResolver );
 }
 
 
@@ -55,7 +52,6 @@ Map::~Map()
 	m_entities.clear();
 
 	PTR_SAFE_DELETE( m_physicsScene );
-	PTR_SAFE_DELETE( m_curCollisionResolver );
 }
 
 
@@ -80,6 +76,7 @@ void Map::Load( Entity* player )
 	AddToEntityList( m_player );
 
 	player->SetMap( this );
+	player->InitPhysics( this->m_physicsScene->CreateRigidbody() );
 	player->SetPosition( m_playerStartPos );
 	player->SetOrientationDegrees( m_playerStartYaw );
 }
@@ -103,6 +100,7 @@ void Map::Unload()
 		}
 	}
 
+	m_player->m_rigidbody->Destroy();
 	m_player = nullptr;
 }
 
@@ -135,7 +133,7 @@ void Map::Update( float deltaSeconds )
 	DebugAddScreenTextf( Vec4( 0.f, .05f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Entity Count: %d", (int)m_entities.size() );
 	DebugAddScreenTextf( Vec4( 0.f, 0.f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Update Time: %.2f ms", msElapsed );
 
-	g_physicsSystem->Update( *m_physicsScene );
+	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
 
 	UpdateMesh();
 

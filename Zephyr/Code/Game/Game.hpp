@@ -2,6 +2,7 @@
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Time/Timer.hpp"
 #include "Engine/UI/UISystem.hpp"
 
@@ -85,6 +86,8 @@ public:
 	void		PlaySoundByName( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 	void		ChangeMusic( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 
+	PhysicsSystem2D* GetCurrentPhysicsSystem() const									{ return m_physicsSystem; }
+
 public:
 	RandomNumberGenerator* m_rng = nullptr;
 
@@ -115,6 +118,8 @@ private:
 private:
 	Clock* m_gameClock = nullptr;
 	Timer* m_stepTimer = nullptr;
+
+	PhysicsSystem2D* m_physicsSystem = nullptr;
 
 	bool m_isPaused = false;
 	bool m_isDebugRendering = false;

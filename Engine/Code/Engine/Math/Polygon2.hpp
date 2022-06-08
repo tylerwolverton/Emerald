@@ -13,7 +13,7 @@ class ConvexHull2D;
 //-----------------------------------------------------------------------------------------------
 class Polygon2
 {
-	friend class PolygonCollider2D;
+	friend class Polygon2Collider;
 
 public:
 	Polygon2() = default;

@@ -16,6 +16,8 @@
 #include "Engine/OS/Window.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
+#include "Engine/Physics/2D/DiscCollider.hpp"
+#include "Engine/Physics/2D/Polygon2Collider.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/Camera.hpp"
@@ -78,7 +80,11 @@ void Game::Startup()
 	Clock::GetMaster()->SetFrameLimits( 1.0/60.0, .1 );
 
 	g_renderer->Setup( m_gameClock );
-	g_physicsSystem->Startup( m_gameClock );
+
+	m_physicsSystem = new PhysicsSystem2D();
+	m_physicsSystem->Startup( m_gameClock );
+	g_colliderFactory->RegisterCreator( "disc", &DiscCollider::Create );
+	g_colliderFactory->RegisterCreator( "polygon2", &Polygon2Collider::Create );
 	g_physicsConfig->PopulateFromXml();
 
 	DisableAllPhysicsLayerInteraction( eCollisionLayer::NONE );
@@ -126,6 +132,7 @@ void Game::Shutdown()
 	PTR_SAFE_DELETE( m_dialogueBox );
 
 	m_uiSystem->Shutdown();
+	m_physicsSystem->Shutdown();
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_world );
@@ -134,6 +141,7 @@ void Game::Shutdown()
 	PTR_SAFE_DELETE( m_uiCamera );
 	PTR_SAFE_DELETE( m_worldCamera );
 	PTR_SAFE_DELETE( m_uiSystem );
+	PTR_SAFE_DELETE( m_physicsSystem );
 }
 
 

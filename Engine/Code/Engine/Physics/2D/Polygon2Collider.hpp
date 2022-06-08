@@ -11,10 +11,10 @@ struct AABB2;
 
 
 //-----------------------------------------------------------------------------------------------
-class PolygonCollider2D : public Collider
+class Polygon2Collider : public Collider
 {
 public:
-	PolygonCollider2D();
+	Polygon2Collider();
 
 	virtual void UpdateWorldShape() override;
 
@@ -36,7 +36,7 @@ public:
 	static Collider* Create( ColliderParams* params );
 
 protected:
-	virtual ~PolygonCollider2D() {}
+	virtual ~Polygon2Collider() {}
 
 public:
 	Polygon2 m_polygon;			// polygon that makes up body of collider

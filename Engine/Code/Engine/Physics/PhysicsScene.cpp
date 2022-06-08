@@ -17,7 +17,7 @@ void PhysicsScene::DebugRender() const
 //-----------------------------------------------------------------------------------------------
 Rigidbody* PhysicsScene::CreateRigidbody()
 {
-	Rigidbody* newRigidbody = new Rigidbody();
+	Rigidbody* newRigidbody = new Rigidbody( this );
 
 	rigidbodies.push_back( newRigidbody );
 	return newRigidbody;
