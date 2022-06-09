@@ -3,6 +3,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
+#include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
@@ -112,8 +113,12 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 			}
 		}
 
-		std::string collisionLayerStr = ParseXmlAttribute( *physicsElem, "collisionLayer", "" );
-		m_collisionLayer = GetCollisionLayerFromString( collisionLayerStr );
+		m_initialCollisionLayer = ParseXmlAttribute( *physicsElem, "collisionLayer", m_initialCollisionLayer );
+		if ( !IsPhysicsLayerDefined( m_initialCollisionLayer ) )
+		{
+			g_devConsole->PrintError( Stringf( "Layer '%s' has not been defined in PhysicsConfig.xml", m_initialCollisionLayer.c_str() ) );
+			m_initialCollisionLayer = "";
+		}
 
 		m_isTrigger = ParseXmlAttribute( *physicsElem, "isTrigger", false );
 	}

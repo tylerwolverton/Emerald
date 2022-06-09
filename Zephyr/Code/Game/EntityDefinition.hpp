@@ -48,7 +48,7 @@ public:
 	float			GetSpeed() const															{ return m_speed; }
 	float			GetMass() const																{ return m_mass; }
 	float			GetDrag() const																{ return m_drag; }
-	eCollisionLayer	GetCollisionLayer() const													{ return m_collisionLayer; }
+	std::string		GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
 	eSimulationMode	GetSimMode() const															{ return m_simMode; }
 	bool			IsTrigger() const															{ return m_isTrigger; }
 
@@ -67,7 +67,7 @@ protected:
 	bool			m_isValid = false;
 	std::string		m_type;
 	eEntityClass	m_class = eEntityClass::UNKNOWN;
-	eCollisionLayer	m_collisionLayer = eCollisionLayer::NONE;
+	std::string		m_initialCollisionLayer;
 	eSimulationMode	m_simMode = eSimulationMode::SIMULATION_MODE_NONE;
 	bool			m_isTrigger = false;
 	float			m_maxHealth = 1.f;

@@ -85,13 +85,21 @@ void Entity::InitPhysics( Rigidbody* newRigidbody )
 	m_rigidbody->SetMass( m_entityDef.GetMass() );
 
 	m_rigidbody->SetDrag( m_entityDef.GetDrag() );
-	m_rigidbody->SetLayer( m_entityDef.GetCollisionLayer() );
 
-	switch ( m_entityDef.GetCollisionLayer() )
+	std::string collisionLayer = m_entityDef.GetInitialCollisionLayer();
+	m_rigidbody->SetLayer( collisionLayer );
+
+	if ( IsEqualIgnoreCase( collisionLayer, "environment" ) )
 	{
-		case eCollisionLayer::STATIC_ENVIRONMENT: m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC ); break;
-		case eCollisionLayer::NPC: m_rigidbody->SetSimulationMode( SIMULATION_MODE_KINEMATIC ); break;
-		default: m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC ); break;
+		m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+	}
+	else if ( IsEqualIgnoreCase( collisionLayer, "npc" ) )
+	{
+		m_rigidbody->SetSimulationMode( SIMULATION_MODE_KINEMATIC );
+	}
+	else
+	{
+		m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
 	}
 
 	if ( m_entityDef.GetSimMode() != eSimulationMode::SIMULATION_MODE_NONE )

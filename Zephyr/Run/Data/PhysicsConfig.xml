@@ -1,0 +1,37 @@
+<!-- Reserved for general physics settings -->
+<PhysicsConfig>
+    
+    <!-- Maximum of 32 layers may be defined -->
+    <Layers>
+        <Layer name="player"/>
+        <Layer name="playerProjectile"/>
+        <Layer name="enemy"/>
+        <Layer name="enemyProjectile"/>
+        <Layer name="portal"/>
+        <Layer name="pickup"/>
+        <Layer name="environment"/>
+        <Layer name="noCollision"/>
+        <Layer name="npc"/>
+    </Layers>
+
+    <!-- 
+        By default, all layers will interact with all others.
+        Disable    - disables interaction between 2 layers
+        Enable     - enables interaction between 2 layers
+        DisableAll - disables a layer from interacting with any others 
+    -->
+    <LayerInteractions>
+         <DisableAll layer="noCollision"/> 
+         <Disable layer1="environment" layer2="environment"/>
+         <Disable layer1="player" layer2="playerProjectile"/>
+         <Disable layer1="enemy" layer2="enemyProjectile"/>
+         <Disable layer1="playerProjectile" layer2="playerProjectile"/>
+         <Disable layer1="enemyProjectile" layer2="enemyProjectile"/>
+         <Disable layer1="portal" layer2="playerProjectile"/>
+         <Disable layer1="portal" layer2="enemyProjectile"/>
+         <Disable layer1="portal" layer2="environment"/>
+         <DisableAll layer="pickup"/> 
+         <Enable layer1="player" layer2="pickup"/> 
+    </LayerInteractions>
+
+</PhysicsConfig>

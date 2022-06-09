@@ -250,6 +250,7 @@
     <Xml Include="..\..\Run\Data\Maps\PoisonTrapRoom.xml" />
     <Xml Include="..\..\Run\Data\Maps\SlidingPuzzleRoom.xml" />
     <Xml Include="..\..\Run\Data\Maps\VictoryLevel.xml" />
+    <Xml Include="..\..\Run\Data\PhysicsConfig.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

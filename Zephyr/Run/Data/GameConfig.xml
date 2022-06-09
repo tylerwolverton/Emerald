@@ -5,4 +5,5 @@
 	windowTitle="Zephyr Test"
 	windowMode="windowed"
   dataPathSuffix=""
+  physicsConfigPath="Data/PhysicsConfig.xml"
 />

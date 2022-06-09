@@ -57,6 +57,8 @@ public:
 	eEntityClass	GetClass() const															{ return m_class; }
 	Vec2			GetVisualSize() const														{ return m_visualSize; }
 	float			GetMass() const																{ return m_mass; }
+	std::string		GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
+	bool			HasPhysics() const															{ return m_hasPhysics; }
 
 	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
 	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }
@@ -72,6 +74,7 @@ protected:
 	std::string		m_type;
 	eEntityClass	m_class = eEntityClass::UNKNOWN;
 
+	bool			m_hasPhysics = false; // TODO: Go full ECS with this
 	float			m_physicsRadius = 0.f;
 	float			m_height = 0.f;
 	float			m_eyeHeight = 0.f;

@@ -87,17 +87,17 @@ void Game::Startup()
 	g_colliderFactory->RegisterCreator( "polygon2", &Polygon2Collider::Create );
 	g_physicsConfig->PopulateFromXml();
 
-	DisableAllPhysicsLayerInteraction( eCollisionLayer::NONE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::STATIC_ENVIRONMENT, eCollisionLayer::STATIC_ENVIRONMENT );
-	DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PLAYER_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY, eCollisionLayer::ENEMY_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER_PROJECTILE, eCollisionLayer::PLAYER_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY_PROJECTILE, eCollisionLayer::ENEMY_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::PLAYER_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::ENEMY_PROJECTILE );
-	DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::STATIC_ENVIRONMENT );
-	DisableAllPhysicsLayerInteraction( eCollisionLayer::PICKUP );
-	EnablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PICKUP );
+	//DisableAllPhysicsLayerInteraction( eCollisionLayer::NONE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::STATIC_ENVIRONMENT, eCollisionLayer::STATIC_ENVIRONMENT );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PLAYER_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY, eCollisionLayer::ENEMY_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::PLAYER_PROJECTILE, eCollisionLayer::PLAYER_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::ENEMY_PROJECTILE, eCollisionLayer::ENEMY_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::PLAYER_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::ENEMY_PROJECTILE );
+	//DisablePhysicsLayerInteraction( eCollisionLayer::PORTAL, eCollisionLayer::STATIC_ENVIRONMENT );
+	//DisableAllPhysicsLayerInteraction( eCollisionLayer::PICKUP );
+	//EnablePhysicsLayerInteraction( eCollisionLayer::PLAYER, eCollisionLayer::PICKUP );
 
 	g_inputSystem->PushMouseOptions( CURSOR_ABSOLUTE, true, false );
 

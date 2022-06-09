@@ -80,6 +80,8 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 	const XmlElement* physicsElem = entityDefElem.FirstChildElement( "Physics" );
 	if( physicsElem != nullptr )
 	{
+		m_hasPhysics = true;
+
 		m_physicsRadius = ParseXmlAttribute( *physicsElem, "radius", m_physicsRadius );
 		m_height = ParseXmlAttribute( *physicsElem, "height", m_height );
 		m_eyeHeight = ParseXmlAttribute( *physicsElem, "eyeHeight", m_eyeHeight );

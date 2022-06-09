@@ -333,28 +333,32 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
-		Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
-		newEntity->SetRigidbody( rigidbody );
-		rigidbody->SetPosition( mapEntityDef.position );
-		rigidbody->SetMass( mapEntityDef.entityDef->GetMass() );
-		newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
-
-		for ( const ColliderData& colData : newEntity->GetColliderDataVec() )
+		if ( mapEntityDef.entityDef->HasPhysics() )
 		{
-			NamedProperties params;
-			params.SetValue( "localPosition", colData.offsetFromCenter );
+			Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+			rigidbody->SetLayer( mapEntityDef.entityDef->GetInitialCollisionLayer() );
+			newEntity->SetRigidbody( rigidbody );
+			rigidbody->SetPosition( mapEntityDef.position );
+			rigidbody->SetMass( mapEntityDef.entityDef->GetMass() );
+			newEntity->m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
 
-			switch ( colData.type )
+			for ( const ColliderData& colData : newEntity->GetColliderDataVec() )
 			{
-				case COLLIDER_SPHERE:
-					params.SetValue( "radius", colData.radius );
-					rigidbody->TakeCollider( m_physicsScene->CreateCollider( "sphere", &params ) );
-					break;
+				NamedProperties params;
+				params.SetValue( "localPosition", colData.offsetFromCenter );
 
-				case COLLIDER_OBB3:
-					params.SetValue( "obb3", colData.obb3 );
-					rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
-					break;
+				switch ( colData.type )
+				{
+					case COLLIDER_SPHERE:
+						params.SetValue( "radius", colData.radius );
+						rigidbody->TakeCollider( m_physicsScene->CreateCollider( "sphere", &params ) );
+						break;
+
+					case COLLIDER_OBB3:
+						params.SetValue( "obb3", colData.obb3 );
+						rigidbody->TakeCollider( m_physicsScene->CreateCollider( "obb3", &params ) );
+						break;
+				}
 			}
 		}
 	}
