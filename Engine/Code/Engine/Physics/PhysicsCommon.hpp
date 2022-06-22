@@ -14,10 +14,6 @@
 class Collider;
 class Rigidbody;
 class NamedProperties;
-template <class CollisionPolicy>
-class PhysicsSystem;
-class GJK2DCollision;
-class Simple3DCollision;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -53,9 +49,6 @@ typedef std::vector<Rigidbody*> RigidbodyVector;
 typedef std::vector<Collider*> ColliderVector;
 typedef std::vector<Collision> CollisionVector;
 typedef std::map<std::string, AffectorFn> AffectorMap;
-
-typedef PhysicsSystem<GJK2DCollision> PhysicsSystem2D;
-typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
 
 typedef std::string ColliderId;
 typedef NamedProperties ColliderParams;

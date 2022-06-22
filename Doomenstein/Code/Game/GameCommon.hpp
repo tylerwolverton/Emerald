@@ -34,6 +34,16 @@ extern PerformanceTracker* g_performanceTracker;
 
 
 //-----------------------------------------------------------------------------------------------
+// System typedefs
+//-----------------------------------------------------------------------------------------------
+template <class CollisionPolicy>
+class PhysicsSystem;
+class Simple3DCollision;
+
+typedef PhysicsSystem<Simple3DCollision> PhysicsSystem3D;
+
+
+//-----------------------------------------------------------------------------------------------
 // Game Constants
 //-----------------------------------------------------------------------------------------------
 constexpr float CLIENT_ASPECT = 16.f / 9.f;
@@ -46,8 +56,6 @@ constexpr float WINDOW_WIDTH_PIXELS = 1920.f;
 constexpr float WINDOW_HEIGHT_PIXELS = 1080.f;
 
 constexpr float TILE_SIZE = 1.f;
-
-constexpr float PHYSICS_FRICTION_FRACTION = .05f;
 
 constexpr float DEBUG_LINE_THICKNESS = 0.02f;
 

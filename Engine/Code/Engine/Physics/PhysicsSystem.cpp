@@ -32,12 +32,12 @@ void PhysicsSystemBase::Startup( Clock* gameClock )
 //-----------------------------------------------------------------------------------------------
 void PhysicsSystemBase::Update( PhysicsScene& scene )
 {
-	//while ( m_stepTimer->CheckAndDecrement() )
-	//{
-	//	AdvanceSimulation( scene, s_fixedDeltaSeconds );
-	//}
+	while ( m_stepTimer->CheckAndDecrement() )
+	{
+		AdvanceSimulation( scene, s_fixedDeltaSeconds );
+	}
 
-	AdvanceSimulation( scene, (float)m_physicsClock->GetLastDeltaSeconds() );
+	//AdvanceSimulation( scene, (float)m_physicsClock->GetLastDeltaSeconds() );
 }
 
 
