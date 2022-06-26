@@ -26,6 +26,16 @@ extern PerformanceTracker* g_performanceTracker;
 
 
 //-----------------------------------------------------------------------------------------------
+// System typedefs
+//-----------------------------------------------------------------------------------------------
+template <class CollisionPolicy>
+class PhysicsSystem;
+class GJK2DCollision;
+
+typedef PhysicsSystem<GJK2DCollision> PhysicsSystem2D;
+
+
+//-----------------------------------------------------------------------------------------------
 // Global Functions
 //
 void PopulateGameConfig();

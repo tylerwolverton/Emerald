@@ -4,8 +4,8 @@
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCU.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEntity.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
 #include "Game/EntityDefinition.hpp"
 
 #include <string>

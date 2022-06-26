@@ -35,7 +35,7 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 
 	if ( map != nullptr )
 	{
-		InitPhysics( map->m_physicsScene->CreateRigidbody() );
+		//InitPhysics( map->m_physicsScene->CreateRigidbody() );
 	}
 
 	Unload();

@@ -12,9 +12,9 @@
 Pickup::Pickup( const EntityDefinition& entityDef, Map* map )
 	: Entity( entityDef, map )
 {
-	m_rigidbody->SetLayer( eCollisionLayer::PICKUP );
+	//m_rigidbody->SetLayer( eCollisionLayer::PICKUP );
 
-	m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Pickup::EnterCollisionEvent );
+	//m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Pickup::EnterCollisionEvent );
 }
 
 

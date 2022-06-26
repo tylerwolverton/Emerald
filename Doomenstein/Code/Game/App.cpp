@@ -13,13 +13,13 @@
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Time/Clock.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEngineAPI.hpp"
-#include "Engine/ZephyrCore/ZephyrSystem.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
-#include "Game/Scripting/ZephyrGameAPI.hpp"
+#include "Game/Scripting/ZephyrGameEvents.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void App::Startup()
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
 	g_zephyrSystem = new ZephyrSystem();
-	g_zephyrAPI = new ZephyrGameAPI();
+	g_zephyrAPI = new ZephyrGameEvents();
 	g_performanceTracker = new PerformanceTracker();
 	g_game = new Game();
 

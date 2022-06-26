@@ -4,8 +4,8 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/Collider.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEntityDefinition.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrEntityDefinition.hpp"
 #include "Game/GameCommon.hpp"
 
 #include <string>

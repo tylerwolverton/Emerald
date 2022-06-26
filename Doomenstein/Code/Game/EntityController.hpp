@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/ZephyrCore/ZephyrEntity.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
 #include "Game/GameCamera.hpp"
 
 

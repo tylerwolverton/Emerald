@@ -364,70 +364,70 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 	}
 }
 
-
-//-----------------------------------------------------------------------------------------------
-void Map::ResolveCollisionEvents( Entity* entity, Entity* otherEntity )
-{
-	EventArgs args;
-	args.SetValue( "otherEntity", otherEntity->GetId() );
-	args.SetValue( "otherEntityName", otherEntity->GetName() );
-	args.SetValue( "otherEntityType", otherEntity->GetType() );
-
-	EventArgs otherArgs;
-	otherArgs.SetValue( "otherEntity", entity->GetId() );
-	otherArgs.SetValue( "otherEntityName", entity->GetName() );
-	otherArgs.SetValue( "otherEntityType", entity->GetType() );
-
-	// TODO: 3D Physics?
-	if ( DoDiscsOverlap( entity->GetPosition().XY(), entity->GetPhysicsRadius(), otherEntity->GetPosition().XY(), otherEntity->GetPhysicsRadius() ) )
-	{
-		// If entities are already colliding, fire stay
-		if ( entity->m_collidingEntities.count( otherEntity->GetId() ) > 0 )
-		{
-			// Fire events as long as the entities are still valid
-			if ( entity != nullptr )
-			{
-				entity->FireScriptEvent( "OnCollisionStay", &args );
-			}
-			if ( otherEntity != nullptr )
-			{
-				otherEntity->FireScriptEvent( "OnCollisionStay", &otherArgs );
-			}
-		}
-		else
-		{
-			entity->m_collidingEntities.insert( otherEntity->GetId() );
-			otherEntity->m_collidingEntities.insert( entity->GetId() );
-
-			// Fire events as long as the entities are still valid
-			if ( entity != nullptr )
-			{
-				entity->FireScriptEvent( "OnCollisionEnter", &args );
-			}
-			if ( otherEntity != nullptr )
-			{
-				otherEntity->FireScriptEvent( "OnCollisionEnter", &otherArgs );
-			}
-		}
-	}
-	else
-	{
-		// Entities were colliding earlier, fire leave events
-		if ( entity != nullptr && otherEntity != nullptr
-			 && entity->m_collidingEntities.count( otherEntity->GetId() ) > 0 )
-		{
-			entity->m_collidingEntities.erase( otherEntity->GetId() );
-			otherEntity->m_collidingEntities.erase( entity->GetId() );
-
-			// Fire events as long as the entities are still valid
-			if ( entity != nullptr )
-			{
-				entity->FireScriptEvent( "OnCollisionLeave", &args );
-			}
-			if ( otherEntity != nullptr )
-			{
-				otherEntity->FireScriptEvent( "OnCollisionLeave", &otherArgs );
-			}
-		}
-	}
-}
+//
+////-----------------------------------------------------------------------------------------------
+//void Map::ResolveCollisionEvents( Entity* entity, Entity* otherEntity )
+//{
+//	EventArgs args;
+//	args.SetValue( "otherEntity", otherEntity->GetId() );
+//	args.SetValue( "otherEntityName", otherEntity->GetName() );
+//	args.SetValue( "otherEntityType", otherEntity->GetType() );
+//
+//	EventArgs otherArgs;
+//	otherArgs.SetValue( "otherEntity", entity->GetId() );
+//	otherArgs.SetValue( "otherEntityName", entity->GetName() );
+//	otherArgs.SetValue( "otherEntityType", entity->GetType() );
+//
+//	// TODO: 3D Physics?
+//	if ( DoDiscsOverlap( entity->GetPosition().XY(), entity->GetPhysicsRadius(), otherEntity->GetPosition().XY(), otherEntity->GetPhysicsRadius() ) )
+//	{
+//		// If entities are already colliding, fire stay
+//		if ( entity->m_collidingEntities.count( otherEntity->GetId() ) > 0 )
+//		{
+//			// Fire events as long as the entities are still valid
+//			if ( entity != nullptr )
+//			{
+//				entity->FireScriptEvent( "OnCollisionStay", &args );
+//			}
+//			if ( otherEntity != nullptr )
+//			{
+//				otherEntity->FireScriptEvent( "OnCollisionStay", &otherArgs );
+//			}
+//		}
+//		else
+//		{
+//			entity->m_collidingEntities.insert( otherEntity->GetId() );
+//			otherEntity->m_collidingEntities.insert( entity->GetId() );
+//
+//			// Fire events as long as the entities are still valid
+//			if ( entity != nullptr )
+//			{
+//				entity->FireScriptEvent( "OnCollisionEnter", &args );
+//			}
+//			if ( otherEntity != nullptr )
+//			{
+//				otherEntity->FireScriptEvent( "OnCollisionEnter", &otherArgs );
+//			}
+//		}
+//	}
+//	else
+//	{
+//		// Entities were colliding earlier, fire leave events
+//		if ( entity != nullptr && otherEntity != nullptr
+//			 && entity->m_collidingEntities.count( otherEntity->GetId() ) > 0 )
+//		{
+//			entity->m_collidingEntities.erase( otherEntity->GetId() );
+//			otherEntity->m_collidingEntities.erase( entity->GetId() );
+//
+//			// Fire events as long as the entities are still valid
+//			if ( entity != nullptr )
+//			{
+//				entity->FireScriptEvent( "OnCollisionLeave", &args );
+//			}
+//			if ( otherEntity != nullptr )
+//			{
+//				otherEntity->FireScriptEvent( "OnCollisionLeave", &otherArgs );
+//			}
+//		}
+//	}
+//}
