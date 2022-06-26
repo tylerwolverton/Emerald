@@ -77,6 +77,10 @@ ZephyrEntityDefinition::ZephyrEntityDefinition( const XmlElement& entityDefElem 
 				{
 					m_zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec2::ZERO ) );
 				}
+				else if ( !_strcmpi( typeName.c_str(), "vec3" ) )
+				{
+					m_zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec3::ZERO ) );
+				}
 				else if ( !_strcmpi( typeName.c_str(), "entity" ) )
 				{
 					m_zephyrEntityVarInits.emplace_back( varName, valueStr );

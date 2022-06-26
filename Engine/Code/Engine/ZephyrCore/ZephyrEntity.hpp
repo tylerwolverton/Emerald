@@ -6,6 +6,11 @@
 #include <string>
 #include <vector>
 
+// REFACTOR
+// Redesign into ZephyrScriptState holding all variables in ZephyrScript.hpp currently
+// ZephyrSystem should have functions taking a ZephyrScriptState and whatever else is needed to ChangeState, FireEvent etc
+// Each entity could just have a ZephyrScriptState/ptr to one and remove need for ZephyrEntity altogether. Use new system to handle any behavior
+
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrScript;

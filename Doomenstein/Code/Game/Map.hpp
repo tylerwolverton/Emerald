@@ -44,21 +44,21 @@ public:
 	virtual void		Render() const;
 	virtual void		DebugRender() const;
 
-
 	const std::string&	GetName() const												{ return m_name; }
 
+	// Adding and removing entities from map
 	virtual Entity*		SpawnNewEntityOfType( const std::string& entityDefName );
 	virtual Entity*		SpawnNewEntityOfType( const EntityDefinition& entityDef );
-
-	void				UnloadAllEntityScripts();
-	void				ReloadAllEntityScripts();
-	void				InitializeAllZephyrEntityVariables();
-
-	void				CallAllMapEntityZephyrSpawnEvents( Entity* player );
-
 	void				RemoveOwnershipOfEntity( Entity* entityToRemove );
 	void				TakeOwnershipOfEntity( Entity* entityToAdd );
 
+	// REFACTOR: Move to Zephyr specific object, or maybe pre init, post init, etc.
+	void				UnloadAllEntityScripts();
+	void				ReloadAllEntityScripts();
+	void				InitializeAllZephyrEntityVariables();
+	void				CallAllMapEntityZephyrSpawnEvents( Entity* player );
+
+	// Entity queries
 	Entity*				GetEntityById( EntityId id );
 	Entity*				GetEntityByName( const std::string& name );
 	Entity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
@@ -67,8 +67,6 @@ public:
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );
 
-	void ResolveCollisionEvents( Entity* entity, Entity* otherEntity );
-
 	virtual RaycastResult Raycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const = 0;
 
 protected:
@@ -76,9 +74,9 @@ protected:
 	World*					m_world = nullptr;
 	
 	PhysicsScene*			m_physicsScene = nullptr;
-	//CollisionResolver*				m_curCollisionResolver = nullptr;
 
 	// Multiplayer TODO: Make this into an array
+	// REFACTOR: Move to EntitySpawn object or something
 	Vec3					m_playerStartPos = Vec3::ZERO;
 	float					m_playerStartYaw = 0.f;
 

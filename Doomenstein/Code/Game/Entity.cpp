@@ -50,6 +50,7 @@ void Entity::Update( float deltaSeconds )
 {
 	m_cumulativeTime += deltaSeconds;
 
+	// REFACTOR: Move to input component
 	if ( !m_isDead )
 	{
 		if ( m_isPossessed )
@@ -60,6 +61,7 @@ void Entity::Update( float deltaSeconds )
 
 	ZephyrEntity::Update( deltaSeconds );
 
+	// REFACTOR: Move to GraphicsComponent/SpriteAnimationComponent
 	Vec3 position = GetPosition();
 	if ( m_curSpriteAnimSetDef != nullptr )
 	{
@@ -69,6 +71,7 @@ void Entity::Update( float deltaSeconds )
 		m_curSpriteAnimSetDef->FireFrameEvent( frameIndex, this );
 	}
 
+	// REFACTOR: Do this better somehow
 	switch ( m_gameLight.type )
 	{
 		case eLightType::DYNAMIC_LIGHT:

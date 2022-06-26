@@ -87,7 +87,7 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	PhysicsScene* m_physicsScene = nullptr;							// which scene created/owns this object
+	PhysicsScene* m_physicsScene = nullptr;						// which scene created/owns this object
 	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
 	Collider* m_collider = nullptr;
 

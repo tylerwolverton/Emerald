@@ -72,9 +72,9 @@ public:
 	static const Vec3 GetWorldForwardVector();
 
 private:
-	Vec3 m_position = Vec3::ZERO; 
-	float m_pitchDegrees = 0.f;
-	float m_rollDegrees = 0.f;
-	float m_yawDegrees = 0.f;
-	Vec3 m_scale		= Vec3::ONE;
+	Vec3 m_position			= Vec3::ZERO; 
+	float m_pitchDegrees	= 0.f;
+	float m_rollDegrees		= 0.f;
+	float m_yawDegrees		= 0.f;
+	Vec3 m_scale			= Vec3::ONE;
 };
