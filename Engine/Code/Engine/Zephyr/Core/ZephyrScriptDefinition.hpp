@@ -40,5 +40,5 @@ private:
 	static std::string s_dataPathSuffix;
 
 	ZephyrBytecodeChunk* m_globalBytecodeChunk = nullptr;					// Owned by ZephyrScriptDefinition
-	ZephyrBytecodeChunkMap m_bytecodeChunks;									// Owned by ZephyrScriptDefinition
+	ZephyrBytecodeChunkMap m_bytecodeChunks;								// Owned by ZephyrScriptDefinition
 };

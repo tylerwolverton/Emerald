@@ -129,8 +129,6 @@ protected:
 	Rigidbody*						m_rigidbody = nullptr;
 	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
 
-	std::unordered_set<EntityId>	m_collidingEntities;
-
 	// Visual
 	float							m_cumulativeTime = 0.f;
 	std::vector<Vertex_PCU>			m_vertices;

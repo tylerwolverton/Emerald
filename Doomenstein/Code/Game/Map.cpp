@@ -190,9 +190,6 @@ void Map::CallAllMapEntityZephyrSpawnEvents( Entity* player )
 //-----------------------------------------------------------------------------------------------
 void Map::RemoveOwnershipOfEntity( Entity* entityToRemove )
 {
-	// TODO: Fire leave events for each collision entity
-	entityToRemove->m_collidingEntities.clear();
-
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		Entity*& entity = m_entities[entityIdx];

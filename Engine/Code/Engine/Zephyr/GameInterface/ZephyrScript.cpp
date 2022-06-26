@@ -20,6 +20,11 @@ ZephyrScript::ZephyrScript( const ZephyrScriptDefinition& scriptDef, ZephyrEntit
 	{
 		return;
 	}
+	
+	if ( parentEntity == nullptr )
+	{
+		return;
+	}
 
 	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *m_scriptDef.GetGlobalBytecodeChunk() );
 	GUARANTEE_OR_DIE( m_globalBytecodeChunk != nullptr, "Global Bytecode Chunk was null" );
