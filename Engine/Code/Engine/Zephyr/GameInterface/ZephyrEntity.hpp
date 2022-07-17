@@ -13,7 +13,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrScript;
+class ZephyrComponent;
 class ZephyrEntityDefinition;
 
 
@@ -61,7 +61,7 @@ public:
 
 protected:
 	const ZephyrEntityDefinition& m_entityDef;
-	ZephyrScript*	m_scriptObj = nullptr;
+	ZephyrComponent*	m_scriptObj = nullptr;
 
 	std::string		m_name;
 	EntityId		m_id = -1;

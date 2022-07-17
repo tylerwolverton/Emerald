@@ -328,6 +328,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		// Define initial script values defined in map file
 		// Note: These will override any initial values already defined in the EntityDefinition
 		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
+		// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
 		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 
 		if ( mapEntityDef.entityDef->HasPhysics() )

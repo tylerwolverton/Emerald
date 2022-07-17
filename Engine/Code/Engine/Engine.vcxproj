@@ -276,7 +276,7 @@
     <ClCompile Include="Zephyr\GameInterface\ZephyrEngineEvents.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrEntity.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrEntityDefinition.cpp" />
-    <ClCompile Include="Zephyr\GameInterface\ZephyrScript.cpp" />
+    <ClCompile Include="Zephyr\GameInterface\ZephyrComponent.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -419,7 +419,7 @@
     <ClInclude Include="Zephyr\GameInterface\ZephyrEngineEvents.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEntity.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEntityDefinition.hpp" />
-    <ClInclude Include="Zephyr\GameInterface\ZephyrScript.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrComponent.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
   </ItemGroup>
   <ItemGroup>

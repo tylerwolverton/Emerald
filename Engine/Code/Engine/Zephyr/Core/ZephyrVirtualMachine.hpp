@@ -27,7 +27,7 @@ class ZephyrVirtualMachine
 	friend class ZephyrInterpreter;
 
 private:
-	ZephyrVirtualMachine();
+	ZephyrVirtualMachine() {}
 	
 	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 										ZephyrValueMap* globalVariables, 

@@ -20,8 +20,8 @@ public:
 class ZephyrSystem
 {
 public:
-	ZephyrSystem();
-	~ZephyrSystem();
+	ZephyrSystem() {}
+	~ZephyrSystem() {}
 
 	void		Startup( const ZephyrSystemParams& params );
 	void		BeginFrame(){};

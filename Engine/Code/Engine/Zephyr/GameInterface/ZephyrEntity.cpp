@@ -4,7 +4,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEntityDefinition.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrScript.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -17,7 +17,7 @@ void ZephyrEntity::CreateZephyrScript( const ZephyrEntityDefinition& entityDef )
 	ZephyrScriptDefinition* scriptDef = entityDef.GetZephyrScriptDefinition();
 	if ( scriptDef != nullptr )
 	{
-		m_scriptObj = new ZephyrScript( *scriptDef, this );
+		m_scriptObj = new ZephyrComponent( *scriptDef, this );
 		m_scriptObj->InterpretGlobalBytecodeChunk();
 		m_scriptObj->InitializeGlobalVariables( entityDef.GetZephyrScriptInitialValues() );
 		m_scriptObj->SetEntityVariableInitializers( entityDef.GetZephyrEntityVarInits() );
@@ -126,7 +126,7 @@ void ZephyrEntity::ReloadZephyrScript()
 		ZephyrScriptDefinition* scriptDef = m_entityDef.GetZephyrScriptDefinition();
 		if ( scriptDef != nullptr )
 		{
-			m_scriptObj = new ZephyrScript( *scriptDef, this );
+			m_scriptObj = new ZephyrComponent( *scriptDef, this );
 		}
 	}
 }

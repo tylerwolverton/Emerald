@@ -10,12 +10,6 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrVirtualMachine::ZephyrVirtualMachine()
-{
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
 												   ZephyrValueMap* globalVariables,
 												   ZephyrEntity* parentEntity,
@@ -37,11 +31,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 	if (  bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
 	{
 		localVariables = bytecodeChunk.GetVariables();
-
-		if ( bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
-		{
-			CopyEventArgVariables( eventArgs, localVariables );
-		}
+		CopyEventArgVariables( eventArgs, localVariables );
 	}
 
 	int byteIdx = 0;
@@ -67,8 +57,8 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 
 			case eOpCode::DEFINE_VARIABLE:
 			{
-				ZephyrValue constant = PopConstant();
-				localVariables[constant.GetAsString()] = PopConstant();
+				ZephyrValue variableName = PopConstant();
+				localVariables[variableName.GetAsString()] = PopConstant();
 			}
 			break;
 

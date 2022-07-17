@@ -1,4 +1,4 @@
-#include "Engine/Zephyr/GameInterface/ZephyrScript.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/NamedProperties.hpp"
@@ -11,7 +11,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrScript::ZephyrScript( const ZephyrScriptDefinition& scriptDef, ZephyrEntity* parentEntity )
+ZephyrComponent::ZephyrComponent( const ZephyrScriptDefinition& scriptDef, ZephyrEntity* parentEntity )
 	: m_name( scriptDef.m_name )
 	, m_scriptDef( scriptDef )
 	, m_parentEntity( parentEntity )
@@ -38,7 +38,7 @@ ZephyrScript::ZephyrScript( const ZephyrScriptDefinition& scriptDef, ZephyrEntit
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrScript::~ZephyrScript()
+ZephyrComponent::~ZephyrComponent()
 {
 	g_eventSystem->DeRegisterObject( this );
 
@@ -47,7 +47,7 @@ ZephyrScript::~ZephyrScript()
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::Update()
+void ZephyrComponent::Update()
 {
 	if ( !IsScriptValid() )
 	{
@@ -78,7 +78,7 @@ void ZephyrScript::Update()
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::UnloadScript()
+void ZephyrComponent::UnloadScript()
 {
 	if ( !IsScriptValid() )
 	{
@@ -90,7 +90,7 @@ void ZephyrScript::UnloadScript()
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrScript::FireEvent( const std::string& eventName, EventArgs* args )
+bool ZephyrComponent::FireEvent( const std::string& eventName, EventArgs* args )
 {
 	if ( !m_scriptDef.IsValid() )
 	{
@@ -104,26 +104,26 @@ bool ZephyrScript::FireEvent( const std::string& eventName, EventArgs* args )
 	}
 
 	ZephyrBytecodeChunk* eventChunk = GetEventBytecodeChunk( eventName );
-	if ( eventChunk != nullptr )
+	if ( eventChunk == nullptr )
 	{
-		ZephyrValueMap* stateVariables = nullptr;
-		if ( m_curStateBytecodeChunk != nullptr )
-		{
-			stateVariables = m_curStateBytecodeChunk->GetUpdateableVariables();
-		}
-
-		m_parentEntity->AddGameEventParams( args );
-		
-		ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, args, stateVariables );
-		return true;
+		return false;
 	}
 
-	return false;
+	ZephyrValueMap* stateVariables = nullptr;
+	if ( m_curStateBytecodeChunk != nullptr )
+	{
+		stateVariables = m_curStateBytecodeChunk->GetUpdateableVariables();
+	}
+
+	m_parentEntity->AddGameEventParams( args );
+		
+	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, args, stateVariables );
+	return true;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::ChangeState( const std::string& targetState )
+void ZephyrComponent::ChangeState( const std::string& targetState )
 {
 	if ( !IsScriptValid() )
 	{
@@ -151,7 +151,7 @@ void ZephyrScript::ChangeState( const std::string& targetState )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::InterpretGlobalBytecodeChunk()
+void ZephyrComponent::InterpretGlobalBytecodeChunk()
 {
 	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity );
 	
@@ -164,7 +164,7 @@ void ZephyrScript::InterpretGlobalBytecodeChunk()
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::InitializeGlobalVariables( const ZephyrValueMap& intialValues )
+void ZephyrComponent::InitializeGlobalVariables( const ZephyrValueMap& intialValues )
 {
 	if ( m_globalBytecodeChunk == nullptr )
 	{
@@ -193,28 +193,28 @@ void ZephyrScript::InitializeGlobalVariables( const ZephyrValueMap& intialValues
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
+void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
 {
 	m_entityVarInits.insert( m_entityVarInits.begin(), entityVarInits.begin(), entityVarInits.end() );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrScript::IsScriptValid() const
+bool ZephyrComponent::IsScriptValid() const
 {
 	return m_isScriptObjectValid && m_scriptDef.IsValid();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::SetScriptObjectValidity( bool isValid )
+void ZephyrComponent::SetScriptObjectValidity( bool isValid )
 {
 	m_isScriptObjectValid = isValid;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrScript::GetGlobalVariable( const std::string& varName )
+ZephyrValue ZephyrComponent::GetGlobalVariable( const std::string& varName )
 {
 	ZephyrValue val( ERROR_ZEPHYR_VAL );
 
@@ -225,7 +225,7 @@ ZephyrValue ZephyrScript::GetGlobalVariable( const std::string& varName )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::SetGlobalVariable( const std::string& varName, const ZephyrValue& value )
+void ZephyrComponent::SetGlobalVariable( const std::string& varName, const ZephyrValue& value )
 {
 	m_globalBytecodeChunk->SetVariable( varName, value );
 }
@@ -240,7 +240,7 @@ void ZephyrScript::SetGlobalVariable( const std::string& varName, const ZephyrVa
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::InitializeEntityVariables()
+void ZephyrComponent::InitializeEntityVariables()
 {
 	ZephyrValueMap validEntities;
 	
@@ -262,7 +262,7 @@ void ZephyrScript::InitializeEntityVariables()
 
 
 //-----------------------------------------------------------------------------------------------
-const ZephyrBytecodeChunk* ZephyrScript::GetBytecodeChunkByName( const std::string& chunkName ) const
+const ZephyrBytecodeChunk* ZephyrComponent::GetBytecodeChunkByName( const std::string& chunkName ) const
 {
 	if ( m_globalBytecodeChunk->GetName() == chunkName )
 	{
@@ -299,26 +299,7 @@ const ZephyrBytecodeChunk* ZephyrScript::GetBytecodeChunkByName( const std::stri
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScript::OnEvent( EventArgs* args )
-{
-	std::string eventName = args->GetValue( "eventName", "" );
-
-	ZephyrBytecodeChunk* eventChunk = GetEventBytecodeChunk( eventName );
-	if ( eventChunk != nullptr )
-	{
-		ZephyrValueMap* stateVariables = nullptr;
-		if ( m_curStateBytecodeChunk != nullptr )
-		{
-			stateVariables = m_curStateBytecodeChunk->GetUpdateableVariables();
-		}
-
-		ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, args, stateVariables );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrBytecodeChunk* ZephyrScript::GetStateBytecodeChunk( const std::string& stateName )
+ZephyrBytecodeChunk* ZephyrComponent::GetStateBytecodeChunk( const std::string& stateName )
 {
 	ZephyrBytecodeChunkMap::const_iterator  mapIter = m_stateBytecodeChunks.find( stateName );
 
@@ -332,7 +313,7 @@ ZephyrBytecodeChunk* ZephyrScript::GetStateBytecodeChunk( const std::string& sta
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrBytecodeChunk* ZephyrScript::GetEventBytecodeChunk( const std::string& eventName )
+ZephyrBytecodeChunk* ZephyrComponent::GetEventBytecodeChunk( const std::string& eventName )
 {
 	if ( m_curStateBytecodeChunk != nullptr )
 	{

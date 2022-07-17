@@ -102,7 +102,11 @@ void ZephyrGameEvents::DestroySelf( EventArgs* args )
 void ZephyrGameEvents::Die( EventArgs* args )
 {
 	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-	entity->Die();
+
+	if ( entity != nullptr )
+	{
+		entity->Die();
+	}
 }
 
 
