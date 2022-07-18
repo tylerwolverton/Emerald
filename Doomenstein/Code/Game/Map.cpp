@@ -36,7 +36,6 @@ Map::Map( const MapData& mapData, World* world )
 Map::~Map()
 {
 	PTR_SAFE_DELETE( m_physicsScene );
-	//PTR_SAFE_DELETE( m_curCollisionResolver );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 

@@ -1,5 +1,8 @@
 <EntityTypes>
-  ​
+  ​<Entity name="UnitTester">
+    <Script name="UnitTests.zephyr"/>
+  </Entity>
+
   <Entity name="PlayerController">    
     <Script name="PlayerController.zephyr"/>
   </Entity>
