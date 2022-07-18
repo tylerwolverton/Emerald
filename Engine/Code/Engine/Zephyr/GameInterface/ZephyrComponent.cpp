@@ -13,10 +13,10 @@
 //-----------------------------------------------------------------------------------------------
 ZephyrComponent::ZephyrComponent( const ZephyrScriptDefinition& scriptDef, ZephyrEntity* parentEntity )
 	: m_name( scriptDef.m_name )
-	, m_scriptDef( scriptDef )
 	, m_parentEntity( parentEntity )
 {
-	if ( !m_scriptDef.IsValid() )
+	m_isScriptObjectValid = scriptDef.IsValid();
+	if ( !m_isScriptObjectValid )
 	{
 		return;
 	}
@@ -26,11 +26,11 @@ ZephyrComponent::ZephyrComponent( const ZephyrScriptDefinition& scriptDef, Zephy
 		return;
 	}
 
-	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *m_scriptDef.GetGlobalBytecodeChunk() );
+	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef.GetGlobalBytecodeChunk() );
 	GUARANTEE_OR_DIE( m_globalBytecodeChunk != nullptr, "Global Bytecode Chunk was null" );
 	
-	m_curStateBytecodeChunk = m_scriptDef.GetFirstStateBytecodeChunk();
-	m_stateBytecodeChunks = m_scriptDef.GetAllStateBytecodeChunks();
+	m_curStateBytecodeChunk = scriptDef.GetFirstStateBytecodeChunk();
+	m_stateBytecodeChunks = scriptDef.GetAllStateBytecodeChunks();
 
 	// Initialize parentEntity in script
 	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
@@ -63,11 +63,6 @@ void ZephyrComponent::Update()
 	// If this is the first update we need to call OnEnter explicitly
 	if ( !m_hasEnteredStartingState )
 	{
-		if(	!m_isScriptObjectValid )
-		{
-			return;
-		}
-
 		m_hasEnteredStartingState = true;
 
 		FireEvent( "OnEnter" );
@@ -92,7 +87,7 @@ void ZephyrComponent::UnloadScript()
 //-----------------------------------------------------------------------------------------------
 bool ZephyrComponent::FireEvent( const std::string& eventName, EventArgs* args )
 {
-	if ( !m_scriptDef.IsValid() )
+	if ( !IsScriptValid() )
 	{
 		return false;
 	}
@@ -202,7 +197,7 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 //-----------------------------------------------------------------------------------------------
 bool ZephyrComponent::IsScriptValid() const
 {
-	return m_isScriptObjectValid && m_scriptDef.IsValid();
+	return m_isScriptObjectValid;
 }
 
 

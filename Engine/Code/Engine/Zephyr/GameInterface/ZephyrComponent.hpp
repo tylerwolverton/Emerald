@@ -57,8 +57,6 @@ private:
 	// Initial values for entity variables are given as names but must be translated into ids after all entities are loaded
 	std::vector<EntityVariableInitializer> m_entityVarInits;
 
-	// REFACTOR: Don't need to save this as all data can be copied/used to initialize this class and then isn't needed
-	const ZephyrScriptDefinition& m_scriptDef;
 	ZephyrBytecodeChunk* m_globalBytecodeChunk = nullptr;
 	ZephyrBytecodeChunk* m_curStateBytecodeChunk = nullptr;
 	ZephyrBytecodeChunkMap m_stateBytecodeChunks; 
