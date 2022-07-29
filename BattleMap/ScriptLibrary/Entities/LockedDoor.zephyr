@@ -1,0 +1,32 @@
+Variable String keyName = "unknown"
+Variable String openSpriteAnimName = "OpenDoor"
+Variable String openSFXName = "DoorCreak"
+
+
+Function CollisionEntered( Entity other )
+{
+	if( other.name == "player" )
+	{
+		if( other.hasItem( this.keyName ) )
+		{
+			OpenDoor( name: this.name )
+			ConsumeItem( entityId: other.id
+						 itemName: this.keyName )
+		}
+		else
+		{
+			PlaySound( name: "LockRattle" )
+		}
+	}
+}
+
+
+Function OpenDoor( String name )
+{
+	if( this.name == name )
+	{
+		ChangeSpriteAnimation( name: openSpriteAnimName )
+		PlaySound( name: openSFXName )
+        DisableCollision( this.entity )
+	}
+}

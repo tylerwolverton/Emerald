@@ -1,0 +1,79 @@
+Bool hasOpenedDoor = false
+
+Entity levelMgr = null
+
+State Waiting
+{
+    Function OnPlayerInteract()
+    {
+        ChangeState( Intro );
+    }
+}
+
+State Intro
+{
+    OnEnter()
+    {
+        StartDialogue()
+        AddLineOfDialogueText( text: "Hello, traveler! Can I help you?" )
+        AddDialogueChoice( name: "choice1", text: "Could you open the door in the other room?" )
+        AddDialogueChoice( name: "choice2", text: "Nevermind" )
+    }
+
+    
+    Function OnPlayerInteract( String choiceName )
+    {
+        if( choiceName == "choice1" )
+        {
+            ChangeState( Choice1 );
+        }
+
+        if( choiceName == "choice2" )
+        {
+            ChangeState( Choice2 );
+        }
+
+        EndDialogue()
+        ChangeState( Waiting );
+    }
+}
+
+State Choice1
+{
+    OnEnter()
+    {
+        if( !hasOpenedDoor )
+        {
+            hasOpenedDoor = true;
+
+            AddLineOfDialogueText( text: "Sure, it should be open now" )
+            levelMgr.Level3DialogueSolved()
+        }
+        else
+        {
+            AddLineOfDialogueText( text: "It's already open" )
+        }
+    }
+
+    Function OnPlayerInteract()
+    {
+        EndDialogue()
+
+        ChangeState( Waiting )
+    }
+}
+
+State Choice2
+{
+    OnEnter()
+    {
+        AddLineOfDialogueText( text: "Okay, see ya" )
+    }
+
+    Function OnPlayerInteract()
+    {
+        EndDialogue()
+
+        ChangeState( Waiting )
+    }
+}

@@ -1,0 +1,8 @@
+State Win
+{
+	OnEnter()
+	{
+		WinGame()
+		ChangeMusic( musicName: "LoZCredits", volume: .1 )
+	}
+}
