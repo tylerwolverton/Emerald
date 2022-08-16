@@ -3,6 +3,8 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Time/Clock.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/TileMap.hpp"
 #include "Game/LineMap.hpp"
@@ -29,6 +31,8 @@ World::~World()
 		PTR_SAFE_DELETE( it->second );
 	}
 
+	PTR_VECTOR_SAFE_DELETE( m_zephyrComponents );
+
 	m_loadedMaps.clear();
 }
 
@@ -36,6 +40,8 @@ World::~World()
 //-----------------------------------------------------------------------------------------------
 void World::Update()
 {
+	ZephyrSystem::UpdateComponents( m_zephyrComponents );
+
 	if ( m_curMap == nullptr )
 	{
 		return;
@@ -313,7 +319,11 @@ void World::AddEntityFromDefinition( const EntityDefinition& entityDef, const st
 	m_worldEntities.push_back( newEntity );
 	SaveEntityByName( newEntity );
 
-	newEntity->CreateZephyrScript( entityDef );
+	ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, entityDef );
+	if ( zephyrComp != nullptr )
+	{
+		m_zephyrComponents.push_back( zephyrComp );
+	}
 }
 
 

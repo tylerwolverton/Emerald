@@ -8,6 +8,7 @@
 #include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -43,32 +44,6 @@ ZephyrComponent::~ZephyrComponent()
 	g_eventSystem->DeRegisterObject( this );
 
 	PTR_SAFE_DELETE( m_globalBytecodeChunk );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrComponent::Update()
-{
-	if ( !IsScriptValid() )
-	{
-		EventArgs args;
-		args.SetValue( "entity", (void*)m_parentEntity );
-		args.SetValue( "text", "Script Error" );
-		args.SetValue( "color", "red" );
-
-		g_eventSystem->FireEvent( "PrintDebugText", &args );
-		return;
-	}
-
-	// If this is the first update we need to call OnEnter explicitly
-	if ( !m_hasEnteredStartingState )
-	{
-		m_hasEnteredStartingState = true;
-
-		FireEvent( "OnEnter" );
-	}
-
-	FireEvent( "OnUpdate" );
 }
 
 
@@ -159,35 +134,6 @@ void ZephyrComponent::InterpretGlobalBytecodeChunk()
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrComponent::InitializeGlobalVariables( const ZephyrValueMap& intialValues )
-{
-	if ( m_globalBytecodeChunk == nullptr )
-	{
-		return;
-	}
-
-	ZephyrValueMap* globalVariables = m_globalBytecodeChunk->GetUpdateableVariables();
-	if ( globalVariables == nullptr )
-	{
-		return;
-	}
-
-	for ( auto const& initialValue : intialValues )
-	{
-		const auto globalVarIter = globalVariables->find( initialValue.first );
-		if ( globalVarIter == globalVariables->end() )
-		{
-			g_devConsole->PrintError( Stringf( "Cannot initialize nonexistent variable '%s' in script '%s'", initialValue.first.c_str(), m_name.c_str() ) );
-			m_isScriptObjectValid = false;
-			continue;
-		}
-
-		(*globalVariables)[initialValue.first] = initialValue.second;
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
 {
 	m_entityVarInits.insert( m_entityVarInits.begin(), entityVarInits.begin(), entityVarInits.end() );
@@ -226,14 +172,6 @@ void ZephyrComponent::SetGlobalVariable( const std::string& varName, const Zephy
 }
 
 
-////-----------------------------------------------------------------------------------------------
-//void ZephyrScript::SetGlobalVec2Member( const std::string& varName, const std::string& memberName, const ZephyrValue& value )
-//{
-//	// Already checked to make sure this is a valid member
-//	m_globalBytecodeChunk->SetVec2Member( varName, memberName, value );
-//}
-
-
 //-----------------------------------------------------------------------------------------------
 void ZephyrComponent::InitializeEntityVariables()
 {
@@ -252,7 +190,7 @@ void ZephyrComponent::InitializeEntityVariables()
 		validEntities[entityVarInit.varName] = entity->GetId();
 	}
 
-	InitializeGlobalVariables( validEntities );
+	ZephyrSystem::InitializeGlobalVariables( this, validEntities );
 }
 
 

@@ -12,17 +12,17 @@ EntityId ZephyrEntity::s_nextEntityId = 1000;
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrEntity::CreateZephyrScript( const ZephyrEntityDefinition& entityDef )
-{
-	ZephyrScriptDefinition* scriptDef = entityDef.GetZephyrScriptDefinition();
-	if ( scriptDef != nullptr )
-	{
-		m_scriptObj = new ZephyrComponent( *scriptDef, this );
-		m_scriptObj->InterpretGlobalBytecodeChunk();
-		m_scriptObj->InitializeGlobalVariables( entityDef.GetZephyrScriptInitialValues() );
-		m_scriptObj->SetEntityVariableInitializers( entityDef.GetZephyrEntityVarInits() );
-	}
-}
+//void ZephyrEntity::CreateZephyrScript( const ZephyrEntityDefinition& entityDef )
+//{
+//	ZephyrScriptDefinition* scriptDef = entityDef.GetZephyrScriptDefinition();
+//	if ( scriptDef != nullptr )
+//	{
+//		m_scriptObj = new ZephyrComponent( *scriptDef, this );
+//		m_scriptObj->InterpretGlobalBytecodeChunk();
+//		m_scriptObj->InitializeGlobalVariables( entityDef.GetZephyrScriptInitialValues() );
+//		m_scriptObj->SetEntityVariableInitializers( entityDef.GetZephyrEntityVarInits() );
+//	}
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ ZephyrEntity::~ZephyrEntity()
 {
 	g_eventSystem->DeRegisterObject( this );
 
-	PTR_SAFE_DELETE( m_scriptObj );
+//	PTR_SAFE_DELETE( m_scriptObj );
 }
 
 
@@ -49,7 +49,7 @@ void ZephyrEntity::Update( float deltaSeconds )
 
 	if ( m_scriptObj != nullptr )
 	{
-		m_scriptObj->Update();
+		//m_scriptObj->Update();
 	}
 }
 
@@ -128,26 +128,6 @@ void ZephyrEntity::ReloadZephyrScript()
 		{
 			m_scriptObj = new ZephyrComponent( *scriptDef, this );
 		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrEntity::InitializeScriptValues( const ZephyrValueMap& initialValues )
-{
-	if ( IsScriptValid() )
-	{
-		m_scriptObj->InitializeGlobalVariables( initialValues );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrEntity::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
-{
-	if ( IsScriptValid() )
-	{
-		m_scriptObj->SetEntityVariableInitializers( entityVarInits );
 	}
 }
 

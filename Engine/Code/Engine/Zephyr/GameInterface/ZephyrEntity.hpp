@@ -31,10 +31,8 @@ public:
 	void						UnloadZephyrScript();
 	void						ReloadZephyrScript();
 	
-	void						CreateZephyrScript( const ZephyrEntityDefinition& entityDef );
+	void						SetZephyrComponent( ZephyrComponent* zephyrComp )							{ m_scriptObj = zephyrComp; }
 	void						InitializeZephyrEntityVariables();
-	void						InitializeScriptValues( const ZephyrValueMap& initialValues );
-	void						SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 	const ZephyrBytecodeChunk*	GetBytecodeChunkByName( const std::string& chunkName ) const;
 	
 	virtual ZephyrValue			GetGlobalVariable( const std::string& varName );

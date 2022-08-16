@@ -6,13 +6,13 @@
 #include "Engine/Time/Clock.hpp"
 
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 std::string PARENT_ENTITY_NAME = "parentEntity";
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
-ZephyrSystem* g_zephyrSystem = nullptr;
+ZephyrSubsystem* g_zephyrSystem = nullptr;
 
 
 //-----------------------------------------------------------------------------------------------

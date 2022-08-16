@@ -11,7 +11,7 @@
 class ZephyrValue;
 class ZephyrBytecodeChunk;
 class ZephyrEngineEvents;
-class ZephyrSystem;
+class ZephyrSubsystem;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ constexpr int ERROR_ZEPHYR_VAL = -1000;
 extern std::string PARENT_ENTITY_NAME;
 
 extern ZephyrEngineEvents* g_zephyrAPI;
-extern ZephyrSystem* g_zephyrSystem;
+extern ZephyrSubsystem* g_zephyrSystem;
 
 //-----------------------------------------------------------------------------------------------
 enum class eTokenType

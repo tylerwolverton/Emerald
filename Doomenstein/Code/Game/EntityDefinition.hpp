@@ -59,6 +59,7 @@ public:
 	float			GetMass() const																{ return m_mass; }
 	std::string		GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
 	bool			HasPhysics() const															{ return m_hasPhysics; }
+	bool			HasZephyrScript() const														{ return m_isScriptValid; } // Always starts as true
 
 	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
 	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }

@@ -15,7 +15,7 @@
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
@@ -58,7 +58,7 @@ void App::Startup()
 	g_audioSystem = new AudioSystem();
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
-	g_zephyrSystem = new ZephyrSystem();
+	g_zephyrSystem = new ZephyrSubsystem();
 	g_zephyrAPI = new ZephyrGameEvents();
 	g_performanceTracker = new PerformanceTracker();
 	g_game = new Game();

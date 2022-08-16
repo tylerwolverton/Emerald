@@ -59,7 +59,7 @@ void Entity::Update( float deltaSeconds )
 		}
 	}
 
-	ZephyrEntity::Update( deltaSeconds );
+	//ZephyrEntity::Update( deltaSeconds );
 
 	// REFACTOR: Move to GraphicsComponent/SpriteAnimationComponent
 	Vec3 position = GetPosition();

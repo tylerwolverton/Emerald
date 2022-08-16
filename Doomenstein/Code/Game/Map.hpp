@@ -80,5 +80,7 @@ protected:
 	Vec3					m_playerStartPos = Vec3::ZERO;
 	float					m_playerStartYaw = 0.f;
 
-	std::vector<Entity*>	m_entities;
+	std::vector<Entity*>			m_entities;
+	// TODO: Change to actual object once my memory manager is in
+	std::vector<ZephyrComponent*>	m_zephyrComponents;
 };

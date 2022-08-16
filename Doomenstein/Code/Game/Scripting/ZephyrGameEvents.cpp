@@ -7,7 +7,7 @@
 #include "Engine/Math/Vec4.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"

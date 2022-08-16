@@ -13,6 +13,7 @@ class Clock;
 class Entity;
 class EntityDefinition;
 class Map;
+class ZephyrComponent;
 struct MapData;
 
 
@@ -77,4 +78,6 @@ private:
 	std::vector<Entity*> m_worldEntities;
 	std::unordered_map<std::string, Entity*> m_entitiesByName;
 	std::unordered_map<EntityId, Entity*> m_entitiesById;
+
+	std::vector<ZephyrComponent*>	m_zephyrComponents;
 };

@@ -10,6 +10,8 @@
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
@@ -36,6 +38,7 @@ Map::Map( const MapData& mapData, World* world )
 Map::~Map()
 {
 	PTR_SAFE_DELETE( m_physicsScene );
+	PTR_VECTOR_SAFE_DELETE( m_zephyrComponents );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 
@@ -54,6 +57,7 @@ void Map::Update( float deltaSeconds )
 		entity->Update( deltaSeconds );
 	}
 
+	ZephyrSystem::UpdateComponents( m_zephyrComponents );
 	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
 	UpdateMeshes();
 }
@@ -106,7 +110,12 @@ Entity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 	}
 
 	Entity* newEntity = SpawnNewEntityOfType( *entityDef );
-	newEntity->CreateZephyrScript( *entityDef );
+
+	ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, *entityDef );
+	if ( zephyrComp != nullptr )
+	{
+		m_zephyrComponents.push_back( zephyrComp );
+	}
 
 	return newEntity;
 }
@@ -319,16 +328,26 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->SetName( mapEntityDef.name );
 		m_world->SaveEntityByName( newEntity );
 
-		newEntity->CreateZephyrScript( *mapEntityDef.entityDef );
+		if ( mapEntityDef.entityDef->HasZephyrScript() )
+		{
+			ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, *mapEntityDef.entityDef );
+			if ( zephyrComp != nullptr )
+			{
+				m_zephyrComponents.push_back( zephyrComp );
+			}
 
-		newEntity->SetPosition( mapEntityDef.position );
-		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
+			newEntity->SetPosition( mapEntityDef.position );
+			newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
 
-		// Define initial script values defined in map file
-		// Note: These will override any initial values already defined in the EntityDefinition
-		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
-		// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
-		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
+			if ( zephyrComp != nullptr )
+			{
+				// Define initial script values defined in map file
+				// Note: These will override any initial values already defined in the EntityDefinition
+				ZephyrSystem::InitializeGlobalVariables( zephyrComp, mapEntityDef.zephyrScriptInitialValues );
+				// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
+				zephyrComp->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
+			}
+		}
 
 		if ( mapEntityDef.entityDef->HasPhysics() )
 		{

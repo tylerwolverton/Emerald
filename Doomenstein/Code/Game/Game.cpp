@@ -43,7 +43,7 @@
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/Entity.hpp"
 #include "Game/EntityController.hpp"

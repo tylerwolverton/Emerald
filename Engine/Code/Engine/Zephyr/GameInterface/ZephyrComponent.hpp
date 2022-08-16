@@ -21,14 +21,13 @@ public:
 	void UnloadScript();
 
 	// TODO: Move behaviour to a system?
-	void Update();
+	//void Update();
 	bool FireEvent( const std::string& eventName, EventArgs* args = nullptr );
 	void ChangeState( const std::string& targetState );
 
 	// Initialization
 	void InterpretGlobalBytecodeChunk();
 	void InitializeEntityVariables();
-	void InitializeGlobalVariables( const ZephyrValueMap& intialValues );
 	void SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 
 	bool IsScriptValid() const;
@@ -36,9 +35,9 @@ public:
 
 	// Accessors
 	std::string GetScriptName() const													{ return m_name; }
+	ZephyrEntity* GetParentEntity() const												{ return m_parentEntity; }
 	ZephyrValue GetGlobalVariable( const std::string& varName );
 	void		SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
-	//void		SetGlobalVec2Member( const std::string& varName, const std::string& memberName, const ZephyrValue& value );
 
 	const ZephyrBytecodeChunk* GetBytecodeChunkByName( const std::string& chunkName ) const;
 
@@ -46,7 +45,7 @@ private:
 	ZephyrBytecodeChunk* GetStateBytecodeChunk( const std::string& stateName );
 	ZephyrBytecodeChunk* GetEventBytecodeChunk( const std::string& eventName );
 
-private:
+public:
 	bool m_isScriptObjectValid = true;
 	bool m_hasEnteredStartingState = false;
 

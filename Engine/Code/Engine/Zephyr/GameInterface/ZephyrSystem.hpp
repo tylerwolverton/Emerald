@@ -1,43 +1,19 @@
-#include "Engine/Core/EngineCommon.hpp"
+#pragma once
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
 #include <vector>
 
+class ZephyrComponent;
+class ZephyrEntity;
+class ZephyrEntityDefinition;
 
-//-----------------------------------------------------------------------------------------------
-class Clock;
-struct ZephyrTimer;
-
-
-//-----------------------------------------------------------------------------------------------
-struct ZephyrSystemParams
-{
-public:
-	Clock* clock;
-};
-
-
-//-----------------------------------------------------------------------------------------------
 class ZephyrSystem
 {
 public:
-	ZephyrSystem() {}
-	~ZephyrSystem() {}
+	static ZephyrComponent* CreateComponent( ZephyrEntity* parentEntity, const ZephyrEntityDefinition& entityDef );
 
-	void		Startup( const ZephyrSystemParams& params );
-	void		BeginFrame(){};
-	void		Update();
-	void		EndFrame() {};
-	void		Shutdown();
+	static void	InitializeZephyrEntityVariables();
+	static void	InitializeGlobalVariables( ZephyrComponent* zephyrComp, const ZephyrValueMap& initialValues );
 
-	void		StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
-	void		StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
-	void		StopAllTimers();
-
-private:
-	void UpdateTimers();
-
-private:
-	Clock* m_clock = nullptr;
-	// TODO: Use new ObjectPool with this once the engine has it
-	std::vector<ZephyrTimer> m_timerPool;
+	static void UpdateComponents( std::vector<ZephyrComponent*>& components );
 };
