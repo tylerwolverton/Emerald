@@ -1,0 +1,69 @@
+<EntityTypes spriteSheet="Data/Images/EntitiesSpriteSheet_30x30.png" spriteSheetDimensions="30,30">
+  ​
+  <Entity name="Link">
+    <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
+    <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="4">
+      <!--First anim is defaulted as initial animation-->
+      <Walk up="6~7" left="4,5" down="0,1" right="2,3"/>
+      <Attack up="0"/>
+      <Pain up="0"/>
+      <Death up="0"/>
+      <Damaged up="6,21,7,21" left="4,21,5,21" down="0,21,1,21" right="2,21,3,21" fps="4"/>
+    </Appearance>
+    <Gameplay maxHealth="5"/>
+    <Script name="Player.zephyr">
+    </Script>
+  </Entity>
+  ​ 
+  <Entity name="UnitTester">
+    <Script name="UnitTests.zephyr"/>
+  </Entity>
+
+  <Entity name="GameManager">
+    <Script name="GameManager.zephyr"/>
+  </Entity>
+
+  <Entity name="Level1Manager">
+    <Script name="Level1Manager.zephyr">
+      <GlobalVar type="entity" var="gameMgr" value="GameManager"/>
+    </Script>
+  </Entity>
+  
+  <Entity name="Level2Manager">
+    <Script name="Level2Manager.zephyr">
+      <GlobalVar type="entity" var="gameMgr" value="GameManager"/>
+    </Script>
+  </Entity>
+  
+  <Entity name="ClosedDoorVertical">
+    <Physics radius="0.5" collisionLayer="StaticEnvironment"/>
+    <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="1">
+      <Closed up="157"/>
+      <Open   up="21"/>
+    </Appearance>
+    <Gameplay maxHealth="99999"/>
+    <Script name="ClosedDoor.zephyr"/>
+  </Entity>
+  ​
+  <Entity name="LockedDoorVertical">
+    <Physics radius="0.5" collisionLayer="StaticEnvironment"/>
+    <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="1">
+      <Closed up="155"/>
+      <Open   up="21"/>
+    </Appearance>
+    <Gameplay maxHealth="99999"/>
+    <Script name="LockedDoor.zephyr"/>
+  </Entity>
+
+  <Entity name="InvisibleTeleporter">
+    <Physics radius="0.25" speed="0.0" collisionLayer="Portal" isTrigger="true"/>
+  </Entity>
+  ​
+  <Entity name="Key">
+    <Physics radius="0.25" speed="0.0" drag="5" collisionLayer="Pickup" isTrigger="true"/>
+    <Appearance size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="3">
+      <Walk up="120"/>
+    </Appearance>
+  </Entity>
+  
+</EntityTypes>

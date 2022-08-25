@@ -1,0 +1,71 @@
+MemberVariables
+{
+    String curAttack = "IceConeAttack";
+}
+
+
+Initialize()
+{
+    // Actions are defined in GameConfig.xml
+    RegisterInputAction( action: "MoveUp", type: "IsKeyDown", event: Move( Vec2( 0, 1 ) ) )
+    RegisterInputAction( action: "MoveLeft", type: "IsKeyDown", event: Move( Vec2( -1, 0 ) ) )
+    RegisterInputAction( action: "MoveDown", type: "IsKeyDown", event: Move( Vec2( 0, -1 ) ) )
+    RegisterInputAction( action: "MoveRight", type: "IsKeyDown", event: Move( Vec2( 1, 0 ) ) )
+    
+    RegisterInputAction( action: "Attack", type: "KeyPressed", event: Attack() )
+
+    RegisterInputAction( action: "SwitchAttackUp", type: "KeyPressed", event: SwitchAttackUp() )
+    RegisterInputAction( action: "SwitchAttackDown", type: "KeyPressed", event: SwitchAttackDown() )
+}
+
+
+Move( Vec2 direction)
+{
+    MoveInDirection( direction: direction );
+}
+
+
+Attack()
+{
+    Attack( name: curAttack
+            directionVec: this.entity.forwardVec )
+}
+
+
+SwitchAttackUp()
+{
+    if( this.curAttack == "IceConeAttack" )
+    {
+        this.curAttack = "SwordAttack"
+        return;
+    }
+    if( this.curAttack == "SwordAttack" )
+    {
+        this.curAttack = "ArrowAttack"
+        return;
+    }
+    if( this.curAttack == "ArrowAttack" )
+    {
+        this.curAttack = "IceConeAttack"
+        return;
+    }
+}
+
+SwitchAttackDown()
+{
+    if( this.curAttack == "IceConeAttack" )
+    {
+        this.curAttack = "ArrowAttack"
+        return;
+    }
+    if( this.curAttack == "ArrowAttack" )
+    {
+        this.curAttack = "SwordAttack"
+        return;
+    }
+    if( this.curAttack == "SwordAttack" )
+    {
+        this.curAttack = "IceConeAttack"
+        return;
+    }
+}

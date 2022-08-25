@@ -1,0 +1,41 @@
+<MapDefinition type="TileMap" version="1" dimensions="16,10">
+
+	<Legend>
+		<Tile glyph="#" tileType="BlueDungeonBlock"/>
+		<Tile glyph="." tileType="BlueDungeonFloor"/>
+	</Legend>
+	<MapRows>
+		<MapRow tiles="########.#######"/>
+		<MapRow tiles="#..##..........#"/>
+		<MapRow tiles="#..........#####"/>
+		<MapRow tiles="#....#........##"/>
+		<MapRow tiles="#..............#"/>
+		<MapRow tiles="#..........##..#"/>
+		<MapRow tiles="#.###..........#"/>
+		<MapRow tiles="#.........##...#"/>
+		<MapRow tiles="#..............#"/>
+		<MapRow tiles="################"/>
+	</MapRows>
+  <Entities>
+    <!-- Managers -->
+    <Entity type="Level1Manager" name="Level1Manager">
+      <GlobalVar type="string" var="roomId" value="Level1"/>
+    </Entity>
+    <Entity type="UnitTester" pos="6.5,6.5" name="UnitTester">
+      <GlobalVar type="entity" var="testEntity" value="blob1"/>
+    </Entity>
+    <!-- Door to level 2 -->
+    <Entity type="LockedDoorVertical" name="door1" pos="8.5,9.5">
+      <GlobalVar type="string" var="keyName" value="key1"/>
+    </Entity>
+    <!-- Entities -->
+    <PlayerStart pos="1.5,1.5" yaw="0"/>
+    <Entity type="Blob" name="blob1" pos="5.5,5.5" yaw="0">
+      <GlobalVar type="entity" var="target" value="player"/>
+      <GlobalVar type="entity" var="levelMgr" value="Level1Manager"/>
+    </Entity>
+  </Entities>
+
+</MapDefinition>
+
+
