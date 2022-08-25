@@ -44,19 +44,10 @@ private:
 	void DamageEntity( EventArgs* args );
 	void ActivateInvincibility( EventArgs* args );
 	void DeactivateInvincibility( EventArgs* args );
-	//void AddNewDamageTypeMultiplier( EventArgs* args );
-	//void ChangeDamageTypeMultiplier( EventArgs* args );
-	//void AddItemToInventory( EventArgs* args );
-	//void RemoveItemFromInventory( EventArgs* args );
-	//void CheckEntityForInventoryItem( EventArgs* args );
-	void DisableCollisions( EventArgs* args );
-	void EnableCollisions( EventArgs* args );
 
 	// AI
 	void MoveToLocation( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
-	void ChaseTargetEntity( EventArgs* args );
-	void FleeTargetEntity( EventArgs* args );
 	void GetEntityLocation( EventArgs* args );
 	void GetNewWanderTargetPosition( EventArgs* args );
 	void CheckForTarget( EventArgs* args );

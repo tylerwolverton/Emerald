@@ -4,6 +4,6 @@
 	windowAspect="1.777"
 	windowTitle="Zephyr Test"
 	windowMode="windowed"
-  dataPathSuffix=""
-  physicsConfigPath="Data/PhysicsConfig.xml"
+  	dataPathSuffix=""
+  	physicsConfigPath="Data/PhysicsConfig.xml"
 />

@@ -8,10 +8,6 @@
 #include "Game/GameCommon.hpp"
 #include "Game/MapData.hpp"
 #include "Game/TileMap.hpp"
-#include "Game/Actor.hpp"
-#include "Game/Projectile.hpp"
-#include "Game/Portal.hpp"
-#include "Game/Pickup.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -223,22 +219,7 @@ void World::ClearEntities()
 //-----------------------------------------------------------------------------------------------
 void World::AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName )
 {
-	Entity* newEntity = nullptr;
-	switch ( entityDef.GetClass() )
-	{
-		case eEntityClass::ACTOR:		{ newEntity = new Actor( entityDef, nullptr ); }		break;
-		case eEntityClass::PROJECTILE:	{ newEntity = new Projectile( entityDef, nullptr );	}	break;
-		case eEntityClass::PORTAL:		{ newEntity = new Portal( entityDef, nullptr );	}		break;
-		case eEntityClass::PICKUP:		{ newEntity = new Pickup( entityDef, nullptr );	}		break;
-		case eEntityClass::ENTITY:		{ newEntity = new Entity( entityDef, nullptr );	}		break;
-
-		default:
-		{
-			g_devConsole->PrintError( Stringf( "Tried to spawn entity '%s' with unknown type", entityDef.GetType().c_str() ) );
-			return;
-		}
-	}
-
+	Entity* newEntity = new Entity(entityDef, nullptr);
 	newEntity->SetName( entityName );
 
 	m_worldEntities.push_back( newEntity );

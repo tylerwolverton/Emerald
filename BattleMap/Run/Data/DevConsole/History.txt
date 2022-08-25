@@ -48,3 +48,4 @@ light_set_color color=1,0,0
 light_set_color color=1,1,0
 light_set_color color=1,0,1
 print_bytecode_chunk entityName=UnitTester chunkName=DebugPrint
+MoveInDirection

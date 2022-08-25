@@ -61,68 +61,6 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 		return;
 	}
 
-	std::string typeStr = entityDefElem.Name();
-	if ( typeStr == "Entity" )
-	{
-		m_class = eEntityClass::ENTITY;
-	}
-	else if ( typeStr == "Actor" )
-	{
-		m_class = eEntityClass::ACTOR;
-	}
-	else if ( typeStr == "Projectile" )
-	{
-		m_class = eEntityClass::PROJECTILE;
-	}
-	else if ( typeStr == "Portal" )
-	{
-		m_class = eEntityClass::PORTAL;
-	}
-	else if ( typeStr == "Pickup" )
-	{
-		m_class = eEntityClass::PICKUP;
-	}
-	else
-	{
-		g_devConsole->PrintError( Stringf( "EntityTypes.xml: Unsupported entity type seen, '%s'", typeStr.c_str() ) );
-		return;
-	}
-
-	// Physics
-	const XmlElement* physicsElem = entityDefElem.FirstChildElement( "Physics" );
-	if ( physicsElem != nullptr )
-	{
-		m_physicsRadius = ParseXmlAttribute( *physicsElem, "radius", m_physicsRadius );
-		m_mass = ParseXmlAttribute( *physicsElem, "mass", m_mass );
-
-		m_drag = ParseXmlAttribute( *physicsElem, "drag", m_drag );
-		m_speed = ParseXmlAttribute( *physicsElem, "speed", m_speed );
-		
-		std::string simModeStr = ParseXmlAttribute( *physicsElem, "simMode", "" );
-
-		// optional param, if empty just use layer's mode
-		if ( !simModeStr.empty() )
-		{
-			if ( IsEqualIgnoreCase( simModeStr, "static" ) ) { m_simMode = eSimulationMode::SIMULATION_MODE_STATIC; }
-			else if ( IsEqualIgnoreCase( simModeStr, "kinematic" ) ) { m_simMode = eSimulationMode::SIMULATION_MODE_KINEMATIC; }
-			else if ( IsEqualIgnoreCase( simModeStr, "dynamic" ) ) { m_simMode = eSimulationMode::SIMULATION_MODE_DYNAMIC; }
-			else
-			{
-				g_devConsole->PrintError( Stringf( "EntityTypes.xml: Unsupported simMode attribute, '%s', can be static, kinematic, or dynamic", simModeStr.c_str() ) );
-				return;
-			}
-		}
-
-		m_initialCollisionLayer = ParseXmlAttribute( *physicsElem, "collisionLayer", m_initialCollisionLayer );
-		if ( !IsPhysicsLayerDefined( m_initialCollisionLayer ) )
-		{
-			g_devConsole->PrintError( Stringf( "Layer '%s' has not been defined in PhysicsConfig.xml", m_initialCollisionLayer.c_str() ) );
-			m_initialCollisionLayer = "";
-		}
-
-		m_isTrigger = ParseXmlAttribute( *physicsElem, "isTrigger", false );
-	}
-
 	// Appearance
 	const XmlElement* appearanceElem = entityDefElem.FirstChildElement( "Appearance" );
 	if ( appearanceElem != nullptr )
@@ -163,19 +101,4 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 EntityDefinition::~EntityDefinition()
 {
 	PTR_MAP_SAFE_DELETE( m_spriteAnimSetDefs );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string GetEntityClassAsString( eEntityClass entityClass )
-{
-	switch ( entityClass )
-	{
-		case eEntityClass::ACTOR: return "Actor";
-		case eEntityClass::PROJECTILE: return "Projectile";
-		case eEntityClass::PORTAL: return "Portal";
-		case eEntityClass::PICKUP: return "Pickup";
-		case eEntityClass::ENTITY: return "Entity";
-		default: return "Unknown";
-	}
 }

@@ -46,9 +46,6 @@
     <ClCompile Include="TileDefinition.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Actor.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="EntityDefinition.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -62,15 +59,6 @@
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="TileMaterialDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Portal.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Projectile.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Pickup.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="DialogueBox.cpp">
@@ -108,9 +96,6 @@
     <ClInclude Include="TileDefinition.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="Actor.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="EntityDefinition.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -124,15 +109,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="TileMaterialDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Portal.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Projectile.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Pickup.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="DialogueBox.hpp">

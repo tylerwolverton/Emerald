@@ -24,12 +24,6 @@ struct MapEntityDefinition
 
 	ZephyrValueMap zephyrScriptInitialValues;
 	std::vector<EntityVariableInitializer> zephyrEntityVarInits;
-
-	// Portal specific variables
-	// TODO: Move this to sub struct?
-	std::string portalDestMap = "";
-	Vec2		portalDestPos = Vec2::ZERO;
-	float		portalDestYawOffset = 0.f;
 };
 
 

@@ -44,16 +44,12 @@ TileMap::~TileMap()
 void TileMap::Load( Entity* player )
 {
 	Map::Load( player );
-
-	CreateTileRigidbodies();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void TileMap::Unload()
 {
-	DestroyTileRigidbodies();
-
 	Map::Unload();
 }
 
@@ -323,44 +319,6 @@ void TileMap::BuildCardinalDirectionsArray()
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::NORTHEAST] = Vec2( TILE_SIZE, TILE_SIZE );
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::SOUTHEAST] = Vec2( TILE_SIZE, -TILE_SIZE );
 	m_cardinalDirectionOffsets[(int)eCardinalDirection::SOUTHWEST] = Vec2( -TILE_SIZE, -TILE_SIZE );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void TileMap::CreateTileRigidbodies()
-{
-	m_tileRigidbodies.reserve( m_tiles.size() );
-
-	for ( int tileIdx = 0; tileIdx < (int)m_tiles.size(); ++tileIdx )
-	{
-		if ( m_tiles[tileIdx].IsSolid() )
-		{
-			Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
-
-			NamedProperties params;
-			params.SetValue( "polygon2", m_tiles[tileIdx].GetBounds().GetAsPolygon2() );
-
-			Collider* polygonCollider = m_physicsScene->CreateCollider( "polygon2", &params );
-			rigidbody->TakeCollider( polygonCollider );
-			rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
-			rigidbody->SetPosition( Vec3( m_tiles[tileIdx].GetBounds().GetCenter(), 0.f ) );
-			rigidbody->SetLayer( eCollisionLayer::STATIC_ENVIRONMENT );
-
-			m_tileRigidbodies.push_back( rigidbody );
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void TileMap::DestroyTileRigidbodies()
-{
-	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_tileRigidbodies.size(); ++rigidbodyIdx )
-	{
-		m_tileRigidbodies[rigidbodyIdx]->Destroy();
-	}
-
-	m_tileRigidbodies.clear();
 }
 
 

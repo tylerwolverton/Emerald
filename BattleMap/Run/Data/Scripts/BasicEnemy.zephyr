@@ -1,12 +1,12 @@
-Vec2 position
-Vec2 targetPosition
+Vec3 position
+Vec3 targetPosition
 Number health = parentEntity.maxHealth
 Entity target = null
 Entity levelMgr = null
 
 Number maxChaseDist = 3
 
-Vec2 lastPosition 
+Vec3 lastPosition 
 
 // -----------------------------------------------------------------------------------------
 // Global events
@@ -39,7 +39,7 @@ Function OnHealthChange( Number newHealth)
 
 Function OnDie( String mapName )
 {
-	// SpawnEntity( type: "Blob", position: Vec2(1,1) )
+	// SpawnEntity( type: "Blob", position: Vec3(1,1,0) )
 	if( levelMgr != null )
 	{
 		levelMgr.EnemyDied( mapName: mapName )

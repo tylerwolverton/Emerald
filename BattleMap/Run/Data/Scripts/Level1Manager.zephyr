@@ -3,7 +3,7 @@ Number enemiesInLevel;
 String questStatusText = "Clear All Enemies";
 
 Entity gameMgr = null
-Entity doorToLevel3 = null
+Entity doorToLevel2 = null
 
 Function EnemySpawned( String mapName )
 {
@@ -22,7 +22,7 @@ Function EnemyDied( String mapName )
         if( enemiesInLevel <= 0 )
         {
             gameMgr.QuestCompleted( questId: roomId )
-            doorToLevel3.Open()
+            doorToLevel2.Open()
             questStatusText = "Room Complete";
         }
     }

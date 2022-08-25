@@ -33,11 +33,6 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 {
 	m_curHealth = m_entityDef.GetMaxHealth();
 
-	if ( map != nullptr )
-	{
-		InitPhysics( map->m_physicsScene->CreateRigidbody() );
-	}
-
 	Unload();
 
 	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
@@ -47,91 +42,7 @@ Entity::Entity( const EntityDefinition& entityDef, Map* map )
 //-----------------------------------------------------------------------------------------------
 Entity::~Entity()
 {
-	if ( m_rigidbody != nullptr )
-	{
-		if ( m_entityDef.IsTrigger() )
-		{
-			m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-			m_rigidbody->GetCollider()->m_onTriggerStayDelegate.UnsubscribeAllMethodsFromObject( this );
-			m_rigidbody->GetCollider()->m_onTriggerLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
-		}
-		else
-		{
-			m_rigidbody->GetCollider()->m_onOverlapEnterDelegate.UnsubscribeAllMethodsFromObject( this );
-			m_rigidbody->GetCollider()->m_onOverlapStayDelegate.UnsubscribeAllMethodsFromObject( this );
-			m_rigidbody->GetCollider()->m_onOverlapLeaveDelegate.UnsubscribeAllMethodsFromObject( this );
-		}
-
-		m_rigidbody->Destroy();
-		m_rigidbody = nullptr;
-	}
-
 	g_eventSystem->DeRegisterObject( this );
-
-	PTR_VECTOR_SAFE_DELETE( m_inventory );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::InitPhysics( Rigidbody* newRigidbody )
-{
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->Destroy();
-	}
-
-	m_rigidbody = newRigidbody;
-
-	m_rigidbody->SetMass( m_entityDef.GetMass() );
-
-	m_rigidbody->SetDrag( m_entityDef.GetDrag() );
-
-	std::string collisionLayer = m_entityDef.GetInitialCollisionLayer();
-	m_rigidbody->SetLayer( collisionLayer );
-
-	if ( IsEqualIgnoreCase( collisionLayer, "environment" ) )
-	{
-		m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
-	}
-	else if ( IsEqualIgnoreCase( collisionLayer, "npc" ) )
-	{
-		m_rigidbody->SetSimulationMode( SIMULATION_MODE_KINEMATIC );
-	}
-	else
-	{
-		m_rigidbody->SetSimulationMode( SIMULATION_MODE_DYNAMIC );
-	}
-
-	if ( m_entityDef.GetSimMode() != eSimulationMode::SIMULATION_MODE_NONE )
-	{
-		m_rigidbody->SetSimulationMode( m_entityDef.GetSimMode() );
-	}
-
-	m_rigidbody->m_userProperties.SetValue( "entityId", m_id );
-
-	NamedProperties params;
-	params.SetValue( "radius", GetPhysicsRadius() );
-
-	if ( m_entityDef.IsTrigger() )
-	{
-		Collider* discTrigger = m_rigidbody->GetPhysicsScene()->CreateTrigger( "disc", &params );
-
-		discTrigger->m_onTriggerEnterDelegate.SubscribeMethod( this, &Entity::EnterTriggerEvent );
-		discTrigger->m_onTriggerStayDelegate.SubscribeMethod( this, &Entity::StayTriggerEvent );
-		discTrigger->m_onTriggerLeaveDelegate.SubscribeMethod( this, &Entity::ExitTriggerEvent );
-
-		m_rigidbody->TakeCollider( discTrigger );
-	}
-	else
-	{
-		Collider* discCollider = m_rigidbody->GetPhysicsScene()->CreateCollider( "disc", &params );
-
-		discCollider->m_onOverlapEnterDelegate.SubscribeMethod( this, &Entity::EnterCollisionEvent );
-		discCollider->m_onOverlapStayDelegate.SubscribeMethod( this, &Entity::StayCollisionEvent );
-		discCollider->m_onOverlapLeaveDelegate.SubscribeMethod( this, &Entity::ExitCollisionEvent );
-
-		m_rigidbody->TakeCollider( discCollider );
-	}
 }
 
 
@@ -139,9 +50,10 @@ void Entity::InitPhysics( Rigidbody* newRigidbody )
 void Entity::Update( float deltaSeconds )
 {
 	m_cumulativeTime += deltaSeconds;
-	m_lastDeltaSeconds = deltaSeconds;
 
 	ZephyrEntity::Update( deltaSeconds );
+
+	UpdateFromKeyboard( deltaSeconds );
 
 	SpriteAnimDefinition* animDef = nullptr;
 	if ( m_curSpriteAnimSetDef != nullptr )
@@ -155,16 +67,58 @@ void Entity::Update( float deltaSeconds )
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::Render() const
+void Entity::UpdateFromKeyboard(float deltaSeconds)
 {
-	SpriteAnimDefinition* animDef = nullptr;
-	if ( m_curSpriteAnimSetDef == nullptr
-		 || m_rigidbody == nullptr )
+	UNUSED(deltaSeconds);
+
+	if (g_devConsole->IsOpen())
 	{
 		return;
 	}
 
-	animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_rigidbody->GetVelocity().XY() );
+	switch (g_game->GetGameState())
+	{
+		case eGameState::PLAYING:
+		{
+			for (auto& registeredKey : m_registeredKeyEvents)
+			{
+				if (g_inputSystem->IsKeyPressed(registeredKey.first))
+				{
+					for (auto& eventName : registeredKey.second)
+					{
+						EventArgs args;
+						FireScriptEvent(eventName, &args);
+					}
+				}
+			}
+
+			if (g_inputSystem->ConsumeAllKeyPresses(KEY_ENTER)
+				|| g_inputSystem->ConsumeAllKeyPresses(KEY_SPACEBAR))
+			{
+				Vec2 testPoint = GetPosition().XY() + m_forwardVector;
+				Entity* targetEntity = m_map->GetEntityAtPosition(testPoint);
+				if (targetEntity != nullptr)
+				{
+					EventArgs args;
+					targetEntity->FireScriptEvent("OnPlayerInteract", &args);
+				}
+			}
+		}
+		break;
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Entity::Render() const
+{
+	SpriteAnimDefinition* animDef = nullptr;
+	if ( m_curSpriteAnimSetDef == nullptr )
+	{
+		return;
+	}
+
+	animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( Vec2::ZERO );
 	
 	const SpriteDefinition& spriteDef = animDef->GetSpriteDefAtTime( m_cumulativeTime );
 
@@ -199,9 +153,9 @@ void Entity::Die()
 void Entity::DebugRender() const
 {
 	g_renderer->BindTexture( 0, nullptr );
-	DrawRing2D( g_renderer, GetPosition().XY(), m_entityDef.m_physicsRadius, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
+	DrawRing2D( g_renderer, GetPosition().XY(), .5f, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
 	DrawAABB2Outline( g_renderer, GetPosition().XY(), m_entityDef.m_localDrawBounds, Rgba8::MAGENTA, DEBUG_LINE_THICKNESS );
-	DrawRing2D( g_renderer, GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
+	//DrawRing2D( g_renderer, GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
 }
 
 
@@ -215,151 +169,27 @@ const Vec2 Entity::GetForwardVector() const
 //-----------------------------------------------------------------------------------------------
 const Vec3 Entity::GetPosition() const
 {
-	if ( m_rigidbody != nullptr )
-	{
-		return m_rigidbody->GetWorldPosition();
-	}
-
-	return Vec3::ZERO;
+	return m_position;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Entity::SetPosition( const Vec3& position )
 {
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->SetPosition( position );
-
-		EventArgs args;
-		args.SetValue( "newPos", m_rigidbody->GetWorldPosition() );
-
-		FireScriptEvent( "PositionUpdated", &args );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::SetCollisionLayer( uint layer )
-{
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->SetLayer( layer );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::AddItemToInventory( Entity* item )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] == nullptr )
-		{
-			m_inventory[itemIdx] = item;
-			return;
-		}
-	}
-
-	m_inventory.push_back( item );
+	m_position = position;
 
 	EventArgs args;
-	args.SetValue( "itemName", item->GetName() );
+	args.SetValue( "newPos", m_position );
 
-	g_eventSystem->FireEvent( "OnAcquireItem", &args );
+	FireScriptEvent( "PositionUpdated", &args );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::RemoveItemFromInventory( const std::string& itemType )
+void Entity::SetAsPlayer()
 {
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			 && m_inventory[itemIdx]->GetType() == itemType )
-		{
-			m_inventory[itemIdx] = nullptr;
-			return;
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::RemoveItemFromInventory( const EntityId& itemId )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			 && m_inventory[itemIdx]->GetId() == itemId )
-		{
-			m_inventory[itemIdx] = nullptr;
-			return;
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool Entity::IsInInventory( const EntityId& itemId )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			 && m_inventory[itemIdx]->GetId() == itemId )
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::RemoveItemFromInventory( Entity* item )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			 && m_inventory[itemIdx] == item )
-		{
-			m_inventory[itemIdx] = nullptr;
-			return;
-		}
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool Entity::IsInInventory( const std::string& itemType )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			&& m_inventory[itemIdx]->GetType() == itemType )
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool Entity::IsInInventory( Entity* item )
-{
-	for ( int itemIdx = 0; itemIdx < (int)m_inventory.size(); ++itemIdx )
-	{
-		if ( m_inventory[itemIdx] != nullptr
-			&& m_inventory[itemIdx] == item )
-		{
-			return true;
-		}
-	}
-
-	return false;
+	m_isPlayer = true;
+	m_name = "player";
 }
 
 
@@ -453,42 +283,6 @@ void Entity::TakeDamage( float damage, const std::string& type )
 
 
 //-----------------------------------------------------------------------------------------------
-void Entity::MoveWithPhysics( float speed, const Vec2& direction )
-{
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->ApplyImpulseAt( speed * Vec3( direction, 0.f ) * m_lastDeltaSeconds, GetPosition() );
-		m_forwardVector = direction;
-
-		EventArgs args;
-		args.SetValue( "newPos", m_rigidbody->GetWorldPosition() );
-
-		FireScriptEvent( "OnPositionChange", &args );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::EnableRigidbody()
-{
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->Enable();
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::DisableRigidbody()
-{
-	if ( m_rigidbody != nullptr )
-	{
-		m_rigidbody->Disable();
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Entity::RegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName )
 {
 	char keyCode = GetKeyCodeFromString( keyCodeStr );
@@ -551,7 +345,6 @@ ZephyrValue Entity::GetGlobalVariable( const std::string& varName )
 	if ( varName == "maxHealth" ) { return ZephyrValue( (float)m_entityDef.GetMaxHealth() ); }
 	if ( varName == "position" ) { return ZephyrValue( GetPosition() ); }
 	if ( varName == "forwardVec" ) { return ZephyrValue( GetForwardVector() ); }
-	if ( varName == "speed" ) { return ZephyrValue( GetSpeed() ); }
 
 	return ZephyrEntity::GetGlobalVariable( varName );
 }
@@ -598,20 +391,12 @@ void Entity::Load()
 	{
 		return;
 	}
-
-	m_rigidbody->Enable();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Entity::Unload()
 {
-	if ( m_rigidbody == nullptr )
-	{
-		return;
-	}
-
-	m_rigidbody->Disable();
 }
 
 
@@ -643,84 +428,6 @@ void Entity::PlaySpriteAnimation( const std::string& spriteAnimDefSetName )
 
 	m_curSpriteAnimSetDef = newSpriteAnimSetDef;
 	m_cumulativeTime = 0.f;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::EnterCollisionEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnCollisionEnter" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::StayCollisionEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnCollisionStay" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::ExitCollisionEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnCollisionExit" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::EnterTriggerEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnTriggerEnter" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::StayTriggerEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnTriggerStay" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::ExitTriggerEvent( Collision collision )
-{
-	SendPhysicsEventToScript( collision, "OnTriggerExit" );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Entity::SendPhysicsEventToScript( Collision collision, const std::string& eventName )
-{
-	if ( !IsDead() )
-	{
-		//Entity* theirEntity = (Entity*)collision.theirCollider->m_rigidbody->m_userProperties.GetValue( "entityId", (EntityId)-1 );
-		EntityId theirEntityId = collision.theirCollider->GetRigidbody()->m_userProperties.GetValue( "entityId", (EntityId)-1 );
-
-		Entity* theirEntity = g_game->GetEntityById( theirEntityId );
-
-		if ( IsScriptValid() )
-		{
-			// Save data if collision is with another entity
-			// Still report collision regardless to account for environmental collisions
-			EventArgs args;
-			EntityId otherId = -1;
-			std::string otherName;
-			std::string otherType;
-			if ( theirEntity != nullptr
-				 && !theirEntity->IsDead()
-				 && theirEntity->GetId() > 0 )
-			{
-				otherId = theirEntity->GetId();
-				otherName = theirEntity->GetName();
-				otherType = theirEntity->GetType();
-			}
-
-			args.SetValue( "otherEntity", otherId );
-			args.SetValue( "otherEntityName", otherName );
-			args.SetValue( "otherEntityType", otherType );
-			m_scriptObj->FireEvent( eventName, &args );
-		}
-	}
 }
 
 

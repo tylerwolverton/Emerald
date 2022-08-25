@@ -68,7 +68,7 @@ public:
 	virtual void		Load();
 	virtual void		Unload();
 
-	void				InitPhysics( Rigidbody* newRigidbody );
+	void				UpdateFromKeyboard(float deltaSeconds);
 
 	void				ChangeSpriteAnimation( const std::string& spriteAnimDefSetName );
 	void				PlaySpriteAnimation( const std::string& spriteAnimDefSetName );
@@ -78,30 +78,18 @@ public:
 	const Vec2			GetForwardVector() const;
 	virtual const Vec3	GetPosition() const override;
 	void				SetPosition( const Vec3& position );
-	void				SetRigidbody( Rigidbody* rigidbody )					{ m_rigidbody = rigidbody; }
-	void				SetCollisionLayer( uint layer );
-	const float			GetPhysicsRadius() const								{ return m_entityDef.m_physicsRadius; }
-	const float			GetSpeed() const										{ return m_entityDef.m_speed; }
-	const float			GetMass() const											{ return m_entityDef.m_mass; }
-	const float			GetDrag() const											{ return m_entityDef.m_drag; }
 	const float			GetOrientationDegrees() const							{ return m_orientationDegrees; }
 	void				SetOrientationDegrees( float orientationDegrees )		{ m_orientationDegrees = orientationDegrees; }
 
 	std::string			GetType() const											{ return m_entityDef.m_type; }
-	eEntityClass		GetClass() const										{ return m_entityDef.m_class; }
 	const eFaction		GetFaction() const										{ return m_faction; }
 	void				SetFaction( const eFaction& faction )					{ m_faction = faction; }
 	Map*				GetMap() const											{ return m_map; }
 	void				SetMap( Map* map )										{ m_map = map; }
-		
-	void				AddItemToInventory( Entity* item );
-	void				RemoveItemFromInventory( const std::string& itemType );
-	void				RemoveItemFromInventory( const EntityId& itemId );
-	void				RemoveItemFromInventory( Entity* item );
-	bool				IsInInventory( const std::string& itemType );
-	bool				IsInInventory( const EntityId& itemId );
-	bool				IsInInventory( Entity* item );
-	
+			
+	// TODO: See if there's a better way to do this
+	void				SetAsPlayer();
+
 	void				MakeInvincibleToAllDamage();
 	void				ResetDamageMultipliers();
 	void				AddNewDamageMultiplier( const std::string& damageType, float newMultiplier );
@@ -113,11 +101,6 @@ public:
 	bool				IsPlayer() const										{ return m_isPlayer; }
 				 
 	void				TakeDamage( float damage, const std::string& type = "normal" );
-	//void				ApplyFriction();
-
-	void				MoveWithPhysics( float speed, const Vec2& direction );
-	void				EnableRigidbody();
-	void				DisableRigidbody();
 
 	void				RegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
 	void				UnRegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
@@ -128,14 +111,6 @@ public:
 	virtual void		AddGameEventParams( EventArgs* args ) const override;
 
 protected:
-	void				EnterCollisionEvent( Collision collision );
-	void				StayCollisionEvent( Collision collision );
-	void				ExitCollisionEvent( Collision collision );
-	void				EnterTriggerEvent( Collision collision );
-	void				StayTriggerEvent( Collision collision );
-	void				ExitTriggerEvent( Collision collision );
-	void				SendPhysicsEventToScript( Collision collision, const std::string& eventName );
-
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );
 
 protected:
@@ -143,20 +118,17 @@ protected:
 	const EntityDefinition&					m_entityDef;
 	eFaction								m_faction = eFaction::NEUTRAL;
 	float									m_curHealth = 1.f;								// how much health is currently remaining on entity
-	float									m_speed = 1.f;
 	bool									m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool									m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()
 	bool									m_isPlayer = false;
 	Map*									m_map = nullptr;
-	std::vector<Entity*>					m_inventory;									// entity owns all items in inventory
 	std::map<std::string, DamageMultiplier>	m_damageTypeMultipliers;
 	float									m_baseDamageMultiplier = 1.f;
 
 	Entity*									m_dialoguePartner = nullptr;
 
 	// Physics
-	float									m_lastDeltaSeconds = .0016f;
-	Rigidbody*								m_rigidbody = nullptr;
+	Vec3									m_position = Vec3::ZERO;
 	float									m_orientationDegrees = 0.f;						// the Entity’s forward - facing direction, as an angle in degrees
 	Vec2									m_forwardVector = Vec2( 1.f, 0.f );
 	

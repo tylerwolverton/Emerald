@@ -1,0 +1,7 @@
+String roomId;
+
+Entity gameMgr = null
+Entity doorToRoom1 = null
+
+
+

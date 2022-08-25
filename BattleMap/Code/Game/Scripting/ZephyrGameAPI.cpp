@@ -38,8 +38,6 @@ ZephyrGameAPI::ZephyrGameAPI()
 
 	REGISTER_EVENT( MoveToLocation );
 	REGISTER_EVENT( MoveInDirection );
-	REGISTER_EVENT( ChaseTargetEntity );
-	REGISTER_EVENT( FleeTargetEntity );
 	REGISTER_EVENT( GetEntityLocation );
 	REGISTER_EVENT( CheckForTarget );
 	REGISTER_EVENT( GetNewWanderTargetPosition );
@@ -49,8 +47,6 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( DamageEntity );
 	REGISTER_EVENT( ActivateInvincibility );
 	REGISTER_EVENT( DeactivateInvincibility );
-	REGISTER_EVENT( DisableCollisions );
-	REGISTER_EVENT( EnableCollisions );
 
 	REGISTER_EVENT( RegisterKeyEvent );
 	REGISTER_EVENT( UnRegisterKeyEvent );
@@ -182,30 +178,6 @@ void ZephyrGameAPI::DeactivateInvincibility( EventArgs* args )
 	}
 
 	entity->ResetDamageMultipliers();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::DisableCollisions( EventArgs* args )
-{
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity != nullptr )
-	{
-		entity->DisableRigidbody();
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::EnableCollisions( EventArgs* args )
-{
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity != nullptr )
-	{
-		entity->EnableRigidbody();
-	}
 }
 
 
@@ -534,7 +506,7 @@ void ZephyrGameAPI::WinGame( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameAPI::MoveToLocation( EventArgs* args )
 {
-	Vec2 targetPos = args->GetValue( "pos", Vec2::ZERO );
+	Vec3 targetPos = args->GetValue( "pos", Vec3::ZERO );
 	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
 
 	if ( entity == nullptr )
@@ -542,12 +514,12 @@ void ZephyrGameAPI::MoveToLocation( EventArgs* args )
 		return;
 	}
 
-	Vec2 moveDirection = targetPos - entity->GetPosition().XY();
+	Vec3 moveDirection = targetPos - entity->GetPosition();
 	moveDirection.Normalize();
 
-	float speed = args->GetValue( "speed", entity->GetSpeed() );
+	//float speed = args->GetValue( "speed", entity->GetSpeed() );
 
-	entity->MoveWithPhysics( speed, moveDirection );
+	//entity->MoveWithPhysics( speed, moveDirection );
 }
 
 
@@ -579,83 +551,9 @@ void ZephyrGameAPI::MoveInDirection( EventArgs* args )
 
 	direction.Normalize();
 
-	float speed = args->GetValue( "speed", entity->GetSpeed() );
+	//float speed = args->GetValue( "speed", entity->GetSpeed() );
 
-	entity->MoveWithPhysics( speed, direction );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Move the entity that fired this event towards a target entity.
- *
- * params:
- *	Target will be determined by the following optional parameters, checking in order the targetId, then targetName. If neither is specified the entity won't move.
- *	- targetId: id of target entity
- *		- Zephyr type: Number
- *	- targetName: name of target entity
- *		- Zephyr type: String
- * 
- *	- speed: speed to move the entity
- *		- Zephyr type: Number
- *		- default: entity's default movement speed
-*/
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::ChaseTargetEntity( EventArgs* args )
-{
-	Entity* targetEntity = GetTargetEntityFromArgs( args );
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity == nullptr 
-		 || targetEntity == nullptr
-		 || entity == targetEntity )
-	{
-		return;
-	}
-
-	Vec2 moveDirection = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
-	moveDirection.Normalize();
-
-	float speed = args->GetValue( "speed", entity->GetSpeed() );
-
-	entity->MoveWithPhysics( speed, moveDirection );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Move the entity that fired this event away from a target entity.
- *
- * params:
- *	Target will be determined by the following optional parameters, checking in order the targetId, then targetName. If neither is specified the entity won't move.
- *	- targetId: id of target entity
- *		- Zephyr type: Number
- *	- targetName: name of target entity
- *		- Zephyr type: String
- *
- *	- speed: speed to move the entity
- *		- Zephyr type: Number
- *		- default: entity's default movement speed
-*/
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::FleeTargetEntity( EventArgs* args )
-{
-	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
-	Entity* targetEntity = g_game->GetEntityById( targetId );
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity == nullptr
-		 || targetEntity == nullptr )
-	{
-		return;
-	}
-
-	Vec2 moveDirection = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
-	moveDirection.Normalize();
-
-	float speed = args->GetValue( "speed", entity->GetSpeed() );
-
-	entity->MoveWithPhysics( speed, -moveDirection );
+	//entity->MoveWithPhysics( speed, direction );
 }
 
 
@@ -726,7 +624,7 @@ void ZephyrGameAPI::GetNewWanderTargetPosition( EventArgs* args )
 	float newX = g_game->m_rng->RollRandomFloatInRange( 2.f, mapDimensions.x - 2.f );
 	float newY = g_game->m_rng->RollRandomFloatInRange( 2.f, mapDimensions.y - 2.f );
 	
-	args->SetValue( "newPos", Vec2( newX, newY ) );
+	args->SetValue( "newPos", Vec3( newX, newY, 0.f ) );
 
 	//entity->FireScriptEvent( "TargetPositionUpdated", &targetArgs );
 }

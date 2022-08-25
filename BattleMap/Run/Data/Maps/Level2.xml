@@ -1,0 +1,34 @@
+<MapDefinition type="TileMap" version="1" dimensions="21,10">
+
+	<Legend>
+		<Tile glyph="#" tileType="BlueDungeonBlock"/>
+		<Tile glyph="." tileType="BlueDungeonFloor"/>
+	</Legend>
+	<MapRows>
+		<MapRow tiles="#####################"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="#...................#"/>
+		<MapRow tiles="###.#################"/>
+	</MapRows>
+	<Entities>
+		<!-- Managers -->
+		<Entity type="Level2Manager" name="Level2Manager">
+		<GlobalVar type="string" var="roomId" value="Level2"/>
+		<GlobalVar type="entity" var="doorToRoom1" value="door2To1"/>
+		</Entity>
+		<!-- Door back to sliding puzzle level -->
+		<Entity type="ClosedDoorVertical" name="door2To1" pos="3.5,.5"/>
+		<Entity type="InvisibleTeleporter" pos="3.5,.5" yaw="0" destMap="Level1" destPos="6.5,6.5" destYawOffset="0"/>
+		<!-- Entities -->
+		<PlayerStart pos="3.5,1.5" yaw="0"/>
+	</Entities>
+
+</MapDefinition>
+
+

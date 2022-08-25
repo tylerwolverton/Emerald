@@ -15,16 +15,8 @@
 #include "Game/Game.hpp"
 #include "Game/World.hpp"
 #include "Game/Entity.hpp"
-#include "Game/Actor.hpp"
-#include "Game/Projectile.hpp"
-#include "Game/Portal.hpp"
-#include "Game/Pickup.hpp"
 #include "Game/EntityDefinition.hpp"
 #include "Game/MapData.hpp"
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <profileapi.h>
 
 
 //-----------------------------------------------------------------------------------------------
@@ -34,7 +26,6 @@ Map::Map( const MapData& mapData, World* world )
 	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
-	m_physicsScene = new PhysicsScene();
 }
 
 
@@ -50,8 +41,6 @@ Map::~Map()
 	}
 
 	m_entities.clear();
-
-	PTR_SAFE_DELETE( m_physicsScene );
 }
 
 
@@ -76,7 +65,6 @@ void Map::Load( Entity* player )
 	AddToEntityList( m_player );
 
 	player->SetMap( this );
-	player->InitPhysics( this->m_physicsScene->CreateRigidbody() );
 	player->SetPosition( m_playerStartPos );
 	player->SetOrientationDegrees( m_playerStartYaw );
 }
@@ -100,7 +88,6 @@ void Map::Unload()
 		}
 	}
 
-	m_player->m_rigidbody->Destroy();
 	m_player = nullptr;
 }
 
@@ -132,8 +119,6 @@ void Map::Update( float deltaSeconds )
 
 	DebugAddScreenTextf( Vec4( 0.f, .05f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Entity Count: %d", (int)m_entities.size() );
 	DebugAddScreenTextf( Vec4( 0.f, 0.f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Update Time: %.2f ms", msElapsed );
-
-	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
 
 	UpdateMesh();
 
@@ -193,54 +178,9 @@ Entity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 //-----------------------------------------------------------------------------------------------
 Entity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 {
-	switch ( entityDef.GetClass() )
-	{
-		case eEntityClass::ACTOR:
-		{
-			Actor* actor = new Actor( entityDef, this );
-			AddToEntityList( actor );
-			return actor;
-		}
-		break;
-
-		case eEntityClass::PROJECTILE:
-		{
-			Projectile* projectile = new Projectile( entityDef, this );
-			AddToEntityList( projectile );
-			return projectile;
-		}
-		break;
-
-		case eEntityClass::PORTAL:
-		{
-			Portal* portal = new Portal( entityDef, this );
-			AddToEntityList( portal );
-			return portal;
-		}
-		break;
-
-		case eEntityClass::PICKUP:
-		{
-			Pickup* pickup = new Pickup( entityDef, this );
-			AddToEntityList( pickup );
-			return pickup;
-		}
-		break;
-
-		case eEntityClass::ENTITY:
-		{
-			Entity* entity = new Entity( entityDef, this );
-			AddToEntityList( entity );
-			return entity;
-		}
-		break;
-
-		default:
-		{
-			g_devConsole->PrintError( Stringf( "Tried to spawn entity '%s' with unknown type", entityDef.GetType().c_str() ) );
-			return nullptr;
-		}
-	}
+	Entity* entity = new Entity( entityDef, this );
+	AddToEntityList( entity );
+	return entity;
 }
 
 
@@ -357,23 +297,6 @@ void Map::TakeOwnershipOfEntity( Entity* entityToAdd )
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::AddItemToTargetInventory( Entity* item, Entity* targetEntity )
-{
-	if ( targetEntity == nullptr
-		 || item == nullptr )
-	{
-		return;
-	}
-
-	targetEntity->AddItemToInventory( item );
-
-	item->m_rigidbody->Disable();
-
-	RemoveOwnershipOfEntity( item );
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 {
 	for ( int mapEntityIdx = 0; mapEntityIdx < (int)mapEntityDefs.size(); ++mapEntityIdx )
@@ -398,14 +321,6 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 
 		newEntity->SetPosition( Vec3( mapEntityDef.position, 0.f ) );
 		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
-
-		if ( mapEntityDef.entityDef->GetClass() == eEntityClass::PORTAL )
-		{
-			Portal* portal = (Portal*)newEntity;
-			portal->SetDestinationMap( mapEntityDef.portalDestMap );
-			portal->SetDestinationPosition( mapEntityDef.portalDestPos );
-			portal->SetDestinationYawOffset( mapEntityDef.portalDestYawOffset );
-		}
 		
 		// Define initial script values defined in map file
 		// Note: These will override any initial values already defined in the EntityDefinition
@@ -449,13 +364,6 @@ void Map::DeleteDeadEntities()
 
 		m_entities[entityIdx] = nullptr;
 	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Map::WarpEntityInMap( Entity* entity, Portal* portal )
-{
-	g_game->WarpToMap( entity, portal->GetDestinationMap(), portal->GetDestinationPosition(), entity->GetOrientationDegrees() + portal->GetDestinationYawOffset() );
 }
 
 
@@ -515,7 +423,8 @@ Entity* Map::GetEntityAtPosition( const Vec2& position )
 			continue;
 		}
 
-		if ( IsPointInsideDisc( position, entity->GetPosition().XY(), entity->GetPhysicsRadius() ) )
+		// TODO: Interaction radius
+		if ( IsPointInsideDisc( position, entity->GetPosition().XY(), .5f ) )
 		{
 			return entity;
 		}

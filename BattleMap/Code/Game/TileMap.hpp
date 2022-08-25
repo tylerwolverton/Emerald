@@ -69,9 +69,6 @@ private:
 	std::vector<const Tile*>	GetTilesInRadius( const Tile& centerTile, int radius, bool includeCenterTile ) const;
 	
 	void						BuildCardinalDirectionsArray();
-	
-	void						CreateTileRigidbodies();
-	void						DestroyTileRigidbodies();
 
 private:
 	Transform				m_raytraceTransform;
@@ -82,6 +79,4 @@ private:
 	Vec2					m_cardinalDirectionOffsets[9];
 
 	std::vector<Vertex_PCU> m_mesh;
-
-	std::vector<Rigidbody*> m_tileRigidbodies;
 };

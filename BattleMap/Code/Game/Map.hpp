@@ -8,8 +8,6 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class Portal;
-struct PhysicsScene;
 class World;
 struct MapData;
 struct MapEntityDefinition;
@@ -68,8 +66,6 @@ public:
 
 	void AddItemToTargetInventory( Entity* item, Entity* targetEntity );
 
-	void WarpEntityInMap( Entity* entity, Portal* portal );
-
 	Entity* GetEntityByName( const std::string& name );
 	Entity* GetEntityById( EntityId id );
 
@@ -87,7 +83,6 @@ private:
 protected:
 	std::string					m_name;
 	World*						m_world = nullptr;
-	PhysicsScene*				m_physicsScene = nullptr;
 
 	// Multiplayer TODO: Make this into an array
 	Vec3						m_playerStartPos = Vec3::ZERO;

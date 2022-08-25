@@ -1,49 +1,14 @@
-Number curHealth = parentEntity.health;
+Number curHealth = 5;
 Bool canShoot = true;
 Number fireCooldown = .5;
-Entity perfTester = null
 Vec2 testVec
-
-Function PerformanceSpawn10()
-{
-    perfTester.Spawn10()
-}
-
-Function PerformanceSpawn100()
-{
-    perfTester.Spawn100()
-}
 
 Function OnSpawn( Number maxHealth )
 {
-    RegisterKeyEvent( key: "Q", event: "PerformanceSpawn10" )
-    RegisterKeyEvent( key: "E", event: "PerformanceSpawn100" )
-
     RegisterKeyEvent( key: "W", event: "MoveUp" )
     RegisterKeyEvent( key: "A", event: "MoveLeft" )
     RegisterKeyEvent( key: "S", event: "MoveDown" )
     RegisterKeyEvent( key: "D", event: "MoveRight" )
-
-    RegisterKeyEvent( key: "Up", event: "ShootFireballUp" )
-    RegisterKeyEvent( key: "Left", event: "ShootFireballLeft" )
-    RegisterKeyEvent( key: "Down", event: "ShootFireballDown" )
-    RegisterKeyEvent( key: "Right", event: "ShootFireballRight" )
-}
-
-Function OnAcquireItem( String itemName )
-{
-    if( itemName == "TripleFireballPickup" )
-    {
-        UnRegisterKeyEvent( key: "Up", event: "ShootFireballUp" )
-        UnRegisterKeyEvent( key: "Left", event: "ShootFireballLeft" )
-        UnRegisterKeyEvent( key: "Down", event: "ShootFireballDown" )
-        UnRegisterKeyEvent( key: "Right", event: "ShootFireballRight" )
-        
-        RegisterKeyEvent( key: "Up", event: "ShootTripleFireballUp" )
-        RegisterKeyEvent( key: "Left", event: "ShootTripleFireballLeft" )
-        RegisterKeyEvent( key: "Down", event: "ShootTripleFireballDown" )
-        RegisterKeyEvent( key: "Right", event: "ShootTripleFireballRight" )
-    }
 }
 
 Function OnHealthChange( Number newHealth )
@@ -124,61 +89,6 @@ Function ShootFireballDown()
 Function ShootFireballRight()
 {
     ShootFireball( fireballOffset: Vec2( .6, 0 ), shotOrientation: 0 )
-}
-
-// TripleFireball
-Function ShootTripleFireball( Vec2 fireballOffset1,
-                              Number shotOrientation1,
-                              Vec2 fireballOffset2,
-                              Number shotOrientation2,
-                              Vec2 fireballOffset3,
-                              Number shotOrientation3 )
-{
-    if( !canShoot )
-    {
-        return;
-    }
-
-    PlaySound( name: "LOZ_Bomb_Blow" )
-    SpawnEntity( type: "PlayerFireball", position: parentEntity.position + fireballOffset1, orientation: shotOrientation1 )
-    SpawnEntity( type: "PlayerFireball", position: parentEntity.position + fireballOffset2, orientation: shotOrientation1 + 45 )
-    SpawnEntity( type: "PlayerFireball", position: parentEntity.position + fireballOffset3, orientation: shotOrientation1 - 45 )
-
-    StartNewTimer( durationSeconds: fireCooldown, onCompletedEvent: "ShotCooldownExpired" )
-
-    canShoot = false;
-}
-
-Function ShootTripleFireballUp()
-{
-    ShootTripleFireball( fireballOffset1: Vec2( 0, .6 ), 
-                         fireballOffset2: Vec2( -.5, .6 ),
-                         fireballOffset3: Vec2( .5, .6 ),
-                         shotOrientation1: 90 ) 
-}
-
-Function ShootTripleFireballLeft()
-{
-    ShootTripleFireball( fireballOffset1: Vec2( -.6, 0 ), 
-                         fireballOffset2: Vec2( -.6, .1 ),
-                         fireballOffset3: Vec2( -.6, 1.1 ),
-                         shotOrientation1: 180 )
-}
-
-Function ShootTripleFireballDown()
-{
-    ShootTripleFireball( fireballOffset1: Vec2( 0, -.6 ), 
-                         fireballOffset2: Vec2( .5, -.6 ),
-                         fireballOffset3: Vec2( -.5, -.6 ),
-                         shotOrientation1: 270 )
-}
-
-Function ShootTripleFireballRight()
-{        
-    ShootTripleFireball( fireballOffset1: Vec2( .6, 0 ), 
-                         fireballOffset2: Vec2( .6, 1.1 ),
-                         fireballOffset3: Vec2( .6, .1 ),
-                         shotOrientation1: 0 )
 }
 
 

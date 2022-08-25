@@ -249,23 +249,8 @@ void MapData::CreateMapEntityDefFromNode( const XmlElement& entityElem, const st
 		return;
 	}
 
-	if ( GetEntityClassAsString( mapEntityDef.entityDef->GetClass() ) != expectedType )
-	{
-		g_devConsole->PrintError( Stringf( "Entity '%s' was defined as '%s' in EntityTypes.xml, but Entity in map '%s'", entityType.c_str(),
-										   GetEntityClassAsString( mapEntityDef.entityDef->GetClass() ).c_str(),
-										   expectedType.c_str() ) );
-		return;
-	}
-
 	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec2::ZERO );
 	mapEntityDef.yawDegrees = ParseXmlAttribute( entityElem, "yaw", 0.f );
-
-	if ( mapEntityDef.entityDef->GetClass() == eEntityClass::PORTAL )
-	{
-		mapEntityDef.portalDestMap = ParseXmlAttribute( entityElem, "destMap", "" );
-		mapEntityDef.portalDestPos = ParseXmlAttribute( entityElem, "destPos", Vec2::ZERO );
-		mapEntityDef.portalDestYawOffset = ParseXmlAttribute( entityElem, "destYawOffset", 0.f );
-	}
 
 	const XmlElement* globalVarElem = entityElem.FirstChildElement( "GlobalVar" );
 	while ( globalVarElem != nullptr )

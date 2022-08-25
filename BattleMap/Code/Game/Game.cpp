@@ -34,7 +34,6 @@
 #include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
 #include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
-#include "Game/Actor.hpp"
 #include "Game/Entity.hpp"
 #include "Game/DialogueBox.hpp"
 #include "Game/World.hpp"
@@ -114,7 +113,6 @@ void Game::Shutdown()
 	PTR_SAFE_DELETE( m_dialogueBox );
 
 	m_uiSystem->Shutdown();
-	m_physicsSystem->Shutdown();
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_world );
@@ -123,7 +121,6 @@ void Game::Shutdown()
 	PTR_SAFE_DELETE( m_uiCamera );
 	PTR_SAFE_DELETE( m_worldCamera );
 	PTR_SAFE_DELETE( m_uiSystem );
-	PTR_SAFE_DELETE( m_physicsSystem );
 }
 
 
@@ -537,11 +534,7 @@ void Game::LoadEntitiesFromXml()
 	XmlElement* element = root->FirstChildElement();
 	while ( element )
 	{
-		if ( !strcmp( element->Name(), "Actor" )
-			 || !strcmp( element->Name(), "Entity" )
-			 || !strcmp( element->Name(), "Projectile" )
-			 || !strcmp( element->Name(), "Portal" ) 
-			 || !strcmp( element->Name(), "Pickup" ) )
+		if ( !strcmp( element->Name(), "Entity" ) )
 		{
 			EntityDefinition* entityTypeDef = new EntityDefinition( *element, spriteSheet );
 			if ( entityTypeDef->IsValid() )
@@ -571,7 +564,7 @@ void Game::LoadEntitiesFromXml()
 		return;
 	}
 
-	m_player = new Actor( *playerDef, nullptr );
+	m_player = new Entity( *playerDef, nullptr );
 	m_player->SetAsPlayer();
 
 	// Must be saved before initializing zephyr script
