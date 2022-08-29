@@ -40,12 +40,6 @@
     <ClCompile Include="EntityDefinition.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="MapData.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="DialogueBox.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Scripting\ZephyrGameAPI.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
@@ -60,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="SpriteAnimationSetDefinition.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="MapDefinition.cpp">
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,12 +75,6 @@
     <ClInclude Include="EntityDefinition.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="MapData.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="DialogueBox.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Scripting\ZephyrGameAPI.hpp">
       <Filter>Scripting</Filter>
     </ClInclude>
@@ -98,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="SpriteAnimationSetDefinition.hpp">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="MapDefinition.hpp">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -116,29 +110,8 @@
     <Xml Include="..\..\Run\Data\Maps\Level1.xml">
       <Filter>Data\Maps</Filter>
     </Xml>
-    <Xml Include="..\..\Run\Data\Maps\VictoryLevel.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
     <Xml Include="..\..\Run\Data\Gameplay\WorldDef.xml">
       <Filter>Data\Gameplay</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\Level3.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\Level4.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\PoisonTrapRoom.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\PerfTest.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\SlidingPuzzleRoom.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\BossLevel.xml">
-      <Filter>Data\Maps</Filter>
     </Xml>
     <Xml Include="..\..\Run\Data\PhysicsConfig.xml">
       <Filter>Data</Filter>

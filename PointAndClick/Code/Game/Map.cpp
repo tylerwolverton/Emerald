@@ -16,11 +16,11 @@
 #include "Game/World.hpp"
 #include "Game/Entity.hpp"
 #include "Game/EntityDefinition.hpp"
-#include "Game/MapData.hpp"
+#include "Game/MapDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-Map::Map( const MapData& mapData, World* world )
+Map::Map( const MapDefinition& mapData, World* world )
 	: m_name( mapData.mapName )
 	, m_playerStartPos( mapData.playerStartPos )
 	, m_playerStartYaw( mapData.playerStartYaw )
@@ -94,13 +94,7 @@ void Map::Unload()
 
 //-----------------------------------------------------------------------------------------------
 void Map::Update( float deltaSeconds )
-{
-	LARGE_INTEGER frequency;
-	QueryPerformanceFrequency( &frequency );
-
-	LARGE_INTEGER ticksBefore;
-	QueryPerformanceCounter( &ticksBefore );
-	
+{	
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		Entity* const& entity = m_entities[entityIdx];
@@ -112,15 +106,7 @@ void Map::Update( float deltaSeconds )
 		entity->Update( deltaSeconds );
 	}
 
-	LARGE_INTEGER ticksAfter;
-	QueryPerformanceCounter( &ticksAfter );
-
-	double msElapsed = (double)( ticksAfter.QuadPart - ticksBefore.QuadPart ) * 1000.0 / (double)frequency.QuadPart ;
-
-	DebugAddScreenTextf( Vec4( 0.f, .05f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Entity Count: %d", (int)m_entities.size() );
-	DebugAddScreenTextf( Vec4( 0.f, 0.f, 10.f, 10.f ), Vec2::ZERO, 32.f, Rgba8::WHITE, Rgba8::WHITE, 0.f, "Update Time: %.2f ms", msElapsed );
-
-	UpdateMesh();
+	//UpdateMesh();
 
 	DeleteDeadEntities();
 }
@@ -187,8 +173,15 @@ Entity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 //-----------------------------------------------------------------------------------------------
 Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos )
 {
+	return SpawnNewEntityOfTypeAtPosition( entityDefName, Vec3( pos, 0.f ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec3& pos )
+{
 	Entity* entity = SpawnNewEntityOfType( entityDefName );
-	entity->SetPosition( Vec3( pos, 0.f ) );
+	entity->SetPosition( pos );
 
 	return entity;
 }
@@ -425,6 +418,29 @@ Entity* Map::GetEntityAtPosition( const Vec2& position )
 
 		// TODO: Interaction radius
 		if ( IsPointInsideDisc( position, entity->GetPosition().XY(), .5f ) )
+		{
+			return entity;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Entity* Map::GetEntityAtPosition( const Vec3& position )
+{
+	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	{
+		Entity*& entity = m_entities[entityIdx];
+		if ( entity == nullptr
+			 || entity->IsDead() )
+		{
+			continue;
+		}
+
+		// TODO: Interaction radius
+		if ( IsPointInsideSphere( position, entity->GetPosition(), .5f ) )
 		{
 			return entity;
 		}

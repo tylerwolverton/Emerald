@@ -286,6 +286,16 @@ bool DoDiscsOverlap( const Vec2& center1, float radius1, const Vec2& center2, fl
 
 
 //-----------------------------------------------------------------------------------------------
+bool IsPointInsideSphere( const Vec3& point, const Vec3& center, float radius )
+{
+	float distSquared = GetDistanceSquared3D( center, point );
+	float radiusSquared = radius * radius;
+
+	return distSquared < radiusSquared;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool DoSpheresOverlap( const Vec3& center1, float radius1, const Vec3& center2, float radius2 )
 {
 	float sumOfRadiiSquared = ( radius1 + radius2 ) * ( radius1 + radius2 );

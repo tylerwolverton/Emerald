@@ -34,8 +34,6 @@ private:
 	void SpawnEntity( EventArgs* args );
 	void StartDialogue( EventArgs* args );
 	void EndDialogue( EventArgs* args );
-	void AddLineOfDialogueText( EventArgs* args );
-	void AddDialogueChoice( EventArgs* args );
 	void StartNewTimer( EventArgs* args );
 	void WinGame( EventArgs* args );
 
@@ -49,9 +47,6 @@ private:
 	void MoveToLocation( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
 	void GetEntityLocation( EventArgs* args );
-	void GetNewWanderTargetPosition( EventArgs* args );
-	void CheckForTarget( EventArgs* args );
-	void GetDistanceToTarget( EventArgs* args );
 
 	// Input
 	void RegisterKeyEvent( EventArgs* args );
@@ -64,9 +59,6 @@ private:
 	void PlaySound( EventArgs* args );
 	void ChangeMusic( EventArgs* args );
 	void AddScreenShake( EventArgs* args );
-
-	// Map
-	void SpawnEntitiesInRange( EventArgs* args );
 
 private:
 	Entity* GetTargetEntityFromArgs( EventArgs* args );

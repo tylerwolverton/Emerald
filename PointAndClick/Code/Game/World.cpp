@@ -4,22 +4,21 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Time/Clock.hpp"
 
-#include "Game/Map.hpp"
 #include "Game/GameCommon.hpp"
-#include "Game/MapData.hpp"
+#include "Game/Map.hpp"
+#include "Game/MapDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 World::World( Clock* gameClock )
 {
-	m_worldClock = gameClock;//new Clock( gameClock );
+	m_worldClock = gameClock;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 World::~World()
 {
-	//PTR_SAFE_DELETE( m_worldClock );
 	PTR_MAP_SAFE_DELETE( m_loadedMaps );
 }
 
@@ -77,16 +76,19 @@ void World::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-void World::AddNewMap( const MapData& mapData )
+void World::AddNewMap( const MapDefinition& mapDef )
 {
-	if ( mapData.type == "TileMap" )
+	/*if ( mapData.type == "TileMap" )
 	{
 		TileMap* tileMap = new TileMap( mapData, this );
 		m_loadedMaps[mapData.mapName] = tileMap;
-	}
+	}*/
+
+	Map* map = new Map( mapDef, this );
+	m_loadedMaps[mapDef.mapName] = map;
 
 	// Load entities after map has been fully created
-	m_loadedMaps[mapData.mapName]->LoadEntities( mapData.mapEntityDefs );
+	m_loadedMaps[mapDef.mapName]->LoadEntities( mapDef.mapEntityDefs );
 }
 
 
@@ -106,12 +108,8 @@ void World::ChangeMap( const std::string& mapName, Entity* player )
 	}
 
 	m_curMap = newMap;
-
-	if ( m_curMap != nullptr )
-	{
-		m_curMap->Load( player );
-		g_devConsole->PrintString( Stringf( "Map '%s' loaded", mapName.c_str() ), Rgba8::GREEN );
-	}
+	m_curMap->Load( player );
+	g_devConsole->PrintString( Stringf( "Map '%s' loaded", mapName.c_str() ), Rgba8::GREEN );
 }
 
 
@@ -162,8 +160,7 @@ bool World::IsMapLoaded( const std::string& mapName )
 void World::Reset()
 {
 	UnloadAllEntityScripts();
-	ClearEntities();
-	ClearMaps();
+	ClearMapsAndEntities();
 }
 
 
@@ -198,18 +195,15 @@ void World::ReloadAllEntityScripts()
 
 
 //-----------------------------------------------------------------------------------------------
-void World::ClearMaps()
+void World::ClearMapsAndEntities()
 {
+	// Note: Since Map owns its entities, Map destructor will delete entities in each map
 	PTR_MAP_SAFE_DELETE( m_loadedMaps );
 
 	m_curMap = nullptr;
-}
 
-
-//-----------------------------------------------------------------------------------------------
-void World::ClearEntities()
-{
 	m_entitiesByName.clear();
+	m_entitiesById.clear();
 
 	PTR_VECTOR_SAFE_DELETE( m_worldEntities );
 }

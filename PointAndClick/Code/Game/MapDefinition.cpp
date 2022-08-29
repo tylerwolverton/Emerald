@@ -1,4 +1,4 @@
-#include "Game/MapData.hpp"
+#include "Game/MapDefinition.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
@@ -7,7 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-MapData::MapData( const XmlElement& mapDefElem, const std::string& mapName )
+MapDefinition::MapDefinition( const XmlElement& mapDefElem, const std::string& mapName )
 	: mapName( mapName )
 {
 	if ( !ParseMapDefinitionNode( mapDefElem ) ) { return; }
@@ -18,13 +18,13 @@ MapData::MapData( const XmlElement& mapDefElem, const std::string& mapName )
 
 
 //-----------------------------------------------------------------------------------------------
-MapData::~MapData()
+MapDefinition::~MapDefinition()
 {	
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool MapData::ParseMapDefinitionNode( const XmlElement& mapDefElem )
+bool MapDefinition::ParseMapDefinitionNode( const XmlElement& mapDefElem )
 {
 	type = ParseXmlAttribute( mapDefElem, "type", type );
 	if ( type == "InvalidType" )
@@ -45,7 +45,7 @@ bool MapData::ParseMapDefinitionNode( const XmlElement& mapDefElem )
 
 
 //-----------------------------------------------------------------------------------------------
-bool MapData::ParseEntitiesNode( const XmlElement& mapDefElem )
+bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
 {
 	const XmlElement* entitiesElem = mapDefElem.FirstChildElement( "Entities" );
 	if ( entitiesElem == nullptr )
@@ -94,7 +94,7 @@ bool MapData::ParseEntitiesNode( const XmlElement& mapDefElem )
 
 
 //-----------------------------------------------------------------------------------------------
-void MapData::CreateMapEntityDefFromNode( const XmlElement& entityElem, const std::string& expectedType )
+void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem, const std::string& expectedType )
 {
 	MapEntityDefinition mapEntityDef;
 

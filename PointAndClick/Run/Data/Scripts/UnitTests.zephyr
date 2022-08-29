@@ -226,19 +226,19 @@ State MemberTest
 		Number b
 		// b = a.x
 
-		Number posX = testEntity.target.position.x + 6
-		// testEntity.target = player
-		//posX = testEntity.target.curPosition.x.y
-		//posX = testEntity.target.x.y
+		// Number posX = testEntity.target.position.x + 6
+		// // testEntity.target = player
+		// //posX = testEntity.target.curPosition.x.y
+		// //posX = testEntity.target.x.y
 		
-		testEntity.target.testVec.x = posX = 10
-		if( testEntity.target.testVec.x != 10
-			|| posX != 10 )
-		{
-			PrintToConsole( text: "MemberTest: Failed, expected 10 but found ", color: "red" )
-			PrintToConsole( text: testEntity.target.testVec.x, color: "red" )
-			return;
-		}
+		// testEntity.target.testVec.x = posX = 10
+		// if( testEntity.target.testVec.x != 10
+		// 	|| posX != 10 )
+		// {
+		// 	PrintToConsole( text: "MemberTest: Failed, expected 10 but found ", color: "red" )
+		// 	PrintToConsole( text: testEntity.target.testVec.x, color: "red" )
+		// 	return;
+		// }
 
 
 		vec1.x = 6

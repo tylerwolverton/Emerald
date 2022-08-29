@@ -1,4 +1,4 @@
-<EntityTypes spriteSheet="Data/Images/EntitiesSpriteSheet_30x30.png" spriteSheetDimensions="30,30">
+<EntityTypes spriteSheet="Data/Images/TestAtlas_4x4.png" spriteSheetDimensions="4,4">
   ​
   <Entity name="Link">
     <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
@@ -29,13 +29,13 @@
     </Script>
   </Entity>
   
-  <Entity name="Level2Manager">
+  <!--<Entity name="Level2Manager">
     <Script name="Level2Manager.zephyr">
       <GlobalVar type="entity" var="gameMgr" value="GameManager"/>
     </Script>
-  </Entity>
+  </Entity>-->
   
-  <Entity name="ClosedDoorVertical">
+  <!--<Entity name="ClosedDoorVertical">
     <Physics radius="0.5" collisionLayer="StaticEnvironment"/>
     <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="1">
       <Closed up="157"/>
@@ -43,7 +43,7 @@
     </Appearance>
     <Gameplay maxHealth="99999"/>
     <Script name="ClosedDoor.zephyr"/>
-  </Entity>
+  </Entity>-->
   ​
   <Entity name="LockedDoorVertical">
     <Physics radius="0.5" collisionLayer="StaticEnvironment"/>

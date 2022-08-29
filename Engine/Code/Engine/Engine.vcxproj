@@ -291,6 +291,7 @@
     <ClInclude Include="..\ThirdParty\mikkt\mikktspace.h" />
     <ClInclude Include="..\ThirdParty\stb\stb_image.h" />
     <ClInclude Include="..\ThirdParty\TinyXML2\tinyxml2.h" />
+    <ClInclude Include="Audio\AudioCommon.hpp" />
     <ClInclude Include="Audio\AudioSystem.hpp" />
     <ClInclude Include="Core\BufferParser.hpp" />
     <ClInclude Include="Core\BufferUtils.hpp" />

@@ -194,28 +194,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="DialogueBox.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="EntityDefinition.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameCommon.cpp" />
     <ClCompile Include="Main_Windows.cpp" />
     <ClCompile Include="Map.cpp" />
-    <ClCompile Include="MapData.cpp" />
+    <ClCompile Include="MapDefinition.cpp" />
     <ClCompile Include="Scripting\ZephyrGameAPI.cpp" />
     <ClCompile Include="SpriteAnimationSetDefinition.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
-    <ClInclude Include="DialogueBox.hpp" />
     <ClInclude Include="EngineBuildPreferences.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="EntityDefinition.hpp" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="GameCommon.hpp" />
     <ClInclude Include="Map.hpp" />
-    <ClInclude Include="MapData.hpp" />
+    <ClInclude Include="MapDefinition.hpp" />
     <ClInclude Include="Scripting\ZephyrGameAPI.hpp" />
     <ClInclude Include="SpriteAnimationSetDefinition.hpp" />
     <ClInclude Include="World.hpp" />
@@ -227,13 +225,6 @@
     <Xml Include="..\..\Run\Data\Gameplay\TileMaterialDefs.xml" />
     <Xml Include="..\..\Run\Data\Gameplay\WorldDef.xml" />
     <Xml Include="..\..\Run\Data\Maps\Level1.xml" />
-    <Xml Include="..\..\Run\Data\Maps\BossLevel.xml" />
-    <Xml Include="..\..\Run\Data\Maps\Level3.xml" />
-    <Xml Include="..\..\Run\Data\Maps\Level4.xml" />
-    <Xml Include="..\..\Run\Data\Maps\PerfTest.xml" />
-    <Xml Include="..\..\Run\Data\Maps\PoisonTrapRoom.xml" />
-    <Xml Include="..\..\Run\Data\Maps\SlidingPuzzleRoom.xml" />
-    <Xml Include="..\..\Run\Data\Maps\VictoryLevel.xml" />
     <Xml Include="..\..\Run\Data\PhysicsConfig.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

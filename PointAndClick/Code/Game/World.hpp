@@ -12,7 +12,7 @@ class Clock;
 class Entity;
 class EntityDefinition;
 class Map;
-struct MapData;
+struct MapDefinition;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ public:
 	void Render() const;
 	void DebugRender() const;
 
-	void AddNewMap( const MapData& mapData );
+	void AddNewMap( const MapDefinition& mapDef );
 	void ChangeMap( const std::string& mapName, Entity* player );
 	Map* GetMapByName( const std::string& name );
 	Map* GetCurrentMap();
@@ -55,8 +55,7 @@ public:
 private:
 	Map* GetLoadedMapByName( const std::string& mapName );
 
-	void ClearMaps();
-	void ClearEntities();
+	void ClearMapsAndEntities();
 
 private:
 	Map* m_curMap = nullptr;

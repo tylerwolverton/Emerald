@@ -27,7 +27,7 @@ struct MapEntityDefinition
 
 
 //-----------------------------------------------------------------------------------------------
-struct MapData
+struct MapDefinition
 {
 public:
 	bool isValid = false;									// Game
@@ -42,8 +42,8 @@ public:
 	float playerStartYaw = 0.f;
 
 public:
-	explicit MapData( const XmlElement& mapDefElem, const std::string& mapName );
-	~MapData();
+	explicit MapDefinition( const XmlElement& mapDefElem, const std::string& mapName );
+	~MapDefinition();
 	
 private:
 	bool ParseMapDefinitionNode( const XmlElement& mapDefElem );

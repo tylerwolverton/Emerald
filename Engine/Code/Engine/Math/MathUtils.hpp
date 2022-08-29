@@ -115,6 +115,7 @@ bool			IsPointInsideOBB2D		( const Vec2& point, const OBB2& box );
 bool			IsPointInForwardSector2D( const Vec2& point, const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
 
 // Geometric Queries 3D
+bool			IsPointInsideSphere			( const Vec3& point, const Vec3& center, float radius );
 bool			DoSpheresOverlap			( const Vec3& center1, float radius1, const Vec3& center2, float radius2 );
 bool			DoSphereAndOBBOverlap3D		( const Vec3& sphereCenter, float sphereRadius, const OBB3& obb );
 

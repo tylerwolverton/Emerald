@@ -1,24 +1,12 @@
 #pragma once
-
-
-//-----------------------------------------------------------------------------------------------
 #include "ThirdParty/fmod/fmod.hpp"
+#include "Engine/Audio/AudioCommon.hpp"
 #include <string>
 #include <vector>
 #include <map>
 
 
 //-----------------------------------------------------------------------------------------------
-typedef size_t SoundID;
-typedef size_t SoundPlaybackID;
-constexpr size_t MISSING_SOUND_ID = (size_t)(-1); // for bad SoundIDs and SoundPlaybackIDs
-
-
-//-----------------------------------------------------------------------------------------------
-class AudioSystem;
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 class AudioSystem
 {
 public:

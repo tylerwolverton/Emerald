@@ -31,17 +31,12 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( DestroySelf );
 	REGISTER_EVENT( StartDialogue );
 	REGISTER_EVENT( EndDialogue );
-	REGISTER_EVENT( AddLineOfDialogueText );
-	REGISTER_EVENT( AddDialogueChoice );
 	REGISTER_EVENT( StartNewTimer );
 	REGISTER_EVENT( WinGame );
 
 	REGISTER_EVENT( MoveToLocation );
 	REGISTER_EVENT( MoveInDirection );
 	REGISTER_EVENT( GetEntityLocation );
-	REGISTER_EVENT( CheckForTarget );
-	REGISTER_EVENT( GetNewWanderTargetPosition );
-	REGISTER_EVENT( GetDistanceToTarget );
 
 	REGISTER_EVENT( SpawnEntity );
 	REGISTER_EVENT( DamageEntity );
@@ -56,7 +51,6 @@ ZephyrGameAPI::ZephyrGameAPI()
 	REGISTER_EVENT( ChangeMusic );
 	REGISTER_EVENT( AddScreenShake );
 
-	REGISTER_EVENT( SpawnEntitiesInRange );
 	REGISTER_EVENT( AddAnimationEvent );
 }
 
@@ -204,47 +198,6 @@ void ZephyrGameAPI::EndDialogue( EventArgs* args )
 	UNUSED( args );
 
 	g_game->ChangeGameState( eGameState::PLAYING );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Add a line of text to the current dialogue box. 
- *	- Note: Only works if StartDialogue has been called first.
- *
- * params:
- *	- text: Text to add to dialogue box
- *		- Zephyr type: String
- */
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::AddLineOfDialogueText( EventArgs* args )
-{
-	std::string text = args->GetValue( "text", "" );
-
-	g_game->AddLineOfDialogueText( text );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Add a player selectable choice to the current dialogue box. The player can then select choices with the wasd or arrow keys and confirm with space/enter.
- *	- Note: Only works if StartDialogue has been called first.
- *
- * params:
- *	- name: Name to identify this choice in order to assign a callback event on selection
- *		- Zephyr type: String
- *		- A script can listen for the event "PlayerInteracted" which has a "String choiceName" parameter containing the name of the choice that was selected
- *	
- *	- text: Text to add for choice to dialogue box
- *		- Zephyr type: String
- */
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::AddDialogueChoice( EventArgs* args )
-{
-	std::string name = args->GetValue( "name", "missing name" );
-	std::string text = args->GetValue( "text", "" );
-
-	g_game->AddDialogueChoice( name, text );
 }
 
 
@@ -592,87 +545,6 @@ void ZephyrGameAPI::GetEntityLocation( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-/**
- * Gets a new random position inside current map for the calling entity to wander towards.
- *
- * returns:
- *	- Fires the TargetPositionUpdated event with a parameter "newPos" containing a Vec2 with the requested position
- *
- * params:
- *	Target will be determined by the following optional parameters, checking in order the targetId, then targetName, then ( if neither name or id are specified ) targeting the entity who called this event.
- *	- targetId: id of target entity
- *		- Zephyr type: Number
- *	- targetName: name of target entity
- *		- Zephyr type: String
-*/
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::GetNewWanderTargetPosition( EventArgs* args )
-{
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-	if ( entity == nullptr )
-	{
-		return;
-	}
-
-	Map* map = entity->GetMap();
-	if ( map == nullptr )
-	{
-		return;
-	}
-
-	Vec2 mapDimensions = map->GetDimensions();
-	float newX = g_game->m_rng->RollRandomFloatInRange( 2.f, mapDimensions.x - 2.f );
-	float newY = g_game->m_rng->RollRandomFloatInRange( 2.f, mapDimensions.y - 2.f );
-	
-	args->SetValue( "newPos", Vec3( newX, newY, 0.f ) );
-
-	//entity->FireScriptEvent( "TargetPositionUpdated", &targetArgs );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::CheckForTarget( EventArgs* args )
-{
-	float maxDist = args->GetValue( "maxDist", 0.f );
-	//Entity* targetEntity = GetTargetEntityFromArgs( args );
-	
-	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
-	Entity* targetEntity = g_game->GetEntityById( targetId );
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity == nullptr
-		 || targetEntity == nullptr )
-	{
-		return;
-	}
-
-	Vec2 displacement = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
-	float distBetween = displacement.GetLength();
-	
-	args->SetValue( "targetFound", distBetween < maxDist );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::GetDistanceToTarget( EventArgs* args )
-{
-	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
-	Entity* targetEntity = g_game->GetEntityById( targetId );
-	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-
-	if ( entity == nullptr
-		 || targetEntity == nullptr )
-	{
-		return;
-	}
-
-	Vec2 displacementToTarget = targetEntity->GetPosition().XY() - entity->GetPosition().XY();
-
-	args->SetValue( "distance", displacementToTarget.GetLength() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrGameAPI::RegisterKeyEvent( EventArgs* args )
 {
 	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
@@ -797,28 +669,6 @@ void ZephyrGameAPI::AddScreenShake( EventArgs* args )
 	float intensity = args->GetValue( "intensity", 0.f );
 
 	g_game->AddScreenShakeIntensity( intensity );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameAPI::SpawnEntitiesInRange( EventArgs* args )
-{
-	Vec2 minPos = args->GetValue( "minPos", Vec2::ZERO );
-	Vec2 maxPos = args->GetValue( "maxPos", Vec2::ONE );
-	std::string entityType = args->GetValue( "type", "" );
-	float entityCount = args->GetValue( "count", 1.f );
-
-	if ( entityType.empty() )
-	{
-		return;
-	}
-
-	for ( int i = 0; i < entityCount; ++i )
-	{
-		Vec2 randomPosition = Vec2( g_game->m_rng->RollRandomFloatInRange( minPos.x, maxPos.x ), g_game->m_rng->RollRandomFloatInRange( minPos.y, maxPos.y ) );
-		args->SetValue( "position", randomPosition );
-		g_eventSystem->FireEvent( "SpawnEntity", args );
-	}
 }
 
 

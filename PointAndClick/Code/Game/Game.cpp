@@ -1,4 +1,5 @@
 #include "Game/Game.hpp"
+#include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -6,7 +7,6 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/TextBox.hpp"
-#include "Engine/Core/Image.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/FileUtils.hpp"
@@ -14,17 +14,12 @@
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/OS/Window.hpp"
-#include "Engine/Physics/PhysicsSystem.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
-#include "Engine/Physics/2D/DiscCollider.hpp"
-#include "Engine/Physics/2D/Polygon2Collider.hpp"
-#include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Renderer/BitmapFont.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
-#include "Engine/Renderer/Texture.hpp"
-#include "Engine/Renderer/SpriteSheet.hpp"
+#include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Time/Time.hpp"
 #include "Engine/UI/UIPanel.hpp"
@@ -35,9 +30,8 @@
 #include "Engine/ZephyrCore/ZephyrSystem.hpp"
 
 #include "Game/Entity.hpp"
-#include "Game/DialogueBox.hpp"
 #include "Game/World.hpp"
-#include "Game/MapData.hpp"
+#include "Game/MapDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -55,17 +49,7 @@ Game::~Game()
 //-----------------------------------------------------------------------------------------------
 void Game::Startup()
 {
-	m_worldCamera = new Camera();
-	m_worldCamera->SetOutputSize( Vec2( WINDOW_WIDTH, WINDOW_HEIGHT ) );
-	m_worldCamera->SetClearMode( CLEAR_COLOR_BIT, Rgba8::BLACK );
-	m_worldCamera->SetPosition( m_focalPoint );
-
-	Vec2 windowDimensions = g_window->GetDimensions();
-
-	m_uiCamera = new Camera();
-	m_uiCamera->SetOutputSize( windowDimensions );
-	m_uiCamera->SetPosition( Vec3( windowDimensions * .5f, 0.f ) );
-	m_uiCamera->SetProjectionOrthographic( windowDimensions.y );
+	InitializeCameras();
 
 	EnableDebugRendering();
 	
@@ -80,9 +64,6 @@ void Game::Startup()
 	g_renderer->Setup( m_gameClock );
 
 	g_inputSystem->PushMouseOptions( CURSOR_ABSOLUTE, true, false );
-
-	m_uiSystem = new UISystem();
-	m_uiSystem->Startup( g_window, g_renderer );
 
 	InitializeUI();
 
@@ -107,8 +88,6 @@ void Game::BeginFrame()
 //-----------------------------------------------------------------------------------------------
 void Game::Shutdown()
 {
-	PTR_SAFE_DELETE( m_dialogueBox );
-
 	m_uiSystem->Shutdown();
 
 	// Clean up member variables
@@ -209,6 +188,7 @@ void Game::Render() const
 
 	switch ( m_gameState )
 	{
+		// TODO: Make proper loading screen system
 		case eGameState::LOADING:
 		{
 			std::vector<Vertex_PCU> vertexes;
@@ -222,7 +202,7 @@ void Game::Render() const
 		case eGameState::ATTRACT:
 		{
 			std::vector<Vertex_PCU> vertexes;
-			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 450.f, 500.f ), 100.f, "Zephyr Test" );
+			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 450.f, 500.f ), 100.f, g_gameConfigBlackboard.GetValue( "windowTitle", "" ) );
 			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 500.f, 400.f ), 30.f, "Esc to Quit" );
 			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 500.f, 350.f ), 30.f, "Any Other Key to Start" );
 
@@ -263,8 +243,6 @@ void Game::Render() const
 		m_uiSystem->DebugRender();
 	}
 
-	m_dialogueBox->Render();
-
 	g_renderer->EndCamera( *m_uiCamera );
 
 	DebugRenderWorldToCamera( m_worldCamera );
@@ -279,6 +257,23 @@ void Game::EndFrame()
 
 
 //-----------------------------------------------------------------------------------------------
+void Game::InitializeCameras()
+{
+	m_worldCamera = new Camera();
+	m_worldCamera->SetOutputSize( Vec2( WINDOW_WIDTH, WINDOW_HEIGHT ) );
+	m_worldCamera->SetClearMode( CLEAR_COLOR_BIT, Rgba8::BLACK );
+	m_worldCamera->SetPosition( m_focalPoint );
+
+	Vec2 windowDimensions = g_window->GetDimensions();
+
+	m_uiCamera = new Camera();
+	m_uiCamera->SetOutputSize( windowDimensions );
+	m_uiCamera->SetPosition( Vec3( windowDimensions * .5f, 0.f ) );
+	m_uiCamera->SetProjectionOrthographic( windowDimensions.y );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::LoadAssets()
 {
 	g_devConsole->PrintString( "Loading Assets..." );
@@ -286,7 +281,6 @@ void Game::LoadAssets()
 
 	// Music
 	LoadSounds();
-
 	LoadAndCompileZephyrScripts();
 	LoadEntitiesFromXml();
 	LoadWorldDefinitionFromXml();
@@ -301,15 +295,16 @@ void Game::LoadSounds()
 {
 	g_devConsole->PrintString( "Loading Audio..." );
 
-	std::string folderPath( "Data/Audio" );
+	// TODO: Allow for subfolders
+	std::string folderRoot( g_gameConfigBlackboard.GetValue( "audioRoot", "" ));
 
-	Strings audioFiles = GetFileNamesInFolder( folderPath, "*.*" );
+	Strings audioFiles = GetFileNamesInFolder( folderRoot, "*.*" );
 	for ( int soundIdx = 0; soundIdx < (int)audioFiles.size(); ++soundIdx )
 	{
 		std::string soundName = GetFileNameWithoutExtension( audioFiles[soundIdx] );
 		std::string& soundNameWithExtension = audioFiles[soundIdx];
 
-		std::string soundFullPath( folderPath );
+		std::string soundFullPath( folderRoot );
 		soundFullPath += "/";
 		soundFullPath += soundNameWithExtension;
 
@@ -323,14 +318,14 @@ void Game::LoadMapsFromXml()
 {
 	g_devConsole->PrintString( "Loading Maps..." );
 
-	std::string folderPath( "Data/Maps" + m_dataPathSuffix );
+	std::string folderRoot( g_gameConfigBlackboard.GetValue( "mapsRoot", "" ) );
 
-	Strings mapFiles = GetFileNamesInFolder( folderPath, "*.xml" );
+	Strings mapFiles = GetFileNamesInFolder( folderRoot, "*.xml" );
 	for ( int mapIdx = 0; mapIdx < (int)mapFiles.size(); ++mapIdx )
 	{
 		std::string& mapName = mapFiles[mapIdx];
 
-		std::string mapFullPath( folderPath );
+		std::string mapFullPath( folderRoot );
 		mapFullPath += "/";
 		mapFullPath += mapName;
 
@@ -349,8 +344,7 @@ void Game::LoadMapsFromXml()
 			return;
 		}
 
-		MapData mapData( *root, GetFileNameWithoutExtension( mapName ) );
-
+		MapDefinition mapData( *root, GetFileNameWithoutExtension( mapName ) );
 		if ( mapData.isValid )
 		{
 			m_world->AddNewMap( mapData );
@@ -366,13 +360,13 @@ void Game::LoadEntitiesFromXml()
 {
 	g_devConsole->PrintString( "Loading Entity Types..." );
 
-	std::string filePath = Stringf( "Data/Gameplay%s/EntityTypes.xml", m_dataPathSuffix.c_str() );
+	std::string entityTypesPath( g_gameConfigBlackboard.GetValue( "entityTypesPath", "" ) );
 
 	XmlDocument doc;
-	XmlError loadError = doc.LoadFile( filePath.c_str() );
+	XmlError loadError = doc.LoadFile( entityTypesPath.c_str() );
 	if ( loadError != tinyxml2::XML_SUCCESS )
 	{
-		g_devConsole->PrintError( "EntityTypes.xml could not be opened" );
+		g_devConsole->PrintError( Stringf( "%s could not be opened", entityTypesPath.c_str() ) );
 		return;
 	}
 
@@ -391,8 +385,8 @@ void Game::LoadEntitiesFromXml()
 		return;
 	}
 
-	SpriteSheet* spriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
-	if ( spriteSheet == nullptr )
+	SpriteSheet* defaultSpriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
+	if ( defaultSpriteSheet == nullptr )
 	{
 		IntVec2 spriteSheetDimensions = ParseXmlAttribute( *root, "spriteSheetDimensions", IntVec2( -1, -1 ) );
 		if ( spriteSheetDimensions == IntVec2( -1, -1 ) )
@@ -408,15 +402,16 @@ void Game::LoadEntitiesFromXml()
 			return;
 		}
 
-		spriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
+		defaultSpriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
 	}
 
+	// Parse each entity type
 	XmlElement* element = root->FirstChildElement();
 	while ( element )
 	{
 		if ( !strcmp( element->Name(), "Entity" ) )
 		{
-			EntityDefinition* entityTypeDef = new EntityDefinition( *element, spriteSheet );
+			EntityDefinition* entityTypeDef = new EntityDefinition( *element, defaultSpriteSheet );
 			if ( entityTypeDef->IsValid() )
 			{
 				EntityDefinition::s_definitions[entityTypeDef->GetType()] = entityTypeDef;
@@ -430,6 +425,7 @@ void Game::LoadEntitiesFromXml()
 		element = element->NextSiblingElement();
 	}
 
+	// Initialize player
 	std::string playerActorName = g_gameConfigBlackboard.GetValue( std::string( "playerActorName" ), "" );
 	if ( playerActorName.empty() )
 	{
@@ -460,7 +456,7 @@ void Game::LoadWorldDefinitionFromXml()
 {
 	g_devConsole->PrintString( "Loading World Definition..." );
 
-	std::string filePath = Stringf( "Data/Gameplay%s/WorldDef.xml", m_dataPathSuffix.c_str() );
+	std::string filePath( g_gameConfigBlackboard.GetValue( "worldDefPath", "" ) );
 
 	XmlDocument doc;
 	XmlError loadError = doc.LoadFile( filePath.c_str() );
@@ -519,14 +515,14 @@ void Game::LoadAndCompileZephyrScripts()
 {
 	g_devConsole->PrintString( "Loading Zephyr Scripts..." );
 
-	std::string folderPath( "Data/Scripts" + m_dataPathSuffix );
+	std::string folderRoot( g_gameConfigBlackboard.GetValue( "scriptsRoot", "" ) );
 
-	Strings scriptFiles = GetFileNamesInFolder( folderPath, "*.zephyr" );
+	Strings scriptFiles = GetFileNamesInFolder( folderRoot, "*.zephyr" );
 	for ( int scriptIdx = 0; scriptIdx < (int)scriptFiles.size(); ++scriptIdx )
 	{
 		std::string& scriptName = scriptFiles[scriptIdx];
 
-		std::string scriptFullPath( folderPath );
+		std::string scriptFullPath( folderRoot );
 		scriptFullPath += "/";
 		scriptFullPath += scriptName;
 
@@ -546,7 +542,6 @@ void Game::ReloadGame()
 {
 	if ( m_gameState == eGameState::DIALOGUE )
 	{
-		m_dialogueBox->Reset();
 		m_gameState = eGameState::PLAYING;
 	}
 
@@ -574,15 +569,10 @@ void Game::ReloadGame()
 	//g_physicsSystem->Reset();
 	m_loadedSoundIds.clear();
 
-	LoadSounds();
-	LoadAndCompileZephyrScripts();
-	LoadEntitiesFromXml();
-	LoadWorldDefinitionFromXml();
-	LoadMapsFromXml();
+	LoadAssets();
 
 	EventArgs args;
 	g_eventSystem->FireEvent( "OnGameStart", &args );
-	g_devConsole->PrintString( "Data files reloaded", Rgba8::GREEN );
 }
 
 
@@ -645,11 +635,6 @@ void Game::UpdateFromKeyboard()
 				m_isDebugRendering = !m_isDebugRendering;
 			}
 
-			if ( g_inputSystem->WasKeyJustPressed( KEY_F2 ) )
-			{
-				g_eventSystem->FireEvent( "TestEvent" );
-			}
-
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F5 ) )
 			{
 				ReloadGame();
@@ -675,11 +660,6 @@ void Game::UpdateFromKeyboard()
 				m_isDebugRendering = !m_isDebugRendering;
 			}
 
-			if ( g_inputSystem->WasKeyJustPressed( KEY_F2 ) )
-			{
-				g_eventSystem->FireEvent( "TestEvent" );
-			}
-
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F5 ) )
 			{
 				ReloadGame();
@@ -690,8 +670,6 @@ void Game::UpdateFromKeyboard()
 			{
 				ReloadScripts();
 			}
-
-			m_dialogueBox->Update();
 		}
 		break;
 
@@ -725,7 +703,11 @@ void Game::UpdateFromKeyboard()
 void Game::LoadStartingMap( const std::string& mapName )
 {
 	m_world->InitializeAllZephyrEntityVariables();
-	m_player->InitializeZephyrEntityVariables();
+	
+	if ( m_player != nullptr )
+	{
+		m_player->InitializeZephyrEntityVariables();
+	}
 
 	m_world->ChangeMap( mapName, m_player );
 
@@ -782,18 +764,8 @@ void Game::UpdateCameras()
 //-----------------------------------------------------------------------------------------------
 void Game::InitializeUI()
 {
-	UIAlignedPositionData infoPos;
-	infoPos.fractionOfParentDimensions = Vec2( 1.f, .035f );
-	infoPos.alignmentWithinParentElement = ALIGN_TOP_LEFT;
-
-	m_uiInfoPanel = m_uiSystem->GetRootPanel()->AddChildPanel( infoPos, g_renderer->GetDefaultWhiteTexture(), Rgba8::BLACK );
-
-	UIAlignedPositionData posData;
-	posData.fractionOfParentDimensions = Vec2( .8f, .3f );
-	posData.alignmentWithinParentElement = ALIGN_BOTTOM_CENTER;
-	posData.positionOffsetFraction = Vec2( 0.f, .05f );
-
-	m_dialogueBox = new DialogueBox( *m_uiSystem, posData );
+	m_uiSystem = new UISystem();
+	m_uiSystem->Startup( g_window, g_renderer );
 }
 
 
@@ -929,62 +901,6 @@ void Game::SaveEntityByName( Entity* entity )
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::AddLineOfDialogueText( const std::string& text )
-{
-	if ( m_gameState != eGameState::DIALOGUE )
-	{
-		g_devConsole->PrintError( "Tried to add dialogue line of text while not in a dialogue sequence" );
-		return;
-	}
-
-	if ( m_dialogueBox == nullptr )
-	{
-		g_devConsole->PrintError( "Tried to add dialogue line of text but dialogue box is null" );
-		return;
-	}
-
-	m_dialogueBox->AddLineOfText( text );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::AddDialogueChoice( const std::string& name, const std::string& text )
-{
-	if ( m_gameState != eGameState::DIALOGUE )
-	{
-		g_devConsole->PrintError( "Tried to add dialogue choice while not in a dialogue sequence" );
-		return;
-	}
-
-	if ( m_dialogueBox == nullptr )
-	{
-		g_devConsole->PrintError( "Tried to add dialogue choice but dialogue box is null" );
-		return;
-	}
-
-	m_dialogueBox->AddChoice( name, text );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::SelectInDialogue( Entity* dialoguePartner )
-{
-	if ( m_dialogueBox == nullptr )
-	{
-		g_devConsole->PrintError( "Tried to select dialogue choice but dialogue box is null" );
-		return;
-	}
-
-	std::string choiceName = m_dialogueBox->GetCurrentChoiceName();
-	m_dialogueBox->Clear();
-
-	EventArgs args;
-	args.SetValue( "choiceName", choiceName );
-	dialoguePartner->FireScriptEvent( "OnPlayerInteract", &args );
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::PlaySoundByName( const std::string& soundName, bool isLooped, float volume, float balance, float speed, bool isPaused )
 {
 	auto iter = m_loadedSoundIds.find( soundName );
@@ -1044,9 +960,7 @@ void Game::ChangeGameState( const eGameState& newGameState )
 				case eGameState::PLAYING:
 				case eGameState::DIALOGUE:
 				{
-					m_dialogueBox->Reset();
-
-					if ( m_curMusicId != (SoundPlaybackID)-1 )
+					if ( m_curMusicId != MISSING_SOUND_ID )
 					{
 						g_audioSystem->StopSound( m_curMusicId );
 					}
@@ -1064,7 +978,7 @@ void Game::ChangeGameState( const eGameState& newGameState )
 				break;
 			}
 
-			if ( m_curMusicId != (SoundPlaybackID)-1 )
+			if ( m_curMusicId != MISSING_SOUND_ID )
 			{
 				g_audioSystem->StopSound( m_curMusicId );
 			}
@@ -1089,8 +1003,11 @@ void Game::ChangeGameState( const eGameState& newGameState )
 
 					SoundID unpause = g_audioSystem->CreateOrGetSound( "Data/Audio/Unpause.mp3" );
 					g_audioSystem->PlaySound( unpause, false, .1f );
-
-					g_audioSystem->SetSoundPlaybackVolume( m_curMusicId, .1f );
+					
+					if ( m_curMusicId != MISSING_SOUND_ID )
+					{
+						g_audioSystem->SetSoundPlaybackVolume( m_curMusicId, .1f );
+					}
 				}
 				break;
 
@@ -1106,7 +1023,6 @@ void Game::ChangeGameState( const eGameState& newGameState )
 
 				case eGameState::DIALOGUE:
 				{
-					m_dialogueBox->Reset();
 				}
 				break;
 			}
@@ -1115,13 +1031,15 @@ void Game::ChangeGameState( const eGameState& newGameState )
 
 		case eGameState::DIALOGUE:
 		{
-			m_dialogueBox->Show();
 		}
 		break;
 
 		case eGameState::PAUSED:
 		{
-			g_audioSystem->SetSoundPlaybackVolume( m_curMusicId, .05f );
+			if ( m_curMusicId != MISSING_SOUND_ID )
+			{
+				g_audioSystem->SetSoundPlaybackVolume( m_curMusicId, .05f );
+			}
 
 			SoundID pause = g_audioSystem->CreateOrGetSound( "Data/Audio/Pause.mp3" );
 			g_audioSystem->PlaySound( pause, false, .1f );
