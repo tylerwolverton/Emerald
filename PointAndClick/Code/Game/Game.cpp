@@ -63,7 +63,7 @@ void Game::Startup()
 
 	g_renderer->Setup( m_gameClock );
 
-	g_inputSystem->PushMouseOptions( CURSOR_ABSOLUTE, true, false );
+	g_inputSystem->PushMouseOptions( CURSOR_ABSOLUTE, false, false );
 
 	InitializeUI();
 

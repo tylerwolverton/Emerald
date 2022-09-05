@@ -370,6 +370,8 @@ void Entity::SetGlobalVariable( const std::string& varName, const ZephyrValue& v
 		return;
 	}
 
+	if ( varName == "position" ) { m_position = value.GetAsVec3(); return; }
+
 	ZephyrEntity::SetGlobalVariable( varName, value );
 }
 
@@ -407,7 +409,7 @@ void Entity::ChangeSpriteAnimation( const std::string& spriteAnimDefSetName )
 
 	if ( newSpriteAnimSetDef == nullptr )
 	{
-		g_devConsole->PrintWarning( Stringf( "Warning: Failed to change animation for entity '%s' to undefined animation '%s'", m_name.c_str(), spriteAnimDefSetName.c_str() ) );
+		//g_devConsole->PrintWarning( Stringf( "Warning: Failed to change animation for entity '%s' to undefined animation '%s'", m_name.c_str(), spriteAnimDefSetName.c_str() ) );
 		return;
 	}
 

@@ -21,7 +21,7 @@ class EntityDefinition : public ZephyrEntityDefinition
 	friend class Entity;
 
 public:
-	explicit EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* spriteSheet );
+	explicit EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet );
 	virtual ~EntityDefinition();
 	
 	bool			IsValid() const																{ return m_isValid; }

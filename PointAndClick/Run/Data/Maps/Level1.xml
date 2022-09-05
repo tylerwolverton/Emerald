@@ -28,6 +28,7 @@
     </Entity>-->
     <!-- Entities -->
     <PlayerStart pos="1.5,1.5" yaw="0"/>
+    <Entity type="MouseCursor"/>
     <!--<Entity type="Blob" name="blob1" pos="5.5,5.5" yaw="0">
       <GlobalVar type="entity" var="target" value="player"/>
       <GlobalVar type="entity" var="levelMgr" value="Level1Manager"/>

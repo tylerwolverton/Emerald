@@ -45,8 +45,11 @@ ZephyrGameAPI::ZephyrGameAPI()
 
 	REGISTER_EVENT( RegisterKeyEvent );
 	REGISTER_EVENT( UnRegisterKeyEvent );
+	REGISTER_EVENT( GetMouseCursorPositionWorld );
+	REGISTER_EVENT( GetMouseCursorPositionUI );
 
 	REGISTER_EVENT( ChangeSpriteAnimation );
+	REGISTER_EVENT( PlaySpriteAnimation );
 	REGISTER_EVENT( PlaySound );
 	REGISTER_EVENT( ChangeMusic );
 	REGISTER_EVENT( AddScreenShake );
@@ -591,6 +594,24 @@ void ZephyrGameAPI::UnRegisterKeyEvent( EventArgs* args )
 	}
 
 	entity->UnRegisterKeyEvent( key, event );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::GetMouseCursorPositionWorld( EventArgs* args )
+{
+	Vec2 mouseWorldPosition = g_game->GetMouseWorldPosition();
+
+	args->SetValue( "pos", mouseWorldPosition );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameAPI::GetMouseCursorPositionUI( EventArgs* args )
+{
+	Vec2 mouseUIPosition = g_game->GetMouseUIPosition();
+
+	args->SetValue( "pos", mouseUIPosition );
 }
 
 

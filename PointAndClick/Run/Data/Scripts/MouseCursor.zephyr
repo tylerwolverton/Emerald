@@ -1,0 +1,33 @@
+Function Hide()
+{
+    ChangeState(Hidden)
+}
+
+Function Show()
+{
+    ChangeState(Visible)
+}
+
+// State Hidden
+// {
+//     OnEnter()
+//     {
+//         PlaySpriteAnimation(newAnim: "None")
+//     }
+// }
+
+State Visible
+{
+    OnEnter()
+    {
+        PlaySpriteAnimation(newAnim: "Default")
+    }
+
+    OnUpdate()
+    {
+        Vec2 mousePosition
+        GetMouseCursorPositionWorld(pos: mousePosition)
+        parentEntity.position = mousePosition
+    }
+}
+

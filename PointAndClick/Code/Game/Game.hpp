@@ -57,6 +57,7 @@ public:
 	eGameState  GetGameState()															{ return m_gameState; }
 
 	const Vec2	GetMouseWorldPosition()													{ return m_mouseWorldPosition; }
+	const Vec2	GetMouseUIPosition()													{ return m_mouseUIPosition; }
 	Clock*		GetGameClock()															{ return m_gameClock; }
 
 	void		SetWorldCameraPosition( const Vec3& position );

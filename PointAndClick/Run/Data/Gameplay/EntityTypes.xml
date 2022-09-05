@@ -29,6 +29,15 @@
     </Script>
   </Entity>
   
+<Entity name="MouseCursor">
+  <Physics radius="0.5" collisionLayer="None"/>
+  <Appearance spriteSheet="Data/Images/SpriteSheets/Cursor.png" spriteSheetDimensions="4,1" size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="2">
+    <Default up="0~1"/>
+    <None up="3"/>
+  </Appearance>
+  <Script name="MouseCursor.zephyr"/>
+</Entity>
+
   <!--<Entity name="Level2Manager">
     <Script name="Level2Manager.zephyr">
       <GlobalVar type="entity" var="gameMgr" value="GameManager"/>

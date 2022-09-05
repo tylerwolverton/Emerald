@@ -45,7 +45,7 @@ EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName 
 
 
 //-----------------------------------------------------------------------------------------------
-EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* spriteSheet )
+EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet )
 	: ZephyrEntityDefinition( entityDefElem )
 {
 	// Return if the script parsing failed in base class
@@ -65,6 +65,32 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 	const XmlElement* appearanceElem = entityDefElem.FirstChildElement( "Appearance" );
 	if ( appearanceElem != nullptr )
 	{
+		SpriteSheet* spriteSheet = defaultSpriteSheet;
+
+		std::string spriteSheetPath = ParseXmlAttribute( *appearanceElem, "spriteSheet", "" );
+		if ( spriteSheetPath != "" )
+		{
+			spriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
+			if ( spriteSheet == nullptr )
+			{
+				IntVec2 spriteSheetDimensions = ParseXmlAttribute( *appearanceElem, "spriteSheetDimensions", IntVec2( -1, -1 ) );
+				if ( spriteSheetDimensions == IntVec2( -1, -1 ) )
+				{
+					g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Missing layout attribute", m_type.c_str() ) );
+					return;
+				}
+
+				Texture* texture = g_renderer->CreateOrGetTextureFromFile( spriteSheetPath.c_str() );
+				if ( texture == nullptr )
+				{
+					g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Couldn't load texture '%s'", spriteSheetPath.c_str(), m_type.c_str() ) );
+					return;
+				}
+
+				spriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
+			}
+		}
+
 		m_localDrawBounds = ParseXmlAttribute( *appearanceElem, "localDrawBounds", m_localDrawBounds );
 		float defaultFPS = ParseXmlAttribute( *appearanceElem, "fps", 1.f );
 

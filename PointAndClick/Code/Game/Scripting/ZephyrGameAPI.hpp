@@ -51,6 +51,8 @@ private:
 	// Input
 	void RegisterKeyEvent( EventArgs* args );
 	void UnRegisterKeyEvent( EventArgs* args );
+	void GetMouseCursorPositionWorld( EventArgs* args );
+	void GetMouseCursorPositionUI( EventArgs* args );
 
 	// Audio/Visual
 	void ChangeSpriteAnimation( EventArgs* args );
