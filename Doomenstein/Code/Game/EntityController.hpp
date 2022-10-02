@@ -1,11 +1,10 @@
 #pragma once
-#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
 #include "Game/GameCamera.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 struct Vec3;
-class Entity;
+class GameEntity;
 class World;
 
 
@@ -29,7 +28,7 @@ public:
 	void PopCamera();
 
 	bool IsPossessing() const											{ return m_possessedEntity != nullptr; }
-	Entity* GetPossessedEntity() const									{ return m_possessedEntity; }
+	GameEntity* GetPossessedEntity() const									{ return m_possessedEntity; }
 	void PossessNearestEntity( const World& world );
 	void Unpossess();
 
@@ -44,5 +43,5 @@ private:
 	int m_gameCameraStackTop = 0;
 	GameCamera* m_currentWorldCamera = nullptr;
 	GameCamera* m_debugCamera = nullptr;
-	Entity* m_possessedEntity = nullptr;
+	GameEntity* m_possessedEntity = nullptr;
 };

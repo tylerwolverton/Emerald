@@ -182,6 +182,7 @@
     <ClCompile Include="Core\Vertex_PCU.cpp" />
     <ClCompile Include="Core\Vertex_PCUTBN.cpp" />
     <ClCompile Include="Core\XmlUtils.cpp" />
+    <ClCompile Include="Framework\Entity.cpp" />
     <ClCompile Include="Input\AnalogJoystick.cpp" />
     <ClCompile Include="Input\InputSystem.cpp" />
     <ClCompile Include="Input\KeyButtonState.cpp" />
@@ -274,8 +275,7 @@
     <ClCompile Include="Zephyr\Core\ZephyrUtils.cpp" />
     <ClCompile Include="Zephyr\Core\ZephyrVirtualMachine.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrEngineEvents.cpp" />
-    <ClCompile Include="Zephyr\GameInterface\ZephyrEntity.cpp" />
-    <ClCompile Include="Zephyr\GameInterface\ZephyrEntityDefinition.cpp" />
+    <ClCompile Include="Zephyr\GameInterface\ZephyrComponentDefinition.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrComponent.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrEventSystem.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSubsystem.cpp" />
@@ -322,6 +322,7 @@
     <ClInclude Include="Core\Vertex_PCU.hpp" />
     <ClInclude Include="Core\Vertex_PCUTBN.hpp" />
     <ClInclude Include="Core\XmlUtils.hpp" />
+    <ClInclude Include="Framework\Entity.hpp" />
     <ClInclude Include="Input\AnalogJoystick.hpp" />
     <ClInclude Include="Input\InputCommon.hpp" />
     <ClInclude Include="Input\InputSystem.hpp" />
@@ -419,8 +420,7 @@
     <ClInclude Include="Zephyr\Core\ZephyrUtils.hpp" />
     <ClInclude Include="Zephyr\Core\ZephyrVirtualMachine.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEngineEvents.hpp" />
-    <ClInclude Include="Zephyr\GameInterface\ZephyrEntity.hpp" />
-    <ClInclude Include="Zephyr\GameInterface\ZephyrEntityDefinition.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrComponentDefinition.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrComponent.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEventSystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />

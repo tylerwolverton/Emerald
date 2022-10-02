@@ -4,7 +4,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class Entity;
+class GameEntity;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ public:
 	void BeginCamera();
 	void EndCamera();
 	void DebugRenderWorld();
-	virtual void UpdateTranslation( Entity* target = nullptr ) = 0;
+	virtual void UpdateTranslation( GameEntity* target = nullptr ) = 0;
 
 	// Wrappers for engine camera
 	const Transform GetTransform() const																{ return m_engineCamera->GetTransform(); }

@@ -1,17 +1,18 @@
 #pragma once
 #include "Game/Tile.hpp"
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 
 #include <string>
 #include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
-struct PhysicsScene;
-class Entity;
-class World;
 struct MapData;
 struct MapEntityDefinition;
+struct PhysicsScene;
+class GameEntity;
+class World;
+class ZephyrComponent;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -22,7 +23,7 @@ struct RaycastResult
 	float maxDist = 0.f;
 	bool didImpact = false;
 	Vec3 impactPos;
-	Entity* impactEntity = nullptr;
+	GameEntity* impactEntity = nullptr;
 	float impactFraction = 0.f;
 	float impactDist = 0.f;
 	Vec3 impactSurfaceNormal;
@@ -47,22 +48,22 @@ public:
 	const std::string&	GetName() const												{ return m_name; }
 
 	// Adding and removing entities from map
-	virtual Entity*		SpawnNewEntityOfType( const std::string& entityDefName );
-	virtual Entity*		SpawnNewEntityOfType( const EntityDefinition& entityDef );
-	void				RemoveOwnershipOfEntity( Entity* entityToRemove );
-	void				TakeOwnershipOfEntity( Entity* entityToAdd );
+	virtual GameEntity*		SpawnNewEntityOfType( const std::string& entityDefName );
+	virtual GameEntity*		SpawnNewEntityOfType( const EntityDefinition& entityDef );
+	void				RemoveOwnershipOfEntity( GameEntity* entityToRemove );
+	void				TakeOwnershipOfEntity( GameEntity* entityToAdd );
 
 	// REFACTOR: Move to Zephyr specific object, or maybe pre init, post init, etc.
 	void				UnloadAllEntityScripts();
 	void				ReloadAllEntityScripts();
 	void				InitializeAllZephyrEntityVariables();
-	void				CallAllMapEntityZephyrSpawnEvents( Entity* player );
+	void				CallAllMapEntityZephyrSpawnEvents( GameEntity* player );
 
 	// Entity queries
-	Entity*				GetEntityById( EntityId id );
-	Entity*				GetEntityByName( const std::string& name );
-	Entity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
-	Entity*				GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
+	GameEntity*				GetEntityById( EntityId id );
+	GameEntity*				GetEntityByName( const std::string& name );
+	GameEntity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
+	GameEntity*				GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
 
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );
@@ -80,7 +81,7 @@ protected:
 	Vec3					m_playerStartPos = Vec3::ZERO;
 	float					m_playerStartYaw = 0.f;
 
-	std::vector<Entity*>			m_entities;
+	std::vector<GameEntity*>			m_entities;
 	// TODO: Change to actual object once my memory manager is in
 	std::vector<ZephyrComponent*>	m_zephyrComponents;
 };

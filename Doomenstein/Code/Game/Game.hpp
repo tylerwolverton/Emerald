@@ -19,6 +19,7 @@
 struct AABB2;
 class Clock;
 class Entity;
+class GameEntity;
 class RandomNumberGenerator;
 class Camera;
 class GPUMesh;
@@ -67,17 +68,17 @@ public:
 	void			SetCameraPositionAndYaw( const Vec2& pos, float yaw );
 	void			SetCameraPositionAndYaw( const Vec3& pos, float yaw );
 	
-	void			WarpToMap		( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
-	void			WarpToMap		( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees );
-	void			WarpEntityToMap	( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
-	void			WarpEntityToMap	( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees );
+	void			WarpToMap		( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void			WarpToMap		( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees );
+	void			WarpEntityToMap	( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void			WarpEntityToMap	( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees );
 
 	Entity*			GetEntityById( EntityId id );
 	Entity*			GetEntityByName( const std::string& name );
-	Entity*			GetEntityFromCameraRaycast( float maxDist ) const;
+	GameEntity*		GetEntityFromCameraRaycast( float maxDist ) const;
 	Map*			GetMapByName( const std::string& name );
 	Map*			GetCurrentMap();
-	void			SaveEntityByName( Entity* entity );
+	void			SaveEntityByName( GameEntity* entity );
 	void			PushCamera( const GameCameraSettings& gameCameraSettings );
 	void			PopCamera();
 

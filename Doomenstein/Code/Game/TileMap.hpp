@@ -44,7 +44,7 @@ public:
 	RaycastResult RaycastAgainstWalls( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
 	RaycastResult RaycastAgainstEntities( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
 	RaycastResult RaycastAgainstEntitiesFast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
-	bool DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& potentialImpactPos, const Entity& entity ) const;
+	bool DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& potentialImpactPos, const GameEntity& entity ) const;
 
 private:
 	void				PopulateTiles( const std::vector<MapRegionTypeDefinition*>& regionTypeDefs );

@@ -10,7 +10,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Camera;
-class Entity;
+class GameEntity;
 class Material;
 class SpriteAnimDefinition;
 class SpriteSheet;
@@ -41,7 +41,7 @@ public:
 	SpriteAnimDefinition*	GetSpriteAnimationDefForDirection( const Vec2& entityPos, float entityOrientationDegrees, const Camera& camera );
 
 	void					AddFrameEvent( int frameNum, const std::string& eventName );
-	void					FireFrameEvent( int frameNum, Entity* parent );
+	void					FireFrameEvent( int frameNum, GameEntity* parent );
 
 	void					AdjustAnimationSpeed( float deltaSpeedModifier );
 

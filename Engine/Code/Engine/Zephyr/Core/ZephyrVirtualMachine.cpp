@@ -1,18 +1,18 @@
 #include "Engine/Zephyr/Core/ZephyrVirtualMachine.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Framework/Entity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
 												   ZephyrValueMap* globalVariables,
-												   ZephyrEntity* parentEntity,
+												   Entity* parentEntity,
 												   EventArgs* eventArgs,
 												   ZephyrValueMap* stateVariables )
 {
@@ -1376,7 +1376,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrVirtualMachine::GetGlobalVariableFromEntity( EntityId entityId, const std::string& variableName )
 {
-	ZephyrEntity* entity = g_zephyrAPI->GetEntityById( entityId );
+	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
@@ -1390,7 +1390,7 @@ ZephyrValue ZephyrVirtualMachine::GetGlobalVariableFromEntity( EntityId entityId
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::SetGlobalVariableInEntity( EntityId entityId, const std::string& variableName, const ZephyrValue& value )
 {
-	ZephyrEntity* entity = g_zephyrAPI->GetEntityById( entityId );
+	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
@@ -1404,7 +1404,7 @@ void ZephyrVirtualMachine::SetGlobalVariableInEntity( EntityId entityId, const s
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value )
 {
-	ZephyrEntity* entity = g_zephyrAPI->GetEntityById( entityId );
+	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
@@ -1429,7 +1429,7 @@ void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityI
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value )
 {
-	ZephyrEntity* entity = g_zephyrAPI->GetEntityById( entityId );
+	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
@@ -1458,7 +1458,7 @@ void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityI
 //-----------------------------------------------------------------------------------------------
 bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const std::string& functionName, EventArgs* args )
 {
-	ZephyrEntity* entity = g_zephyrAPI->GetEntityById( entityId );
+	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", functionName.c_str() ) );

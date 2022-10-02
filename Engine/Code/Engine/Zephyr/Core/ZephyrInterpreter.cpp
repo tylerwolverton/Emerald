@@ -24,7 +24,7 @@ void ZephyrInterpreter::EndFrame()
 //-----------------------------------------------------------------------------------------------
 void ZephyrInterpreter::InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 													 ZephyrValueMap* globalVariables, 
-													 ZephyrEntity* parentEntity,
+													 Entity* parentEntity,
 													 ZephyrValueMap* stateVariables )
 {
 	++s_numTimesCalledThisFrame;
@@ -36,7 +36,7 @@ void ZephyrInterpreter::InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& 
 //-----------------------------------------------------------------------------------------------
 void ZephyrInterpreter::InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 													 ZephyrValueMap* globalVariables,
-													 ZephyrEntity* parentEntity,
+													 Entity* parentEntity,
 													 EventArgs* eventArgs, 
 													 ZephyrValueMap* stateVariables )
 {

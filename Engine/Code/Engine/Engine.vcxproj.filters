@@ -400,12 +400,6 @@
     <ClCompile Include="Zephyr\Core\ZephyrVirtualMachine.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Zephyr\GameInterface\ZephyrEntity.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Zephyr\GameInterface\ZephyrEntityDefinition.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Zephyr\GameInterface\ZephyrEngineEvents.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -419,6 +413,12 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Zephyr\GameInterface\ZephyrEventSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrComponentDefinition.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Entity.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -751,13 +751,13 @@
     <ClInclude Include="Zephyr\Core\ZephyrToken.hpp" />
     <ClInclude Include="Zephyr\Core\ZephyrUtils.hpp" />
     <ClInclude Include="Zephyr\Core\ZephyrVirtualMachine.hpp" />
-    <ClInclude Include="Zephyr\GameInterface\ZephyrEntity.hpp" />
-    <ClInclude Include="Zephyr\GameInterface\ZephyrEntityDefinition.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEngineEvents.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrComponent.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrEventSystem.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrComponentDefinition.hpp" />
+    <ClInclude Include="Framework\Entity.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

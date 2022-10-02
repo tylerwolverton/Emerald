@@ -45,7 +45,7 @@
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 #include "Game/EntityController.hpp"
 #include "Game/GameJobs.hpp"
 #include "Game/MapData.hpp"
@@ -918,14 +918,14 @@ void Game::SetCameraPositionAndYaw( const Vec3& pos, float yaw )
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	WarpToMap( entityToWarp, destMapName, Vec3( newPos, .5f ), newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	// No entity specified, just load the new map and set camera position and orientation
 	if ( entityToWarp == nullptr )
@@ -945,14 +945,14 @@ void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, cons
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void Game::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void Game::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
 }
@@ -1031,14 +1031,14 @@ Map* Game::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::SaveEntityByName( Entity* entity )
+void Game::SaveEntityByName( GameEntity* entity )
 {
 	m_world->SaveEntityByName( entity );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Game::GetEntityFromCameraRaycast( float maxDist ) const
+GameEntity* Game::GetEntityFromCameraRaycast( float maxDist ) const
 {
 	return m_world->GetEntityFromRaycast( m_playerController->GetPosition(), m_playerController->GetForwardVector(), maxDist );
 }

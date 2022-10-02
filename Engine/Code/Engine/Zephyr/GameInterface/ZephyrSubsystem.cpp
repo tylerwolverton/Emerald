@@ -2,9 +2,9 @@
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Framework/Entity.hpp"
 #include "Engine/Time/Clock.hpp"
 
 
@@ -57,10 +57,11 @@ void ZephyrSubsystem::UpdateTimers()
 			}
 			else
 			{
-				ZephyrEntity* targetEntity = g_zephyrAPI->GetEntityById( zephyrTimer.targetId );
+				Entity* targetEntity = g_zephyrAPI->GetEntityById( zephyrTimer.targetId );
 				if ( targetEntity != nullptr )
 				{
-					targetEntity->FireScriptEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
+					// TODO: Add direct access to components from id
+					//targetEntity->FireScriptEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
 				}
 			}
 		}
@@ -104,7 +105,7 @@ void ZephyrSubsystem::StartNewTimer( const EntityId& targetId, const std::string
 //-----------------------------------------------------------------------------------------------
 void ZephyrSubsystem::StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs )
 {
-	ZephyrEntity* target = g_zephyrAPI->GetEntityByName( targetName );
+	Entity* target = g_zephyrAPI->GetEntityByName( targetName );
 
 	if ( target == nullptr )
 	{

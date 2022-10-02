@@ -5,7 +5,7 @@
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/Collider.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntityDefinition.hpp"
+//#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Game/GameCommon.hpp"
 
 #include <string>
@@ -44,9 +44,9 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityDefinition : public ZephyrEntityDefinition
+class EntityDefinition
 {
-	friend class Entity;
+	friend class GameEntity;
 
 public:
 	explicit EntityDefinition( const XmlElement& entityDefElem );
@@ -59,7 +59,7 @@ public:
 	float			GetMass() const																{ return m_mass; }
 	std::string		GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
 	bool			HasPhysics() const															{ return m_hasPhysics; }
-	bool			HasZephyrScript() const														{ return m_isScriptValid; } // Always starts as true
+	//bool			HasZephyrScript() const														{ return m_isScriptValid; } // Always starts as true
 
 	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
 	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }

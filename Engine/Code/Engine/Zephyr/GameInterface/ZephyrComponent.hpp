@@ -7,37 +7,43 @@
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrBytecodeChunk;
-class ZephyrScriptDefinition;
-class ZephyrEntity;
+class ZephyrComponentDefinition;
+
+class Entity;
+
+
+//-----------------------------------------------------------------------------------------------
+enum class eComponentState
+{
+	UNINITIALIZED,
+	INVALID_SCRIPT,
+	INVALID_PARENT,
+	INITIALIZED
+};
 
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrComponent
 {
+	friend class ZephyrSystem;
+
 public:
-	ZephyrComponent( const ZephyrScriptDefinition& scriptDef, ZephyrEntity* parentEntity );
+	ZephyrComponent( const ZephyrComponentDefinition& componentDef, Entity* parentEntity );
+	bool Initialize();
+	void Destroy();
 	~ZephyrComponent();
-
-	void UnloadScript();
-
-	// TODO: Move behaviour to a system?
-	//void Update();
-	bool FireEvent( const std::string& eventName, EventArgs* args = nullptr );
-	void ChangeState( const std::string& targetState );
 
 	// Initialization
 	void InterpretGlobalBytecodeChunk();
 	void InitializeEntityVariables();
 	void SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 
-	bool IsScriptValid() const;
-	void SetScriptObjectValidity( bool isValid );
-
 	// Accessors
-	std::string GetScriptName() const													{ return m_name; }
-	ZephyrEntity* GetParentEntity() const												{ return m_parentEntity; }
-	ZephyrValue GetGlobalVariable( const std::string& varName );
-	void		SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
+	std::string		GetScriptName() const													{ return m_name; }
+	Entity*			GetParentEntity() const													{ return m_parentEntity; }
+	ZephyrValue		GetGlobalVariable( const std::string& varName );
+	void			SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
+	bool			IsScriptValid() const													{ return m_state != eComponentState::INVALID_SCRIPT && m_state != eComponentState::UNINITIALIZED; }
 
 	const ZephyrBytecodeChunk* GetBytecodeChunkByName( const std::string& chunkName ) const;
 
@@ -46,12 +52,13 @@ private:
 	ZephyrBytecodeChunk* GetEventBytecodeChunk( const std::string& eventName );
 
 public:
-	bool m_isScriptObjectValid = true;
+	const ZephyrComponentDefinition& m_componentDef;
+	enum class eComponentState m_state = eComponentState::UNINITIALIZED;
 	bool m_hasEnteredStartingState = false;
 
 	// REFACTOR: Used for error reporting, move to central data repo in ZephyrSystem or HashedString?
 	std::string m_name;
-	ZephyrEntity* m_parentEntity = nullptr;
+	Entity* m_parentEntity = nullptr;
 
 	// Initial values for entity variables are given as names but must be translated into ids after all entities are loaded
 	std::vector<EntityVariableInitializer> m_entityVarInits;

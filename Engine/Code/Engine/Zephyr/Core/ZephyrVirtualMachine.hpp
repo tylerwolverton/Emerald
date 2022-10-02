@@ -7,7 +7,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrBytecodeChunk;
-class ZephyrEntity;
+class Entity;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ private:
 	
 	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 										ZephyrValueMap* globalVariables, 
-										ZephyrEntity* parentEntity = nullptr,
+										Entity* parentEntity = nullptr,
 										EventArgs* eventArgs = nullptr, 
 										ZephyrValueMap* stateVariables = nullptr );
 
@@ -78,7 +78,7 @@ private:
 	bool IsErrorValue( const ZephyrValue& zephyrValue );
 
 private:
-	ZephyrEntity* m_parentEntity = nullptr;
+	Entity* m_parentEntity = nullptr;
 	std::stack<ZephyrValue> m_constantStack;
 	std::deque<std::string> m_curMemberAccessorNames;
 

@@ -7,7 +7,7 @@
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Game/GameCommon.hpp"
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void SpriteAnimationSetDefinition::AddFrameEvent( int frameNum, const std::strin
 
 
 //-----------------------------------------------------------------------------------------------
-void SpriteAnimationSetDefinition::FireFrameEvent( int frameNum, Entity* parent )
+void SpriteAnimationSetDefinition::FireFrameEvent( int frameNum, GameEntity* parent )
 {
 	auto iter = m_frameToEventNames.find( frameNum );
 	if ( iter == m_frameToEventNames.end() )

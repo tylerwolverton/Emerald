@@ -7,8 +7,8 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrEntity;
 class Entity;
+class GameEntity;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -19,8 +19,8 @@ public:
 	ZephyrGameEvents();
 	virtual ~ZephyrGameEvents();
 	
-	virtual ZephyrEntity* GetEntityById( const EntityId& id ) const override;
-	virtual ZephyrEntity* GetEntityByName( const std::string& name ) const override;
+	virtual Entity* GetEntityById( const EntityId& id ) const override;
+	virtual Entity* GetEntityByName( const std::string& name ) const override;
 
 private:
 	// Zephyr Script Events
@@ -71,5 +71,5 @@ private:
 	void PopCamera( EventArgs* args );
 
 private:
-	Entity* GetTargetEntityFromArgs( EventArgs* args );
+	GameEntity* GetTargetEntityFromArgs( EventArgs* args );
 };

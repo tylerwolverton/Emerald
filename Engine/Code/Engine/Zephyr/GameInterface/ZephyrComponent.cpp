@@ -3,124 +3,75 @@
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Framework/Entity.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrComponent::ZephyrComponent( const ZephyrScriptDefinition& scriptDef, ZephyrEntity* parentEntity )
-	: m_name( scriptDef.m_name )
+ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef, Entity* parentEntity )
+	: m_componentDef( componentDef )
 	, m_parentEntity( parentEntity )
 {
-	m_isScriptObjectValid = scriptDef.IsValid();
-	if ( !m_isScriptObjectValid )
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrComponent::Initialize()
+{
+	ZephyrScriptDefinition* scriptDef = m_componentDef.GetZephyrScriptDefinition();
+	if ( scriptDef == nullptr || !scriptDef->IsValid() )
 	{
-		return;
-	}
-	
-	if ( parentEntity == nullptr )
-	{
-		return;
+		m_state = eComponentState::INVALID_SCRIPT;
+		return false;
 	}
 
-	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef.GetGlobalBytecodeChunk() );
+	m_name = scriptDef->m_name;
+
+	if ( m_parentEntity == nullptr )
+	{
+		m_state = eComponentState::INVALID_PARENT;
+		return false;
+	}
+
+	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef->GetGlobalBytecodeChunk() );
 	GUARANTEE_OR_DIE( m_globalBytecodeChunk != nullptr, "Global Bytecode Chunk was null" );
-	
-	m_curStateBytecodeChunk = scriptDef.GetFirstStateBytecodeChunk();
-	m_stateBytecodeChunks = scriptDef.GetAllStateBytecodeChunks();
+
+	m_curStateBytecodeChunk = scriptDef->GetFirstStateBytecodeChunk();
+	m_stateBytecodeChunks = scriptDef->GetAllStateBytecodeChunks();
 
 	// Initialize parentEntity in script
 	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
+
+	m_state = eComponentState::INITIALIZED;
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrComponent::Destroy()
+{
+	g_eventSystem->DeRegisterObject( this );
+
+	PTR_SAFE_DELETE( m_globalBytecodeChunk );
+
+	m_state = eComponentState::UNINITIALIZED;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 ZephyrComponent::~ZephyrComponent()
 {
-	g_eventSystem->DeRegisterObject( this );
-
-	PTR_SAFE_DELETE( m_globalBytecodeChunk );
+	Destroy();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrComponent::UnloadScript()
-{
-	if ( !IsScriptValid() )
-	{
-		return;
-	}
-
-	m_stateBytecodeChunks.clear();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool ZephyrComponent::FireEvent( const std::string& eventName, EventArgs* args )
-{
-	if ( !IsScriptValid() )
-	{
-		return false;
-	}
-
-	EventArgs eventArgs;
-	if ( args == nullptr )
-	{
-		args = &eventArgs;
-	}
-
-	ZephyrBytecodeChunk* eventChunk = GetEventBytecodeChunk( eventName );
-	if ( eventChunk == nullptr )
-	{
-		return false;
-	}
-
-	ZephyrValueMap* stateVariables = nullptr;
-	if ( m_curStateBytecodeChunk != nullptr )
-	{
-		stateVariables = m_curStateBytecodeChunk->GetUpdateableVariables();
-	}
-
-	m_parentEntity->AddGameEventParams( args );
-		
-	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, args, stateVariables );
-	return true;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrComponent::ChangeState( const std::string& targetState )
-{
-	if ( !IsScriptValid() )
-	{
-		return;
-	}
-
-	ZephyrBytecodeChunk* targetStateBytecodeChunk = GetStateBytecodeChunk( targetState );
-	if ( targetStateBytecodeChunk == nullptr 
-		 || targetStateBytecodeChunk == m_curStateBytecodeChunk )
-	{
-		// State doesn't exist, should be reported by compiler to avoid flooding with errors here
-		// Or the state change is a no-op
-		return;
-	}
-
-	FireEvent( "OnExit" );
-	
-	m_curStateBytecodeChunk = targetStateBytecodeChunk;
-	// Initialize state variables each time the state is entered
-	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_curStateBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, m_curStateBytecodeChunk->GetUpdateableVariables() );
-
-	FireEvent( "OnEnter" );
-	m_hasEnteredStartingState = true;
-}
-
-
-//-----------------------------------------------------------------------------------------------
+// TODO: Why are we interpreting current chunk (to initialize variables defined in state) and should the system do this?
 void ZephyrComponent::InterpretGlobalBytecodeChunk()
 {
 	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity );
@@ -137,20 +88,6 @@ void ZephyrComponent::InterpretGlobalBytecodeChunk()
 void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
 {
 	m_entityVarInits.insert( m_entityVarInits.begin(), entityVarInits.begin(), entityVarInits.end() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool ZephyrComponent::IsScriptValid() const
-{
-	return m_isScriptObjectValid;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrComponent::SetScriptObjectValidity( bool isValid )
-{
-	m_isScriptObjectValid = isValid;
 }
 
 
@@ -179,11 +116,11 @@ void ZephyrComponent::InitializeEntityVariables()
 	
 	for ( const auto& entityVarInit : m_entityVarInits )
 	{
-		ZephyrEntity* entity = g_zephyrAPI->GetEntityByName( entityVarInit.entityName );
+		Entity* entity = g_zephyrAPI->GetEntityByName( entityVarInit.entityName );
 		if ( entity == nullptr )
 		{
 			g_devConsole->PrintError( Stringf( "Error defining entity variable '%s' in zephyr script. Entity with name '%s' can not be found", entityVarInit.varName.c_str(), entityVarInit.entityName.c_str() ) );
-			m_isScriptObjectValid = false;
+			m_state = eComponentState::INVALID_SCRIPT;
 			continue;
 		}
 

@@ -1,35 +1,53 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntity.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrEntityDefinition.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Framework/Entity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrComponent* ZephyrSystem::CreateComponent( ZephyrEntity* parentEntity, const ZephyrEntityDefinition& entityDef )
-{
-	ZephyrScriptDefinition* scriptDef = entityDef.GetZephyrScriptDefinition();
-	if ( scriptDef == nullptr )
+ZephyrComponent* ZephyrSystem::CreateComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef )
+{	
+	ZephyrComponent* zephyrComp = new ZephyrComponent( componentDef, parentEntity );
+	if ( !zephyrComp->Initialize() )
 	{
-		return nullptr;
+		return zephyrComp;
 	}
-	
-	ZephyrComponent* zephyrComp = new ZephyrComponent( *scriptDef, parentEntity );
-	parentEntity->SetZephyrComponent( zephyrComp );
+
+	//parentEntity->SetZephyrComponent( zephyrComp );
 	zephyrComp->InterpretGlobalBytecodeChunk();
-	ZephyrSystem::InitializeGlobalVariables( zephyrComp, entityDef.GetZephyrScriptInitialValues() );
-	zephyrComp->SetEntityVariableInitializers( entityDef.GetZephyrEntityVarInits() );
+	ZephyrSystem::InitializeGlobalVariables( zephyrComp, componentDef.GetZephyrScriptInitialValues() );
+	zephyrComp->SetEntityVariableInitializers( componentDef.GetZephyrEntityVarInits() );
 	return zephyrComp;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrSystem::InitializeZephyrEntityVariables()
+void ZephyrSystem::InitializeZephyrEntityVariables( ZephyrComponent* zephyrComp )
 {
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
+	{
+		return;
+	}
 
+	zephyrComp->InitializeEntityVariables();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+// Used for debug printing
+const ZephyrBytecodeChunk* ZephyrSystem::GetBytecodeChunkByName( ZephyrComponent* zephyrComp, const std::string& chunkName )
+{
+	if ( zephyrComp == nullptr )
+	{
+		return nullptr;
+	}
+
+	return zephyrComp->GetBytecodeChunkByName( chunkName );
 }
 
 
@@ -53,7 +71,7 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 		if ( globalVarIter == globalVariables->end() )
 		{
 			g_devConsole->PrintError( Stringf( "Cannot initialize nonexistent variable '%s' in script '%s'", initialValue.first.c_str(), zephyrComp->m_name.c_str() ) );
-			zephyrComp->m_isScriptObjectValid = false;
+			zephyrComp->m_state = eComponentState::INVALID_SCRIPT;
 			continue;
 		}
 
@@ -63,11 +81,102 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName )
+{
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
+	{
+		return ZephyrValue( ERROR_ZEPHYR_VAL );
+	}
+
+	return zephyrComp->GetGlobalVariable( varName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName, const ZephyrValue& value )
+{
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
+	{
+		return;
+	}
+
+	zephyrComp->SetGlobalVariable( varName, value );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const std::string& targetState )
+{
+	if ( zephyrComp == nullptr )
+	{
+		return;
+	}
+
+	if ( !zephyrComp->IsScriptValid() )
+	{
+		g_devConsole->PrintWarning( Stringf( "Tried to change state of ZephyrComponent: %s to %s, but it doesn't have a valid script", zephyrComp->m_name.c_str(), targetState.c_str() ) );
+		return;
+	}
+
+	ZephyrBytecodeChunk* targetStateBytecodeChunk = zephyrComp->GetStateBytecodeChunk( targetState );
+	if ( targetStateBytecodeChunk == nullptr
+		 || targetStateBytecodeChunk == zephyrComp->m_curStateBytecodeChunk )
+	{
+		// State doesn't exist, should be reported by compiler to avoid flooding with errors here
+		// Or the state change is a no-op
+		return;
+	}
+
+	ZephyrSystem::FireScriptEvent( zephyrComp, "OnExit" );
+
+	zephyrComp->m_curStateBytecodeChunk = targetStateBytecodeChunk;
+	// Initialize state variables each time the state is entered
+	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), zephyrComp->m_parentEntity, zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables() );
+
+	ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
+	zephyrComp->m_hasEnteredStartingState = true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::UnloadZephyrScript( ZephyrComponent* zephyrComp )
+{
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
+	{
+		return;
+	}
+
+	zephyrComp->m_stateBytecodeChunks.clear();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::ReloadZephyrScript( ZephyrComponent* zephyrComp )
+{
+	if ( zephyrComp == nullptr )
+	{
+		return;
+	}
+
+	zephyrComp->Destroy();
+
+	if ( !zephyrComp->Initialize() )
+	{
+		return;
+	}
+
+	zephyrComp->InterpretGlobalBytecodeChunk();
+	ZephyrSystem::InitializeGlobalVariables( zephyrComp, zephyrComp->m_componentDef.GetZephyrScriptInitialValues() );
+	zephyrComp->SetEntityVariableInitializers( zephyrComp->m_componentDef.GetZephyrEntityVarInits() );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrSystem::UpdateComponents( std::vector<ZephyrComponent*>& components )
 {
 	for ( ZephyrComponent*& comp : components )
 	{
-		if ( !comp->IsScriptValid() )
+		if ( comp == nullptr || !comp->IsScriptValid() )
 		{
 			EventArgs args;
 			args.SetValue( "entity", (void*)comp->GetParentEntity() );
@@ -79,15 +188,64 @@ void ZephyrSystem::UpdateComponents( std::vector<ZephyrComponent*>& components )
 		}
 
 		// If this is the first update we need to call OnEnter explicitly
-		/*if ( !m_hasEnteredStartingState )
+		if ( !comp->m_hasEnteredStartingState )
 		{
-			m_hasEnteredStartingState = true;
+			comp->m_hasEnteredStartingState = true;
 
-			FireEvent( "OnEnter" );
-		}*/
-
-		comp->FireEvent( "OnUpdate" );
+			ZephyrSystem::FireScriptEvent( comp, "OnEnter" );
+		}
+		
+		ZephyrSystem::FireScriptEvent( comp, "OnUpdate" );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
+{
+	if ( zephyrComp == nullptr || zephyrComp->m_state != eComponentState::INITIALIZED )
+	{
+		return;
+	}
+
+	EventArgs args;
+	args.SetValue( "EntityId", zephyrComp->m_parentEntity->GetId() );
+	//args.SetValue( "EntityName", zephyrComp->m_parentEntity->GetName() );
+
+	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn", &args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrSystem::FireScriptEvent( ZephyrComponent* zephyrComp, const std::string& eventName, EventArgs* args )
+{
+	if ( zephyrComp == nullptr || zephyrComp->m_state != eComponentState::INITIALIZED )
+	{
+		return false;
+	}
+
+	EventArgs eventArgs;
+	if ( args == nullptr )
+	{
+		args = &eventArgs;
+	}
+
+	ZephyrBytecodeChunk* eventChunk = zephyrComp->GetEventBytecodeChunk( eventName );
+	if ( eventChunk == nullptr )
+	{
+		return false;
+	}
+
+	ZephyrValueMap* stateVariables = nullptr;
+	if ( zephyrComp->m_curStateBytecodeChunk != nullptr )
+	{
+		stateVariables = zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables();
+	}
+
+	//zephyrComp->m_parentEntity->AddGameEventParams( args );
+
+	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), zephyrComp->m_parentEntity, args, stateVariables );
+	return true;
 }
 
 

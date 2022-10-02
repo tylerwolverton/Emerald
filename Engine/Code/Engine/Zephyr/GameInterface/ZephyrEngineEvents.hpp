@@ -6,7 +6,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrEntity;
+class Entity;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -18,8 +18,8 @@ public:
 
 	bool IsMethodRegistered( const std::string& methodName );
 
-	virtual ZephyrEntity* GetEntityById( const EntityId& id ) const = 0;
-	virtual ZephyrEntity* GetEntityByName( const std::string& name ) const = 0;
+	virtual Entity* GetEntityById( const EntityId& id ) const = 0;
+	virtual Entity* GetEntityByName( const std::string& name ) const = 0;
 
 private:
 	// Zephyr Script Events

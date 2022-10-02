@@ -40,9 +40,6 @@
     <ClCompile Include="Game.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="GameCommon.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
@@ -100,6 +97,9 @@
     <ClCompile Include="Scripting\ZephyrGameEvents.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="GameEntity.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp">
@@ -109,9 +109,6 @@
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Game.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Entity.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="World.hpp">
@@ -170,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
       <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEntity.hpp">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -131,7 +131,7 @@ Map* World::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist ) const
+GameEntity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist ) const
 {
 	if ( m_curMap != nullptr )
 	{
@@ -144,21 +144,21 @@ Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardD
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
+GameEntity* World::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
 {
 	return m_curMap->GetEntityFromRaycast( startPos, forwardNormal, maxDist );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	WarpEntityToMap( entityToWarp, destMapName, Vec3( newPos, 0.f ), newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	if ( entityToWarp == nullptr )
 	{
@@ -192,7 +192,7 @@ bool World::IsMapLoaded( const std::string& mapName )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityById( EntityId id )
+GameEntity* World::GetEntityById( EntityId id )
 {
 	auto mapIter = m_entitiesById.find( id );
 	if ( mapIter != m_entitiesById.end() )
@@ -201,7 +201,7 @@ Entity* World::GetEntityById( EntityId id )
 	}
 
 	// Look in this map first
-	Entity* entity = GetEntityByIdInCurMap( id );
+	GameEntity* entity = GetEntityByIdInCurMap( id );
 	if ( entity != nullptr )
 	{
 		return entity;
@@ -237,7 +237,7 @@ Entity* World::GetEntityById( EntityId id )
 //-----------------------------------------------------------------------------------------------
 void World::RemoveEntityFromWorldById( EntityId id )
 {
-	Entity* entity = GetEntityById( id );
+	GameEntity* entity = GetEntityById( id );
 	if ( entity != nullptr )
 	{
 		std::string name = entity->GetName();
@@ -249,7 +249,7 @@ void World::RemoveEntityFromWorldById( EntityId id )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByIdInCurMap( EntityId id )
+GameEntity* World::GetEntityByIdInCurMap( EntityId id )
 {
 	if ( m_curMap == nullptr )
 	{
@@ -261,7 +261,7 @@ Entity* World::GetEntityByIdInCurMap( EntityId id )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByName( const std::string& name )
+GameEntity* World::GetEntityByName( const std::string& name )
 {
 	auto entityIter = m_entitiesByName.find( name );
 	if ( entityIter != m_entitiesByName.end() )
@@ -274,7 +274,7 @@ Entity* World::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByNameInCurMap( const std::string& name )
+GameEntity* World::GetEntityByNameInCurMap( const std::string& name )
 {
 	if ( m_curMap == nullptr )
 	{
@@ -286,7 +286,7 @@ Entity* World::GetEntityByNameInCurMap( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-void World::SaveEntityByName( Entity* entity )
+void World::SaveEntityByName( GameEntity* entity )
 {
 	if ( entity == nullptr
 		 || entity->GetName().empty() )
@@ -312,7 +312,7 @@ void World::SaveEntityByName( Entity* entity )
 //-----------------------------------------------------------------------------------------------
 void World::AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName )
 {
-	Entity* newEntity = new Entity( entityDef, nullptr );
+	GameEntity* newEntity = new GameEntity( entityDef, nullptr );
 
 	newEntity->SetName( entityName );
 
@@ -400,7 +400,7 @@ void World::InitializeAllZephyrEntityVariables()
 
 
 //-----------------------------------------------------------------------------------------------
-void World::CallAllZephyrSpawnEvents( Entity* player )
+void World::CallAllZephyrSpawnEvents( GameEntity* player )
 {
 	for ( auto& entity : m_worldEntities )
 	{
