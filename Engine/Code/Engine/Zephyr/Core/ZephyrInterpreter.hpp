@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------------------------
 class Entity;
 class ZephyrBytecodeChunk;
+class ZephyrComponent;
 class ZephyrScriptDefinition;
 
 
@@ -20,12 +21,12 @@ public:
 
 	static void InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
 											 ZephyrValueMap* globalVariables,
-											 Entity* parentEntity = nullptr,
+											 ZephyrComponent& zephyrComponent,
 											 ZephyrValueMap* stateVariables = nullptr );
 
 	static void InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
 											 ZephyrValueMap* globalVariables,
-											 Entity* parentEntity = nullptr,
+											 ZephyrComponent& zephyrComponent,
 											 EventArgs* eventArgs = nullptr,
 											 ZephyrValueMap* stateVariables = nullptr );
 };

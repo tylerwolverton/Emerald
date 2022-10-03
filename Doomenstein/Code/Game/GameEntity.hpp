@@ -18,7 +18,7 @@ class Map;
 class Rigidbody;
 class SpriteAnimationSetDefinition;
 class Texture;
-
+class ZephyrComponent;
 
 //-----------------------------------------------------------------------------------------------
 enum class eLightType
@@ -56,8 +56,6 @@ public:
 	virtual void		DebugRender() const;
 
 	// Accessors
-	std::string			GetName() const											{ return m_name; }
-	void				SetName( const std::string& name )						{ m_name = name; }
 	const Vec2			GetForwardVector() const;
 	const Vec2			GetRightVector() const;
 	const Vec3			GetUpVector() const;
@@ -79,6 +77,8 @@ public:
 	bool				IsDead() const											{ return m_isDead; }
 	bool				IsGarbage() const										{ return m_isGarbage; }
 	bool				IsPossessed() const										{ return m_isPossessed; }
+
+	void				SetZephyrComponent( ZephyrComponent* zephyrComponent )	{ m_zephyrComponent = zephyrComponent; }
 
 	// Physics
 	void				Translate( const Vec2& translation );
@@ -118,12 +118,11 @@ protected:
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );
 
 protected:
-	std::string		m_name;
-
 	// Game state
 	const EntityDefinition&			m_entityDef;
 	int								m_curHealth = 1;								// how much health is currently remaining on entity
 	Map*							m_map = nullptr;
+	ZephyrComponent*				m_zephyrComponent = nullptr; // TODO: Remove this explicit reference
 
 	bool							m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool							m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()

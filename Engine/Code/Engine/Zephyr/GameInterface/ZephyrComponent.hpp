@@ -26,6 +26,7 @@ enum class eComponentState
 class ZephyrComponent
 {
 	friend class ZephyrSystem;
+	friend class ZephyrVirtualMachine;
 
 public:
 	ZephyrComponent( const ZephyrComponentDefinition& componentDef, Entity* parentEntity );
@@ -41,6 +42,8 @@ public:
 	// Accessors
 	std::string		GetScriptName() const													{ return m_name; }
 	Entity*			GetParentEntity() const													{ return m_parentEntity; }
+	EntityId		GetParentEntityId() const;
+	std::string		GetParentEntityName() const;
 	ZephyrValue		GetGlobalVariable( const std::string& varName );
 	void			SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 	bool			IsScriptValid() const													{ return m_state != eComponentState::INVALID_SCRIPT && m_state != eComponentState::UNINITIALIZED; }

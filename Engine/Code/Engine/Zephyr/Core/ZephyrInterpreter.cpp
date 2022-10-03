@@ -24,23 +24,23 @@ void ZephyrInterpreter::EndFrame()
 //-----------------------------------------------------------------------------------------------
 void ZephyrInterpreter::InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 													 ZephyrValueMap* globalVariables, 
-													 Entity* parentEntity,
+													 ZephyrComponent& zephyrComponent,
 													 ZephyrValueMap* stateVariables )
 {
 	++s_numTimesCalledThisFrame;
-	ZephyrVirtualMachine vm;
-	vm.InterpretBytecodeChunk( bytecodeChunk, globalVariables, parentEntity, nullptr, stateVariables );
+	ZephyrVirtualMachine vm( globalVariables, zephyrComponent, nullptr, stateVariables );
+	vm.InterpretBytecodeChunk( bytecodeChunk );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrInterpreter::InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
 													 ZephyrValueMap* globalVariables,
-													 Entity* parentEntity,
+													 ZephyrComponent& zephyrComponent,
 													 EventArgs* eventArgs, 
 													 ZephyrValueMap* stateVariables )
 {
 	++s_numTimesCalledThisFrame;
-	ZephyrVirtualMachine vm;
-	vm.InterpretBytecodeChunk( bytecodeChunk, globalVariables, parentEntity, eventArgs, stateVariables );
+	ZephyrVirtualMachine vm( globalVariables, zephyrComponent, eventArgs, stateVariables );
+	vm.InterpretBytecodeChunk( bytecodeChunk );
 }

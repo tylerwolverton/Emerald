@@ -7,7 +7,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrBytecodeChunk;
-class Entity;
+class ZephyrComponent;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -27,13 +27,12 @@ class ZephyrVirtualMachine
 	friend class ZephyrInterpreter;
 
 private:
-	ZephyrVirtualMachine() {}
+	ZephyrVirtualMachine( ZephyrValueMap* globalVariables,
+						  ZephyrComponent& zephyrComponent,
+						  EventArgs* eventArgs = nullptr,
+						  ZephyrValueMap* stateVariables = nullptr );
 	
-	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
-										ZephyrValueMap* globalVariables, 
-										Entity* parentEntity = nullptr,
-										EventArgs* eventArgs = nullptr, 
-										ZephyrValueMap* stateVariables = nullptr );
+	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk );
 
 	void		CopyEventArgVariables( EventArgs* eventArgs, ZephyrValueMap& localVariables );
 
@@ -78,7 +77,7 @@ private:
 	bool IsErrorValue( const ZephyrValue& zephyrValue );
 
 private:
-	Entity* m_parentEntity = nullptr;
+	ZephyrComponent& m_zephyrComponent;
 	std::stack<ZephyrValue> m_constantStack;
 	std::deque<std::string> m_curMemberAccessorNames;
 
@@ -86,4 +85,5 @@ private:
 	ZephyrValueMap* m_stateVariables;
 	ZephyrValueMap m_eventVariablesCopy;
 	ZephyrValueMap* m_eventVariables;
+	EventArgs* m_eventArgs;
 };

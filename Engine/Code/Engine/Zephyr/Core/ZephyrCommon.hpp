@@ -178,6 +178,23 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrScope
+{
+public:
+	ZephyrScope* parentScope = nullptr;
+	ZephyrValueMap variables;
+
+public:
+	ZephyrScope() = default;
+	ZephyrScope( const ZephyrValueMap& variables, ZephyrScope* parentScope = nullptr )
+		: variables( variables )
+		, parentScope( parentScope )
+	{
+	}
+};
+
+
+//-----------------------------------------------------------------------------------------------
 class ZephyrValue
 {
 public:

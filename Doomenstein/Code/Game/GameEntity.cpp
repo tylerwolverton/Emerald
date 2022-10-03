@@ -17,6 +17,7 @@
 #include "Engine/Renderer/SpriteAnimDefinition.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Time/Clock.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/Game.hpp"
 #include "Game/GameCommon.hpp"
@@ -307,7 +308,7 @@ void GameEntity::Possess()
 {
 	m_isPossessed = true;
 
-	FireScriptEvent( "OnPossess" );
+	ZephyrSystem::FireScriptEvent( m_zephyrComponent, "OnPossess" );
 }
 
 
@@ -316,7 +317,7 @@ void GameEntity::Unpossess()
 {
 	m_isPossessed = false;
 
-	FireScriptEvent( "OnUnPossess" );
+	ZephyrSystem::FireScriptEvent( m_zephyrComponent, "OnUnPossess" );
 }
 
 
@@ -495,7 +496,7 @@ void GameEntity::UpdateFromKeyboard( float deltaSeconds )
 			for ( auto& eventName : registeredKey.second )
 			{
 				EventArgs args;
-				FireScriptEvent( eventName, &args );
+				ZephyrSystem::FireScriptEvent( m_zephyrComponent, eventName, &args );
 			}
 		}
 	}

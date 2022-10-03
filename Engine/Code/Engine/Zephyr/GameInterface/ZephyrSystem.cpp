@@ -131,7 +131,7 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 
 	zephyrComp->m_curStateBytecodeChunk = targetStateBytecodeChunk;
 	// Initialize state variables each time the state is entered
-	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), zephyrComp->m_parentEntity, zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables() );
+	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables() );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
 	zephyrComp->m_hasEnteredStartingState = true;
@@ -210,7 +210,7 @@ void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 
 	EventArgs args;
 	args.SetValue( "EntityId", zephyrComp->m_parentEntity->GetId() );
-	//args.SetValue( "EntityName", zephyrComp->m_parentEntity->GetName() );
+	args.SetValue( "EntityName", zephyrComp->m_parentEntity->GetName() );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn", &args );
 }
@@ -244,7 +244,7 @@ bool ZephyrSystem::FireScriptEvent( ZephyrComponent* zephyrComp, const std::stri
 
 	//zephyrComp->m_parentEntity->AddGameEventParams( args );
 
-	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), zephyrComp->m_parentEntity, args, stateVariables );
+	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, args, stateVariables );
 	return true;
 }
 

@@ -1,6 +1,8 @@
 #include "Engine/Zephyr/Core/ZephyrVirtualMachine.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
@@ -10,20 +12,25 @@
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
-												   ZephyrValueMap* globalVariables,
-												   Entity* parentEntity,
-												   EventArgs* eventArgs,
-												   ZephyrValueMap* stateVariables )
+ZephyrVirtualMachine::ZephyrVirtualMachine( ZephyrValueMap* globalVariables, 
+											ZephyrComponent& zephyrComponent, 
+											EventArgs* eventArgs, 
+											ZephyrValueMap* stateVariables )
+	: m_globalVariables( globalVariables )
+	, m_zephyrComponent( zephyrComponent )
+	, m_stateVariables( stateVariables )
+	, m_eventArgs( eventArgs )
 {
-	if ( !parentEntity->IsScriptValid() )
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk )
+{
+	if ( !m_zephyrComponent.IsScriptValid() )
 	{
 		return;
 	}
-
-	m_parentEntity = parentEntity;
-	m_globalVariables = globalVariables;
-	m_stateVariables = stateVariables;
 
 	// Event variables don't need to be persisted after this call, so save a copy as local variables
 	// TODO: Account for scopes inside if statements, etc.?
@@ -31,14 +38,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 	if (  bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
 	{
 		localVariables = bytecodeChunk.GetVariables();
-		CopyEventArgVariables( eventArgs, localVariables );
+		CopyEventArgVariables( m_eventArgs, localVariables );
 	}
 
 	int byteIdx = 0;
 	while ( byteIdx < bytecodeChunk.GetNumBytes() )
 	{
 		// If this script has an error during interpretation, bail out to avoid running in a broken, unknown state
-		if ( !parentEntity->IsScriptValid() )
+		if ( !m_zephyrComponent.IsScriptValid() )
 		{
 			return;
 		}
@@ -168,8 +175,8 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 					case eValueType::STRING:
 					{
 						ReportError( Stringf( "Variable of type %s can't have members. Tried to access '%s'",
-											  ToString( memberAccessorResult.finalMemberVal.GetType() ).c_str(),
-											  lastMemberName.c_str() ) );
+																ToString( memberAccessorResult.finalMemberVal.GetType() ).c_str(),
+																lastMemberName.c_str() ) );
 						return;
 					}
 					break;
@@ -223,7 +230,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( "Member function call" );
 
 				EventArgs* args = new EventArgs();
-				args->SetValue( "entity", (void*)parentEntity );
+				args->SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
 
 				InsertParametersIntoEventArgs( *args );
 
@@ -410,7 +417,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.GetAsString() );
 
 				EventArgs* args = new EventArgs();
-				args->SetValue( "entity", (void*)parentEntity );
+				args->SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
 
 				InsertParametersIntoEventArgs( *args );
 
@@ -421,9 +428,9 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else
 				{
-					if ( !CallMemberFunctionOnEntity( parentEntity->GetId(), eventName.GetAsString(), args ) )
+					if ( !CallMemberFunctionOnEntity( m_zephyrComponent.GetParentEntityId(), eventName.GetAsString(), args ) )
 					{
-						ReportError( Stringf( "Entity '%s' doesn't have a function '%s'", parentEntity->GetName().c_str(), eventName.GetAsString().c_str() ) );
+						ReportError( Stringf( "Entity '%s' doesn't have a function '%s'", m_zephyrComponent.GetParentEntityName().c_str(), eventName.GetAsString().c_str() ) );
 					}
 				}
 
@@ -439,7 +446,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				ZephyrValue stateName = PopConstant();
 
 				EventArgs args;
-				args.SetValue( "entity", (void*)parentEntity );
+				args.SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
 				args.SetValue( "targetState", stateName.GetAsString() );
 				g_eventSystem->FireEvent( "ChangeZephyrScriptState", &args, EVERYWHERE );
 				
@@ -456,9 +463,9 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 	}
 
 	// Save updated event variables back into args
-	if ( eventArgs != nullptr )
+	if ( m_eventArgs != nullptr )
 	{
-		std::map<std::string, TypedPropertyBase*> argKeyValuePairs = eventArgs->GetAllKeyValuePairs();
+		std::map<std::string, TypedPropertyBase*> argKeyValuePairs = m_eventArgs->GetAllKeyValuePairs();
 
 		for ( auto const& keyValuePair : argKeyValuePairs )
 		{
@@ -466,12 +473,12 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 
 			switch ( val.GetType() )
 			{
-				case eValueType::NUMBER:	eventArgs->SetValue( keyValuePair.first, val.GetAsNumber() ); break;
-				case eValueType::VEC2:		eventArgs->SetValue( keyValuePair.first, val.GetAsVec2() ); break;
-				case eValueType::VEC3:		eventArgs->SetValue( keyValuePair.first, val.GetAsVec3() ); break;
-				case eValueType::STRING:	eventArgs->SetValue( keyValuePair.first, val.GetAsString() ); break;
-				case eValueType::ENTITY:	eventArgs->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
-				case eValueType::BOOL:		eventArgs->SetValue( keyValuePair.first, val.GetAsBool() ); break;
+				case eValueType::NUMBER:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsNumber() ); break;
+				case eValueType::VEC2:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsVec2() ); break;
+				case eValueType::VEC3:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsVec3() ); break;
+				case eValueType::STRING:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsString() ); break;
+				case eValueType::ENTITY:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
+				case eValueType::BOOL:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsBool() ); break;
 			}
 		}
 	}
@@ -536,7 +543,7 @@ void ZephyrVirtualMachine::PushConstant( const ZephyrValue& number )
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrVirtualMachine::PopConstant()
 {
-	GUARANTEE_OR_DIE( !m_constantStack.empty(), Stringf( "Constant stack is empty in script '%s'", m_parentEntity->GetScriptName().c_str() ) );
+	GUARANTEE_OR_DIE( !m_constantStack.empty(), Stringf( "Constant stack is empty in script '%s'", m_zephyrComponent.GetScriptName().c_str() ) );
 	
 	ZephyrValue topConstant = m_constantStack.top();
 	m_constantStack.pop();
@@ -548,7 +555,7 @@ ZephyrValue ZephyrVirtualMachine::PopConstant()
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrVirtualMachine::PeekConstant()
 {
-	GUARANTEE_OR_DIE( !m_constantStack.empty(), Stringf( "Constant stack is empty in script '%s'", m_parentEntity->GetScriptName().c_str() ) );
+	GUARANTEE_OR_DIE( !m_constantStack.empty(), Stringf( "Constant stack is empty in script '%s'", m_zephyrComponent.GetScriptName().c_str() ) );
 
 	return m_constantStack.top();
 }
@@ -950,6 +957,7 @@ void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: Clean this up with ZephyrScope or bytecode chunk parents
 ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableName, const ZephyrValueMap& localVariables )
 {
 	// Try to find in local variables first
@@ -1465,16 +1473,16 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 		return false;
 	}
 
-	return entity->FireScriptEvent( functionName, args );
+	return ZephyrSystem::FireScriptEvent( &m_zephyrComponent, functionName, args );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
-	g_devConsole->PrintError( Stringf( "Error in script'%s': %s", m_parentEntity->GetScriptName().c_str(), errorMsg.c_str() ) );
+	g_devConsole->PrintError( Stringf( "Error in script'%s': %s", m_zephyrComponent.GetScriptName().c_str(), errorMsg.c_str() ) );
 
-	m_parentEntity->SetScriptObjectValidity( false );
+	m_zephyrComponent.m_state = eComponentState::INVALID_SCRIPT;
 }
 
 

@@ -1553,6 +1553,7 @@ bool ZephyrParser::TryToGetVariable( const std::string& identifier, ZephyrValue&
 {
 	bool foundValue = m_curBytecodeChunk->TryToGetVariable( identifier, out_value );
 
+	// TODO: Check parent chunk instead of only global
 	if ( !foundValue
 		 && m_curBytecodeChunk != m_globalBytecodeChunk )
 	{

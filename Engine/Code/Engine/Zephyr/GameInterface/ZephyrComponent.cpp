@@ -74,12 +74,12 @@ ZephyrComponent::~ZephyrComponent()
 // TODO: Why are we interpreting current chunk (to initialize variables defined in state) and should the system do this?
 void ZephyrComponent::InterpretGlobalBytecodeChunk()
 {
-	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity );
+	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), *this );
 	
 	// Initialize default state variables
 	if ( m_curStateBytecodeChunk != nullptr )
 	{
-		ZephyrInterpreter::InterpretStateBytecodeChunk( *m_curStateBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), m_parentEntity, m_curStateBytecodeChunk->GetUpdateableVariables() );
+		ZephyrInterpreter::InterpretStateBytecodeChunk( *m_curStateBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), *this, m_curStateBytecodeChunk->GetUpdateableVariables() );
 	}
 }
 
@@ -88,6 +88,32 @@ void ZephyrComponent::InterpretGlobalBytecodeChunk()
 void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits )
 {
 	m_entityVarInits.insert( m_entityVarInits.begin(), entityVarInits.begin(), entityVarInits.end() );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityId ZephyrComponent::GetParentEntityId() const
+{
+	if ( m_state != eComponentState::INITIALIZED
+		 || m_parentEntity == nullptr )
+	{
+		return (EntityId)-1;
+	}
+
+	return m_parentEntity->GetId();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string ZephyrComponent::GetParentEntityName() const
+{
+	if ( m_state != eComponentState::INITIALIZED
+		 || m_parentEntity == nullptr )
+	{
+		return "Unknown";
+	}
+
+	return m_parentEntity->GetName();
 }
 
 
