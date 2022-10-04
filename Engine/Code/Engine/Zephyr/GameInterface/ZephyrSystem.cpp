@@ -19,11 +19,20 @@ ZephyrComponent* ZephyrSystem::CreateComponent( Entity* parentEntity, const Zeph
 		return zephyrComp;
 	}
 
-	//parentEntity->SetZephyrComponent( zephyrComp );
 	zephyrComp->InterpretGlobalBytecodeChunk();
 	ZephyrSystem::InitializeGlobalVariables( zephyrComp, componentDef.GetZephyrScriptInitialValues() );
 	zephyrComp->SetEntityVariableInitializers( componentDef.GetZephyrEntityVarInits() );
 	return zephyrComp;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::InitializeAllZephyrEntityVariables( ZephyrScene& scene )
+{
+	for ( ZephyrComponent*& comp : scene.zephyrComponents )
+	{
+		InitializeZephyrEntityVariables( comp );
+	}
 }
 
 
@@ -94,6 +103,13 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrSystem::GetGlobalVariable( EntityId entityId, const std::string& varName )
+{
+	
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName, const ZephyrValue& value )
 {
 	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
@@ -140,6 +156,16 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 
 
 //-----------------------------------------------------------------------------------------------
+void ZephyrSystem::UnloadZephyrScripts( ZephyrScene& scene )
+{
+	for ( ZephyrComponent*& comp : scene.zephyrComponents )
+	{
+		UnloadZephyrScript( comp );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrSystem::UnloadZephyrScript( ZephyrComponent* zephyrComp )
 {
 	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
@@ -148,6 +174,16 @@ void ZephyrSystem::UnloadZephyrScript( ZephyrComponent* zephyrComp )
 	}
 
 	zephyrComp->m_stateBytecodeChunks.clear();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::ReloadZephyrScripts( ZephyrScene& scene )
+{
+	for ( ZephyrComponent*& comp : scene.zephyrComponents )
+	{
+		ReloadZephyrScript( comp );
+	}
 }
 
 

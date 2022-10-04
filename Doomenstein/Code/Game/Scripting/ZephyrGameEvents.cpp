@@ -116,7 +116,7 @@ void ZephyrGameEvents::WarpToMap( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		g_devConsole->PrintWarning( "Tried to warp entity that doesn't exist" );
@@ -141,7 +141,7 @@ void ZephyrGameEvents::RotateEntity( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 	
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		targetEntity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
@@ -163,7 +163,7 @@ void ZephyrGameEvents::MoveInDirection( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		targetEntity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
@@ -181,7 +181,7 @@ void ZephyrGameEvents::MoveInRelativeDirection( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		targetEntity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
@@ -199,7 +199,7 @@ void ZephyrGameEvents::AddImpulse( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		targetEntity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
@@ -244,7 +244,7 @@ void ZephyrGameEvents::MoveInCircle( EventArgs* args )
 {
 	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 
-	GameEntity* targetEntity = g_game->GetEntityById( targetId );
+	GameEntity* targetEntity = (GameEntity*)g_game->GetEntityById( targetId );
 	if ( targetEntity == nullptr )
 	{
 		targetEntity = (GameEntity*)args->GetValue( "entity", (void*)nullptr );
@@ -771,7 +771,7 @@ GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 	// Named entities are returned first
 	if ( !targetName.empty() )
 	{
-		entity = g_game->GetEntityByName( targetName );
+		entity = (GameEntity*)g_game->GetEntityByName( targetName );
 		if ( entity == nullptr )
 		{
 			g_devConsole->PrintError( Stringf( "Failed to find an entity with name '%s'", targetName.c_str() ) );
@@ -781,7 +781,7 @@ GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 	// Id entities are tried next
 	else if ( targetId != -1 )
 	{
-		entity = g_game->GetEntityById( targetId );
+		entity = (GameEntity*)g_game->GetEntityById( targetId );
 		if ( entity == nullptr )
 		{
 			g_devConsole->PrintWarning( Stringf( "Failed to find an entity with id '%i'", targetId ) );

@@ -43,6 +43,7 @@
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/GameEntity.hpp"
@@ -873,9 +874,10 @@ void Game::ReloadScripts()
 
 	for ( auto& entityDef : EntityDefinition::s_definitions )
 	{
-		if ( entityDef.second != nullptr )
+		if ( entityDef.second != nullptr 
+			 && entityDef.second->GetZephyrCompDef() != nullptr )
 		{
-			entityDef.second->ReloadZephyrScriptDefinition();
+			entityDef.second->GetZephyrCompDef()->ReloadZephyrScriptDefinition();
 		}
 	}
 

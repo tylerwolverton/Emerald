@@ -433,6 +433,27 @@ void GameEntity::UnRegisterKeyEvent( const std::string& keyCodeStr, const std::s
 }
 
 
+//-----------------------------------------------------------------------------------------------
+void GameEntity::FireSpawnEvent()
+{
+	ZephyrSystem::FireSpawnEvent( m_zephyrComponent );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool GameEntity::FireScriptEvent( const std::string& eventName, EventArgs* args )
+{
+	return ZephyrSystem::FireScriptEvent( m_zephyrComponent, eventName, args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void GameEntity::ChangeZephyrScriptState( const std::string& targetState )
+{
+	ZephyrSystem::ChangeZephyrScriptState( m_zephyrComponent, targetState );
+}
+
+
 ////-----------------------------------------------------------------------------------------------
 //ZephyrValue Entity::GetGlobalVariable( const std::string& varName )
 //{

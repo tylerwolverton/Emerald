@@ -321,10 +321,9 @@ void World::AddEntityFromDefinition( const EntityDefinition& entityDef, const st
 	m_worldEntities.push_back( newEntity );
 	SaveEntityByName( newEntity );
 
-	ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, entityDef );
-	if ( zephyrComp != nullptr )
+	if ( entityDef.HasZephyrScript() )
 	{
-		m_zephyrComponents.push_back( zephyrComp );
+		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef.GetZephyrCompDef() );
 	}
 }
 
@@ -341,11 +340,8 @@ void World::Reset()
 //-----------------------------------------------------------------------------------------------
 void World::UnloadAllEntityScripts()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->UnloadZephyrScript();
-	}
-
+	ZephyrSystem::UnloadZephyrScripts( *m_zephyrScene );
+	
 	for ( auto& map : m_loadedMaps )
 	{
 		map.second->UnloadAllEntityScripts();
@@ -356,10 +352,7 @@ void World::UnloadAllEntityScripts()
 //-----------------------------------------------------------------------------------------------
 void World::ReloadAllEntityScripts()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->ReloadZephyrScript();
-	}
+	ZephyrSystem::ReloadZephyrScripts( *m_zephyrScene );
 
 	for ( auto& map : m_loadedMaps )
 	{
@@ -389,10 +382,7 @@ void World::ClearEntities()
 //-----------------------------------------------------------------------------------------------
 void World::InitializeAllZephyrEntityVariables()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->InitializeZephyrEntityVariables();
-	}
+	ZephyrSystem::InitializeAllZephyrEntityVariables( *m_zephyrScene );
 
 	for ( auto& map : m_loadedMaps )
 	{

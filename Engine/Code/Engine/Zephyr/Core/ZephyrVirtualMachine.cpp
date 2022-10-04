@@ -1391,7 +1391,8 @@ ZephyrValue ZephyrVirtualMachine::GetGlobalVariableFromEntity( EntityId entityId
 		return ZephyrValue( ERROR_ZEPHYR_VAL );
 	}
 
-	return entity->GetGlobalVariable( variableName );
+	return ZephyrSystem::GetGlobalVariable( entityId, variableName );
+	//return entity->GetGlobalVariable( variableName );
 }
 
 

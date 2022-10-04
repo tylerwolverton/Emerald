@@ -113,10 +113,9 @@ GameEntity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 
 	GameEntity* newEntity = SpawnNewEntityOfType( *entityDef );
 
-	ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, *entityDef );
-	if ( zephyrComp != nullptr )
+	if ( entityDef->HasZephyrScript() )
 	{
-		m_zephyrComponents.push_back( zephyrComp );
+		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
 	}
 
 	return newEntity;
@@ -135,48 +134,21 @@ GameEntity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 //-----------------------------------------------------------------------------------------------
 void Map::UnloadAllEntityScripts()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->UnloadZephyrScript();
-	}
+	ZephyrSystem::UnloadZephyrScripts( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Map::ReloadAllEntityScripts()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->ReloadZephyrScript();
-	}
+	ZephyrSystem::ReloadZephyrScripts( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Map::InitializeAllZephyrEntityVariables()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->InitializeZephyrEntityVariables();
-	}
+	ZephyrSystem::InitializeAllZephyrEntityVariables( *m_zephyrScene );
 }
 
 
