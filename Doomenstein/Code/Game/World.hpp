@@ -9,12 +9,12 @@
 //-----------------------------------------------------------------------------------------------
 struct Vec2;
 struct Vec3;
+struct MapData;
+struct ZephyrScene;
 class Clock;
 class GameEntity;
 class EntityDefinition;
 class Map;
-class ZephyrComponent;
-struct MapData;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -79,5 +79,5 @@ private:
 	std::unordered_map<std::string, GameEntity*> m_entitiesByName;
 	std::unordered_map<EntityId, GameEntity*> m_entitiesById;
 
-	std::vector<ZephyrComponent*>	m_zephyrComponents;
+	ZephyrScene* m_zephyrScene = nullptr;
 };

@@ -10,9 +10,9 @@
 struct MapData;
 struct MapEntityDefinition;
 struct PhysicsScene;
+struct ZephyrScene;
 class GameEntity;
 class World;
-class ZephyrComponent;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -75,6 +75,7 @@ protected:
 	World*					m_world = nullptr;
 	
 	PhysicsScene*			m_physicsScene = nullptr;
+	ZephyrScene*			m_zephyrScene = nullptr;
 
 	// Multiplayer TODO: Make this into an array
 	// REFACTOR: Move to EntitySpawn object or something
@@ -83,5 +84,4 @@ protected:
 
 	std::vector<GameEntity*>			m_entities;
 	// TODO: Change to actual object once my memory manager is in
-	std::vector<ZephyrComponent*>	m_zephyrComponents;
 };

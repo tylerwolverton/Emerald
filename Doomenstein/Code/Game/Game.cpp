@@ -829,7 +829,7 @@ void Game::ReloadGame()
 
 	m_playerController->Unpossess();
 	m_world->Reset();
-	g_zephyrSystem->StopAllTimers();
+	g_zephyrSubsystem->StopAllTimers();
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();

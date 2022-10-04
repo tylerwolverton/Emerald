@@ -326,7 +326,7 @@ void ZephyrGameEvents::StartNewTimer( EventArgs* args )
 	// Broadcast event to all takes precedence and broadcasts to all entities
 	if ( broadcastEventToAll )
 	{
-		g_zephyrSystem->StartNewTimer( -1, timerName, durationSeconds, onCompletedEventName, args );
+		g_zephyrSubsystem->StartNewTimer( -1, timerName, durationSeconds, onCompletedEventName, args );
 		return;
 	}
 	
@@ -336,7 +336,7 @@ void ZephyrGameEvents::StartNewTimer( EventArgs* args )
 		return;
 	}
 
-	g_zephyrSystem->StartNewTimer( entity->GetId(), timerName, durationSeconds, onCompletedEventName, args );
+	g_zephyrSubsystem->StartNewTimer( entity->GetId(), timerName, durationSeconds, onCompletedEventName, args );
 }
 
 

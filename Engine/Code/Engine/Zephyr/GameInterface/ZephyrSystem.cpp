@@ -3,6 +3,7 @@
 #include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
@@ -172,11 +173,16 @@ void ZephyrSystem::ReloadZephyrScript( ZephyrComponent* zephyrComp )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrSystem::UpdateComponents( std::vector<ZephyrComponent*>& components )
+void ZephyrSystem::UpdateScene( ZephyrScene& scene )
 {
-	for ( ZephyrComponent*& comp : components )
+	for ( ZephyrComponent*& comp : scene.zephyrComponents )
 	{
-		if ( comp == nullptr || !comp->IsScriptValid() )
+		if ( comp == nullptr )
+		{
+			continue;
+		}
+
+		if ( !comp->IsScriptValid() )
 		{
 			EventArgs args;
 			args.SetValue( "entity", (void*)comp->GetParentEntity() );
@@ -184,7 +190,7 @@ void ZephyrSystem::UpdateComponents( std::vector<ZephyrComponent*>& components )
 			args.SetValue( "color", "red" );
 
 			g_eventSystem->FireEvent( "PrintDebugText", &args );
-			return;
+			continue;
 		}
 
 		// If this is the first update we need to call OnEnter explicitly

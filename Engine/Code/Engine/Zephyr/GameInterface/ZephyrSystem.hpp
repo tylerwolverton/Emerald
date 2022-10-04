@@ -5,6 +5,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrScene;
 class ZephyrComponent;
 class ZephyrComponentDefinition;
 
@@ -30,7 +31,7 @@ public:
 	static const ZephyrBytecodeChunk*	GetBytecodeChunkByName( ZephyrComponent* zephyrComp, const std::string& chunkName );
 
 	// Logic
-	static void							UpdateComponents( std::vector<ZephyrComponent*>& components );
+	static void							UpdateScene( ZephyrScene& scene );
 	static void							FireSpawnEvent( ZephyrComponent* zephyrComp );
 	static bool							FireScriptEvent( ZephyrComponent* zephyrComp, const std::string& eventName, EventArgs* args = nullptr );
 };

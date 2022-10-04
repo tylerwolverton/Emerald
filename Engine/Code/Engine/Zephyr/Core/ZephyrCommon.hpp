@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------------------------------------
 class ZephyrValue;
 class ZephyrBytecodeChunk;
+class ZephyrComponent;
 class ZephyrEngineEvents;
 class ZephyrSubsystem;
 
@@ -19,12 +20,14 @@ class ZephyrSubsystem;
 
 typedef std::map<std::string, ZephyrValue> ZephyrValueMap;
 typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
+typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
 
 constexpr int ERROR_ZEPHYR_VAL = -1000;
 extern std::string PARENT_ENTITY_NAME;
 
 extern ZephyrEngineEvents* g_zephyrAPI;
-extern ZephyrSubsystem* g_zephyrSystem;
+extern ZephyrSubsystem* g_zephyrSubsystem;
+
 
 //-----------------------------------------------------------------------------------------------
 enum class eTokenType

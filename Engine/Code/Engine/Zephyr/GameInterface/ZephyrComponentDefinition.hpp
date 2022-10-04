@@ -13,7 +13,7 @@ class ZephyrScriptDefinition;
 class ZephyrComponentDefinition
 {
 public:
-	explicit ZephyrComponentDefinition( const XmlElement& entityDefElem );
+	explicit ZephyrComponentDefinition( const std::string& entityType, const XmlElement& scriptElem );
 	virtual ~ZephyrComponentDefinition() {}
 
 	void									ReloadZephyrScriptDefinition();

@@ -11,6 +11,7 @@
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
@@ -29,6 +30,7 @@ Map::Map( const MapData& mapData, World* world )
 	, m_world( world )
 {
 	m_physicsScene = new PhysicsScene();
+	m_zephyrScene = new ZephyrScene();
 
 	LoadEntities( mapData.mapEntityDefs );
 }
@@ -38,7 +40,7 @@ Map::Map( const MapData& mapData, World* world )
 Map::~Map()
 {
 	PTR_SAFE_DELETE( m_physicsScene );
-	PTR_VECTOR_SAFE_DELETE( m_zephyrComponents );
+	PTR_SAFE_DELETE( m_zephyrScene );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 
@@ -57,7 +59,7 @@ void Map::Update( float deltaSeconds )
 		entity->Update( deltaSeconds );
 	}
 
-	ZephyrSystem::UpdateComponents( m_zephyrComponents );
+	ZephyrSystem::UpdateScene( *m_zephyrScene );
 	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
 	UpdateMeshes();
 }
@@ -330,11 +332,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 
 		if ( mapEntityDef.entityDef->HasZephyrScript() )
 		{
-			ZephyrComponent* zephyrComp = ZephyrSystem::CreateComponent( newEntity, *mapEntityDef.entityDef );
-			if ( zephyrComp != nullptr )
-			{
-				m_zephyrComponents.push_back( zephyrComp );
-			}
+			ZephyrComponent* zephyrComp = m_zephyrScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetZephyrCompDef() );
 
 			newEntity->SetPosition( mapEntityDef.position );
 			newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
