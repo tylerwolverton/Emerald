@@ -26,15 +26,13 @@ bool ZephyrComponent::Initialize()
 	ZephyrScriptDefinition* scriptDef = m_componentDef.GetZephyrScriptDefinition();
 	if ( scriptDef == nullptr || !scriptDef->IsValid() )
 	{
-		m_state = eComponentState::INVALID_SCRIPT;
+		m_compState = eComponentState::INVALID_SCRIPT;
 		return false;
 	}
 
-	m_name = scriptDef->m_name;
-
 	if ( m_parentEntity == nullptr )
 	{
-		m_state = eComponentState::INVALID_PARENT;
+		m_compState = eComponentState::INVALID_PARENT;
 		return false;
 	}
 
@@ -47,7 +45,7 @@ bool ZephyrComponent::Initialize()
 	// Initialize parentEntity in script
 	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
 
-	m_state = eComponentState::INITIALIZED;
+	m_compState = eComponentState::INITIALIZED;
 	return true;
 }
 
@@ -59,7 +57,7 @@ void ZephyrComponent::Destroy()
 
 	PTR_SAFE_DELETE( m_globalBytecodeChunk );
 
-	m_state = eComponentState::UNINITIALIZED;
+	m_compState = eComponentState::UNINITIALIZED;
 }
 
 
@@ -94,7 +92,7 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 //-----------------------------------------------------------------------------------------------
 EntityId ZephyrComponent::GetParentEntityId() const
 {
-	if ( m_state != eComponentState::INITIALIZED
+	if ( m_compState != eComponentState::INITIALIZED
 		 || m_parentEntity == nullptr )
 	{
 		return (EntityId)-1;
@@ -107,7 +105,7 @@ EntityId ZephyrComponent::GetParentEntityId() const
 //-----------------------------------------------------------------------------------------------
 std::string ZephyrComponent::GetParentEntityName() const
 {
-	if ( m_state != eComponentState::INITIALIZED
+	if ( m_compState != eComponentState::INITIALIZED
 		 || m_parentEntity == nullptr )
 	{
 		return "Unknown";
@@ -146,7 +144,7 @@ void ZephyrComponent::InitializeEntityVariables()
 		if ( entity == nullptr )
 		{
 			g_devConsole->PrintError( Stringf( "Error defining entity variable '%s' in zephyr script. Entity with name '%s' can not be found", entityVarInit.varName.c_str(), entityVarInit.entityName.c_str() ) );
-			m_state = eComponentState::INVALID_SCRIPT;
+			m_compState = eComponentState::INVALID_SCRIPT;
 			continue;
 		}
 

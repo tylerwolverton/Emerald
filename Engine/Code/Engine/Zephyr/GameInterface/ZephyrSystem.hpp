@@ -39,6 +39,7 @@ public:
 
 private:
 	static ZephyrComponent*				CreateComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef );
+	static void							UpdateComponent( ZephyrComponent* zephyrComp );
 	static void							UnloadZephyrScript( ZephyrComponent* zephyrComp );
 	static void							ReloadZephyrScript( ZephyrComponent* zephyrComp );
 	static void							InitializeZephyrEntityVariables( ZephyrComponent* zephyrComp );

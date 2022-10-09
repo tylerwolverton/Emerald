@@ -80,8 +80,8 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 		const auto globalVarIter = globalVariables->find( initialValue.first );
 		if ( globalVarIter == globalVariables->end() )
 		{
-			g_devConsole->PrintError( Stringf( "Cannot initialize nonexistent variable '%s' in script '%s'", initialValue.first.c_str(), zephyrComp->m_name.c_str() ) );
-			zephyrComp->m_state = eComponentState::INVALID_SCRIPT;
+			g_devConsole->PrintError( Stringf( "Cannot initialize nonexistent variable '%s' in script '%s'", initialValue.first.c_str(), zephyrComp->GetScriptName().c_str() ) );
+			zephyrComp->m_compState = eComponentState::INVALID_SCRIPT;
 			continue;
 		}
 
@@ -131,7 +131,7 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 
 	if ( !zephyrComp->IsScriptValid() )
 	{
-		g_devConsole->PrintWarning( Stringf( "Tried to change state of ZephyrComponent: %s to %s, but it doesn't have a valid script", zephyrComp->m_name.c_str(), targetState.c_str() ) );
+		g_devConsole->PrintWarning( Stringf( "Tried to change state of ZephyrComponent: %s to %s, but it doesn't have a valid script", zephyrComp->GetScriptName().c_str(), targetState.c_str() ) );
 		return;
 	}
 
@@ -151,7 +151,7 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables() );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
-	zephyrComp->m_hasEnteredStartingState = true;
+	//zephyrComp->m_state = eComponentState::STARTED;
 }
 
 
@@ -211,41 +211,48 @@ void ZephyrSystem::ReloadZephyrScript( ZephyrComponent* zephyrComp )
 //-----------------------------------------------------------------------------------------------
 void ZephyrSystem::UpdateScene( ZephyrScene& scene )
 {
-	for ( ZephyrComponent*& comp : scene.zephyrComponents )
+	for ( ZephyrComponent*& zephyrComp : scene.zephyrComponents )
 	{
-		if ( comp == nullptr )
+		if ( zephyrComp == nullptr )
 		{
 			continue;
 		}
 
-		if ( !comp->IsScriptValid() )
-		{
-			EventArgs args;
-			args.SetValue( "entity", (void*)comp->GetParentEntity() );
-			args.SetValue( "text", "Script Error" );
-			args.SetValue( "color", "red" );
-
-			g_eventSystem->FireEvent( "PrintDebugText", &args );
-			continue;
-		}
-
-		// If this is the first update we need to call OnEnter explicitly
-		if ( !comp->m_hasEnteredStartingState )
-		{
-			comp->m_hasEnteredStartingState = true;
-
-			ZephyrSystem::FireScriptEvent( comp, "OnEnter" );
-		}
-		
-		ZephyrSystem::FireScriptEvent( comp, "OnUpdate" );
+		UpdateComponent( zephyrComp );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::UpdateComponent( ZephyrComponent* zephyrComp )
+{
+	if ( !zephyrComp->IsScriptValid() )
+	{
+		EventArgs args;
+		args.SetValue( "entity", (void*)zephyrComp->GetParentEntity() );
+		args.SetValue( "text", "Script Error" );
+		args.SetValue( "color", "red" );
+
+		g_eventSystem->FireEvent( "PrintDebugText", &args );
+		return;
+	}
+
+	// If this is the first update we need to call OnEnter explicitly
+	if ( zephyrComp->m_compState == eComponentState::INITIALIZED )
+	{
+		zephyrComp->m_compState = eComponentState::STARTED;
+
+		ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
+	}
+
+	ZephyrSystem::FireScriptEvent( zephyrComp, "OnUpdate" );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 {
-	if ( zephyrComp == nullptr || zephyrComp->m_state != eComponentState::INITIALIZED )
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
 	{
 		return;
 	}
@@ -261,7 +268,7 @@ void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 //-----------------------------------------------------------------------------------------------
 bool ZephyrSystem::FireScriptEvent( ZephyrComponent* zephyrComp, const std::string& eventName, EventArgs* args )
 {
-	if ( zephyrComp == nullptr || zephyrComp->m_state != eComponentState::INITIALIZED )
+	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
 	{
 		return false;
 	}

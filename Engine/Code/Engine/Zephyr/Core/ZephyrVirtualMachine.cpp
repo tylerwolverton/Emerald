@@ -1474,6 +1474,7 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 		return false;
 	}
 
+	// Must be zephyr component of entityId
 	return ZephyrSystem::FireScriptEvent( &m_zephyrComponent, functionName, args );
 }
 
@@ -1483,7 +1484,7 @@ void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
 	g_devConsole->PrintError( Stringf( "Error in script'%s': %s", m_zephyrComponent.GetScriptName().c_str(), errorMsg.c_str() ) );
 
-	m_zephyrComponent.m_state = eComponentState::INVALID_SCRIPT;
+	m_zephyrComponent.m_compState = eComponentState::INVALID_SCRIPT;
 }
 
 

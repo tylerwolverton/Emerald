@@ -33,7 +33,7 @@ public:
 	static std::map< std::string, ZephyrScriptDefinition* > s_definitions;
 
 	// TEMP
-	std::string m_name;
+	std::string m_name; // HashedString
 
 private:
 	bool m_isValid = false;

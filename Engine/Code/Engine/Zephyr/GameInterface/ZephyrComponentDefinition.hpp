@@ -12,6 +12,8 @@ class ZephyrScriptDefinition;
 //-----------------------------------------------------------------------------------------------
 class ZephyrComponentDefinition
 {
+	friend class ZephyrComponent;
+
 public:
 	explicit ZephyrComponentDefinition( const std::string& entityType, const XmlElement& scriptElem );
 	virtual ~ZephyrComponentDefinition() {}
@@ -23,9 +25,9 @@ public:
 	std::vector<EntityVariableInitializer>	GetZephyrEntityVarInits() const								{ return m_zephyrEntityVarInits; }
 
 protected:
-	bool									m_isScriptValid = false;
+	bool									m_isScriptValid = false; // ?
 
-	std::string								m_zephyrScriptName;
+	std::string								m_zephyrScriptName;				// Used for reloading
 	ZephyrScriptDefinition*					m_zephyrScriptDef = nullptr;
 	ZephyrValueMap							m_zephyrScriptInitialValues;
 	std::vector<EntityVariableInitializer>  m_zephyrEntityVarInits;

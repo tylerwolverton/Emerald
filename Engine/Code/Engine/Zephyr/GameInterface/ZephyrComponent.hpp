@@ -1,24 +1,24 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
 #include <string>
 
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrBytecodeChunk;
-class ZephyrComponentDefinition;
-
 class Entity;
 
 
 //-----------------------------------------------------------------------------------------------
-enum class eComponentState
+enum class eComponentState : uint8_t
 {
 	UNINITIALIZED,
 	INVALID_SCRIPT,
 	INVALID_PARENT,
-	INITIALIZED
+	INITIALIZED,
+	STARTED
 };
 
 
@@ -40,13 +40,15 @@ public:
 	void SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 
 	// Accessors
-	std::string		GetScriptName() const													{ return m_name; }
+	std::string		GetScriptName() const													{ return m_componentDef.m_zephyrScriptName;	}
 	Entity*			GetParentEntity() const													{ return m_parentEntity; }
 	EntityId		GetParentEntityId() const;
 	std::string		GetParentEntityName() const;
 	ZephyrValue		GetGlobalVariable( const std::string& varName );
 	void			SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
-	bool			IsScriptValid() const													{ return m_state != eComponentState::INVALID_SCRIPT && m_state != eComponentState::UNINITIALIZED; }
+	bool			IsScriptValid() const													{ return m_compState != eComponentState::INVALID_SCRIPT
+																									&& m_compState != eComponentState::INVALID_PARENT
+																									&& m_compState != eComponentState::UNINITIALIZED; }
 
 	const ZephyrBytecodeChunk* GetBytecodeChunkByName( const std::string& chunkName ) const;
 
@@ -56,11 +58,7 @@ private:
 
 public:
 	const ZephyrComponentDefinition& m_componentDef;
-	enum class eComponentState m_state = eComponentState::UNINITIALIZED;
-	bool m_hasEnteredStartingState = false;
 
-	// REFACTOR: Used for error reporting, move to central data repo in ZephyrSystem or HashedString?
-	std::string m_name;
 	Entity* m_parentEntity = nullptr;
 
 	// Initial values for entity variables are given as names but must be translated into ids after all entities are loaded
@@ -68,7 +66,9 @@ public:
 
 	ZephyrBytecodeChunk* m_globalBytecodeChunk = nullptr;
 	ZephyrBytecodeChunk* m_curStateBytecodeChunk = nullptr;
-	ZephyrBytecodeChunkMap m_stateBytecodeChunks; 
+	ZephyrBytecodeChunkMap m_stateBytecodeChunks;				// Duplicate here to avoid touching comp or script def at runtime. Change to ptr?
+
+	enum class eComponentState m_compState = eComponentState::UNINITIALIZED;
 };
 
 
