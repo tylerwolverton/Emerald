@@ -24,6 +24,7 @@ public:
 	static ZephyrValue					GetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName );
 	static ZephyrValue					GetGlobalVariable( EntityId entityId, const std::string& varName );
 	static void							SetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName, const ZephyrValue& value );
+	static void							SetGlobalVariable( EntityId entityId, const std::string& varName, const ZephyrValue& value );
 
 	static void							UnloadZephyrScripts( ZephyrScene& scene );
 	static void							ReloadZephyrScripts( ZephyrScene& scene );

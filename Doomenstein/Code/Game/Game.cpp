@@ -17,6 +17,7 @@
 #include "Engine/Core/TextBox.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
@@ -85,6 +86,7 @@ void Game::Startup()
 	g_eventSystem->RegisterEvent( "set_mouse_sensitivity", "Usage: set_mouse_sensitivity multiplier=NUMBER. Set the multiplier for mouse sensitivity.", eUsageLocation::DEV_CONSOLE, SetMouseSensitivity );
 	g_eventSystem->RegisterEvent( "light_set_ambient_color", "Usage: light_set_ambient_color color=r,g,b", eUsageLocation::DEV_CONSOLE, SetAmbientLightColor );
 	g_eventSystem->RegisterMethodEvent( "warp", "Usage: warp <map=string> <pos=float,float> <yaw=float>", eUsageLocation::DEV_CONSOLE, this, &Game::WarpMapCommand );
+	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
 	g_inputSystem->PushMouseOptions( CURSOR_RELATIVE, false, true );
 		
@@ -1148,6 +1150,17 @@ bool Game::SetAmbientLightColor( EventArgs* args )
 	s_ambientLightColor = args->GetValue( "color", Vec3( 1.f, 1.f, 1.f ) );
 
 	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::GetComponentFromEntityId( EventArgs* args )
+{
+	EntityId entityId = args->GetValue( "EntityId", (EntityId)-1 );
+	EntityComponentTypeId compTypeId = args->GetValue( "EntityComponentTypeId", ENTITY_COMPONENT_TYPE_INVALID );
+
+	EntityComponent* entityComponent = m_world->GetComponentFromEntityId( entityId, compTypeId );
+	args->SetValue( "EntityComponent", (void*)entityComponent );
 }
 
 

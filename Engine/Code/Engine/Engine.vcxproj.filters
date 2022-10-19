@@ -424,6 +424,9 @@
     <ClCompile Include="Zephyr\GameInterface\ZephyrScene.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\EntityComponent.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -762,6 +765,7 @@
     <ClInclude Include="Zephyr\GameInterface\ZephyrComponentDefinition.hpp" />
     <ClInclude Include="Framework\Entity.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrScene.hpp" />
+    <ClInclude Include="Framework\EntityComponent.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

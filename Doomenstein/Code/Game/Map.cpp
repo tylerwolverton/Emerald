@@ -2,6 +2,7 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/Transform.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
@@ -278,6 +279,21 @@ GameEntity* Map::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forward
 {
 	RaycastResult result = Raycast( startPos, forwardNormal, maxDist );
 	return result.impactEntity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* Map::GetZephyrComponentFromEntityId( const EntityId& id )
+{
+	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
+	{
+		if ( zephyrComponent->GetParentEntityId() == id )
+		{
+			return zephyrComponent;
+		}
+	}
+
+	return nullptr;
 }
 
 

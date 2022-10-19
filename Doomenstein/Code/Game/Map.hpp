@@ -50,20 +50,22 @@ public:
 	// Adding and removing entities from map
 	virtual GameEntity*		SpawnNewEntityOfType( const std::string& entityDefName );
 	virtual GameEntity*		SpawnNewEntityOfType( const EntityDefinition& entityDef );
-	void				RemoveOwnershipOfEntity( GameEntity* entityToRemove );
-	void				TakeOwnershipOfEntity( GameEntity* entityToAdd );
+	void					RemoveOwnershipOfEntity( GameEntity* entityToRemove );
+	void					TakeOwnershipOfEntity( GameEntity* entityToAdd );
 
 	// REFACTOR: Move to Zephyr specific object, or maybe pre init, post init, etc.
-	void				UnloadAllEntityScripts();
-	void				ReloadAllEntityScripts();
-	void				InitializeAllZephyrEntityVariables();
-	void				CallAllMapEntityZephyrSpawnEvents( GameEntity* player );
+	void					UnloadAllEntityScripts();
+	void					ReloadAllEntityScripts();
+	void					InitializeAllZephyrEntityVariables();
+	void					CallAllMapEntityZephyrSpawnEvents( GameEntity* player );
 
 	// Entity queries
 	GameEntity*				GetEntityById( EntityId id );
 	GameEntity*				GetEntityByName( const std::string& name );
 	GameEntity*				GetClosestEntityInSector( const Vec3& observerPos, float forwardDegrees, float apertureDegrees, float maxDist );
 	GameEntity*				GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const;
+
+	EntityComponent*		GetZephyrComponentFromEntityId( const EntityId& id );
 
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );

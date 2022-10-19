@@ -2,6 +2,7 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
@@ -308,6 +309,65 @@ void World::SaveEntityByName( GameEntity* entity )
 
 	m_entitiesByName[entity->GetName()] = entity;
 	m_entitiesById[entity->GetId()] = entity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* World::GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId )
+{
+	switch ( componentTypeId )
+	{
+		case ENTITY_COMPONENT_TYPE_ZEPHYR:
+		{
+			return GetZephyrComponentFromEntityId( id );
+		}
+		break;
+
+		default:
+			return nullptr;
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* World::GetZephyrComponentFromEntityId( const EntityId& id )
+{
+	// Check world entities
+	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
+	{
+		if ( zephyrComponent->GetParentEntityId() == id )
+		{
+			return zephyrComponent;
+		}
+	}
+
+	// Check current map
+	if ( m_curMap != nullptr )
+	{
+		EntityComponent* entityComponent = m_curMap->GetZephyrComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	// Check the other maps
+	for ( auto& map : m_loadedMaps )
+	{
+		if ( map.second == m_curMap
+			 || map.second == nullptr )
+		{
+			continue;
+		}
+
+		EntityComponent* entityComponent = map.second->GetZephyrComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	return nullptr;
 }
 
 

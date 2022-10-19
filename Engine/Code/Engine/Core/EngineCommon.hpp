@@ -9,6 +9,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
+class EntityComponent;
 class DevConsole;
 class EventSystem;
 class JobSystem;
@@ -32,6 +33,8 @@ typedef NamedProperties EventArgs;
 typedef unsigned int uint;
 typedef unsigned char byte;
 typedef int EntityId;
+typedef int EntityComponentId;
+typedef int EntityComponentTypeId;
 
 //-----------------------------------------------------------------------------------------------
 // Macros
@@ -71,3 +74,13 @@ enum eScreenEdgesBitField : unsigned int
 	SCREEN_EDGE_TOP = ( 1 << 2 ),
 	SCREEN_EDGE_BOTTOM = ( 1 << 3 )
 };
+
+
+//-----------------------------------------------------------------------------------------------
+constexpr EntityComponentTypeId ENTITY_COMPONENT_TYPE_INVALID = -1;
+constexpr EntityComponentTypeId ENTITY_COMPONENT_TYPE_NONE = 0;
+constexpr EntityComponentTypeId ENTITY_COMPONENT_TYPE_ZEPHYR = 1;
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId );

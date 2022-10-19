@@ -17,6 +17,7 @@ ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef,
 	: m_componentDef( componentDef )
 	, m_parentEntity( parentEntity )
 {
+	m_typeId = ENTITY_COMPONENT_TYPE_ZEPHYR;
 }
 
 

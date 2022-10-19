@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
@@ -23,7 +24,7 @@ enum class eComponentState : uint8_t
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrComponent
+class ZephyrComponent : public EntityComponent
 {
 	friend class ZephyrSystem;
 	friend class ZephyrVirtualMachine;

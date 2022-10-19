@@ -93,6 +93,7 @@ public:
 
 	static bool		SetMouseSensitivity( EventArgs* args );
 	static bool		SetAmbientLightColor( EventArgs* args );
+	void			GetComponentFromEntityId( EventArgs* args );
 	
 public:
 	RandomNumberGenerator* m_rng = nullptr;

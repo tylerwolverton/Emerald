@@ -1384,29 +1384,14 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrVirtualMachine::GetGlobalVariableFromEntity( EntityId entityId, const std::string& variableName )
 {
-	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
-	if ( entity == nullptr )
-	{
-		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
-		return ZephyrValue( ERROR_ZEPHYR_VAL );
-	}
-
 	return ZephyrSystem::GetGlobalVariable( entityId, variableName );
-	//return entity->GetGlobalVariable( variableName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::SetGlobalVariableInEntity( EntityId entityId, const std::string& variableName, const ZephyrValue& value )
 {
-	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
-	if ( entity == nullptr )
-	{
-		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
-		return;
-	}
-
-	return entity->SetGlobalVariable( variableName, value );
+	return ZephyrSystem::SetGlobalVariable( entityId, variableName, value );
 }
 
 
@@ -1419,7 +1404,7 @@ void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityI
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
 		return;
 	}
-	ZephyrValue oldValue = entity->GetGlobalVariable( variableName );
+	ZephyrValue oldValue = ZephyrSystem::GetGlobalVariable( entityId, variableName );
 
 	Vec2 newValue = oldValue.GetAsVec2();
 	if ( memberName == "x" )
@@ -1431,7 +1416,7 @@ void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityI
 		newValue.y = value.GetAsNumber();
 	}
 
-	return entity->SetGlobalVariable( variableName, ZephyrValue( newValue ) );
+	return ZephyrSystem::SetGlobalVariable( entityId, variableName, ZephyrValue( newValue ) );
 }
 
 
@@ -1444,7 +1429,7 @@ void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityI
 		ReportError( Stringf( "Unknown entity does not contain a member '%s'", variableName.c_str() ) );
 		return;
 	}
-	ZephyrValue oldValue = entity->GetGlobalVariable( variableName );
+	ZephyrValue oldValue = ZephyrSystem::GetGlobalVariable( entityId, variableName );
 
 	Vec3 newValue = oldValue.GetAsVec3();
 	if ( memberName == "x" )
@@ -1460,7 +1445,7 @@ void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityI
 		newValue.z = value.GetAsNumber();
 	}
 
-	return entity->SetGlobalVariable( variableName, ZephyrValue( newValue ) );
+	return ZephyrSystem::SetGlobalVariable( entityId, variableName, ZephyrValue( newValue ) );
 }
 
 

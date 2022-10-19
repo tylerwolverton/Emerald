@@ -12,8 +12,9 @@ struct Vec3;
 struct MapData;
 struct ZephyrScene;
 class Clock;
-class GameEntity;
+class EntityComponent;
 class EntityDefinition;
+class GameEntity;
 class Map;
 
 
@@ -45,11 +46,15 @@ public:
 
 	// Entity access
 	GameEntity* GetEntityById( EntityId id );
-	void	RemoveEntityFromWorldById( EntityId id );
+	void		RemoveEntityFromWorldById( EntityId id );
 	GameEntity* GetEntityByIdInCurMap( EntityId id );
 	GameEntity* GetEntityByName( const std::string& name );
 	GameEntity* GetEntityByNameInCurMap( const std::string& name );
-	void	SaveEntityByName( GameEntity* entity );
+	void		SaveEntityByName( GameEntity* entity );
+
+	EntityComponent* GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId );
+	EntityComponent* GetZephyrComponentFromEntityId( const EntityId& id );
+
 	// For WorldDef.xml
 	void AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName = "" );
 

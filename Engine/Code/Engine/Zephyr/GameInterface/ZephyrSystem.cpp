@@ -105,7 +105,9 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrSystem::GetGlobalVariable( EntityId entityId, const std::string& varName )
 {
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
 	
+	return GetGlobalVariable( zephyrComp, varName );
 }
 
 
@@ -118,6 +120,15 @@ void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::st
 	}
 
 	zephyrComp->SetGlobalVariable( varName, value );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::SetGlobalVariable( EntityId entityId, const std::string& varName, const ZephyrValue& value )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return SetGlobalVariable( zephyrComp, varName, value );
 }
 
 
