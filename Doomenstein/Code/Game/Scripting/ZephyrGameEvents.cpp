@@ -727,7 +727,7 @@ GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 	GameEntity* entity = (GameEntity*)g_game->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
-		g_devConsole->PrintError( Stringf( "Parent entity '%s' does not exist in game", Entity::GetName( entityId ).c_str() ) );
+		//g_devConsole->PrintError( Stringf( "Parent entity '%s' does not exist in game", Entity::GetName( entityId ).c_str() ) );
 		return nullptr;
 	}
 

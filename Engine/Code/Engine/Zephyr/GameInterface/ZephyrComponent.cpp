@@ -96,7 +96,7 @@ EntityId ZephyrComponent::GetParentEntityId() const
 	if ( !IsScriptValid()
 		 || m_parentEntity == nullptr )
 	{
-		g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent id" );
+		//g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent id" );
 		return (EntityId)-1;
 	}
 
@@ -110,7 +110,7 @@ std::string ZephyrComponent::GetParentEntityName() const
 	if ( !IsScriptValid()
 		 || m_parentEntity == nullptr )
 	{
-		g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent name" );
+		//g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent name" );
 		return "Unknown";
 	}
 

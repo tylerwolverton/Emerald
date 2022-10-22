@@ -2,6 +2,7 @@
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Framework/Entity.hpp"
@@ -60,8 +61,7 @@ void ZephyrSubsystem::UpdateTimers()
 				Entity* targetEntity = g_zephyrAPI->GetEntityById( zephyrTimer.targetId );
 				if ( targetEntity != nullptr )
 				{
-					// TODO: Add direct access to components from id
-					//targetEntity->FireScriptEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
+					ZephyrSystem::FireScriptEvent( zephyrTimer.targetId, zephyrTimer.callbackName, zephyrTimer.callbackArgs );
 				}
 			}
 		}
