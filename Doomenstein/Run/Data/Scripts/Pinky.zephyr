@@ -50,13 +50,13 @@ Function Jump()
 
 Function Interact()
 {
-    Entity target = null
+    Entity targetEntity = null
     GetEntityFromCameraRaytrace(  maxDist: 3, 
-                                  foundEntity: target )
+                                  foundEntity: targetEntity )
 
-    if( target != null )
+    if( targetEntity != null )
     {
-        target.OnInteracted( initiator: parentEntity )
+        targetEntity.OnInteracted( initiator: parentEntity )
     }
 }
 

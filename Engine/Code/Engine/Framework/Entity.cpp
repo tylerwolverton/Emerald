@@ -22,6 +22,13 @@ std::string Entity::GetName() const
 
 
 //-----------------------------------------------------------------------------------------------
+std::string Entity::GetName( const EntityId& id )
+{
+	return s_entityNames[id];
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Entity::SetName( const std::string& name )
 {
 	s_entityNames[m_id] = name;

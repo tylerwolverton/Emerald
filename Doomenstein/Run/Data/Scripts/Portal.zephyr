@@ -4,5 +4,5 @@ Number destYawOffset = 0
 
 Function OnCollisionEnter( Entity otherEntity )
 {
-    WarpToMap( target: otherEntity, map: destMap, position: destPosition, yawOffset: destYawOffset )
+    WarpToMap( targetEntity: otherEntity, map: destMap, position: destPosition, yawOffset: destYawOffset )
 }

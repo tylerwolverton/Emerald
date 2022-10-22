@@ -64,7 +64,7 @@ const ZephyrBytecodeChunk* ZephyrSystem::GetBytecodeChunkByName( ZephyrComponent
 //-----------------------------------------------------------------------------------------------
 void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const ZephyrValueMap& initialValues )
 {
-	if ( zephyrComp->m_globalBytecodeChunk == nullptr )
+	if ( zephyrComp == nullptr || zephyrComp->m_globalBytecodeChunk == nullptr )
 	{
 		return;
 	}
@@ -91,6 +91,15 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 
 
 //-----------------------------------------------------------------------------------------------
+void ZephyrSystem::InitializeGlobalVariables( const EntityId& entityId, const ZephyrValueMap& initialValues )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return InitializeGlobalVariables( zephyrComp, initialValues );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const std::string& varName )
 {
 	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
@@ -103,7 +112,7 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrSystem::GetGlobalVariable( EntityId entityId, const std::string& varName )
+ZephyrValue ZephyrSystem::GetGlobalVariable( const EntityId& entityId, const std::string& varName )
 {
 	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
 	
@@ -124,7 +133,7 @@ void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::st
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrSystem::SetGlobalVariable( EntityId entityId, const std::string& varName, const ZephyrValue& value )
+void ZephyrSystem::SetGlobalVariable( const EntityId& entityId, const std::string& varName, const ZephyrValue& value )
 {
 	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
 
@@ -146,6 +155,12 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 		return;
 	}
 
+	if ( targetState.empty() )
+	{
+		g_devConsole->PrintWarning( Stringf( "Tried to change state of ZephyrComponent: %s to empty state", zephyrComp->GetScriptName().c_str() ) );
+		return;
+	}
+
 	ZephyrBytecodeChunk* targetStateBytecodeChunk = zephyrComp->GetStateBytecodeChunk( targetState );
 	if ( targetStateBytecodeChunk == nullptr
 		 || targetStateBytecodeChunk == zephyrComp->m_curStateBytecodeChunk )
@@ -163,6 +178,15 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
 	//zephyrComp->m_state = eComponentState::STARTED;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::ChangeZephyrScriptState( const EntityId& entityId, const std::string& targetState )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return ChangeZephyrScriptState( zephyrComp, targetState );
 }
 
 
@@ -240,7 +264,7 @@ void ZephyrSystem::UpdateComponent( ZephyrComponent* zephyrComp )
 	if ( !zephyrComp->IsScriptValid() )
 	{
 		EventArgs args;
-		args.SetValue( "entity", (void*)zephyrComp->GetParentEntity() );
+		args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
 		args.SetValue( "text", "Script Error" );
 		args.SetValue( "color", "red" );
 
@@ -269,10 +293,19 @@ void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 	}
 
 	EventArgs args;
-	args.SetValue( "EntityId", zephyrComp->m_parentEntity->GetId() );
-	args.SetValue( "EntityName", zephyrComp->m_parentEntity->GetName() );
+	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+	args.SetValue( PARENT_ENTITY_NAME_STR, zephyrComp->m_parentEntity->GetName() );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn", &args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::FireSpawnEvent( const EntityId& entityId )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return FireSpawnEvent( zephyrComp );
 }
 
 
@@ -306,6 +339,15 @@ bool ZephyrSystem::FireScriptEvent( ZephyrComponent* zephyrComp, const std::stri
 
 	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, args, stateVariables );
 	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrSystem::FireScriptEvent( const EntityId& entityId, const std::string& eventName, EventArgs* args )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return FireScriptEvent( zephyrComp, eventName, args );
 }
 
 

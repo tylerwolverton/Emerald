@@ -44,7 +44,7 @@ bool ZephyrComponent::Initialize()
 	m_stateBytecodeChunks = scriptDef->GetAllStateBytecodeChunks();
 
 	// Initialize parentEntity in script
-	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
+	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
 
 	m_compState = eComponentState::INITIALIZED;
 	return true;
@@ -93,9 +93,10 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 //-----------------------------------------------------------------------------------------------
 EntityId ZephyrComponent::GetParentEntityId() const
 {
-	if ( m_compState != eComponentState::INITIALIZED
+	if ( !IsScriptValid()
 		 || m_parentEntity == nullptr )
 	{
+		g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent id" );
 		return (EntityId)-1;
 	}
 
@@ -106,9 +107,10 @@ EntityId ZephyrComponent::GetParentEntityId() const
 //-----------------------------------------------------------------------------------------------
 std::string ZephyrComponent::GetParentEntityName() const
 {
-	if ( m_compState != eComponentState::INITIALIZED
+	if ( !IsScriptValid()
 		 || m_parentEntity == nullptr )
 	{
+		g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent name" );
 		return "Unknown";
 	}
 

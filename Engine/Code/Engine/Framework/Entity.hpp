@@ -12,6 +12,8 @@ public:
 	std::string	GetName() const;
 	void		SetName( const std::string& name );
 
+	static std::string GetName( const EntityId& id );
+
 protected:
 	EntityId		m_id = -1;
 

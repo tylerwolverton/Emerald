@@ -23,7 +23,11 @@ typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
 typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
 
 constexpr int ERROR_ZEPHYR_VAL = -1000;
-extern std::string PARENT_ENTITY_NAME;
+extern std::string PARENT_ENTITY_STR;
+extern std::string PARENT_ENTITY_ID_STR;
+extern std::string PARENT_ENTITY_NAME_STR;
+extern std::string TARGET_ENTITY_STR;
+extern std::string TARGET_ENTITY_NAME_STR;
 
 extern ZephyrEngineEvents* g_zephyrAPI;
 extern ZephyrSubsystem* g_zephyrSubsystem;

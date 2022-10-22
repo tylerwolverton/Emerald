@@ -308,7 +308,7 @@ void GameEntity::Possess()
 {
 	m_isPossessed = true;
 
-	ZephyrSystem::FireScriptEvent( m_zephyrComponent, "OnPossess" );
+	ZephyrSystem::FireScriptEvent( m_id, "OnPossess" );
 }
 
 
@@ -317,7 +317,7 @@ void GameEntity::Unpossess()
 {
 	m_isPossessed = false;
 
-	ZephyrSystem::FireScriptEvent( m_zephyrComponent, "OnUnPossess" );
+	ZephyrSystem::FireScriptEvent( m_id, "OnUnPossess" );
 }
 
 
@@ -395,6 +395,12 @@ void GameEntity::RegisterKeyEvent( const std::string& keyCodeStr, const std::str
 		return;
 	}
 
+	const auto& it = m_registeredKeyEvents.find( keyCode );
+	if ( it == m_registeredKeyEvents.cend() )
+	{
+		m_registeredKeyEvents[keyCode] = std::vector<std::string>();
+	}
+
 	m_registeredKeyEvents[keyCode].push_back( eventName );
 }
 
@@ -436,65 +442,22 @@ void GameEntity::UnRegisterKeyEvent( const std::string& keyCodeStr, const std::s
 //-----------------------------------------------------------------------------------------------
 void GameEntity::FireSpawnEvent()
 {
-	ZephyrSystem::FireSpawnEvent( m_zephyrComponent );
+	ZephyrSystem::FireSpawnEvent( m_id );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool GameEntity::FireScriptEvent( const std::string& eventName, EventArgs* args )
 {
-	return ZephyrSystem::FireScriptEvent( m_zephyrComponent, eventName, args );
+	return ZephyrSystem::FireScriptEvent( m_id, eventName, args );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void GameEntity::ChangeZephyrScriptState( const std::string& targetState )
 {
-	ZephyrSystem::ChangeZephyrScriptState( m_zephyrComponent, targetState );
+	ZephyrSystem::ChangeZephyrScriptState( m_id, targetState );
 }
-
-
-////-----------------------------------------------------------------------------------------------
-//ZephyrValue Entity::GetGlobalVariable( const std::string& varName )
-//{
-//	if ( !IsScriptValid() )
-//	{
-//		return ZephyrValue( ERROR_ZEPHYR_VAL );
-//	}
-//
-//	// First check c++ built in vars
-//	if ( varName == "id" ) { return ZephyrValue( (float)GetId() ); }
-//	if ( varName == "name" ) { return ZephyrValue( GetName() ); }
-//	if ( varName == "health" ) { return ZephyrValue( (float)m_curHealth ); }
-//	if ( varName == "position" ) { return ZephyrValue( GetPosition() ); }
-//	if ( varName == "forwardVec" ) { return ZephyrValue( GetForwardVector() ); }
-//
-//	return ZephyrEntity::GetGlobalVariable( varName );
-//}
-//
-//
-////-----------------------------------------------------------------------------------------------
-//void Entity::SetGlobalVariable( const std::string& varName, const ZephyrValue& value )
-//{
-//	if ( !IsScriptValid() )
-//	{
-//		return;
-//	}
-//
-//	// First check c++ built in vars
-//	if ( varName == "health" )
-//	{
-//		m_curHealth = (int)value.GetAsNumber();
-//		if ( m_curHealth < 0 )
-//		{
-//			Die();
-//		}
-//
-//		return;
-//	}
-//
-//	ZephyrEntity::SetGlobalVariable( varName, value );
-//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -517,7 +480,7 @@ void GameEntity::UpdateFromKeyboard( float deltaSeconds )
 			for ( auto& eventName : registeredKey.second )
 			{
 				EventArgs args;
-				ZephyrSystem::FireScriptEvent( m_zephyrComponent, eventName, &args );
+				ZephyrSystem::FireScriptEvent( m_id, eventName, &args );
 			}
 		}
 	}

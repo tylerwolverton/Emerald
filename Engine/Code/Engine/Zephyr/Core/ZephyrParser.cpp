@@ -75,7 +75,7 @@ void ZephyrParser::CreateGlobalBytecodeChunk()
 	m_curBytecodeChunk = m_globalBytecodeChunk;
 	
 	// Save reference to this entity into global state
-	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME, ZephyrValue( (EntityId)-1 ) );
+	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( (EntityId)-1 ) );
 
 	m_curBytecodeChunksStack.push( m_globalBytecodeChunk );
 }
@@ -1533,9 +1533,9 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		case eValueType::ENTITY: 
 		{
 			// Cannot redefine parent entity
-			if ( identifier == PARENT_ENTITY_NAME )
+			if ( identifier == PARENT_ENTITY_STR )
 			{
-				ReportError( Stringf( "Cannot define an entity named '%s'. That name is reserved to reference the parent entity for this script.", PARENT_ENTITY_NAME.c_str() ) );
+				ReportError( Stringf( "Cannot define an entity named '%s'. That name is reserved to reference the parent entity for this script.", PARENT_ENTITY_STR.c_str() ) );
 				return false;
 			}
 

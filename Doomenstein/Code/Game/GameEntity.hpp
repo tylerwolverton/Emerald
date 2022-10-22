@@ -78,8 +78,6 @@ public:
 	bool				IsGarbage() const										{ return m_isGarbage; }
 	bool				IsPossessed() const										{ return m_isPossessed; }
 
-	void				SetZephyrComponent( ZephyrComponent* zephyrComponent )	{ m_zephyrComponent = zephyrComponent; }
-
 	// Physics
 	void				Translate( const Vec2& translation );
 	void				Translate( const Vec3& translation );
@@ -108,8 +106,8 @@ public:
 	void				UnRegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
 
 	// Script wrappers
-	ZephyrValue			GetGlobalVariable( const std::string& varName );
-	void				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
+	//ZephyrValue			GetGlobalVariable( const std::string& varName );
+	//void				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 	void				FireSpawnEvent();
 	bool				FireScriptEvent( const std::string& eventName, EventArgs* args = nullptr );
 	void				ChangeZephyrScriptState( const std::string& targetState );
@@ -125,7 +123,6 @@ protected:
 	const EntityDefinition&			m_entityDef;
 	int								m_curHealth = 1;								// how much health is currently remaining on entity
 	Map*							m_map = nullptr;
-	ZephyrComponent*				m_zephyrComponent = nullptr; // TODO: Remove this explicit reference
 
 	bool							m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool							m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()
@@ -143,7 +140,7 @@ protected:
 	GameLight						m_gameLight;
 
 	// Input
-	std::map<char, std::vector<std::string>> m_registeredKeyEvents;
+	std::map<char, std::vector<std::string>> m_registeredKeyEvents = {};
 };
 
 

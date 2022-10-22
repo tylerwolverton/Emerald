@@ -10,7 +10,11 @@
 
 
 //-----------------------------------------------------------------------------------------------
-std::string PARENT_ENTITY_NAME = "parentEntity";
+std::string PARENT_ENTITY_STR = "parentEntity";
+std::string PARENT_ENTITY_ID_STR = "parentEntityId";
+std::string PARENT_ENTITY_NAME_STR = "parentEntityName";
+std::string TARGET_ENTITY_STR = "targetEntity";
+std::string TARGET_ENTITY_NAME_STR = "targetName";
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
 ZephyrSubsystem* g_zephyrSubsystem = nullptr;
 

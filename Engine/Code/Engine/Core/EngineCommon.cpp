@@ -22,11 +22,11 @@ const float fPI = 3.14159265f;
 EntityComponent* GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId )
 {
 	EventArgs args;
-	args.SetValue( "EntityId", id );
-	args.SetValue( "EntityComponentTypeId", componentTypeId );
-	args.SetValue( "EntityComponent", ( void* )nullptr );
+	args.SetValue( "entityId", id );
+	args.SetValue( "entityComponentTypeId", componentTypeId );
+	args.SetValue( "entityComponent", ( void* )nullptr );
 	g_eventSystem->FireEvent( "get_component_from_entity_id", &args );
 
-	return (EntityComponent*)args.GetValue( "EntityComponent", ( void* )nullptr );
+	return (EntityComponent*)args.GetValue( "entityComponent", ( void* )nullptr );
 }
 

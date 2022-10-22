@@ -47,9 +47,9 @@ ZephyrComponentDefinition::ZephyrComponentDefinition( const std::string& entityT
 			break;
 		}
 
-		if ( varName == PARENT_ENTITY_NAME )
+		if ( varName == PARENT_ENTITY_STR )
 		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar cannot initialize reserved entity variable '%s'.", entityType.c_str(), PARENT_ENTITY_NAME.c_str() ) );
+			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar cannot initialize reserved entity variable '%s'.", entityType.c_str(), PARENT_ENTITY_STR.c_str() ) );
 			break;
 		}
 

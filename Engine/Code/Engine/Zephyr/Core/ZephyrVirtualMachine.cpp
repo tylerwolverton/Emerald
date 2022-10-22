@@ -230,7 +230,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( "Member function call" );
 
 				EventArgs* args = new EventArgs();
-				args->SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
+				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
 
@@ -417,7 +417,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.GetAsString() );
 
 				EventArgs* args = new EventArgs();
-				args->SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
+				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
 
@@ -444,12 +444,9 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 			case eOpCode::CHANGE_STATE:
 			{
 				ZephyrValue stateName = PopConstant();
-
-				EventArgs args;
-				args.SetValue( "entity", (void*)m_zephyrComponent.GetParentEntity() );
-				args.SetValue( "targetState", stateName.GetAsString() );
-				g_eventSystem->FireEvent( "ChangeZephyrScriptState", &args, EVERYWHERE );
 				
+				ZephyrSystem::ChangeZephyrScriptState( m_zephyrComponent.GetParentEntityId(), stateName.GetAsString() );
+
 				// Bail out of this chunk to avoid trying to execute bytecode in the wrong update chunk
 				return;
 			}
@@ -1452,15 +1449,15 @@ void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityI
 //-----------------------------------------------------------------------------------------------
 bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const std::string& functionName, EventArgs* args )
 {
-	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
-	if ( entity == nullptr )
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+	if ( zephyrComp == nullptr )
 	{
-		ReportError( Stringf( "Unknown entity does not contain a member '%s'", functionName.c_str() ) );
+		ReportError( Stringf( "Entity '%s' does not have a zephyr component", Entity::GetName(entityId).c_str() ) );
 		return false;
 	}
 
 	// Must be zephyr component of entityId
-	return ZephyrSystem::FireScriptEvent( &m_zephyrComponent, functionName, args );
+	return ZephyrSystem::FireScriptEvent( zephyrComp, functionName, args );
 }
 
 
