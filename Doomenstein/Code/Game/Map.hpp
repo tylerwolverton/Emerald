@@ -70,6 +70,9 @@ public:
 protected:
 	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );
 
+	void UpdateRigidbodyTransformsFromEntities();
+	void UpdateEntityTransformsFromRigidbodies();
+
 	virtual RaycastResult Raycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const = 0;
 
 protected:

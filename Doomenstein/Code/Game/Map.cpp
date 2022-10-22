@@ -61,7 +61,11 @@ void Map::Update( float deltaSeconds )
 	}
 
 	ZephyrSystem::UpdateScene( *m_zephyrScene );
+	
+	UpdateRigidbodyTransformsFromEntities();
 	g_game->GetCurrentPhysicsSystem()->Update( *m_physicsScene );
+	UpdateEntityTransformsFromRigidbodies();
+
 	UpdateMeshes();
 }
 
@@ -337,7 +341,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 
 		if ( mapEntityDef.entityDef->HasPhysics() )
 		{
-			Rigidbody* rigidbody = m_physicsScene->CreateRigidbody();
+			Rigidbody* rigidbody = m_physicsScene->CreateRigidbodyForEntity( newEntity->GetId() );
 			rigidbody->SetLayer( mapEntityDef.entityDef->GetInitialCollisionLayer() );
 			newEntity->SetRigidbody( rigidbody );
 			rigidbody->SetPosition( mapEntityDef.position );
@@ -365,6 +369,48 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		}
 	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void Map::UpdateRigidbodyTransformsFromEntities()
+{
+	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	{
+		GameEntity* const& entity = m_entities[entityIdx];
+		if ( entity == nullptr )
+		{
+			continue;
+		}
+
+		entity->CopyTransformToPhysicsComponent();
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Map::UpdateEntityTransformsFromRigidbodies()
+{
+	for ( int rigidbodyIdx = 0; rigidbodyIdx < (int)m_physicsScene->rigidbodies.size(); ++rigidbodyIdx )
+	{
+		Rigidbody*& rigidbody = m_physicsScene->rigidbodies[rigidbodyIdx];
+		if ( rigidbody == nullptr 
+			 || rigidbody->GetParentEntityId() == -1 )
+		{
+			continue;
+		}
+
+		GameEntity* entity = GetEntityById( rigidbody->GetParentEntityId() );
+		if ( entity == nullptr )
+		{
+			g_devConsole->PrintWarning("Somehow a rigidbody doesn't have a valid entity");
+			continue;
+		}
+
+		entity->SetPosition( rigidbody->GetWorldPosition() );
+		entity->SetOrientationDegrees( rigidbody->GetOrientationDegrees() );
+	}
+}
+
 
 //
 ////-----------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/AABB2.hpp"
+#include "Engine/Math/Transform.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCU.hpp"
 #include "Engine/Framework/Entity.hpp"
@@ -66,8 +67,8 @@ public:
 	const float			GetEyeHeight() const									{ return m_entityDef.m_eyeHeight; }
 	std::vector<ColliderData> GetColliderDataVec() const						{ return m_entityDef.m_colliderDataVec; }
 	const float			GetMass() const;
-	const float			GetOrientationDegrees() const							{ return m_orientationDegrees; }
-	void				SetOrientationDegrees( float orientationDegrees )		{ m_orientationDegrees = orientationDegrees; }
+	const float			GetOrientationDegrees() const							{ return m_transform.GetYawDegrees(); }
+	void				SetOrientationDegrees( float orientationDegrees );
 	std::string			GetType() const											{ return m_entityDef.m_type; }
 	eEntityClass		GetClass() const										{ return m_entityDef.m_class; }
 	Map*				GetMap() const											{ return m_map; }
@@ -79,6 +80,7 @@ public:
 	bool				IsPossessed() const										{ return m_isPossessed; }
 
 	// Physics
+	void				CopyTransformToPhysicsComponent();
 	void				Translate( const Vec2& translation );
 	void				Translate( const Vec3& translation );
 	void				RotateDegrees( float pitchDegrees, float yawDegrees, float rollDegrees );
@@ -121,6 +123,7 @@ protected:
 protected:
 	// Game state
 	const EntityDefinition&			m_entityDef;
+	Transform						m_transform;
 	int								m_curHealth = 1;								// how much health is currently remaining on entity
 	Map*							m_map = nullptr;
 
@@ -130,7 +133,6 @@ protected:
 
 	// Physics
 	Rigidbody*						m_rigidbody = nullptr;
-	float							m_orientationDegrees = 0.f;						// the Entity's forward - facing direction, as an angle in degrees
 
 	// Visual
 	float							m_cumulativeTime = 0.f;
@@ -140,7 +142,7 @@ protected:
 	GameLight						m_gameLight;
 
 	// Input
-	std::map<char, std::vector<std::string>> m_registeredKeyEvents = {};
+	std::map<char, std::vector<std::string>> m_registeredKeyEvents;
 };
 
 

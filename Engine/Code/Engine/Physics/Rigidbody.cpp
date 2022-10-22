@@ -11,8 +11,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody::Rigidbody( PhysicsScene* owningScene )
+Rigidbody::Rigidbody( PhysicsScene* owningScene, const EntityId& parentEntityId )
 	: m_physicsScene( owningScene )
+	, m_parentEntityId( parentEntityId )
 {
 }
 

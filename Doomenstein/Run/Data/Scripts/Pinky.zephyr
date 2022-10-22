@@ -1,6 +1,6 @@
 Bool isJumping = false
 Number jumpCooldown = 1
-Number speed = 5
+Number speed = 1
 
 // TODO: Forward, right, etc? Maybe specify vector
 Function MoveForward()

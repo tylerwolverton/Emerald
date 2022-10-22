@@ -47,19 +47,19 @@ public:
 
 	void SetVariable( const std::string& identifier, const ZephyrValue& value );
 	//void SetVec2Member( const std::string& identifier, const std::string& memberName, const ZephyrValue& value );
-	void SetType( eBytecodeChunkType type )								{ m_type = type; }
-	void SetAsInitialState()											{ m_isInitialState = true; }
+	void SetType( eBytecodeChunkType type )											{ m_type = type; }
+	void SetAsInitialState()														{ m_isInitialState = true; }
 
 	// Debug methods
 	void Disassemble() const;
 
 private:
 	std::string m_name;
-	bool m_isInitialState = false;
-	eBytecodeChunkType m_type = eBytecodeChunkType::NONE;
 	ZephyrBytecodeChunk* m_parentChunk = nullptr;
 	std::vector<byte> m_bytes;
 	std::vector<ZephyrValue> m_constants;
 	ZephyrValueMap m_variables;
 	ZephyrBytecodeChunkMap m_eventBytecodeChunks;
+	eBytecodeChunkType m_type = eBytecodeChunkType::NONE;
+	bool m_isInitialState = false;
 };

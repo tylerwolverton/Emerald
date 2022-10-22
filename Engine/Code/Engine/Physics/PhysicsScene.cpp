@@ -15,12 +15,20 @@ void PhysicsScene::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-Rigidbody* PhysicsScene::CreateRigidbody()
+Rigidbody* PhysicsScene::CreateRigidbodyForEntity( const EntityId& parentEntityId )
 {
-	Rigidbody* newRigidbody = new Rigidbody( this );
+	Rigidbody* newRigidbody = new Rigidbody( this, parentEntityId );
 
 	rigidbodies.push_back( newRigidbody );
 	return newRigidbody;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Rigidbody* PhysicsScene::CreateRigidbody()
+{
+	// Not associated with any entity
+	return CreateRigidbodyForEntity( -1 );
 }
 
 

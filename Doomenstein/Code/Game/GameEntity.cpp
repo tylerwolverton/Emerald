@@ -67,7 +67,7 @@ void GameEntity::Update( float deltaSeconds )
 	Vec3 position = GetPosition();
 	if ( m_curSpriteAnimSetDef != nullptr )
 	{
-		SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( position.XY(), m_orientationDegrees, *g_game->GetWorldCamera() );
+		SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( position.XY(), m_transform.GetYawDegrees(), *g_game->GetWorldCamera() );
 		int frameIndex = animDef->GetFrameIndexAtTime( m_cumulativeTime );
 
 		m_curSpriteAnimSetDef->FireFrameEvent( frameIndex, this );
@@ -115,7 +115,7 @@ void GameEntity::Render() const
 	}
 	
 	// Get UVs for sprite
-	SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( position.XY(), m_orientationDegrees, *g_game->GetWorldCamera() );
+	SpriteAnimDefinition* animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( position.XY(), m_transform.GetYawDegrees(), *g_game->GetWorldCamera() );
 	const SpriteDefinition& spriteDef = animDef->GetSpriteDefAtTime( m_cumulativeTime );
 	
 	Vec2 mins, maxs;
@@ -180,7 +180,7 @@ void GameEntity::DebugRender() const
 //-----------------------------------------------------------------------------------------------
 const Vec2 GameEntity::GetForwardVector() const
 {
-	return Vec2::MakeFromPolarDegrees( m_orientationDegrees );
+	return Vec2::MakeFromPolarDegrees( m_transform.GetYawDegrees() );
 }
 
 
@@ -201,24 +201,14 @@ const Vec3 GameEntity::GetUpVector() const
 //-----------------------------------------------------------------------------------------------
 const Vec3 GameEntity::GetPosition() const
 {
-	if ( m_rigidbody == nullptr )
-	{
-		return Vec3::ZERO;
-	}
-
-	return m_rigidbody->GetWorldPosition();
+	return m_transform.GetPosition();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void GameEntity::SetPosition( const Vec3& position )
 {
-	if ( m_rigidbody == nullptr )
-	{
-		return;
-	}
-
-	m_rigidbody->SetPosition( position );
+	m_transform.SetPosition( position );
 }
 
 
@@ -236,26 +226,48 @@ const float GameEntity::GetMass() const
 
 
 //-----------------------------------------------------------------------------------------------
-void GameEntity::Translate( const Vec2& translation )
+void GameEntity::SetOrientationDegrees( float orientationDegrees )
+{
+	m_transform.SetOrientationFromPitchRollYawDegrees( 0.f, 0.f, orientationDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void GameEntity::CopyTransformToPhysicsComponent()
 {
 	if ( m_rigidbody == nullptr )
 	{
 		return;
 	}
 
-	m_rigidbody->AddImpulse( Vec3( translation, 0.f ) );
+	m_rigidbody->SetPosition( m_transform.GetPosition() );
+	m_rigidbody->SetRotationDegrees( m_transform.GetYawDegrees() );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void GameEntity::Translate( const Vec2& translation )
+{
+	m_transform.Translate( translation );
+	/*if ( m_rigidbody == nullptr )
+	{
+		return;
+	}
+
+	m_rigidbody->AddImpulse( Vec3( translation, 0.f ) );*/
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void GameEntity::Translate( const Vec3& translation )
 {
-	if ( m_rigidbody == nullptr )
-	{
-		return;
-	}
+	m_transform.Translate( translation );
+	//if ( m_rigidbody == nullptr )
+	//{
+	//	return;
+	//}
 
-	m_rigidbody->AddImpulse( translation );
+	//m_rigidbody->AddImpulse( translation );
 }
 
 
@@ -265,7 +277,7 @@ void GameEntity::RotateDegrees( float pitchDegrees, float yawDegrees, float roll
 	UNUSED( pitchDegrees );
 	UNUSED( rollDegrees );
 
-	m_orientationDegrees += yawDegrees;
+	m_transform.SetOrientationFromPitchRollYawDegrees( 0.f, 0.f, m_transform.GetYawDegrees() + yawDegrees );
 }
 
 
@@ -393,12 +405,6 @@ void GameEntity::RegisterKeyEvent( const std::string& keyCodeStr, const std::str
 	if ( keyCode == '\0' )
 	{
 		return;
-	}
-
-	const auto& it = m_registeredKeyEvents.find( keyCode );
-	if ( it == m_registeredKeyEvents.cend() )
-	{
-		m_registeredKeyEvents[keyCode] = std::vector<std::string>();
 	}
 
 	m_registeredKeyEvents[keyCode].push_back( eventName );
