@@ -2,8 +2,7 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/FloatRange.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEntityDefinition.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Game/GameCommon.hpp"
 
 #include <string>
@@ -12,13 +11,13 @@
 //-----------------------------------------------------------------------------------------------
 class SpriteSheet;
 class SpriteAnimationSetDefinition;
-class ZephyrScriptDefinition;
+class ZephyrComponentDefinition;
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityDefinition : public ZephyrEntityDefinition
+class EntityDefinition
 {
-	friend class Entity;
+	friend class GameEntity;
 
 public:
 	explicit EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet );
@@ -28,7 +27,8 @@ public:
 	std::string		GetType() const																{ return m_type; }
 	float			GetMaxHealth() const														{ return m_maxHealth; }
 
-	FloatRange		GetDamageRange() const														{ return m_damageRange; }
+	bool						HasZephyrScript() const											{ return m_zephyrDef != nullptr; }
+	ZephyrComponentDefinition*	GetZephyrCompDef() const										{ return m_zephyrDef; }
 
 	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
 	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }
@@ -44,7 +44,7 @@ protected:
 	std::string		m_type;
 	float			m_maxHealth = 1.f;
 
-	FloatRange		m_damageRange = FloatRange( 0.f );
+	ZephyrComponentDefinition* m_zephyrDef = nullptr;
 
 	AABB2			m_localDrawBounds;
 	AABB2			m_uvCoords = AABB2::ONE_BY_ONE;

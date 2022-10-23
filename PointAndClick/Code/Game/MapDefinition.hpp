@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
 #include <string>
 #include <map>
@@ -18,7 +18,7 @@ struct MapEntityDefinition
 {
 	EntityDefinition* entityDef = nullptr;
 	std::string name;
-	Vec2 position = Vec2::ZERO;
+	Vec3 position = Vec3::ZERO;
 	float yawDegrees = 0.f;
 
 	ZephyrValueMap zephyrScriptInitialValues;
@@ -48,5 +48,5 @@ public:
 private:
 	bool ParseMapDefinitionNode( const XmlElement& mapDefElem );
 	bool ParseEntitiesNode( const XmlElement& mapDefElem );
-	void CreateMapEntityDefFromNode( const XmlElement& entityElem, const std::string& expectedType );
+	void CreateMapEntityDefFromNode( const XmlElement& entityElem );
 };

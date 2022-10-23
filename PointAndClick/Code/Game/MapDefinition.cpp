@@ -3,6 +3,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
 
+#include "Game/EntityDefinition.hpp"
 #include "Game/Map.hpp"
 
 
@@ -73,7 +74,7 @@ bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
 		}
 		else if ( !strcmp( entityElem->Value(), "Entity" ) )
 		{
-			CreateMapEntityDefFromNode( *entityElem, entityElem->Value() );
+			CreateMapEntityDefFromNode( *entityElem );
 		}
 		else
 		{
@@ -94,7 +95,7 @@ bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
 
 
 //-----------------------------------------------------------------------------------------------
-void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem, const std::string& expectedType )
+void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem )
 {
 	MapEntityDefinition mapEntityDef;
 
@@ -107,7 +108,7 @@ void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem, co
 		return;
 	}
 
-	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec2::ZERO );
+	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec3::ZERO );
 	mapEntityDef.yawDegrees = ParseXmlAttribute( entityElem, "yaw", 0.f );
 
 	const XmlElement* globalVarElem = entityElem.FirstChildElement( "GlobalVar" );
@@ -132,9 +133,9 @@ void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem, co
 			break;
 		}
 
-		if ( varName == PARENT_ENTITY_NAME )
+		if ( varName == PARENT_ENTITY_STR )
 		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar cannot initialize reserved entity variable '%s'.", mapName.c_str(), PARENT_ENTITY_NAME.c_str() ) );
+			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar cannot initialize reserved entity variable '%s'.", mapName.c_str(), PARENT_ENTITY_STR.c_str() ) );
 			break;
 		}
 

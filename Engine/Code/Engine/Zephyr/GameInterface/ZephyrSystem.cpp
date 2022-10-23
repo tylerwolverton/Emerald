@@ -55,6 +55,15 @@ void ZephyrSystem::InitializeZephyrEntityVariables( ZephyrComponent* zephyrComp 
 
 
 //-----------------------------------------------------------------------------------------------
+void ZephyrSystem::InitializeZephyrEntityVariables( const EntityId& entityId )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return InitializeZephyrEntityVariables( zephyrComp );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 // Used for debug printing
 const ZephyrBytecodeChunk* ZephyrSystem::GetBytecodeChunkByName( ZephyrComponent* zephyrComp, const std::string& chunkName )
 {
@@ -64,6 +73,15 @@ const ZephyrBytecodeChunk* ZephyrSystem::GetBytecodeChunkByName( ZephyrComponent
 	}
 
 	return zephyrComp->GetBytecodeChunkByName( chunkName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+const ZephyrBytecodeChunk* ZephyrSystem::GetBytecodeChunkByName( const EntityId& entityId, const std::string& chunkName )
+{
+	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
+
+	return GetBytecodeChunkByName( zephyrComp, chunkName );
 }
 
 
@@ -260,6 +278,21 @@ void ZephyrSystem::UpdateScene( ZephyrScene& scene )
 		}
 
 		UpdateComponent( zephyrComp );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSystem::FireAllSpawnEvents( ZephyrScene& scene )
+{
+	for ( ZephyrComponent*& zephyrComp : scene.zephyrComponents )
+	{
+		if ( zephyrComp == nullptr )
+		{
+			continue;
+		}
+
+		FireSpawnEvent( zephyrComp );
 	}
 }
 

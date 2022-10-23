@@ -6,10 +6,9 @@
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
-#include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
 #include "Game/SpriteAnimationSetDefinition.hpp"
-#include "Game/Scripting/ZephyrGameAPI.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -46,14 +45,7 @@ EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName 
 
 //-----------------------------------------------------------------------------------------------
 EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet )
-	: ZephyrEntityDefinition( entityDefElem )
 {
-	// Return if the script parsing failed in base class
-	if ( !m_isScriptValid )
-	{
-		return;
-	}
-
 	m_type = ParseXmlAttribute( entityDefElem, "name", "" );
 	if ( m_type == "" )
 	{
@@ -116,9 +108,15 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 	if ( gameplayElem != nullptr )
 	{
 		m_maxHealth = ParseXmlAttribute( *gameplayElem, "maxHealth", m_maxHealth );
-		m_damageRange = ParseXmlAttribute( *gameplayElem, "damage", m_damageRange );
 	}
 	
+	// Zephyr
+	const XmlElement* scriptElem = entityDefElem.FirstChildElement( "Script" );
+	if ( scriptElem != nullptr )
+	{
+		m_zephyrDef = new ZephyrComponentDefinition( m_type, *scriptElem );
+	}
+
 	m_isValid = true;
 }
 

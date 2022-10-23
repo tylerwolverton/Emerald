@@ -13,7 +13,7 @@
 //-----------------------------------------------------------------------------------------------
 struct AABB2;
 struct Rgba8;
-class Entity;
+class GameEntity;
 class Map;
 class RandomNumberGenerator;
 class Clock;
@@ -65,15 +65,15 @@ public:
 
 	void		PrintToDebugInfoBox( const Rgba8& color, const std::vector< std::string >& textLines );
 
-	void		WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void		WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 
 	float		GetLastDeltaSecondsf();
 
-	Entity*		GetEntityById( EntityId id );
-	Entity*		GetEntityByName( const std::string& name );
+	GameEntity*	GetEntityById( EntityId id );
+	GameEntity*	GetEntityByName( const std::string& name );
 	Map*		GetMapByName( const std::string& name );
 	Map*		GetCurrentMap();
-	void		SaveEntityByName( Entity* entity );
+	void		SaveEntityByName( GameEntity* entity );
 
 	void		PlaySoundByName( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 	void		ChangeMusic( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
@@ -87,7 +87,7 @@ private:
 	void LoadAssets();
 	void LoadSounds();
 	void LoadMapsFromXml();
-	void LoadEntitiesFromXml();
+	void LoadEntityTypesFromXml();
 	void LoadWorldDefinitionFromXml();
 	void LoadAndCompileZephyrScripts();
 	void ReloadGame();
@@ -129,7 +129,6 @@ private:
 	Vec3 m_focalPoint = Vec3::ZERO;
 
 	// Default map data
-	std::string m_dataPathSuffix;
 	std::string m_defaultTileName;
 	std::string m_defaultTileMaterialName;
 
@@ -141,7 +140,7 @@ private:
 
 	eGameState m_gameState = eGameState::LOADING;
 
-	Entity* m_player = nullptr;
+	GameEntity* m_player = nullptr;
 
 	World* m_world = nullptr;
 	std::string m_startingMapName;

@@ -7,12 +7,14 @@
 
 
 //-----------------------------------------------------------------------------------------------
-struct Vec2;
-class Clock;
-class Entity;
-class EntityDefinition;
-class Map;
 struct MapDefinition;
+struct Vec2;
+struct ZephyrScene;
+class Clock;
+class EntityComponent;
+class EntityDefinition;
+class GameEntity;
+class Map;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -27,30 +29,34 @@ public:
 	void DebugRender() const;
 
 	void AddNewMap( const MapDefinition& mapDef );
-	void ChangeMap( const std::string& mapName, Entity* player );
+	void ChangeMap( const std::string& mapName, GameEntity* player );
 	Map* GetMapByName( const std::string& name );
 	Map* GetCurrentMap();
 
-	void WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
+	void WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 	bool IsMapLoaded( const std::string& mapName );
 
+	// Zephyr hot reloading
 	void Reset();
 
 	void UnloadAllEntityScripts();
 	void ReloadAllEntityScripts();
 
 	void InitializeAllZephyrEntityVariables();
-	void CallAllZephyrSpawnEvents( Entity* player );
+	void CallAllZephyrSpawnEvents();
 	
-	void AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName = "" );
+	GameEntity* AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName = "" );
 
-	Entity* GetEntityById( EntityId id );
+	GameEntity* GetEntityById( EntityId id );
 	void	RemoveEntityFromWorldById( EntityId id );
-	Entity* GetEntityByIdInCurMap( EntityId id );
-	Entity* GetEntityByName( const std::string& name );
-	Entity* GetEntityByNameInCurMap( const std::string& name );
+	GameEntity* GetEntityByIdInCurMap( EntityId id );
+	GameEntity* GetEntityByName( const std::string& name );
+	GameEntity* GetEntityByNameInCurMap( const std::string& name );
 
-	void	SaveEntityByName( Entity* entity );
+	void	SaveEntityByName( GameEntity* entity );
+
+	EntityComponent* GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId );
+	EntityComponent* GetZephyrComponentFromEntityId( const EntityId& id );
 
 private:
 	Map* GetLoadedMapByName( const std::string& mapName );
@@ -63,7 +69,9 @@ private:
 
 	std::map<std::string, Map*> m_loadedMaps;
 
-	std::vector<Entity*> m_worldEntities;
-	std::unordered_map<std::string, Entity*> m_entitiesByName;
-	std::unordered_map<EntityId, Entity*> m_entitiesById;
+	std::vector<GameEntity*> m_worldEntities;
+	std::unordered_map<std::string, GameEntity*> m_entitiesByName;
+	std::unordered_map<EntityId, GameEntity*> m_entitiesById;
+
+	ZephyrScene* m_zephyrScene = nullptr;
 };

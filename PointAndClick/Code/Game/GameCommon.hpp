@@ -50,10 +50,6 @@ constexpr float PLAYER_COSMETIC_RADIUS = .4f;
 constexpr float PLAYER_SPEED = .25f;
 constexpr float PLAYER_MAX_SPEED = 1.f;
 
-constexpr float ACTOR_WANDER_DIRECTION_CHANGE_COOLDOWN_SECONDS = 3.f;
-
-constexpr float PHYSICS_FRICTION_FRACTION = .2f;
-
 constexpr float DEBUG_LINE_THICKNESS = 0.02f;
 
 constexpr float MAX_CAMERA_SHAKE_DIST = 5.f;

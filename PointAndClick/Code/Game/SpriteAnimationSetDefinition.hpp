@@ -14,7 +14,7 @@ class SpriteSheet;
 class RenderContext;
 class Transform;
 class Camera;
-class Entity;
+class GameEntity;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ public:
 	SpriteAnimDefinition* GetSpriteAnimationDefForDirection( const Vec2& direction );
 
 	void AddFrameEvent( int frameNum, const std::string& eventName );
-	void FireFrameEvent( int frameNum, Entity* parent );
+	void FireFrameEvent( int frameNum, GameEntity* parent );
 
 	int GetNumFrames() const; // Assumes directional anims all have same number of frames
 

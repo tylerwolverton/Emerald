@@ -19,6 +19,8 @@ class ZephyrSystem
 
 public:
 	static void							InitializeAllZephyrEntityVariables( ZephyrScene& scene );
+	static void							InitializeZephyrEntityVariables( ZephyrComponent* zephyrComp );
+	static void							InitializeZephyrEntityVariables( const EntityId& entityId );
 	static void							InitializeGlobalVariables( ZephyrComponent* zephyrComp, const ZephyrValueMap& initialValues );
 	static void							InitializeGlobalVariables( const EntityId& entityId, const ZephyrValueMap& initialValues );
 
@@ -31,10 +33,12 @@ public:
 	static void							ReloadZephyrScripts( ZephyrScene& scene );
 
 	static const ZephyrBytecodeChunk*	GetBytecodeChunkByName( ZephyrComponent* zephyrComp, const std::string& chunkName );
+	static const ZephyrBytecodeChunk*	GetBytecodeChunkByName( const EntityId& entityId, const std::string& chunkName );
 
 	// Logic
 	static void							UpdateScene( ZephyrScene& scene );
-	
+
+	static void							FireAllSpawnEvents( ZephyrScene& scene );
 	static void							FireSpawnEvent( ZephyrComponent* zephyrComp );
 	static void							FireSpawnEvent( const EntityId& entityId );
 	static bool							FireScriptEvent( ZephyrComponent* zephyrComp, const std::string& eventName, EventArgs* args = nullptr );
@@ -47,5 +51,4 @@ private:
 	static void							UpdateComponent( ZephyrComponent* zephyrComp );
 	static void							UnloadZephyrScript( ZephyrComponent* zephyrComp );
 	static void							ReloadZephyrScript( ZephyrComponent* zephyrComp );
-	static void							InitializeZephyrEntityVariables( ZephyrComponent* zephyrComp );
 };

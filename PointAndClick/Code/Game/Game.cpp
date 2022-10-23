@@ -23,13 +23,16 @@
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Time/Time.hpp"
 #include "Engine/UI/UIPanel.hpp"
-#include "Engine/ZephyrCore/ZephyrCompiler.hpp"
-#include "Engine/ZephyrCore/ZephyrInterpreter.hpp"
-#include "Engine/ZephyrCore/ZephyrBytecodeChunk.hpp"
-#include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
-#include "Engine/ZephyrCore/ZephyrSystem.hpp"
+#include "Engine/Zephyr/Core/ZephyrCompiler.hpp"
+#include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
+#include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
+#include "Engine/Zephyr/Core/ZephyrUtils.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 #include "Game/World.hpp"
 #include "Game/MapDefinition.hpp"
 
@@ -70,7 +73,6 @@ void Game::Startup()
 	m_world = new World( m_gameClock );
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
-	m_dataPathSuffix = g_gameConfigBlackboard.GetValue( std::string( "dataPathSuffix" ), "" );
 	
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
 
@@ -282,7 +284,7 @@ void Game::LoadAssets()
 	// Music
 	LoadSounds();
 	LoadAndCompileZephyrScripts();
-	LoadEntitiesFromXml();
+	LoadEntityTypesFromXml();
 	LoadWorldDefinitionFromXml();
 	LoadMapsFromXml();
 
@@ -356,7 +358,7 @@ void Game::LoadMapsFromXml()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadEntitiesFromXml()
+void Game::LoadEntityTypesFromXml()
 {
 	g_devConsole->PrintString( "Loading Entity Types..." );
 
@@ -440,12 +442,8 @@ void Game::LoadEntitiesFromXml()
 		return;
 	}
 
-	m_player = new Entity( *playerDef, nullptr );
+	m_player = m_world->AddEntityFromDefinition( *playerDef, "player" );
 	m_player->SetAsPlayer();
-
-	// Must be saved before initializing zephyr script
-	m_world->SaveEntityByName( m_player );
-	m_player->CreateZephyrScript( *playerDef );
 
 	g_devConsole->PrintString( "Entity Types Loaded", Rgba8::GREEN );
 }
@@ -552,7 +550,7 @@ void Game::ReloadGame()
 
 	m_world->Reset();
 
-	g_zephyrSystem->StopAllTimers();
+	g_zephyrSubsystem->StopAllTimers();
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();
@@ -589,7 +587,7 @@ void Game::ReloadScripts()
 	{
 		if ( entityDef.second != nullptr )
 		{
-			entityDef.second->ReloadZephyrScriptDefinition();
+			entityDef.second->GetZephyrCompDef()->ReloadZephyrScriptDefinition();
 		}
 	}
 
@@ -703,20 +701,10 @@ void Game::UpdateFromKeyboard()
 void Game::LoadStartingMap( const std::string& mapName )
 {
 	m_world->InitializeAllZephyrEntityVariables();
-	
-	if ( m_player != nullptr )
-	{
-		m_player->InitializeZephyrEntityVariables();
-	}
 
 	m_world->ChangeMap( mapName, m_player );
 
-	if ( m_player != nullptr )
-	{
-		m_player->FireSpawnEvent();
-	}
-
-	m_world->CallAllZephyrSpawnEvents( m_player );
+	m_world->CallAllZephyrSpawnEvents();
 }
 
 
@@ -781,13 +769,13 @@ void Game::PrintBytecodeChunk( EventArgs* args )
 		return;
 	}
 
-	Entity* entity = GetEntityByName( entityName );
+	GameEntity* entity = GetEntityByName( entityName );
 	if ( entity == nullptr )
 	{
 		return;
 	}
 
-	const ZephyrBytecodeChunk* chunk = entity->GetBytecodeChunkByName( chunkName );
+	const ZephyrBytecodeChunk* chunk = ZephyrSystem::GetBytecodeChunkByName( entity->GetId(),  chunkName );
 	if ( chunk == nullptr )
 	{
 		return;
@@ -836,7 +824,7 @@ void Game::PrintToDebugInfoBox( const Rgba8& color, const std::vector< std::stri
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	// No entity specified, just load the new map and set camera position and orientation
 	if ( entityToWarp == nullptr )
@@ -861,14 +849,14 @@ float Game::GetLastDeltaSecondsf()
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Game::GetEntityById( EntityId id )
+GameEntity* Game::GetEntityById( EntityId id )
 {
 	return m_world->GetEntityById( id );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Game::GetEntityByName( const std::string& name )
+GameEntity* Game::GetEntityByName( const std::string& name )
 {
 	return m_world->GetEntityByName( name );
 }
@@ -894,7 +882,7 @@ Map* Game::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::SaveEntityByName( Entity* entity )
+void Game::SaveEntityByName( GameEntity* entity )
 {
 	m_world->SaveEntityByName( entity );
 }

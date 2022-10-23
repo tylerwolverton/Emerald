@@ -10,11 +10,14 @@
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Renderer/MeshUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
 #include "Game/World.hpp"
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 #include "Game/EntityDefinition.hpp"
 #include "Game/MapDefinition.hpp"
 
@@ -26,26 +29,20 @@ Map::Map( const MapDefinition& mapData, World* world )
 	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
+	m_zephyrScene = new ZephyrScene();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 Map::~Map()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		if ( m_entities[entityIdx] != nullptr )
-		{
-			PTR_SAFE_DELETE( m_entities[entityIdx] );
-		}
-	}
-
-	m_entities.clear();
+	PTR_SAFE_DELETE( m_zephyrScene );
+	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::Load( Entity* player )
+void Map::Load( GameEntity* player )
 {
 	if ( player == nullptr )
 	{
@@ -62,7 +59,7 @@ void Map::Load( Entity* player )
 	}
 	
 	m_player = player;
-	AddToEntityList( m_player );
+	//AddToEntityList( m_player );
 
 	player->SetMap( this );
 	player->SetPosition( m_playerStartPos );
@@ -97,7 +94,7 @@ void Map::Update( float deltaSeconds )
 {	
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity* const& entity = m_entities[entityIdx];
+		GameEntity* const& entity = m_entities[entityIdx];
 		if ( entity == nullptr )
 		{
 			continue;
@@ -105,6 +102,8 @@ void Map::Update( float deltaSeconds )
 
 		entity->Update( deltaSeconds );
 	}
+
+	ZephyrSystem::UpdateScene( *m_zephyrScene );
 
 	//UpdateMesh();
 
@@ -117,7 +116,7 @@ void Map::Render() const
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity* const& entity = m_entities[entityIdx];
+		GameEntity* const& entity = m_entities[entityIdx];
 		if ( entity == nullptr )
 		{
 			continue;
@@ -133,7 +132,7 @@ void Map::DebugRender() const
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity* const& entity = m_entities[entityIdx];
+		GameEntity* const& entity = m_entities[entityIdx];
 		if ( entity == nullptr )
 		{
 			continue;
@@ -145,7 +144,7 @@ void Map::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
+GameEntity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 {
 	EntityDefinition* entityDef = EntityDefinition::GetEntityDefinition( entityDefName );
 	if ( entityDef == nullptr )
@@ -154,33 +153,36 @@ Entity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 		return nullptr;
 	}
 
-	Entity* newEntity = SpawnNewEntityOfType( *entityDef );
-	newEntity->CreateZephyrScript( *entityDef );
+	GameEntity* newEntity = SpawnNewEntityOfType( *entityDef );
+	if ( entityDef->HasZephyrScript() )
+	{
+		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
+	}
 
 	return newEntity;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
+GameEntity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 {
-	Entity* entity = new Entity( entityDef, this );
+	GameEntity* entity = new GameEntity( entityDef, this );
 	AddToEntityList( entity );
 	return entity;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos )
+GameEntity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos )
 {
 	return SpawnNewEntityOfTypeAtPosition( entityDefName, Vec3( pos, 0.f ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec3& pos )
+GameEntity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec3& pos )
 {
-	Entity* entity = SpawnNewEntityOfType( entityDefName );
+	GameEntity* entity = SpawnNewEntityOfType( entityDefName );
 	entity->SetPosition( pos );
 
 	return entity;
@@ -190,74 +192,37 @@ Entity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, c
 //-----------------------------------------------------------------------------------------------
 void Map::UnloadAllEntityScripts()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->UnloadZephyrScript();
-	}
+	ZephyrSystem::UnloadZephyrScripts( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Map::ReloadAllEntityScripts()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->ReloadZephyrScript();
-	}
+	ZephyrSystem::ReloadZephyrScripts( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Map::InitializeAllZephyrEntityVariables()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->InitializeZephyrEntityVariables();
-	}
+	ZephyrSystem::InitializeAllZephyrEntityVariables( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::CallAllMapEntityZephyrSpawnEvents( Entity* player )
+void Map::CallAllMapEntityZephyrSpawnEvents()
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		Entity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr 
-			 || entity == player )
-		{
-			continue;
-		}
-
-		entity->FireSpawnEvent();
-	}
+	ZephyrSystem::FireAllSpawnEvents( *m_zephyrScene );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::RemoveOwnershipOfEntity( Entity* entityToRemove )
+void Map::RemoveOwnershipOfEntity( GameEntity* entityToRemove )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr )
 		{
 			continue;
@@ -272,11 +237,11 @@ void Map::RemoveOwnershipOfEntity( Entity* entityToRemove )
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::TakeOwnershipOfEntity( Entity* entityToAdd )
+void Map::TakeOwnershipOfEntity( GameEntity* entityToAdd )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr )
 		{
 			entity = entityToAdd;
@@ -300,7 +265,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 			continue;
 		}
 
-		Entity* newEntity = SpawnNewEntityOfType( *mapEntityDef.entityDef );
+		GameEntity* newEntity = SpawnNewEntityOfType( *mapEntityDef.entityDef );
 		if ( newEntity == nullptr )
 		{
 			continue;
@@ -310,21 +275,28 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 		newEntity->SetName( mapEntityDef.name );
 		m_world->SaveEntityByName( newEntity );
 		
-		newEntity->CreateZephyrScript( *mapEntityDef.entityDef );
+		if ( mapEntityDef.entityDef->HasZephyrScript() )
+		{
+			ZephyrComponent* zephyrComp = m_zephyrScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetZephyrCompDef() );
 
-		newEntity->SetPosition( Vec3( mapEntityDef.position, 0.f ) );
-		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
-		
-		// Define initial script values defined in map file
-		// Note: These will override any initial values already defined in the EntityDefinition
-		newEntity->InitializeScriptValues( mapEntityDef.zephyrScriptInitialValues );
-		newEntity->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
+			newEntity->SetPosition( mapEntityDef.position );
+			newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
+
+			if ( zephyrComp != nullptr )
+			{
+				// Define initial script values defined in map file
+				// Note: These will override any initial values already defined in the EntityDefinition
+				ZephyrSystem::InitializeGlobalVariables( zephyrComp, mapEntityDef.zephyrScriptInitialValues );
+				// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
+				zephyrComp->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
+			}
+		}
 	}
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::AddToEntityList( Entity* entity )
+void Map::AddToEntityList( GameEntity* entity )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
@@ -344,7 +316,7 @@ void Map::DeleteDeadEntities()
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
 			 || !entity->IsDead() )
 		{
@@ -361,11 +333,11 @@ void Map::DeleteDeadEntities()
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::GetEntityByName( const std::string& name )
+GameEntity* Map::GetEntityByName( const std::string& name )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
 			 || entity->IsDead() )
 		{
@@ -383,11 +355,11 @@ Entity* Map::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::GetEntityById( EntityId id )
+GameEntity* Map::GetEntityById( EntityId id )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
 			 || entity->IsDead() )
 		{
@@ -405,11 +377,26 @@ Entity* Map::GetEntityById( EntityId id )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::GetEntityAtPosition( const Vec2& position )
+EntityComponent* Map::GetZephyrComponentFromEntityId( const EntityId& id )
+{
+	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
+	{
+		if ( zephyrComponent->GetParentEntityId() == id )
+		{
+			return zephyrComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Map::GetEntityAtPosition( const Vec2& position )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
 			 || entity->IsDead() )
 		{
@@ -428,11 +415,11 @@ Entity* Map::GetEntityAtPosition( const Vec2& position )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Map::GetEntityAtPosition( const Vec3& position )
+GameEntity* Map::GetEntityAtPosition( const Vec3& position )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity*& entity = m_entities[entityIdx];
+		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
 			 || entity->IsDead() )
 		{

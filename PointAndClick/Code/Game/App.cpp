@@ -18,13 +18,13 @@
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Time/Time.hpp"
 #include "Engine/Time/Clock.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEngineAPI.hpp"
-#include "Engine/ZephyrCore/ZephyrSystem.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/GameCommon.hpp"
 #include "Game/Game.hpp"
-#include "Game/Scripting/ZephyrGameAPI.hpp"
+#include "Game/Scripting/ZephyrGameEvents.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -63,8 +63,8 @@ void App::Startup()
 	g_audioSystem = new AudioSystem();
 	g_renderer = new RenderContext();
 	g_devConsole = new DevConsole();
-	g_zephyrSystem = new ZephyrSystem();
-	g_zephyrAPI = new ZephyrGameAPI();
+	g_zephyrSubsystem = new ZephyrSubsystem();
+	g_zephyrAPI = new ZephyrGameEvents();
 	g_performanceTracker = new PerformanceTracker();
 	g_game = new Game();
 
@@ -89,7 +89,7 @@ void App::Startup()
 
 	ZephyrSystemParams zephyrParams;
 	zephyrParams.clock = g_game->GetGameClock();
-	g_zephyrSystem->Startup( zephyrParams );
+	g_zephyrSubsystem->Startup( zephyrParams );
 
 	PerformanceTrackerParams perfParams;
 	perfParams.clock = g_game->GetGameClock();
@@ -102,7 +102,7 @@ void App::Startup()
 //-----------------------------------------------------------------------------------------------
 void App::Shutdown()
 {
-	g_zephyrSystem->Shutdown();
+	g_zephyrSubsystem->Shutdown();
 	g_game->Shutdown();
 	g_devConsole->Shutdown();
 	DebugRenderSystemShutdown();
@@ -119,7 +119,7 @@ void App::Shutdown()
 	PTR_SAFE_DELETE( g_physicsConfig );
 	PTR_SAFE_DELETE( g_performanceTracker );
 	PTR_SAFE_DELETE( g_zephyrAPI );
-	PTR_SAFE_DELETE( g_zephyrSystem );
+	PTR_SAFE_DELETE( g_zephyrSubsystem );
 	PTR_SAFE_DELETE( g_devConsole );
 	PTR_SAFE_DELETE( g_renderer );
 	PTR_SAFE_DELETE( g_audioSystem );
@@ -180,7 +180,7 @@ void App::Update()
 {
 	g_devConsole->Update();
 	g_game->Update();
-	g_zephyrSystem->Update();
+	g_zephyrSubsystem->Update();
 	g_performanceTracker->Update();
 
 	UpdateFromKeyboard();
