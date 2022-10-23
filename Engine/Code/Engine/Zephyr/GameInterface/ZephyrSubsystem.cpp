@@ -52,7 +52,7 @@ void ZephyrSubsystem::UpdateTimers()
 
 		if ( !zephyrTimer.callbackName.empty() )
 		{
-			if ( zephyrTimer.targetId == -1 )
+			if ( zephyrTimer.targetId == INVALID_ENTITY_ID )
 			{
 				g_eventSystem->FireEvent( zephyrTimer.callbackName, zephyrTimer.callbackArgs );
 			}

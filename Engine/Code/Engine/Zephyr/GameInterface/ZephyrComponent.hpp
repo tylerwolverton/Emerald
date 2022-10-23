@@ -30,7 +30,7 @@ class ZephyrComponent : public EntityComponent
 	friend class ZephyrVirtualMachine;
 
 public:
-	ZephyrComponent( const ZephyrComponentDefinition& componentDef, Entity* parentEntity );
+	ZephyrComponent( const ZephyrComponentDefinition& componentDef, const EntityId& parentEntityId );
 	bool Initialize();
 	void Destroy();
 	~ZephyrComponent();
@@ -42,7 +42,6 @@ public:
 
 	// Accessors
 	std::string		GetScriptName() const													{ return m_componentDef.m_zephyrScriptName;	}
-	Entity*			GetParentEntity() const													{ return m_parentEntity; }
 	EntityId		GetParentEntityId() const;
 	std::string		GetParentEntityName() const;
 	ZephyrValue		GetGlobalVariable( const std::string& varName );
@@ -60,7 +59,7 @@ private:
 public:
 	const ZephyrComponentDefinition& m_componentDef;
 
-	Entity* m_parentEntity = nullptr;
+	EntityId m_parentEntityId = INVALID_ENTITY_ID;
 
 	// Initial values for entity variables are given as names but must be translated into ids after all entities are loaded
 	std::vector<EntityVariableInitializer> m_entityVarInits;

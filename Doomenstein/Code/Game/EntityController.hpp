@@ -9,7 +9,7 @@ class World;
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityController //: ZephyrEntity
+class EntityController
 {
 public:
 	EntityController();
@@ -31,11 +31,6 @@ public:
 	GameEntity* GetPossessedEntity() const									{ return m_possessedEntity; }
 	void PossessNearestEntity( const World& world );
 	void Unpossess();
-
-	// ZephyrEntity overrides
-	//virtual const Vec3	GetPosition() const override;
-	//virtual bool			IsDead() const override							{ return false; }
-	//virtual void			AddGameEventParams( EventArgs* args ) const		{ UNUSED( args ); }
 
 private:
 	// EntityController will exist at camera location

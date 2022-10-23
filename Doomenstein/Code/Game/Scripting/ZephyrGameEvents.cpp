@@ -256,42 +256,6 @@ void ZephyrGameEvents::MoveInCircle( EventArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 /**
- * Damages target entity. Will not do damage if entity applying damage is in the same faction as the entity to damage.
- * 
- * Target will be determined by the following optional parameters, checking in order the targetId, then targetName, then ( if neither name or id are specified ) targeting the entity who called this event.
- * params:
- *	- targetId: id of target entity
- *		- Zephyr type: Number
- *	- targetName: name of target entity
- *		- Zephyr type: String
- * 
- *	- damage: amount of damage to deal
- *		- Zephyr type: Number
- *	- damageType: type of damage to deal
- *		- Zephyr type: String
- *		- default: "normal"
-*/
-//-----------------------------------------------------------------------------------------------
-//void ZephyrGameAPI::DamageEntity( EventArgs* args )
-//{
-//	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
-//	Entity* targetEntity = g_game->GetEntityById( targetId );
-//
-//	float damage = args->GetValue( "damage", 0.f );
-//	std::string damageType = args->GetValue( "damageType", "normal" );
-//
-//	Entity* entity = (Entity*)args->GetValue( "entity", ( void* )nullptr );
-//
-//	if ( targetEntity != nullptr
-//		 && targetEntity->GetFaction() != entity->GetFaction() )
-//	{
-//		targetEntity->TakeDamage( damage, damageType );
-//	}
-//}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
  * Start a new timer to fire an event on completion.
  *
  * params:
@@ -720,10 +684,10 @@ void ZephyrGameEvents::PopCamera( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 {
-	EntityId targetId = (EntityId)args->GetValue( TARGET_ENTITY_STR, -1.f );
+	EntityId targetId = (EntityId)args->GetValue( TARGET_ENTITY_STR, INVALID_ENTITY_ID );
 	std::string targetName = args->GetValue( TARGET_ENTITY_NAME_STR, "" );
 
-	EntityId entityId = args->GetValue( PARENT_ENTITY_ID_STR, (EntityId)-1 );
+	EntityId entityId = args->GetValue( PARENT_ENTITY_ID_STR, INVALID_ENTITY_ID );
 	GameEntity* entity = (GameEntity*)g_game->GetEntityById( entityId );
 	if ( entity == nullptr )
 	{
@@ -742,7 +706,7 @@ GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 		}
 	}
 	// Id entities are tried next
-	else if ( targetId != -1 )
+	else if ( targetId != INVALID_ENTITY_ID )
 	{
 		entity = (GameEntity*)g_game->GetEntityById( targetId );
 		if ( entity == nullptr )

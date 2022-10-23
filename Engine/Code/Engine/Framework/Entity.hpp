@@ -15,7 +15,7 @@ public:
 	static std::string GetName( const EntityId& id );
 
 protected:
-	EntityId		m_id = -1;
+	EntityId		m_id = INVALID_ENTITY_ID;
 
 	// Statics
 	static EntityId	s_nextEntityId;

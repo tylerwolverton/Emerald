@@ -52,7 +52,7 @@ void GameEntity::Update( float deltaSeconds )
 {
 	m_cumulativeTime += deltaSeconds;
 
-	// REFACTOR: Move to input component
+	// REFACTOR: Move to input component, eh maybe
 	if ( !m_isDead )
 	{
 		if ( m_isPossessed )
@@ -60,8 +60,6 @@ void GameEntity::Update( float deltaSeconds )
 			UpdateFromKeyboard( deltaSeconds );
 		}
 	}
-
-	//ZephyrEntity::Update( deltaSeconds );
 
 	// REFACTOR: Move to GraphicsComponent/SpriteAnimationComponent
 	Vec3 position = GetPosition();

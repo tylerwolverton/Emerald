@@ -394,7 +394,7 @@ void Map::UpdateEntityTransformsFromRigidbodies()
 	{
 		Rigidbody*& rigidbody = m_physicsScene->rigidbodies[rigidbodyIdx];
 		if ( rigidbody == nullptr 
-			 || rigidbody->GetParentEntityId() == -1 )
+			 || rigidbody->GetParentEntityId() == INVALID_ENTITY_ID )
 		{
 			continue;
 		}

@@ -1156,7 +1156,7 @@ bool Game::SetAmbientLightColor( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void Game::GetComponentFromEntityId( EventArgs* args )
 {
-	EntityId entityId = args->GetValue( "entityId", (EntityId)-1 );
+	EntityId entityId = args->GetValue( "entityId", INVALID_ENTITY_ID );
 	EntityComponentTypeId compTypeId = args->GetValue( "entityComponentTypeId", ENTITY_COMPONENT_TYPE_INVALID );
 
 	EntityComponent* entityComponent = m_world->GetComponentFromEntityId( entityId, compTypeId );

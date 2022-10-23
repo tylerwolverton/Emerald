@@ -57,6 +57,8 @@ const Vec2 ALIGN_TOP_LEFT		= Vec2( 0.f, 1.f );
 const Vec2 ALIGN_TOP_CENTER		= Vec2( 0.5f, 1.f );
 const Vec2 ALIGN_TOP_RIGHT		= Vec2( 1.f, 1.f );
 
+constexpr EntityId INVALID_ENTITY_ID = -1;
+constexpr EntityComponentId INVALID_ENTITY_COMPONENT_ID = -1;
 
 extern const float fSQRT_3_OVER_3;
 extern const float fPI;

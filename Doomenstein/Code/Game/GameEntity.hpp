@@ -108,7 +108,7 @@ public:
 	void				UnRegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
 
 	// Script wrappers
-	//ZephyrValue			GetGlobalVariable( const std::string& varName );
+	//ZephyrValue		GetGlobalVariable( const std::string& varName );
 	//void				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 	void				FireSpawnEvent();
 	bool				FireScriptEvent( const std::string& eventName, EventArgs* args = nullptr );

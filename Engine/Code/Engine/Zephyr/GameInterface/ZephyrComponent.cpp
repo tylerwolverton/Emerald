@@ -13,9 +13,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef, Entity* parentEntity )
+ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef, const EntityId& parentEntityId )
 	: m_componentDef( componentDef )
-	, m_parentEntity( parentEntity )
+	, m_parentEntityId( parentEntityId )
 {
 	m_typeId = ENTITY_COMPONENT_TYPE_ZEPHYR;
 }
@@ -31,7 +31,7 @@ bool ZephyrComponent::Initialize()
 		return false;
 	}
 
-	if ( m_parentEntity == nullptr )
+	if ( m_parentEntityId == INVALID_ENTITY_ID )
 	{
 		m_compState = eComponentState::INVALID_PARENT;
 		return false;
@@ -44,7 +44,7 @@ bool ZephyrComponent::Initialize()
 	m_stateBytecodeChunks = scriptDef->GetAllStateBytecodeChunks();
 
 	// Initialize parentEntity in script
-	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( (EntityId)m_parentEntity->GetId() ) );
+	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( m_parentEntityId ) );
 
 	m_compState = eComponentState::INITIALIZED;
 	return true;
@@ -93,14 +93,7 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 //-----------------------------------------------------------------------------------------------
 EntityId ZephyrComponent::GetParentEntityId() const
 {
-	if ( !IsScriptValid()
-		 || m_parentEntity == nullptr )
-	{
-		//g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent id" );
-		return (EntityId)-1;
-	}
-
-	return m_parentEntity->GetId();
+	return m_parentEntityId;
 }
 
 
@@ -108,13 +101,13 @@ EntityId ZephyrComponent::GetParentEntityId() const
 std::string ZephyrComponent::GetParentEntityName() const
 {
 	if ( !IsScriptValid()
-		 || m_parentEntity == nullptr )
+		 || m_parentEntityId == INVALID_ENTITY_ID )
 	{
 		//g_devConsole->PrintError( "Invalid zephyr component doesn't have valid parent name" );
 		return "Unknown";
 	}
 
-	return m_parentEntity->GetName();
+	return Entity::GetName( m_parentEntityId );
 }
 
 

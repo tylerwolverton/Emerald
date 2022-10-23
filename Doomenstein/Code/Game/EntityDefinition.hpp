@@ -76,9 +76,7 @@ protected:
 	std::string		m_type;
 	eEntityClass	m_class = eEntityClass::UNKNOWN;
 
-	// TODO: Move to vector of ComponentDefs? Don't really want EntityDef in engine though
 	ZephyrComponentDefinition* m_zephyrDef = nullptr;
-
 
 	bool			m_hasPhysics = false; // TODO: Go full ECS with this
 	float			m_physicsRadius = 0.f;

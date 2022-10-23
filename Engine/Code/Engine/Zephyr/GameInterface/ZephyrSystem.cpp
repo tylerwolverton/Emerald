@@ -13,7 +13,13 @@
 //-----------------------------------------------------------------------------------------------
 ZephyrComponent* ZephyrSystem::CreateComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef )
 {	
-	ZephyrComponent* zephyrComp = new ZephyrComponent( componentDef, parentEntity );
+	if ( parentEntity == nullptr )
+	{
+		g_devConsole->PrintError("Can't create a zephyr component with a null parent entity");
+		return nullptr;
+	}
+
+	ZephyrComponent* zephyrComp = new ZephyrComponent( componentDef, parentEntity->GetId() );
 	if ( !zephyrComp->Initialize() )
 	{
 		return zephyrComp;
@@ -294,7 +300,7 @@ void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 
 	EventArgs args;
 	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
-	args.SetValue( PARENT_ENTITY_NAME_STR, zephyrComp->m_parentEntity->GetName() );
+	args.SetValue( PARENT_ENTITY_NAME_STR, zephyrComp->GetParentEntityName() );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn", &args );
 }

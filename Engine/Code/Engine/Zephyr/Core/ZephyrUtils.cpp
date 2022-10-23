@@ -29,7 +29,7 @@ void CloneZephyrEventArgs( EventArgs& destArgs, const EventArgs& srcArgs )
 		}
 		else if ( keyValuePair.second->Is<int>() )
 		{
-			destArgs.SetValue( keyValuePair.first, srcArgs.GetValue( keyValuePair.first, (EntityId)-1 ) );
+			destArgs.SetValue( keyValuePair.first, srcArgs.GetValue( keyValuePair.first, INVALID_ENTITY_ID ) );
 		}
 		else if ( keyValuePair.second->Is<double>() )
 		{

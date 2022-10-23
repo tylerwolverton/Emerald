@@ -75,7 +75,7 @@ void ZephyrParser::CreateGlobalBytecodeChunk()
 	m_curBytecodeChunk = m_globalBytecodeChunk;
 	
 	// Save reference to this entity into global state
-	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( (EntityId)-1 ) );
+	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( INVALID_ENTITY_ID ) );
 
 	m_curBytecodeChunksStack.push( m_globalBytecodeChunk );
 }
@@ -565,7 +565,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
 				case eValueType::NUMBER: WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
 				case eValueType::BOOL:	 WriteConstantToCurChunk( ZephyrValue( false ) ); break;
 				case eValueType::STRING: WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
-				case eValueType::ENTITY: WriteConstantToCurChunk( ZephyrValue( (EntityId)-1 ) ); break;
+				case eValueType::ENTITY: WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
 				case eValueType::VEC2:	 WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
 				case eValueType::VEC3:	 WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
 			}
@@ -1228,7 +1228,7 @@ bool ZephyrParser::ParseEntityConstant()
 {
 	ConsumeCurToken();
 
-	return WriteConstantToCurChunk( ZephyrValue( (EntityId)-1 ) );
+	return WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) );
 }
 
 
@@ -1539,7 +1539,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 				return false;
 			}
 
-			value = ZephyrValue( (EntityId)-1 ); break;
+			value = ZephyrValue( INVALID_ENTITY_ID ); break;
 		}
 	}
 

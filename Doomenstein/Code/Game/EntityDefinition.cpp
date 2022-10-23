@@ -45,7 +45,6 @@ EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName 
 
 //-----------------------------------------------------------------------------------------------
 EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
-	//: ZephyrEntityDefinition( entityDefElem )
 {
 	m_type = ParseXmlAttribute( entityDefElem, "name", "" );
 	if ( m_type == "" )

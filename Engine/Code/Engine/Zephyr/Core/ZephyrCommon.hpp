@@ -259,7 +259,7 @@ struct ZephyrTimer
 {
 public:
 	Timer timer;
-	EntityId targetId = -1;
+	EntityId targetId = INVALID_ENTITY_ID;
 	std::string name;
 	std::string callbackName;
 	EventArgs* callbackArgs = nullptr;

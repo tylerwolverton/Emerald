@@ -89,7 +89,7 @@ public:
 	NamedProperties m_userProperties;
 
 private:
-	EntityId m_parentEntityId = -1;
+	EntityId m_parentEntityId = INVALID_ENTITY_ID;
 
 	PhysicsScene* m_physicsScene = nullptr;						// which scene created/owns this object
 	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
