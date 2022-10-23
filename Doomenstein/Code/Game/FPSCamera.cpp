@@ -5,7 +5,7 @@
 
 #include "Game/Game.hpp"
 #include "Game/GameCommon.hpp"
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ FPSCamera::FPSCamera( const GameCameraSettings& gameCameraSettings )
 
 
 //-----------------------------------------------------------------------------------------------
-void FPSCamera::UpdateTranslation( Entity* target )
+void FPSCamera::UpdateTranslation( GameEntity* target )
 {
 	SetPosition( target->GetPosition() + Vec3( 0.f, 0.f, target->GetEyeHeight() ) );
 }

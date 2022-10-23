@@ -2,6 +2,7 @@
 #include "Engine/Math/Mat44.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Math/MatrixUtils.hpp"
+#include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
 
 
@@ -22,6 +23,14 @@ void Transform::SetPosition( const Vec3& position )
 void Transform::Translate( const Vec3& translation )
 {
 	m_position += translation;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Transform::Translate( const Vec2& translation )
+{
+	m_position.x += translation.x;
+	m_position.y += translation.y;
 }
 
 

@@ -12,10 +12,10 @@
 Portal::Portal( const EntityDefinition& entityDef, Map* map )
 	: Entity( entityDef, map )
 {
-	m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
-	m_rigidbody->SetLayer( eCollisionLayer::PORTAL );
+	//m_rigidbody->SetSimulationMode( SIMULATION_MODE_STATIC );
+	//m_rigidbody->SetLayer( eCollisionLayer::PORTAL );
 
-	m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Portal::EnterTriggerEvent );
+	//m_rigidbody->GetCollider()->m_onTriggerEnterDelegate.SubscribeMethod( this, &Portal::EnterTriggerEvent );
 }
 
 

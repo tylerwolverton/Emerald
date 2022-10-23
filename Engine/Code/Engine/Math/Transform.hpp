@@ -4,6 +4,7 @@
 
 //-----------------------------------------------------------------------------------------------
 struct Mat44;
+struct Vec2;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -47,6 +48,7 @@ public:
 	void SetScale( const Vec3& scale );
 
 	void Translate( const Vec3& translation );
+	void Translate( const Vec2& translation );
 	void SetOrientationFromPitchRollYawDegrees( float pitch, float roll, float yaw );
 	void RotatePitchRollYawDegrees( float pitch, float roll, float yaw );
 

@@ -26,7 +26,7 @@ class Rigidbody
 	friend struct PhysicsScene;
 
 public:
-	Rigidbody( PhysicsScene* owningScene );
+	Rigidbody( PhysicsScene* owningScene, const EntityId& parentEntityId );
 
 	void Update( float deltaSeconds );
 
@@ -34,6 +34,8 @@ public:
 
 	Collider* GetCollider()															{ return m_collider; }
 	void TakeCollider( Collider* collider ); // takes ownership of a collider (destroying my current one if present)
+
+	EntityId GetParentEntityId() const												{ return m_parentEntityId; }
 
 	uint GetLayer() const															{ return m_layer; }
 	void SetLayer( uint layer )														{ m_layer = layer; }
@@ -87,6 +89,8 @@ public:
 	NamedProperties m_userProperties;
 
 private:
+	EntityId m_parentEntityId = INVALID_ENTITY_ID;
+
 	PhysicsScene* m_physicsScene = nullptr;						// which scene created/owns this object
 	Vec3 m_worldPosition = Vec3::ZERO;							// where in the world is this rigidbody
 	Collider* m_collider = nullptr;

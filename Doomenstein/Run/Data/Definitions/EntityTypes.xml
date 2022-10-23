@@ -1,5 +1,8 @@
 <EntityTypes>
-  ​
+  ​<Entity name="UnitTester">
+    <Script name="UnitTests.zephyr"/>
+  </Entity>
+
   <Entity name="PlayerController">    
     <Script name="PlayerController.zephyr"/>
   </Entity>
@@ -40,7 +43,7 @@
     <Script name="Portal.zephyr"/>
   </Entity>
   ​
-    <Entity name="DemoLight">    
+  <Entity name="DemoLight">    
      <!-- <Appearance size="1.5,1.5" billboard="CameraFacingXY" spriteSheet="Data/Images/Actor_Pinky_8x9.png" layout="8,9" spriteMaterial="Data/Materials/Pinky.material">
       <Walk front="0,1,2,3" />
     </Appearance> -->

@@ -2,7 +2,11 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/Time/Clock.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/TileMap.hpp"
 #include "Game/LineMap.hpp"
@@ -14,6 +18,7 @@
 World::World( Clock* gameClock )
 {
 	m_worldClock = new Clock( gameClock );
+	m_zephyrScene = new ZephyrScene();
 }
 
 
@@ -29,6 +34,8 @@ World::~World()
 		PTR_SAFE_DELETE( it->second );
 	}
 
+	PTR_SAFE_DELETE( m_zephyrScene );
+
 	m_loadedMaps.clear();
 }
 
@@ -36,6 +43,8 @@ World::~World()
 //-----------------------------------------------------------------------------------------------
 void World::Update()
 {
+	ZephyrSystem::UpdateScene( *m_zephyrScene );
+
 	if ( m_curMap == nullptr )
 	{
 		return;
@@ -125,7 +134,7 @@ Map* World::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist ) const
+GameEntity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardDegrees, float apertureDegrees, float maxDist ) const
 {
 	if ( m_curMap != nullptr )
 	{
@@ -138,21 +147,21 @@ Entity* World::GetClosestEntityInSector( const Vec2& observerPos, float forwardD
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
+GameEntity* World::GetEntityFromRaycast( const Vec3& startPos, const Vec3& forwardNormal, float maxDist ) const
 {
 	return m_curMap->GetEntityFromRaycast( startPos, forwardNormal, maxDist );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	WarpEntityToMap( entityToWarp, destMapName, Vec3( newPos, 0.f ), newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void World::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	if ( entityToWarp == nullptr )
 	{
@@ -186,7 +195,7 @@ bool World::IsMapLoaded( const std::string& mapName )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityById( EntityId id )
+GameEntity* World::GetEntityById( EntityId id )
 {
 	auto mapIter = m_entitiesById.find( id );
 	if ( mapIter != m_entitiesById.end() )
@@ -195,7 +204,7 @@ Entity* World::GetEntityById( EntityId id )
 	}
 
 	// Look in this map first
-	Entity* entity = GetEntityByIdInCurMap( id );
+	GameEntity* entity = GetEntityByIdInCurMap( id );
 	if ( entity != nullptr )
 	{
 		return entity;
@@ -231,7 +240,7 @@ Entity* World::GetEntityById( EntityId id )
 //-----------------------------------------------------------------------------------------------
 void World::RemoveEntityFromWorldById( EntityId id )
 {
-	Entity* entity = GetEntityById( id );
+	GameEntity* entity = GetEntityById( id );
 	if ( entity != nullptr )
 	{
 		std::string name = entity->GetName();
@@ -243,7 +252,7 @@ void World::RemoveEntityFromWorldById( EntityId id )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByIdInCurMap( EntityId id )
+GameEntity* World::GetEntityByIdInCurMap( EntityId id )
 {
 	if ( m_curMap == nullptr )
 	{
@@ -255,7 +264,7 @@ Entity* World::GetEntityByIdInCurMap( EntityId id )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByName( const std::string& name )
+GameEntity* World::GetEntityByName( const std::string& name )
 {
 	auto entityIter = m_entitiesByName.find( name );
 	if ( entityIter != m_entitiesByName.end() )
@@ -268,7 +277,7 @@ Entity* World::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* World::GetEntityByNameInCurMap( const std::string& name )
+GameEntity* World::GetEntityByNameInCurMap( const std::string& name )
 {
 	if ( m_curMap == nullptr )
 	{
@@ -280,7 +289,7 @@ Entity* World::GetEntityByNameInCurMap( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-void World::SaveEntityByName( Entity* entity )
+void World::SaveEntityByName( GameEntity* entity )
 {
 	if ( entity == nullptr
 		 || entity->GetName().empty() )
@@ -304,16 +313,78 @@ void World::SaveEntityByName( Entity* entity )
 
 
 //-----------------------------------------------------------------------------------------------
+EntityComponent* World::GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId )
+{
+	switch ( componentTypeId )
+	{
+		case ENTITY_COMPONENT_TYPE_ZEPHYR:
+		{
+			return GetZephyrComponentFromEntityId( id );
+		}
+		break;
+
+		default:
+			return nullptr;
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* World::GetZephyrComponentFromEntityId( const EntityId& id )
+{
+	// Check world entities
+	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
+	{
+		if ( zephyrComponent->GetParentEntityId() == id )
+		{
+			return zephyrComponent;
+		}
+	}
+
+	// Check current map
+	if ( m_curMap != nullptr )
+	{
+		EntityComponent* entityComponent = m_curMap->GetZephyrComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	// Check the other maps
+	for ( auto& map : m_loadedMaps )
+	{
+		if ( map.second == m_curMap
+			 || map.second == nullptr )
+		{
+			continue;
+		}
+
+		EntityComponent* entityComponent = map.second->GetZephyrComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void World::AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName )
 {
-	Entity* newEntity = new Entity( entityDef, nullptr );
+	GameEntity* newEntity = new GameEntity( entityDef, nullptr );
 
 	newEntity->SetName( entityName );
 
 	m_worldEntities.push_back( newEntity );
 	SaveEntityByName( newEntity );
 
-	newEntity->CreateZephyrScript( entityDef );
+	if ( entityDef.HasZephyrScript() )
+	{
+		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef.GetZephyrCompDef() );
+	}
 }
 
 
@@ -329,11 +400,8 @@ void World::Reset()
 //-----------------------------------------------------------------------------------------------
 void World::UnloadAllEntityScripts()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->UnloadZephyrScript();
-	}
-
+	ZephyrSystem::UnloadZephyrScripts( *m_zephyrScene );
+	
 	for ( auto& map : m_loadedMaps )
 	{
 		map.second->UnloadAllEntityScripts();
@@ -344,10 +412,7 @@ void World::UnloadAllEntityScripts()
 //-----------------------------------------------------------------------------------------------
 void World::ReloadAllEntityScripts()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->ReloadZephyrScript();
-	}
+	ZephyrSystem::ReloadZephyrScripts( *m_zephyrScene );
 
 	for ( auto& map : m_loadedMaps )
 	{
@@ -377,10 +442,7 @@ void World::ClearEntities()
 //-----------------------------------------------------------------------------------------------
 void World::InitializeAllZephyrEntityVariables()
 {
-	for ( auto& entity : m_worldEntities )
-	{
-		entity->InitializeZephyrEntityVariables();
-	}
+	ZephyrSystem::InitializeAllZephyrEntityVariables( *m_zephyrScene );
 
 	for ( auto& map : m_loadedMaps )
 	{
@@ -390,7 +452,7 @@ void World::InitializeAllZephyrEntityVariables()
 
 
 //-----------------------------------------------------------------------------------------------
-void World::CallAllZephyrSpawnEvents( Entity* player )
+void World::CallAllZephyrSpawnEvents( GameEntity* player )
 {
 	for ( auto& entity : m_worldEntities )
 	{

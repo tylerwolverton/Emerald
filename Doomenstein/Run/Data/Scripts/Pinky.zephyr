@@ -1,6 +1,6 @@
 Bool isJumping = false
 Number jumpCooldown = 1
-Number speed = 5
+Number speed = 1
 
 // TODO: Forward, right, etc? Maybe specify vector
 Function MoveForward()
@@ -50,13 +50,13 @@ Function Jump()
 
 Function Interact()
 {
-    Entity target = null
+    Entity targetEntity = null
     GetEntityFromCameraRaytrace(  maxDist: 3, 
-                                  foundEntity: target )
+                                  foundEntity: targetEntity )
 
-    if( target != null )
+    if( targetEntity != null )
     {
-        target.OnInteracted( initiator: parentEntity )
+        targetEntity.OnInteracted( initiator: parentEntity )
     }
 }
 

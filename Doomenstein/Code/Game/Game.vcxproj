@@ -194,7 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="EntityController.cpp" />
     <ClCompile Include="EntityDefinition.cpp" />
     <ClCompile Include="FPSCamera.cpp" />
@@ -210,7 +210,7 @@
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MapMaterialTypeDefinition.cpp" />
     <ClCompile Include="MapRegionTypeDefinition.cpp" />
-    <ClCompile Include="Scripting\ZephyrGameAPI.cpp" />
+    <ClCompile Include="Scripting\ZephyrGameEvents.cpp" />
     <ClCompile Include="SpriteAnimationSetDefinition.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileDefinition.cpp" />
@@ -220,7 +220,7 @@
   <ItemGroup>
     <ClInclude Include="App.hpp" />
     <ClInclude Include="EngineBuildPreferences.hpp" />
-    <ClInclude Include="Entity.hpp" />
+    <ClInclude Include="GameEntity.hpp" />
     <ClInclude Include="EntityController.hpp" />
     <ClInclude Include="EntityDefinition.hpp" />
     <ClInclude Include="FPSCamera.hpp" />
@@ -235,7 +235,7 @@
     <ClInclude Include="MapData.hpp" />
     <ClInclude Include="MapMaterialTypeDefinition.hpp" />
     <ClInclude Include="MapRegionTypeDefinition.hpp" />
-    <ClInclude Include="Scripting\ZephyrGameAPI.hpp" />
+    <ClInclude Include="Scripting\ZephyrGameEvents.hpp" />
     <ClInclude Include="SpriteAnimationSetDefinition.hpp" />
     <ClInclude Include="Tile.hpp" />
     <ClInclude Include="TileDefinition.hpp" />

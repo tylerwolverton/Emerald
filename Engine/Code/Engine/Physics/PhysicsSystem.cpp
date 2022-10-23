@@ -25,7 +25,7 @@ void PhysicsSystemBase::Startup( Clock* gameClock )
 
 	m_stepTimer->SetSeconds( s_fixedDeltaSeconds );
 
-	g_eventSystem->RegisterEvent( "set_physics_update", "Usage: set_physics_update hz=NUMBER .Set rate of physics update in hz.", eUsageLocation::DEV_CONSOLE, SetPhysicsUpdateRate );
+	g_eventSystem->RegisterEvent( "set_physics_update", "Usage: set_physics_update hz=NUMBER. Set rate of physics update in hz.", eUsageLocation::DEV_CONSOLE, SetPhysicsUpdateRate );
 }
 
 
@@ -38,6 +38,8 @@ void PhysicsSystemBase::Update( PhysicsScene& scene )
 	}
 
 	//AdvanceSimulation( scene, (float)m_physicsClock->GetLastDeltaSeconds() );
+
+	// Update TransformComponents
 }
 
 

@@ -7,6 +7,7 @@
 #include "Engine/Renderer/Material.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Game/SpriteAnimationSetDefinition.hpp"
 
 
@@ -44,7 +45,6 @@ EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName 
 
 //-----------------------------------------------------------------------------------------------
 EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
-	: ZephyrEntityDefinition( entityDefElem )
 {
 	m_type = ParseXmlAttribute( entityDefElem, "name", "" );
 	if ( m_type == "" )
@@ -58,18 +58,6 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 	{
 		m_class = eEntityClass::ENTITY;
 	}
-/*	else if ( typeStr == "Actor" )
-	{
-		m_class = eEntityClass::ACTOR;
-	}
-	else if ( typeStr == "Projectile" )
-	{
-		m_class = eEntityClass::PROJECTILE;
-	}
-	else if ( typeStr == "Portal" )
-	{
-		m_class = eEntityClass::PORTAL;
-	}*/
 	else
 	{
 		g_devConsole->PrintError( Stringf( "EntityTypes.xml: Unsupported entity type seen, '%s'", typeStr.c_str() ) );
@@ -196,6 +184,12 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem )
 		m_lightSpecularAttenuation =	ParseXmlAttribute( *lightingElem, "specularAttenuation", m_lightSpecularAttenuation );
 		m_lightHalfCosOfOuterAngle =	ParseXmlAttribute( *lightingElem, "halfCosOfOuterAngle", m_lightHalfCosOfOuterAngle );
 		m_isLightEnabled =				ParseXmlAttribute( *lightingElem, "isEnabled", m_isLightEnabled );
+	}
+
+	const XmlElement* scriptElem = entityDefElem.FirstChildElement( "Script" );
+	if ( scriptElem != nullptr )
+	{
+		m_zephyrDef = new ZephyrComponentDefinition( m_type, *scriptElem );
 	}
 
 	m_isValid = true;

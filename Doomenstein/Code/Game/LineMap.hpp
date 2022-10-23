@@ -7,7 +7,7 @@
 //-----------------------------------------------------------------------------------------------
 struct OBB3;
 struct Vertex_PCUTBN;
-class Entity;
+class GameEntity;
 class MapRegionTypeDefinition;
 
 

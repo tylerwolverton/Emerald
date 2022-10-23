@@ -29,6 +29,7 @@ public:
 	void AddAffector( const std::string& name, AffectorFn affectorFunc );
 	void RemoveAffector( const std::string& name );
 
+	Rigidbody* CreateRigidbodyForEntity( const EntityId& parentEntityId );
 	Rigidbody* CreateRigidbody();
 	Collider* CreateCollider( const ColliderId& type, ColliderParams* params );
 	Collider* CreateTrigger( const ColliderId& type, ColliderParams* params );

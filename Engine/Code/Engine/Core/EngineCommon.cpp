@@ -16,3 +16,17 @@ NamedStrings g_gameConfigBlackboard;
 //-----------------------------------------------------------------------------------------------
 const float fSQRT_3_OVER_3 = sqrt( 3.f ) / 3.f;
 const float fPI = 3.14159265f;
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId )
+{
+	EventArgs args;
+	args.SetValue( "entityId", id );
+	args.SetValue( "entityComponentTypeId", componentTypeId );
+	args.SetValue( "entityComponent", ( void* )nullptr );
+	g_eventSystem->FireEvent( "get_component_from_entity_id", &args );
+
+	return (EntityComponent*)args.GetValue( "entityComponent", ( void* )nullptr );
+}
+

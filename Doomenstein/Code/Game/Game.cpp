@@ -17,6 +17,7 @@
 #include "Engine/Core/TextBox.hpp"
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Core/Vertex_PCUTBN.hpp"
+#include "Engine/Framework/EntityComponent.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
 #include "Engine/Physics/PhysicsSystem.hpp"
@@ -38,14 +39,15 @@
 #include "Engine/UI/UIPanel.hpp"
 #include "Engine/UI/UIText.hpp"
 #include "Engine/UI/UISystem.hpp"
-#include "Engine/ZephyrCore/ZephyrCompiler.hpp"
-#include "Engine/ZephyrCore/ZephyrInterpreter.hpp"
-#include "Engine/ZephyrCore/ZephyrBytecodeChunk.hpp"
-#include "Engine/ZephyrCore/ZephyrScriptDefinition.hpp"
-#include "Engine/ZephyrCore/ZephyrSystem.hpp"
-#include "Engine/ZephyrCore/ZephyrUtils.hpp"
+#include "Engine/Zephyr/Core/ZephyrCompiler.hpp"
+#include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
+#include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
+#include "Engine/Zephyr/Core/ZephyrUtils.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 #include "Game/EntityController.hpp"
 #include "Game/GameJobs.hpp"
 #include "Game/MapData.hpp"
@@ -84,6 +86,7 @@ void Game::Startup()
 	g_eventSystem->RegisterEvent( "set_mouse_sensitivity", "Usage: set_mouse_sensitivity multiplier=NUMBER. Set the multiplier for mouse sensitivity.", eUsageLocation::DEV_CONSOLE, SetMouseSensitivity );
 	g_eventSystem->RegisterEvent( "light_set_ambient_color", "Usage: light_set_ambient_color color=r,g,b", eUsageLocation::DEV_CONSOLE, SetAmbientLightColor );
 	g_eventSystem->RegisterMethodEvent( "warp", "Usage: warp <map=string> <pos=float,float> <yaw=float>", eUsageLocation::DEV_CONSOLE, this, &Game::WarpMapCommand );
+	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
 	g_inputSystem->PushMouseOptions( CURSOR_RELATIVE, false, true );
 		
@@ -829,7 +832,7 @@ void Game::ReloadGame()
 
 	m_playerController->Unpossess();
 	m_world->Reset();
-	g_zephyrSystem->StopAllTimers();
+	g_zephyrSubsystem->StopAllTimers();
 
 	g_gameConfigBlackboard.Clear();
 	PopulateGameConfig();
@@ -873,9 +876,10 @@ void Game::ReloadScripts()
 
 	for ( auto& entityDef : EntityDefinition::s_definitions )
 	{
-		if ( entityDef.second != nullptr )
+		if ( entityDef.second != nullptr 
+			 && entityDef.second->GetZephyrCompDef() != nullptr )
 		{
-			entityDef.second->ReloadZephyrScriptDefinition();
+			entityDef.second->GetZephyrCompDef()->ReloadZephyrScriptDefinition();
 		}
 	}
 
@@ -918,14 +922,14 @@ void Game::SetCameraPositionAndYaw( const Vec3& pos, float yaw )
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	WarpToMap( entityToWarp, destMapName, Vec3( newPos, .5f ), newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	// No entity specified, just load the new map and set camera position and orientation
 	if ( entityToWarp == nullptr )
@@ -945,14 +949,14 @@ void Game::WarpToMap( Entity* entityToWarp, const std::string& destMapName, cons
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+void Game::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
 {
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::WarpEntityToMap( Entity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
+void Game::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec3& newPos, float newYawDegrees )
 {
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
 }
@@ -1031,14 +1035,14 @@ Map* Game::GetCurrentMap()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::SaveEntityByName( Entity* entity )
+void Game::SaveEntityByName( GameEntity* entity )
 {
 	m_world->SaveEntityByName( entity );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-Entity* Game::GetEntityFromCameraRaycast( float maxDist ) const
+GameEntity* Game::GetEntityFromCameraRaycast( float maxDist ) const
 {
 	return m_world->GetEntityFromRaycast( m_playerController->GetPosition(), m_playerController->GetForwardVector(), maxDist );
 }
@@ -1146,6 +1150,17 @@ bool Game::SetAmbientLightColor( EventArgs* args )
 	s_ambientLightColor = args->GetValue( "color", Vec3( 1.f, 1.f, 1.f ) );
 
 	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::GetComponentFromEntityId( EventArgs* args )
+{
+	EntityId entityId = args->GetValue( "entityId", INVALID_ENTITY_ID );
+	EntityComponentTypeId compTypeId = args->GetValue( "entityComponentTypeId", ENTITY_COMPONENT_TYPE_INVALID );
+
+	EntityComponent* entityComponent = m_world->GetComponentFromEntityId( entityId, compTypeId );
+	args->SetValue( "entityComponent", (void*)entityComponent );
 }
 
 

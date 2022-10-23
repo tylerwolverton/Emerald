@@ -400,7 +400,7 @@ RaycastResult TileMap::RaycastAgainstEntities( const Vec3& startPos, const Vec3&
 	{
 		for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 		{
-			Entity* const& entity = m_entities[entityIdx];
+			GameEntity* const& entity = m_entities[entityIdx];
 			if ( entity == nullptr )
 			{
 				continue;
@@ -466,7 +466,7 @@ RaycastResult TileMap::RaycastAgainstEntitiesFast( const Vec3& startPos, const V
 
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
-		Entity* const& entity = m_entities[entityIdx];
+		GameEntity* const& entity = m_entities[entityIdx];
 		if ( entity == nullptr 
 			 || entity->IsPossessed() )
 		{
@@ -547,7 +547,7 @@ RaycastResult TileMap::RaycastAgainstEntitiesFast( const Vec3& startPos, const V
 
 //-----------------------------------------------------------------------------------------------
 // TODO: 3D raycasts
-bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& potentialImpactPos, const Entity& entity ) const
+bool TileMap::DoesRayHitEntityAlongZ( RaycastResult& raycastResult, const Vec3& potentialImpactPos, const GameEntity& entity ) const
 {
 	Vec3 impactPos = potentialImpactPos;
 

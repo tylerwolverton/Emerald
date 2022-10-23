@@ -325,52 +325,7 @@
     <ClCompile Include="Core\HashedString.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrBytecodeChunk.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrCommon.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrCompiler.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrInterpreter.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrParser.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrScanner.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrScriptDefinition.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrToken.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrEngineAPI.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrEntity.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrEntityDefinition.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrScript.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrVirtualMachine.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrUtils.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="Core\HashUtils.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ZephyrCore\ZephyrSystem.cpp">
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Performance\PerformanceTracker.cpp">
@@ -413,6 +368,63 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="Physics\2D\Polygon2Collider.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrBytecodeChunk.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrCommon.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrCompiler.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrInterpreter.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrParser.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrScanner.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrScriptDefinition.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrToken.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrUtils.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\Core\ZephyrVirtualMachine.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrEngineEvents.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrComponent.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrSubsystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrEventSystem.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrComponentDefinition.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Entity.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Zephyr\GameInterface\ZephyrScene.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\EntityComponent.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -718,22 +730,7 @@
     <ClInclude Include="Core\VertexFont.hpp" />
     <ClInclude Include="UI\UIUniformGrid.hpp" />
     <ClInclude Include="Core\HashedString.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrBytecodeChunk.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrCommon.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrCompiler.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrInterpreter.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrParser.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrScanner.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrScriptDefinition.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrToken.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrEngineAPI.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrEntity.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrEntityDefinition.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrScript.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrVirtualMachine.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrUtils.hpp" />
     <ClInclude Include="Core\HashUtils.hpp" />
-    <ClInclude Include="ZephyrCore\ZephyrSystem.hpp" />
     <ClInclude Include="Performance\PerformanceTracker.hpp" />
     <ClInclude Include="Math\Polygon3.hpp" />
     <ClInclude Include="Physics\Manifold.hpp" />
@@ -750,7 +747,25 @@
     <ClInclude Include="Physics\CollisionResolvers\CollisionPolicies.hpp" />
     <ClInclude Include="Core\ObjectFactory.hpp" />
     <ClInclude Include="Physics\2D\Polygon2Collider.hpp" />
-    <ClInclude Include="Audio\AudioCommon.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrBytecodeChunk.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrCommon.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrCompiler.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrInterpreter.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrParser.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrScanner.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrScriptDefinition.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrToken.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrUtils.hpp" />
+    <ClInclude Include="Zephyr\Core\ZephyrVirtualMachine.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrEngineEvents.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrComponent.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrEventSystem.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrComponentDefinition.hpp" />
+    <ClInclude Include="Framework\Entity.hpp" />
+    <ClInclude Include="Zephyr\GameInterface\ZephyrScene.hpp" />
+    <ClInclude Include="Framework\EntityComponent.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

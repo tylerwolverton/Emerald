@@ -4,7 +4,7 @@
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
 
-#include "Game/Entity.hpp"
+#include "Game/GameEntity.hpp"
 #include "Game/FPSCamera.hpp"
 #include "Game/FreeCamera.hpp"
 #include "Game/GameCommon.hpp"
@@ -94,7 +94,7 @@ void EntityController::PossessNearestEntity( const World& world )
 {
 	Transform cameraTransform = m_currentWorldCamera->GetTransform();
 
-	Entity* entity = world.GetClosestEntityInSector( cameraTransform.GetPosition().XY(), cameraTransform.GetYawDegrees(), 90.f, 2.f );
+	GameEntity* entity = world.GetClosestEntityInSector( cameraTransform.GetPosition().XY(), cameraTransform.GetYawDegrees(), 90.f, 2.f );
 	if ( entity == nullptr )
 	{
 		return;

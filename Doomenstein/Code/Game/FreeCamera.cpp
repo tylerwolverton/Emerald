@@ -14,7 +14,7 @@ FreeCamera::FreeCamera( const GameCameraSettings& gameCameraSettings )
 
 
 //-----------------------------------------------------------------------------------------------
-void FreeCamera::UpdateTranslation( Entity* target )
+void FreeCamera::UpdateTranslation( GameEntity* target )
 {
 	UNUSED( target );
 

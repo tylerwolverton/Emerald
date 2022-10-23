@@ -76,7 +76,7 @@ void Map::Load( Entity* player )
 	AddToEntityList( m_player );
 
 	player->SetMap( this );
-	player->InitPhysics( this->m_physicsScene->CreateRigidbody() );
+	//player->InitPhysics( this->m_physicsScene->CreateRigidbody() );
 	player->SetPosition( m_playerStartPos );
 	player->SetOrientationDegrees( m_playerStartYaw );
 }

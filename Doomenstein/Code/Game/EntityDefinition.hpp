@@ -4,8 +4,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Physics/Collider.hpp"
-#include "Engine/ZephyrCore/ZephyrCommon.hpp"
-#include "Engine/ZephyrCore/ZephyrEntityDefinition.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Game/GameCommon.hpp"
 
 #include <string>
@@ -15,6 +14,7 @@
 class Material;
 class SpriteSheet;
 class SpriteAnimationSetDefinition;
+class ZephyrComponentDefinition;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -44,24 +44,26 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityDefinition : public ZephyrEntityDefinition
+class EntityDefinition
 {
-	friend class Entity;
+	friend class GameEntity;
 
 public:
 	explicit EntityDefinition( const XmlElement& entityDefElem );
 	~EntityDefinition();
 
-	bool			IsValid() const																{ return m_isValid; }
-	std::string		GetName() const																{ return m_type; }
-	eEntityClass	GetClass() const															{ return m_class; }
-	Vec2			GetVisualSize() const														{ return m_visualSize; }
-	float			GetMass() const																{ return m_mass; }
-	std::string		GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
-	bool			HasPhysics() const															{ return m_hasPhysics; }
+	bool						IsValid() const																{ return m_isValid; }
+	std::string					GetName() const																{ return m_type; }
+	eEntityClass				GetClass() const															{ return m_class; }
+	Vec2						GetVisualSize() const														{ return m_visualSize; }
+	float						GetMass() const																{ return m_mass; }
+	std::string					GetInitialCollisionLayer() const											{ return m_initialCollisionLayer; }
+	bool						HasPhysics() const															{ return m_hasPhysics; }
+	bool						HasZephyrScript() const														{ return m_zephyrDef != nullptr; }
+	ZephyrComponentDefinition*	GetZephyrCompDef() const													{ return m_zephyrDef; }
 
-	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const							{ return m_defaultSpriteAnimSetDef; }
-	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const			{ return m_spriteAnimSetDefs; }
+	SpriteAnimationSetDefinition* GetDefaultSpriteAnimSetDef() const										{ return m_defaultSpriteAnimSetDef; }
+	std::map< std::string, SpriteAnimationSetDefinition* > GetSpriteAnimSetDefs() const						{ return m_spriteAnimSetDefs; }
 	SpriteAnimationSetDefinition* GetSpriteAnimSetDef( const std::string& animSetName ) const;
 
 	static EntityDefinition* GetEntityDefinition( std::string entityName );
@@ -73,6 +75,8 @@ protected:
 	bool			m_isValid = false;
 	std::string		m_type;
 	eEntityClass	m_class = eEntityClass::UNKNOWN;
+
+	ZephyrComponentDefinition* m_zephyrDef = nullptr;
 
 	bool			m_hasPhysics = false; // TODO: Go full ECS with this
 	float			m_physicsRadius = 0.f;

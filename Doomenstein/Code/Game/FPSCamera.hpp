@@ -3,7 +3,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class Entity;
+class GameEntity;
 
 //-----------------------------------------------------------------------------------------------
 class FPSCamera : public GameCamera
@@ -12,5 +12,5 @@ public:
 	FPSCamera( const GameCameraSettings& gameCameraSettings );
 	virtual ~FPSCamera() = default;
 
-	virtual void UpdateTranslation( Entity* target = nullptr ) override;
+	virtual void UpdateTranslation( GameEntity* target = nullptr ) override;
 };
