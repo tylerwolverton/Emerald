@@ -12,7 +12,7 @@ struct IntVec2;
 struct Vec3;
 struct OBB3;
 class Polygon2;
-
+class ZephyrValue;
 
 //-----------------------------------------------------------------------------------------------
 const std::string Stringv( char const* format, va_list args );
@@ -52,6 +52,7 @@ template<>				std::string ToString( const std::string& value );
 template<>				std::string ToString( std::string value );
 template<>				std::string ToString( char* value );
 template<>				std::string ToString( void* value );
+template<>				std::string ToString( ZephyrValue value ); // TODO: Should this move into someplace in Zephyr?
 
 
 //-----------------------------------------------------------------------------------------------
@@ -72,3 +73,4 @@ template<> double		FromString( const std::string& value, double defaultValue );
 template<> std::string	FromString( const std::string& value, std::string defaultValue );
 template<> const char*	FromString( const std::string& value, const char* defaultValue );
 template<> void*		FromString( const std::string& value, void* defaultValue );
+template<> ZephyrValue	FromString( const std::string& value, ZephyrValue defaultValue );

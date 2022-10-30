@@ -29,6 +29,8 @@ ZephyrGameEvents::ZephyrGameEvents()
 	REGISTER_EVENT( PrintDebugScreenText );
 	REGISTER_EVENT( PrintToConsole );
 
+	REGISTER_EVENT( GetNativeEntityVariable );
+	REGISTER_EVENT( SetNativeEntityVariable );
 	REGISTER_EVENT( DestroySelf );
 	REGISTER_EVENT( StartDialogue );
 	REGISTER_EVENT( EndDialogue );
@@ -83,7 +85,7 @@ Entity* ZephyrGameEvents::GetEntityByName( const std::string& name ) const
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::DestroySelf( EventArgs* args )
 {
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity != nullptr )
 	{
@@ -177,7 +179,7 @@ void ZephyrGameEvents::StartNewTimer( EventArgs* args )
 //void ZephyrGameEvents::ChangeZephyrScriptState( EventArgs* args )
 //{
 //	std::string targetState = args->GetValue( "targetState", "" );
-//	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+//	GameEntity* entity = GetTargetEntityFromArgs( args );
 //
 //	if ( entity != nullptr
 //		 && !targetState.empty() )
@@ -206,7 +208,7 @@ void ZephyrGameEvents::PrintDebugText( EventArgs* args )
 {
 	std::string text = args->GetValue( "text", "TestPrint" );
 	float duration = args->GetValue( "duration", 0.f );
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", (void*)nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	std::string colorStr = args->GetValue( "color", "white" );
 
@@ -304,7 +306,7 @@ void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 ////-----------------------------------------------------------------------------------------------
 //void ZephyrGameEvents::SpawnEntity( EventArgs* args )
 //{
-//	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+//  GameEntity* entity = GetTargetEntityFromArgs( args );
 //	if ( entity == nullptr )
 //	{
 //		return;
@@ -363,6 +365,45 @@ void ZephyrGameEvents::WinGame( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::GetNativeEntityVariable( EventArgs* args )
+{
+	GameEntity* entity = GetTargetEntityFromArgs( args );
+	std::string varName = args->GetValue( "varName", "" );
+	ZephyrValue zephyrValue = args->GetValue( "zephyrValue", ZephyrValue() );
+
+	if ( entity == nullptr || varName.empty() )
+	{
+		return;
+	}
+
+	bool isNative = false;
+	if ( varName == "position" ) { zephyrValue = ZephyrValue( entity->GetPosition() ); isNative = true; }
+
+	args->SetValue( "zephyrValue", zephyrValue );
+	args->SetValue( "isNative", isNative );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::SetNativeEntityVariable( EventArgs* args )
+{
+	GameEntity* entity = GetTargetEntityFromArgs( args );
+	std::string varName = args->GetValue( "varName", "" );
+	ZephyrValue zephyrValue = args->GetValue( "zephyrValue", ZephyrValue() );
+
+	if ( entity == nullptr || varName.empty() )
+	{
+		return;
+	}
+
+	bool isNative = false;
+	if ( varName == "position" ) { entity->SetPosition( zephyrValue.GetAsVec3() ); isNative = true; }
+
+	args->SetValue( "isNative", isNative );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 /**
  * Move an entity towards a location.
  *
@@ -376,13 +417,14 @@ void ZephyrGameEvents::WinGame( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::MoveToLocation( EventArgs* args )
 {
-	Vec3 targetPos = args->GetValue( "pos", Vec3::ZERO );
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr )
 	{
 		return;
 	}
+
+	Vec3 targetPos = args->GetValue( "pos", Vec3::ZERO );
 
 	Vec3 moveDirection = targetPos - entity->GetPosition();
 	moveDirection.Normalize();
@@ -407,7 +449,7 @@ void ZephyrGameEvents::MoveToLocation( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::MoveInDirection( EventArgs* args )
 {
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 	if ( entity == nullptr )
 	{
 		return;
@@ -446,7 +488,7 @@ void ZephyrGameEvents::MoveInDirection( EventArgs* args )
 //{
 //	EntityId targetId = args->GetValue( "target", (EntityId)-1 );
 //	GameEntity* targetEntity = g_game->GetEntityById( targetId );
-//	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+//  GameEntity* entity = GetTargetEntityFromArgs( args );
 //
 //	if ( entity == nullptr
 //		 || targetEntity == nullptr )
@@ -464,7 +506,7 @@ void ZephyrGameEvents::MoveInDirection( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::RegisterKeyEvent( EventArgs* args )
 {
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 	if ( entity == nullptr )
 	{
 		return;
@@ -489,7 +531,7 @@ void ZephyrGameEvents::RegisterKeyEvent( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::UnRegisterKeyEvent( EventArgs* args )
 {
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 	if ( entity == nullptr )
 	{
 		return;
@@ -534,7 +576,7 @@ void ZephyrGameEvents::ChangeSpriteAnimation( EventArgs* args )
 {
 	std::string newAnim = args->GetValue( "newAnim", "" );
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
 		 || newAnim.empty() )
@@ -551,7 +593,7 @@ void ZephyrGameEvents::PlaySpriteAnimation( EventArgs* args )
 {
 	std::string newAnim = args->GetValue( "newAnim", "" );
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
 		 || newAnim.empty() )
@@ -610,7 +652,7 @@ void ZephyrGameEvents::AddScreenShake( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::AddAnimationEvent( EventArgs* args )
 {
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
+	GameEntity* entity = GetTargetEntityFromArgs( args );
 	std::string animName = args->GetValue( "anim", "" );
 	std::string frameStr = args->GetValue( "frame", "first" );
 	std::string eventName = args->GetValue( "event", "" );
@@ -664,10 +706,11 @@ void ZephyrGameEvents::AddAnimationEvent( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 {
-	EntityId targetId = (EntityId)args->GetValue( "targetId", -1.f );
-	std::string targetName = args->GetValue( "targetName", "" );
-	GameEntity* entity = (GameEntity*)args->GetValue( "entity", ( void* )nullptr );
-
+	EntityId targetId = (EntityId)args->GetValue( TARGET_ENTITY_STR, INVALID_ENTITY_ID );
+	std::string targetName = args->GetValue( TARGET_ENTITY_NAME_STR, "" );
+	EntityId entityId = args->GetValue( PARENT_ENTITY_ID_STR, INVALID_ENTITY_ID );
+	GameEntity* entity = (GameEntity*)g_game->GetEntityById( entityId );
+	
 	// Named entities are returned first
 	if ( !targetName.empty() )
 	{

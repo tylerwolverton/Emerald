@@ -38,6 +38,8 @@ private:
 	void WinGame( EventArgs* args );
 
 	// Entity Events
+	void GetNativeEntityVariable( EventArgs* args );
+	void SetNativeEntityVariable( EventArgs* args );
 	void DestroySelf( EventArgs* args );
 
 	// AI

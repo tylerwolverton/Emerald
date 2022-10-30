@@ -198,6 +198,20 @@ std::string ToString( eValueType valueType )
 
 
 //-----------------------------------------------------------------------------------------------
+eValueType FromString( const std::string& strType )
+{
+	if ( strType == "Number" )	{ return eValueType::NUMBER; }
+	if ( strType == "Vec2" )	{ return eValueType::VEC2; }
+	if ( strType == "Vec3" )	{ return eValueType::VEC3; }	
+	if ( strType == "Bool" )	{ return eValueType::BOOL; }	
+	if ( strType == "String" )	{ return eValueType::STRING; }
+	if ( strType == "Entity" )	{ return eValueType::ENTITY; }
+
+	return eValueType::NONE;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue()
 {
 	m_type = eValueType::NONE;
@@ -484,6 +498,53 @@ EntityId ZephyrValue::EvaluateAsEntity()
 	}
 
 	return ERROR_ZEPHYR_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string ZephyrValue::SerializeToString() const
+{
+	std::string serializedStr = ToString( m_type );
+	serializedStr += ":";
+	switch ( m_type )
+	{
+		case eValueType::STRING: 	serializedStr += GetAsString();
+		case eValueType::VEC2: 		serializedStr += ToString( vec2Data );
+		case eValueType::VEC3: 		serializedStr += ToString( vec3Data );
+		case eValueType::NUMBER: 	serializedStr += ToString( numberData );
+		case eValueType::BOOL:		serializedStr += ToString( boolData );
+		case eValueType::ENTITY:	serializedStr += ToString( entityData );
+	}
+
+	return serializedStr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrValue::DeserializeFromString( const std::string& serlializedStr )
+{
+	// This will destroy the ZephyrValue even if the serialization fails
+	if ( this->m_type == eValueType::STRING )
+	{
+		delete this->strData;
+		this->strData = nullptr;
+	}
+
+	// Split serialized string into type and data
+	Strings components = SplitStringOnDelimiter( serlializedStr, ':' );
+	m_type = FromString(components[0]);
+	const char* dataStr = components[1].c_str();
+
+	switch ( m_type )
+	{
+		case eValueType::STRING: 	{ strData = new std::string( dataStr ); }
+		case eValueType::VEC2:		{ Vec2 vec2; vec2.SetFromText( dataStr ); vec2Data = vec2; }
+		case eValueType::VEC3:		{ Vec3 vec3; vec3.SetFromText( dataStr ); vec3Data = vec3;}
+		case eValueType::NUMBER:	{ numberData = FromString( dataStr, 0.f ); }
+		case eValueType::BOOL:		{ boolData = FromString( dataStr, false ); }
+		case eValueType::ENTITY:	{ entityData = (EntityId)FromString( dataStr, (EntityId)-1 ); }
+	}
+
 }
 
 

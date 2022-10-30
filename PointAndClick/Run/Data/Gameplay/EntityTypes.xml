@@ -29,50 +29,13 @@
     </Script>
   </Entity>
   
-<Entity name="MouseCursor">
-  <Physics radius="0.5" collisionLayer="None"/>
-  <Appearance spriteSheet="Data/Images/SpriteSheets/Cursor.png" spriteSheetDimensions="4,1" size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="2">
-    <Default up="0~1"/>
-    <None up="3"/>
-  </Appearance>
-  <Script name="MouseCursor.zephyr"/>
-</Entity>
-
-  <!--<Entity name="Level2Manager">
-    <Script name="Level2Manager.zephyr">
-      <GlobalVar type="entity" var="gameMgr" value="GameManager"/>
-    </Script>
-  </Entity>-->
-  
-  <!--<Entity name="ClosedDoorVertical">
-    <Physics radius="0.5" collisionLayer="StaticEnvironment"/>
-    <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="1">
-      <Closed up="157"/>
-      <Open   up="21"/>
+  <Entity name="MouseCursor">
+    <Physics radius="0.5" collisionLayer="None"/>
+    <Appearance spriteSheet="Data/Images/SpriteSheets/Cursor.png" spriteSheetDimensions="4,1" size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="2">
+      <Default up="0~1"/>
+      <None up="3"/>
     </Appearance>
-    <Gameplay maxHealth="99999"/>
-    <Script name="ClosedDoor.zephyr"/>
-  </Entity>-->
-  ​
-  <Entity name="LockedDoorVertical">
-    <Physics radius="0.5" collisionLayer="StaticEnvironment"/>
-    <Appearance size="1.0,1.0" localDrawBounds="-.5,-.5,.5,.5" fps="1">
-      <Closed up="155"/>
-      <Open   up="21"/>
-    </Appearance>
-    <Gameplay maxHealth="99999"/>
-    <Script name="LockedDoor.zephyr"/>
-  </Entity>
-
-  <Entity name="InvisibleTeleporter">
-    <Physics radius="0.25" speed="0.0" collisionLayer="Portal" isTrigger="true"/>
-  </Entity>
-  ​
-  <Entity name="Key">
-    <Physics radius="0.25" speed="0.0" drag="5" collisionLayer="Pickup" isTrigger="true"/>
-    <Appearance size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="3">
-      <Walk up="120"/>
-    </Appearance>
+    <Script name="MouseCursor.zephyr"/>
   </Entity>
   
 </EntityTypes>

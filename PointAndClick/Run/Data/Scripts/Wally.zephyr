@@ -1,0 +1,53 @@
+State Working
+{
+    OnEnter()
+    {
+        ChangeSpriteAnimation( newAnim: "default")
+    }
+
+    // OnInteract()
+    // {
+    //     StartConversation( "Normal" )
+    // }
+}
+
+// Conversation Normal
+// {
+//     Welcome:
+//         Text: "Hello, what can I do for you?"
+//         Choice1: "Can you tell me where the door is?"
+//         Choice2: "Nevermind, see you later."
+
+//     DoorQuestion:
+//         Text: "It's right behind you!"
+//         OtherText: "Oh, right, thanks."
+//         EndConversation( "Working" )
+// }
+
+// State NormalConversation
+// {
+//     OnEnter()
+//     {
+//         ChangeSpriteAnimation( newAnim: "Talking" )
+//         Intro()
+//     }
+
+//     Function Intro()
+//     {
+//         DisplayText(text: "Hello, what can I do for you?")
+//         AddDialogueChoice( text: "Can you tell me where the door is?", result: "DoorChoice" )
+//         AddDialogueChoice( text: "Nevermind, see you later.", result: "End" )
+//     }
+
+//     Function DoorChoice()
+//     {
+//         DisplayText( text: "It's right behind you!" )
+//         DisplayText( target: "Partner" text: "It's right behind you!")
+//         End()
+//     }
+
+//     Function End()
+//     {
+//         ChangeState( "Working" )
+//     }
+// }

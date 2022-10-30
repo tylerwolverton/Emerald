@@ -7,6 +7,7 @@
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Math/OBB3.hpp"
 #include "Engine/Math/Polygon2.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
 #include <stdarg.h>
 #include <cctype>
@@ -265,6 +266,7 @@ template<> std::string ToString( const std::string& value )		{ return value; }
 template<> std::string ToString( std::string value )			{ return value; }
 template<> std::string ToString( char* value )					{ return value; }
 template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
+template<> std::string ToString( ZephyrValue value )			{ return value.SerializeToString(); }
 
 
 //-----------------------------------------------------------------------------------------------
@@ -346,4 +348,15 @@ template<> void* FromString( const std::string& value, void* defaultValue )
 	ERROR_AND_DIE( "Saving pointers as string values in NamedProperties is not supported." );
 
 	//return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+template<> ZephyrValue FromString( const std::string& value, ZephyrValue defaultValue )
+{
+	UNUSED( defaultValue );
+
+	ZephyrValue newValue;
+	newValue.DeserializeFromString( value );
+	return newValue;
 }

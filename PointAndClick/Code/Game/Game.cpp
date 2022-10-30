@@ -75,6 +75,7 @@ void Game::Startup()
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 	
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
+	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
 	g_devConsole->PrintString( "Game Started", Rgba8::GREEN );
 }
@@ -1046,4 +1047,15 @@ void Game::ChangeGameState( const eGameState& newGameState )
 		}
 		break;
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::GetComponentFromEntityId( EventArgs* args )
+{
+	EntityId entityId = args->GetValue( "entityId", INVALID_ENTITY_ID );
+	EntityComponentTypeId compTypeId = args->GetValue( "entityComponentTypeId", ENTITY_COMPONENT_TYPE_INVALID );
+
+	EntityComponent* entityComponent = m_world->GetComponentFromEntityId( entityId, compTypeId );
+	args->SetValue( "entityComponent", (void*)entityComponent );
 }

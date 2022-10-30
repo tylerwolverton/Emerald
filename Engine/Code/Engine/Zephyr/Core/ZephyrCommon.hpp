@@ -166,6 +166,7 @@ enum class eValueType
 };
 
 std::string ToString( eValueType valueType );
+eValueType FromString( const std::string& strType );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -235,6 +236,9 @@ public:
 	std::string	EvaluateAsString();
 	float		EvaluateAsNumber();
 	EntityId	EvaluateAsEntity();
+
+	std::string SerializeToString() const;
+	void		DeserializeFromString( const std::string& serlializedStr );
 
 private:
 	void ReportConversionError( eValueType targetType );

@@ -131,6 +131,19 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 		return ZephyrValue( ERROR_ZEPHYR_VAL );
 	}
 
+	// Try to get native first
+	EventArgs args;
+	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+	args.SetValue( "varName", varName );
+	g_eventSystem->FireEvent( "GetNativeEntityVariable", &args );
+
+	// If this wasn't native it must be a script variable
+	bool isNative = args.GetValue( "isNative", false );
+	if ( isNative )
+	{
+		return args.GetValue( "zephyrValue", ZephyrValue() );
+	}
+
 	return zephyrComp->GetGlobalVariable( varName );
 }
 
@@ -152,7 +165,19 @@ void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::st
 		return;
 	}
 
-	zephyrComp->SetGlobalVariable( varName, value );
+	// Try to set native first
+	EventArgs args;
+	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+	args.SetValue( "varName", varName );
+	args.SetValue( "zephyrValue", value );
+	g_eventSystem->FireEvent( "SetNativeEntityVariable", &args );
+
+	// If this wasn't native it must be a script variable
+	bool isNative = args.GetValue( "isNative", false );
+	if ( !isNative )
+	{
+		zephyrComp->SetGlobalVariable( varName, value );
+	}
 }
 
 
