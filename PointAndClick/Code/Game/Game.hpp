@@ -13,6 +13,7 @@
 //-----------------------------------------------------------------------------------------------
 struct AABB2;
 struct Rgba8;
+class EntityController;
 class GameEntity;
 class Map;
 class RandomNumberGenerator;
@@ -30,6 +31,7 @@ enum class eGameState
 	ATTRACT,
 	PLAYING,
 	DIALOGUE,
+	CUTSCENE,
 	GAME_OVER,
 	VICTORY,
 	PAUSED
@@ -47,7 +49,6 @@ public:
 	void		BeginFrame();
 	void		Update();
 	void		Render() const;
-	void		DebugRender() const;
 	void		EndFrame();
 	void		Shutdown();
 
@@ -142,7 +143,7 @@ private:
 
 	eGameState m_gameState = eGameState::LOADING;
 
-	GameEntity* m_player = nullptr;
+	EntityController* m_playerController = nullptr;
 
 	World* m_world = nullptr;
 	std::string m_startingMapName;

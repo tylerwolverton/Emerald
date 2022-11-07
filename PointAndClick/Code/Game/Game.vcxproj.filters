@@ -58,6 +58,9 @@
     <ClCompile Include="Scripting\ZephyrGameEvents.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="EntityController.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.hpp">
@@ -92,6 +95,9 @@
     </ClInclude>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
       <Filter>Scripting</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityController.hpp">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

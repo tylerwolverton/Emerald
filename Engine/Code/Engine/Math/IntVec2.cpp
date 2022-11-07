@@ -50,7 +50,7 @@ std::string IntVec2::GetAsString() const
 //-----------------------------------------------------------------------------------------------
 std::string IntVec2::ToString() const
 {
-	return std::string( Stringf( "( %d, %d )", x, y ) );
+	return std::string( Stringf( "%d, %d", x, y ) );
 }
 
 

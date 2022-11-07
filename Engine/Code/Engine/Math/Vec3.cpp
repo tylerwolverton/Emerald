@@ -80,7 +80,7 @@ std::string Vec3::GetAsString() const
 //-----------------------------------------------------------------------------------------------
 std::string Vec3::ToString() const
 {
-	return std::string( Stringf( "( %f, %f, %f )", x, y, z ) );
+	return std::string( Stringf( "%f, %f, %f", x, y, z ) );
 }
 
 

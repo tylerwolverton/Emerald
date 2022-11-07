@@ -32,6 +32,7 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
+#include "Game/EntityController.hpp"
 #include "Game/GameEntity.hpp"
 #include "Game/World.hpp"
 #include "Game/MapDefinition.hpp"
@@ -74,6 +75,8 @@ void Game::Startup()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 	
+	m_playerController = new EntityController();
+
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
@@ -94,6 +97,7 @@ void Game::Shutdown()
 	m_uiSystem->Shutdown();
 
 	// Clean up member variables
+	PTR_SAFE_DELETE( m_playerController );
 	PTR_SAFE_DELETE( m_world );
 	PTR_SAFE_DELETE( m_rng );
 	PTR_SAFE_DELETE( m_debugInfoTextBox );
@@ -153,6 +157,8 @@ void Game::Update()
 		{
 			UpdateFromKeyboard();
 
+			m_playerController->Update();
+			
 			m_world->Update();
 		}
 		break;
@@ -174,6 +180,7 @@ void Game::Render() const
 	{
 		case eGameState::PLAYING:
 		case eGameState::DIALOGUE:
+		case eGameState::CUTSCENE:
 		case eGameState::PAUSED:
 		{
 			m_world->Render();
@@ -428,23 +435,22 @@ void Game::LoadEntityTypesFromXml()
 		element = element->NextSiblingElement();
 	}
 
-	// Initialize player
-	std::string playerActorName = g_gameConfigBlackboard.GetValue( std::string( "playerActorName" ), "" );
-	if ( playerActorName.empty() )
+	// Initialize player controller
+	std::string playerEntityName = g_gameConfigBlackboard.GetValue( std::string( "playerEntityName" ), "" );
+	if ( playerEntityName.empty() )
 	{
-		g_devConsole->PrintError( "GameConfig.xml doesn't define a playerActorName" );
+		g_devConsole->PrintError( "GameConfig.xml doesn't define a playerEntityName" );
 		return;
 	}
 
-	EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerActorName );
+	EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
 	if ( playerDef == nullptr )
 	{
-		g_devConsole->PrintError( "GameConfig.xml's playerActorName was not loaded from EntityTypes.xml" );
+		g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
 		return;
 	}
 
-	m_player = m_world->AddEntityFromDefinition( *playerDef, "player" );
-	m_player->SetAsPlayer();
+	m_playerController->SetControlledEntity( m_world->AddEntityFromDefinition( *playerDef, playerEntityName ) );
 
 	g_devConsole->PrintString( "Entity Types Loaded", Rgba8::GREEN );
 }
@@ -539,7 +545,8 @@ void Game::LoadAndCompileZephyrScripts()
 //-----------------------------------------------------------------------------------------------
 void Game::ReloadGame()
 {
-	if ( m_gameState == eGameState::DIALOGUE )
+	if ( m_gameState == eGameState::DIALOGUE 
+		 || m_gameState == eGameState::CUTSCENE )
 	{
 		m_gameState = eGameState::PLAYING;
 	}
@@ -559,7 +566,7 @@ void Game::ReloadGame()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
-	m_player = nullptr;
+	m_playerController->SetControlledEntity( nullptr );
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
 	PTR_MAP_SAFE_DELETE( EntityDefinition::s_definitions );
@@ -606,15 +613,15 @@ void Game::UpdateFromKeyboard()
 		return;
 	}
 
+	if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ESC ) )
+	{
+		g_eventSystem->FireEvent( "Quit" );
+	}
+
 	switch ( m_gameState )
 	{
 		case eGameState::ATTRACT:
 		{
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ESC ) )
-			{
-				g_eventSystem->FireEvent( "Quit" );
-			}
-
 			if ( g_inputSystem->ConsumeAnyKeyJustPressed() )
 			{
 				ChangeGameState( eGameState::PLAYING );
@@ -670,30 +677,7 @@ void Game::UpdateFromKeyboard()
 				ReloadScripts();
 			}
 		}
-		break;
-
-		case eGameState::PAUSED:
-		{
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ESC ) )
-			{
-				ChangeGameState( eGameState::ATTRACT );
-			}
-
-			if ( g_inputSystem->ConsumeAnyKeyJustPressed() )
-			{
-				ChangeGameState( eGameState::PLAYING );
-			}
-		}
-		break;
-
-		case eGameState::VICTORY:
-		{
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ENTER ) )
-			{
-				ChangeGameState( eGameState::ATTRACT );
-			}
-		}
-		break;
+		break;	
 	}
 }
 
@@ -703,7 +687,7 @@ void Game::LoadStartingMap( const std::string& mapName )
 {
 	m_world->InitializeAllZephyrEntityVariables();
 
-	m_world->ChangeMap( mapName, m_player );
+	m_world->ChangeMap( mapName, m_playerController->GetControlledEntity() );
 
 	m_world->CallAllZephyrSpawnEvents();
 }
@@ -787,13 +771,6 @@ void Game::PrintBytecodeChunk( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::DebugRender() const
-{
-	m_world->DebugRender();
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::SetWorldCameraPosition( const Vec3& position )
 {
 	m_focalPoint = position;
@@ -832,7 +809,7 @@ void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, 
 	{
 		if ( destMapName != "" )
 		{
-			m_world->ChangeMap( destMapName, m_player );
+			m_world->ChangeMap( destMapName, m_playerController->GetControlledEntity() );
 		}
 		
 		return;

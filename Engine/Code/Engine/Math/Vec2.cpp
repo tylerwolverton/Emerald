@@ -62,7 +62,7 @@ std::string Vec2::GetAsString() const
 //-----------------------------------------------------------------------------------------------
 std::string Vec2::ToString() const
 {
-	return std::string( Stringf( "( %.2f, %.2f )", x, y ) );
+	return std::string( Stringf( "%.f, %.f", x, y ) );
 }
 
 
@@ -256,7 +256,7 @@ void Vec2::SetOrientationRadians( float newOrientationRad )
 
 
 //-----------------------------------------------------------------------------------------------
-void Vec2::SetPolarDegrees( float angleDeg, float radius /*= 1.f */ )
+void Vec2::SetPolarDegrees( float angleDeg, float radius )
 {
 	x = radius * CosDegrees( angleDeg );
 	y = radius * SinDegrees( angleDeg );
@@ -264,7 +264,7 @@ void Vec2::SetPolarDegrees( float angleDeg, float radius /*= 1.f */ )
 
 
 //-----------------------------------------------------------------------------------------------
-void Vec2::SetPolarRadians( float angleRad, float radius /*= 1.f */ )
+void Vec2::SetPolarRadians( float angleRad, float radius )
 {
 	x = radius * cosf( angleRad );
 	y = radius * sinf( angleRad );

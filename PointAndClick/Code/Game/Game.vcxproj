@@ -194,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="EntityController.cpp" />
     <ClCompile Include="GameEntity.cpp" />
     <ClCompile Include="EntityDefinition.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -208,6 +209,7 @@
   <ItemGroup>
     <ClInclude Include="App.hpp" />
     <ClInclude Include="EngineBuildPreferences.hpp" />
+    <ClInclude Include="EntityController.hpp" />
     <ClInclude Include="GameEntity.hpp" />
     <ClInclude Include="EntityDefinition.hpp" />
     <ClInclude Include="Game.hpp" />

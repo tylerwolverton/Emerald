@@ -1,0 +1,15 @@
+Vec2 targetLocation = Vec2(0, 0)
+
+Function SetTargetLocation( Vec2 newTargetLocation )
+{
+    targetLocation = newTargetLocation
+}
+
+State Default
+{
+    OnUpdate()
+    {
+        MoveToLocation( pos: targetLocation )
+    }
+}
+

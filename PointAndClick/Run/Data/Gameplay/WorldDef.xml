@@ -2,6 +2,7 @@
   <!--Entities that persist in the world-->
   <Entities>
     <Entity type="GameManager" name="GameManager"/>
+    <Entity type="MouseCursor"/>
   </Entities>
  
 </WorldDefinition>

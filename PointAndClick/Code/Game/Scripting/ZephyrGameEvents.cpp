@@ -429,6 +429,7 @@ void ZephyrGameEvents::MoveToLocation( EventArgs* args )
 	Vec3 moveDirection = targetPos - entity->GetPosition();
 	moveDirection.Normalize();
 
+	entity->SetPosition( targetPos );
 	//float speed = args->GetValue( "speed", entity->GetSpeed() );
 
 	//entity->MoveWithPhysics( speed, moveDirection );
