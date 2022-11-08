@@ -9,7 +9,7 @@ State Default
 {
     OnUpdate()
     {
-        MoveToLocation( pos: targetLocation )
+       // MoveToLocation( pos: targetLocation )
     }
 }
 

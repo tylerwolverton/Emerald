@@ -1,0 +1,41 @@
+Entity possessedEntity = null
+
+Function OnSpawn()
+{
+    RegisterKeyEvent( key: "leftClick"  event: "OnLeftClick" )
+}
+
+Function OnPossess( Entity newPossessedEntity )
+{
+    possessedEntity = newPossessedEntity
+}
+
+State Character
+{
+    // OnUpdate()
+    // {
+    //     if( possessedEntity == null )
+    //     {
+    //         return
+    //     }
+
+
+    // }
+
+    Function OnLeftClick()
+    {
+        Entity clickedEntity = null
+        GetEntityUnderMouse( foundEntity: clickedEntity )
+
+        if( clickedEntity != null )
+        {
+            clickedEntity.OnInteract( fromEntity: parentEntity )
+        }
+        else
+        {
+            Vec2 mousePosition
+            GetMouseCursorPositionWorld( pos: mousePosition )
+            MoveToLocation( targetEntity: possessedEntity, pos: mousePosition )
+        }
+    }
+}

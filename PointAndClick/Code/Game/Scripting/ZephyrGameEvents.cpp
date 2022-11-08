@@ -31,6 +31,7 @@ ZephyrGameEvents::ZephyrGameEvents()
 
 	REGISTER_EVENT( GetNativeEntityVariable );
 	REGISTER_EVENT( SetNativeEntityVariable );
+	REGISTER_EVENT( GetEntityUnderMouse );
 	REGISTER_EVENT( DestroySelf );
 	REGISTER_EVENT( StartDialogue );
 	REGISTER_EVENT( EndDialogue );
@@ -400,6 +401,23 @@ void ZephyrGameEvents::SetNativeEntityVariable( EventArgs* args )
 	if ( varName == "position" ) { entity->SetPosition( zephyrValue.GetAsVec3() ); isNative = true; }
 
 	args->SetValue( "isNative", isNative );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::GetEntityUnderMouse( EventArgs* args )
+{
+	Vec2 mouseWorldPosition = g_game->GetMouseWorldPosition();
+
+	GameEntity* entity = g_game->GetEntityAtPosition( mouseWorldPosition );
+	
+	EntityId foundEntityId = -1;
+	if ( entity != nullptr )
+	{
+		foundEntityId = entity->GetId();
+	}
+
+	args->SetValue( "foundEntity", foundEntityId );
 }
 
 

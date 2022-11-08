@@ -48,6 +48,7 @@ public:
 
 	Vec3 GetPlayerStartPos() const										{ return m_playerStartPos; }
 	std::string GetName() const											{ return m_name; }
+	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
 
 	void RemoveOwnershipOfEntity( GameEntity* entityToRemove );
 	void TakeOwnershipOfEntity( GameEntity* entityToAdd );

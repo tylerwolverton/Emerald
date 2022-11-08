@@ -326,8 +326,8 @@ State BinaryOpTest
 		if( aStr + bStr != "hellogoodbye" ) 			{ PrintToConsole( text: "BinaryOpTest: Failed String + String", color: "red" ) }
 		if( aStr + aNum != "hello4.00" )				{ PrintToConsole( text: "BinaryOpTest: Failed String + Number", color: "red" ) }
 		if( aNum + bStr != "4.00goodbye" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed Number + String", color: "red" ) }
-		if( aStr + bVec != "hello( 2.00, 10.00 )" ) 	{ PrintToConsole( text: "BinaryOpTest: Failed String + Vec2 ",  color: "red" ) }
-		if( aVec + bStr != "( 5.00, 6.00 )goodbye" ) 	{ PrintToConsole( text: "BinaryOpTest: Failed Vec2 + String ",  color: "red" ) }
+		if( aStr + bVec != "hello2, 10" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed String + Vec2 ",  color: "red" ) }
+		if( aVec + bStr != "5, 6goodbye" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed Vec2 + String " + aVec + bStr,  color: "red" ) }
 		if( aStr + bBool != "hellofalse" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed String + Bool ",  color: "red" ) }
 		if( aBool + bStr != "truegoodbye" )				{ PrintToConsole( text: "BinaryOpTest: Failed Bool + String ",  color: "red" ) }
 		if( aNum * bVec != Vec2( 8, 40 ) )  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }

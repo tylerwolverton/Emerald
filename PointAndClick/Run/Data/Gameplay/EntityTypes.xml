@@ -2,7 +2,7 @@
   
   <Entity name="GuybrushThreepwood">
     <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
-    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="2">
+    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,.75" fps="2">
       <Walking		up="" left="18~23" down="0~7" right="9~14"/>
       <Idle				up="0"/>
     </Appearance>
@@ -32,4 +32,8 @@
     <Script name="MouseCursor.zephyr"/>
   </Entity>
   
+  <Entity name="PlayerController">
+    <Script name="PlayerController.zephyr"/>
+  </Entity>
+
 </EntityTypes>

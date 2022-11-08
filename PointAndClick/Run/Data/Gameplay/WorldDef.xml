@@ -3,6 +3,7 @@
   <Entities>
     <Entity type="GameManager" name="GameManager"/>
     <Entity type="MouseCursor"/>
+    <Entity type="PlayerController" name="PlayerController"/>
   </Entities>
  
 </WorldDefinition>

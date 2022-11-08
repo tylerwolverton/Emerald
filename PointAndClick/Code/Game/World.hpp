@@ -9,6 +9,7 @@
 //-----------------------------------------------------------------------------------------------
 struct MapDefinition;
 struct Vec2;
+struct Vec3;
 struct ZephyrScene;
 class Clock;
 class EntityComponent;
@@ -32,6 +33,8 @@ public:
 	void ChangeMap( const std::string& mapName, GameEntity* player );
 	Map* GetMapByName( const std::string& name );
 	Map* GetCurrentMap();
+
+	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
 
 	void WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 	bool IsMapLoaded( const std::string& mapName );

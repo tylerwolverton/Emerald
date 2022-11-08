@@ -2,6 +2,9 @@
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Math/MathUtils.hpp"
+#include "Engine/Math/Vec2.hpp"
+#include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Clock.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
@@ -133,6 +136,13 @@ Map* World::GetMapByName( const std::string& name )
 Map* World::GetCurrentMap()
 {
 	return m_curMap;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* World::GetEntityAtPosition( const Vec3& position ) const
+{
+	return m_curMap->GetEntityAtPosition( position );
 }
 
 

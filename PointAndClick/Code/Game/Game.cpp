@@ -32,7 +32,6 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/EntityController.hpp"
 #include "Game/GameEntity.hpp"
 #include "Game/World.hpp"
 #include "Game/MapDefinition.hpp"
@@ -75,8 +74,6 @@ void Game::Startup()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 	
-	m_playerController = new EntityController();
-
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
@@ -97,7 +94,6 @@ void Game::Shutdown()
 	m_uiSystem->Shutdown();
 
 	// Clean up member variables
-	PTR_SAFE_DELETE( m_playerController );
 	PTR_SAFE_DELETE( m_world );
 	PTR_SAFE_DELETE( m_rng );
 	PTR_SAFE_DELETE( m_debugInfoTextBox );
@@ -136,6 +132,7 @@ void Game::Update()
 				case 1:
 				{
 					LoadAssets();
+					InitializePlayerController();
 					ChangeGameState( eGameState::ATTRACT );
 					Update();
 				}
@@ -157,7 +154,7 @@ void Game::Update()
 		{
 			UpdateFromKeyboard();
 
-			m_playerController->Update();
+			//m_playerController->Update();
 			
 			m_world->Update();
 		}
@@ -280,6 +277,35 @@ void Game::InitializeCameras()
 	m_uiCamera->SetOutputSize( windowDimensions );
 	m_uiCamera->SetPosition( Vec3( windowDimensions * .5f, 0.f ) );
 	m_uiCamera->SetProjectionOrthographic( windowDimensions.y );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::InitializePlayerController()
+{
+	std::string playerEntityName = g_gameConfigBlackboard.GetValue( std::string( "playerEntityName" ), "" );
+	if ( playerEntityName.empty() )
+	{
+		g_devConsole->PrintError( "GameConfig.xml doesn't define a playerEntityName" );
+		return;
+	}
+
+	EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
+	if ( playerDef == nullptr )
+	{
+		g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
+		return;
+	}
+
+	GameEntity* playerEntity = m_world->AddEntityFromDefinition( *playerDef, playerEntityName );
+
+	GameEntity* playerController = m_world->GetEntityByName( "PlayerController" );
+	if ( playerController != nullptr )
+	{
+		EventArgs args;
+		args.SetValue( "newPossessedEntity", playerEntity->GetId() );
+		playerController->FireScriptEvent( "OnPossess", &args );
+	}
 }
 
 
@@ -443,14 +469,24 @@ void Game::LoadEntityTypesFromXml()
 		return;
 	}
 
-	EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
-	if ( playerDef == nullptr )
-	{
-		g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
-		return;
-	}
+	//EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
+	//if ( playerDef == nullptr )
+	//{
+	//	g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
+	//	return;
+	//}
 
-	m_playerController->SetControlledEntity( m_world->AddEntityFromDefinition( *playerDef, playerEntityName ) );
+	//GameEntity* playerEntity = m_world->AddEntityFromDefinition( *playerDef, playerEntityName );
+
+	//GameEntity* playerController = m_world->GetEntityByName( "PlayerController" );
+	//if ( playerController != nullptr )
+	//{
+	//	EventArgs args;
+	//	args.SetValue( "newPossessedEntity", playerEntity->GetId() );
+	//	playerController->FireScriptEvent( "OnPossess", &args );
+	//}
+
+	//m_playerController->SetControlledEntity( m_world->AddEntityFromDefinition( *playerDef, playerEntityName ) );
 
 	g_devConsole->PrintString( "Entity Types Loaded", Rgba8::GREEN );
 }
@@ -566,8 +602,6 @@ void Game::ReloadGame()
 
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
-	m_playerController->SetControlledEntity( nullptr );
-
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
 	PTR_MAP_SAFE_DELETE( EntityDefinition::s_definitions );
 	PTR_VECTOR_SAFE_DELETE( SpriteSheet::s_definitions );
@@ -576,6 +610,8 @@ void Game::ReloadGame()
 	m_loadedSoundIds.clear();
 
 	LoadAssets();
+
+	InitializePlayerController();
 
 	EventArgs args;
 	g_eventSystem->FireEvent( "OnGameStart", &args );
@@ -687,7 +723,7 @@ void Game::LoadStartingMap( const std::string& mapName )
 {
 	m_world->InitializeAllZephyrEntityVariables();
 
-	m_world->ChangeMap( mapName, m_playerController->GetControlledEntity() );
+	m_world->ChangeMap( mapName, nullptr );
 
 	m_world->CallAllZephyrSpawnEvents();
 }
@@ -771,6 +807,20 @@ void Game::PrintBytecodeChunk( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityAtPosition( const Vec3& position ) const
+{
+	return m_world->GetEntityAtPosition( position );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityAtPosition( const Vec2& position ) const
+{
+	return GetEntityAtPosition( Vec3( position, 0.f ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::SetWorldCameraPosition( const Vec3& position )
 {
 	m_focalPoint = position;
@@ -809,7 +859,7 @@ void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, 
 	{
 		if ( destMapName != "" )
 		{
-			m_world->ChangeMap( destMapName, m_playerController->GetControlledEntity() );
+			m_world->ChangeMap( destMapName, nullptr );
 		}
 		
 		return;

@@ -13,7 +13,6 @@
 //-----------------------------------------------------------------------------------------------
 struct AABB2;
 struct Rgba8;
-class EntityController;
 class GameEntity;
 class Map;
 class RandomNumberGenerator;
@@ -60,6 +59,8 @@ public:
 	const Vec2	GetMouseWorldPosition()													{ return m_mouseWorldPosition; }
 	const Vec2	GetMouseUIPosition()													{ return m_mouseUIPosition; }
 	Clock*		GetGameClock()															{ return m_gameClock; }
+	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
+	GameEntity* GetEntityAtPosition( const Vec2& position ) const;
 
 	void		SetWorldCameraPosition( const Vec3& position );
 	void		AddScreenShakeIntensity( float additionalIntensityFraction );
@@ -86,6 +87,7 @@ public:
 
 private:
 	void InitializeCameras();
+	void InitializePlayerController();
 
 	void LoadAssets();
 	void LoadSounds();
@@ -142,8 +144,6 @@ private:
 	std::map<std::string, SoundID> m_loadedSoundIds;
 
 	eGameState m_gameState = eGameState::LOADING;
-
-	EntityController* m_playerController = nullptr;
 
 	World* m_world = nullptr;
 	std::string m_startingMapName;

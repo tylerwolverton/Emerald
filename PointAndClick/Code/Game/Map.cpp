@@ -46,7 +46,7 @@ void Map::Load( GameEntity* player )
 {
 	if ( player == nullptr )
 	{
-		g_devConsole->PrintError( Stringf( "Map '%s': Tried to load a map with a null player", m_name.c_str() ) );
+		g_devConsole->PrintWarning( Stringf( "Map '%s': Tried to load a map with a null player", m_name.c_str() ) );
 		return;
 	}
 
@@ -435,3 +435,19 @@ GameEntity* Map::GetEntityAtPosition( const Vec3& position )
 
 	return nullptr;
 }
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Map::GetEntityAtPosition( const Vec3& position ) const
+{
+	for ( GameEntity* entity : m_entities )
+	{
+		if ( IsPointInsideDiscFast( position.XY(), entity->GetPosition().XY(), .5f ) )
+		{
+			return entity;
+		}
+	}
+
+	return nullptr;
+}
+
