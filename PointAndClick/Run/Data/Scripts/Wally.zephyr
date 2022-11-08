@@ -5,10 +5,11 @@ State Working
         ChangeSpriteAnimation( newAnim: "default")
     }
 
-    // OnInteract()
-    // {
-    //     StartConversation( "Normal" )
-    // }
+    Function OnInteract( Entity fromEntity )
+    {
+        // StartConversation( "Normal" )
+        PrintDebugText(text: "I've been interacted with by " + fromEntity, duration: 2)
+    }
 }
 
 // Conversation Normal

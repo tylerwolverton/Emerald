@@ -9,6 +9,15 @@
     <Script name="Guybrush.zephyr"/>
   </Entity>
 
+  <Entity name="Wally">
+    <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
+    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,1.25" fps="2">
+      <Walking		up="" left="18~23" down="0~7" right="9~14"/>
+      <Idle				up="0"/>
+    </Appearance>
+    <Script name="Wally.zephyr"/>
+  </Entity>
+
   <Entity name="UnitTester">
     <Script name="UnitTests.zephyr"/>
   </Entity>
