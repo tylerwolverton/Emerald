@@ -1,15 +1,32 @@
 Vec2 targetLocation = Vec2(0, 0)
+Number movementThreshhold = .1
+Number movementSpeed = .05
 
 Function SetTargetLocation( Vec2 newTargetLocation )
 {
     targetLocation = newTargetLocation
 }
 
+Function MoveToTargetLocation()
+{
+    Vec2 position2D = Vec2(parentEntity.position.x, parentEntity.position.y)
+    Vec2 displacementVec = targetLocation - position2D
+    Number length = 0
+    Vec2 direction = Vec2(0,0)
+
+    GetVec2Normalized( inVec: displacementVec, length: length, direction: direction)
+
+    if(length > movementThreshhold)
+    {
+        Vec2 newPosition2D = position2D + (direction * movementSpeed)
+        parentEntity.position = Vec3(newPosition2D.x, newPosition2D.y, parentEntity.position.z)
+    }
+}
+
 State Default
 {
     OnUpdate()
     {
-       // MoveToLocation( pos: targetLocation )
+        MoveToTargetLocation()
     }
 }
-

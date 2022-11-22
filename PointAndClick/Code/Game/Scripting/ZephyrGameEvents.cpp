@@ -29,6 +29,8 @@ ZephyrGameEvents::ZephyrGameEvents()
 	REGISTER_EVENT( PrintDebugScreenText );
 	REGISTER_EVENT( PrintToConsole );
 
+	REGISTER_EVENT( GetVec2Normalized );
+
 	REGISTER_EVENT( GetNativeEntityVariable );
 	REGISTER_EVENT( SetNativeEntityVariable );
 	REGISTER_EVENT( GetEntityUnderMouse );
@@ -39,6 +41,7 @@ ZephyrGameEvents::ZephyrGameEvents()
 	REGISTER_EVENT( WinGame );
 
 	REGISTER_EVENT( MoveToLocation );
+	REGISTER_EVENT( PathToLocation );
 	REGISTER_EVENT( MoveInDirection );
 	//REGISTER_EVENT( GetEntityLocation );
 
@@ -304,6 +307,19 @@ void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 }
 
 
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::GetVec2Normalized( EventArgs* args )
+{
+	Vec2 inVec = args->GetValue( "inVec", Vec2::ZERO );
+
+	float length = inVec.GetLength();
+	Vec2 direction = inVec.GetNormalized();
+
+	args->SetValue( "length", length );
+	args->SetValue( "direction", direction );
+}
+
+
 ////-----------------------------------------------------------------------------------------------
 //void ZephyrGameEvents::SpawnEntity( EventArgs* args )
 //{
@@ -451,6 +467,25 @@ void ZephyrGameEvents::MoveToLocation( EventArgs* args )
 	//float speed = args->GetValue( "speed", entity->GetSpeed() );
 
 	//entity->MoveWithPhysics( speed, moveDirection );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::PathToLocation( EventArgs* args )
+{
+	GameEntity* entity = GetTargetEntityFromArgs( args );
+
+	if ( entity == nullptr )
+	{
+		return;
+	}
+
+	Vec3 targetPos = args->GetValue( "pos", Vec3::ZERO );
+
+	Vec3 moveDirection = targetPos - entity->GetPosition();
+	moveDirection.Normalize();
+
+	// TODO: Path around environment to location
 }
 
 

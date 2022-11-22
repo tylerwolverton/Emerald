@@ -30,6 +30,9 @@ private:
 	void PrintDebugScreenText( EventArgs* args );
 	void PrintToConsole( EventArgs* args );
 
+	// Math
+	void GetVec2Normalized( EventArgs* args );
+
 	// Game Events
 	//void SpawnEntity( EventArgs* args );
 	void StartDialogue( EventArgs* args );
@@ -45,6 +48,7 @@ private:
 
 	// AI
 	void MoveToLocation( EventArgs* args );
+	void PathToLocation( EventArgs* args );
 	void MoveInDirection( EventArgs* args );
 	//void GetEntityLocation( EventArgs* args );
 
