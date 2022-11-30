@@ -24,7 +24,7 @@ ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef,
 //-----------------------------------------------------------------------------------------------
 bool ZephyrComponent::Initialize()
 {
-	ZephyrScriptDefinition* scriptDef = m_componentDef.GetZephyrScriptDefinition();
+	ZephyrScriptDefinition* scriptDef = m_componentDef.zephyrScriptDef;
 	if ( scriptDef == nullptr || !scriptDef->IsValid() )
 	{
 		m_compState = eComponentState::INVALID_SCRIPT;

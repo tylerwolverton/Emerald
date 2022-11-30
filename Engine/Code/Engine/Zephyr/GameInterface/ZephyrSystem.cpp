@@ -26,8 +26,8 @@ ZephyrComponent* ZephyrSystem::CreateComponent( Entity* parentEntity, const Zeph
 	}
 
 	zephyrComp->InterpretGlobalBytecodeChunk();
-	ZephyrSystem::InitializeGlobalVariables( zephyrComp, componentDef.GetZephyrScriptInitialValues() );
-	zephyrComp->SetEntityVariableInitializers( componentDef.GetZephyrEntityVarInits() );
+	ZephyrSystem::InitializeGlobalVariables( zephyrComp, componentDef.zephyrScriptInitialValues );
+	zephyrComp->SetEntityVariableInitializers( componentDef.zephyrEntityVarInits );
 	return zephyrComp;
 }
 
@@ -287,8 +287,8 @@ void ZephyrSystem::ReloadZephyrScript( ZephyrComponent* zephyrComp )
 	}
 
 	zephyrComp->InterpretGlobalBytecodeChunk();
-	ZephyrSystem::InitializeGlobalVariables( zephyrComp, zephyrComp->m_componentDef.GetZephyrScriptInitialValues() );
-	zephyrComp->SetEntityVariableInitializers( zephyrComp->m_componentDef.GetZephyrEntityVarInits() );
+	ZephyrSystem::InitializeGlobalVariables( zephyrComp, zephyrComp->m_componentDef.zephyrScriptInitialValues );
+	zephyrComp->SetEntityVariableInitializers( zephyrComp->m_componentDef.zephyrEntityVarInits );
 }
 
 

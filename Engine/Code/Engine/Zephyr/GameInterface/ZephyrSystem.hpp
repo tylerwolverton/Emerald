@@ -6,8 +6,8 @@
 
 //-----------------------------------------------------------------------------------------------
 struct ZephyrScene;
+struct ZephyrComponentDefinition;
 class ZephyrComponent;
-class ZephyrComponentDefinition;
 
 class Entity;
 

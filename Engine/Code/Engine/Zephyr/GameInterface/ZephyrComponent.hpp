@@ -41,7 +41,7 @@ public:
 	void SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 
 	// Accessors
-	std::string		GetScriptName() const													{ return m_componentDef.m_zephyrScriptName;	}
+	std::string		GetScriptName() const													{ return m_componentDef.zephyrScriptName;	}
 	EntityId		GetParentEntityId() const;
 	std::string		GetParentEntityName() const;
 	ZephyrValue		GetGlobalVariable( const std::string& varName );

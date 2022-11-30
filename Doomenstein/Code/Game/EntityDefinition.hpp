@@ -11,10 +11,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrComponentDefinition;
 class Material;
 class SpriteSheet;
 class SpriteAnimationSetDefinition;
-class ZephyrComponentDefinition;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -70,6 +70,9 @@ public:
 
 public:
 	static std::map< std::string, EntityDefinition* > s_definitions;
+
+private:
+	void ParseZephyrCompDef( const std::string& entityType, const XmlElement& scriptElem );
 
 protected:
 	bool			m_isValid = false;

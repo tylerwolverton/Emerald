@@ -5,9 +5,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrComponentDefinition;
 class Entity;
 class ZephyrComponent;
-class ZephyrComponentDefinition;
 
 
 //-----------------------------------------------------------------------------------------------
