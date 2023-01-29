@@ -36,7 +36,7 @@ State Character
             Vec2 mousePosition
             GetMouseCursorPositionWorld( pos: mousePosition )
             // MoveToLocation( targetEntity: possessedEntity, pos: mousePosition )
-            possessedEntity.targetLocation = mousePosition
+            possessedEntity.SetTargetLocation(targetLocation: mousePosition)
         }
     }
 }

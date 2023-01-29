@@ -1,13 +1,14 @@
-Vec2 targetLocation = Vec2(0, 0)
+Vec2 myTargetLocation = Vec2(0, 0)
 Number movementThreshhold = .1
 Number movementSpeed = .05
 
-Function SetTargetLocation( Vec2 newTargetLocation )
+Function SetTargetLocation( Vec2 targetLocation )
 {
-    targetLocation = newTargetLocation
+    myTargetLocation = targetLocation
 }
 
-Function MoveToTargetLocation()
+// Could be moved to code...
+Function MoveToTargetLocation( Vec2 targetLocation )
 {
     Vec2 position2D = Vec2(parentEntity.position.x, parentEntity.position.y)
     Vec2 displacementVec = targetLocation - position2D
@@ -27,6 +28,6 @@ State Default
 {
     OnUpdate()
     {
-        MoveToTargetLocation()
+        MoveToTargetLocation(targetLocation: myTargetLocation)
     }
 }

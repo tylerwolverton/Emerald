@@ -1,5 +1,5 @@
 <EntityTypes spriteSheet="Data/Images/TestAtlas_4x4.png" spriteSheetDimensions="4,4">
-  
+ 
   <Entity name="GuybrushThreepwood">
     <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
     <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,.75" fps="2">
@@ -17,6 +17,7 @@
     </Appearance>
     <Script name="Wally.zephyr"/>
   </Entity>
+
 
   <Entity name="UnitTester">
     <Script name="UnitTests.zephyr"/>
