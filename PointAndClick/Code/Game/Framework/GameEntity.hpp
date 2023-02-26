@@ -9,7 +9,7 @@
 #include "Engine/Time/Timer.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
-#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityTypeDefinition.hpp"
 
 #include <string>
 #include <vector>
@@ -24,28 +24,27 @@ class ZephyrScript;
 
 
 //-----------------------------------------------------------------------------------------------
+// GameEntity provides helpful wrappers to cpp code for manipulating entities
+//-----------------------------------------------------------------------------------------------
 class GameEntity : public Entity
 {
 	friend class Map;
 	
 public:
-	GameEntity( const EntityDefinition& entityDef, Map* map );
+	GameEntity( const EntityTypeDefinition& entityDef, Map* map );
 	virtual ~GameEntity();
 
-	void				Update( float deltaSeconds );
-	void				Render() const;
-	void				Die();
 	void				DebugRender() const;
 
 	void				Load();
 	void				Unload();
 
+	void				Die();
+
 	void				UpdateFromKeyboard(float deltaSeconds);
 
 	void				ChangeSpriteAnimation( const std::string& spriteAnimDefSetName );
 	void				PlaySpriteAnimation( const std::string& spriteAnimDefSetName );
-	SpriteAnimationSetDefinition* GetSpriteAnimSetDef( const std::string& animSetName ) const { return m_entityDef.GetSpriteAnimSetDef( animSetName ); }
-
 
 	const Vec2			GetForwardVector() const;
 	const Vec3			GetPosition() const;
@@ -79,10 +78,10 @@ protected:
 
 protected:
 	// Game state
-	const EntityDefinition&					m_entityDef;
+	const EntityTypeDefinition&				m_entityDef;
+	Map*									m_map = nullptr;
 	Transform								m_transform;
 	float									m_curHealth = 1.f;								// how much health is currently remaining on entity
-	Map*									m_map = nullptr;
 	
 	bool									m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool									m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()
@@ -91,10 +90,7 @@ protected:
 	GameEntity*								m_dialoguePartner = nullptr;
 		
 	// Visual
-	float									m_cumulativeTime = 0.f;
 	Vec2									m_facingDirection = Vec2::ZERO_TO_ONE;
-	std::vector<Vertex_PCU>					m_vertices;
-	SpriteAnimationSetDefinition*			m_curSpriteAnimSetDef = nullptr;
 
 	// Input
 	std::map<char, std::vector<std::string>> m_registeredKeyEvents;

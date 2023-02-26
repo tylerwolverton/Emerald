@@ -196,26 +196,36 @@
     <ClCompile Include="Core\App.cpp" />
     <ClCompile Include="Core\GameCommon.cpp" />
     <ClCompile Include="Core\Main_Windows.cpp" />
-    <ClCompile Include="DataParsing\EntityDefinition.cpp" />
+    <ClCompile Include="DataParsing\EntityTypeDefinition.cpp" />
     <ClCompile Include="DataParsing\MapDefinition.cpp" />
     <ClCompile Include="Framework\Game.cpp" />
     <ClCompile Include="Framework\GameEntity.cpp" />
     <ClCompile Include="Framework\Map.cpp" />
     <ClCompile Include="Framework\World.cpp" />
+    <ClCompile Include="Graphics\SpriteAnimationComponent.cpp" />
+    <ClCompile Include="Graphics\SpriteAnimationComponentDefinition.cpp" />
+    <ClCompile Include="Graphics\SpriteAnimationScene.cpp" />
     <ClCompile Include="Graphics\SpriteAnimationSetDefinition.cpp" />
+    <ClCompile Include="Graphics\SpriteAnimationSystem.cpp" />
+    <ClCompile Include="Graphics\SpriteRenderingSystem.cpp" />
     <ClCompile Include="Scripting\ZephyrGameEvents.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\App.hpp" />
     <ClInclude Include="Core\EngineBuildPreferences.hpp" />
     <ClInclude Include="Core\GameCommon.hpp" />
-    <ClInclude Include="DataParsing\EntityDefinition.hpp" />
+    <ClInclude Include="DataParsing\EntityTypeDefinition.hpp" />
     <ClInclude Include="DataParsing\MapDefinition.hpp" />
     <ClInclude Include="Framework\Game.hpp" />
     <ClInclude Include="Framework\GameEntity.hpp" />
     <ClInclude Include="Framework\Map.hpp" />
     <ClInclude Include="Framework\World.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationComponent.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationComponentDefinition.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationScene.hpp" />
     <ClInclude Include="Graphics\SpriteAnimationSetDefinition.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationSystem.hpp" />
+    <ClInclude Include="Graphics\SpriteRenderingSystem.hpp" />
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

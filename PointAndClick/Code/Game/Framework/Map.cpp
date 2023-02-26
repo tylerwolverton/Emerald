@@ -15,11 +15,15 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/Core/GameCommon.hpp"
-#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Game/DataParsing/MapDefinition.hpp"
 #include "Game/Framework/Game.hpp"
 #include "Game/Framework/World.hpp"
 #include "Game/Framework/GameEntity.hpp"
+#include "Game/Graphics/SpriteAnimationScene.hpp"
+#include "Game/Graphics/SpriteAnimationComponent.hpp"
+#include "Game/Graphics/SpriteAnimationSystem.hpp"
+#include "Game/Graphics/SpriteRenderingSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -30,6 +34,7 @@ Map::Map( const MapDefinition& mapData, World* world )
 	, m_world( world )
 {
 	m_zephyrScene = new ZephyrScene();
+	m_spriteAnimScene = new SpriteAnimationScene();
 }
 
 
@@ -92,18 +97,8 @@ void Map::Unload()
 //-----------------------------------------------------------------------------------------------
 void Map::Update( float deltaSeconds )
 {	
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->Update( deltaSeconds );
-	}
-
 	ZephyrSystem::UpdateScene( *m_zephyrScene );
+	SpriteAnimationSystem::AdvanceAnimations( *m_spriteAnimScene, deltaSeconds );
 
 	//UpdateMesh();
 
@@ -114,16 +109,7 @@ void Map::Update( float deltaSeconds )
 //-----------------------------------------------------------------------------------------------
 void Map::Render() const
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->Render();
-	}
+	SpriteRenderingSystem::RenderScene( *m_spriteAnimScene, m_entities );
 }
 
 
@@ -146,7 +132,7 @@ void Map::DebugRender() const
 //-----------------------------------------------------------------------------------------------
 GameEntity* Map::SpawnNewEntityFromName( const std::string& entityDefName )
 {
-	EntityDefinition* entityDef = EntityDefinition::GetEntityDefinition( entityDefName );
+	EntityTypeDefinition* entityDef = EntityTypeDefinition::GetEntityDefinition( entityDefName );
 	if ( entityDef == nullptr )
 	{
 		g_devConsole->PrintError( Stringf( "Tried to spawn unrecognized entity '%s'", entityDefName.c_str() ) );
@@ -158,13 +144,17 @@ GameEntity* Map::SpawnNewEntityFromName( const std::string& entityDefName )
 	{
 		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
 	}
+	if ( entityDef->HasZephyrScript() )
+	{
+		m_spriteAnimScene->CreateAndAddComponent( newEntity, *entityDef->GetSpriteAnimationCompDef() );
+	}
 
 	return newEntity;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityFromDef( const EntityDefinition& entityDef )
+GameEntity* Map::SpawnNewEntityFromDef( const EntityTypeDefinition& entityDef )
 {
 	GameEntity* entity = new GameEntity( entityDef, this );
 	AddToEntityList( entity );
@@ -262,23 +252,36 @@ void Map::LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& m
 		// Must be saved before initializing zephyr script
 		newEntity->SetName( mapEntityDef.name );
 		m_world->SaveEntityByName( newEntity );
-		
-		if ( mapEntityDef.entityDef->HasZephyrScript() )
+
+		newEntity->SetPosition( mapEntityDef.position );
+		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
+
+		CreateAndAttachEntityComponents( newEntity, mapEntityDef );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Map::CreateAndAttachEntityComponents( GameEntity* newEntity, const MapEntityDefinition& mapEntityDef )
+{
+	// ZephyrComponent
+	if ( mapEntityDef.entityDef->HasZephyrScript() )
+	{
+		ZephyrComponent* zephyrComp = m_zephyrScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetZephyrCompDef() );
+		if ( zephyrComp != nullptr )
 		{
-			ZephyrComponent* zephyrComp = m_zephyrScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetZephyrCompDef() );
-
-			newEntity->SetPosition( mapEntityDef.position );
-			newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
-
-			if ( zephyrComp != nullptr )
-			{
-				// Define initial script values defined in map file
-				// Note: These will override any initial values already defined in the EntityDefinition
-				ZephyrSystem::InitializeGlobalVariables( zephyrComp, mapEntityDef.zephyrScriptInitialValues );
-				// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
-				zephyrComp->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
-			}
+			// Define initial script values defined in map file
+			// Note: These will override any initial values already defined in the EntityTypeDefinition
+			ZephyrSystem::InitializeGlobalVariables( zephyrComp, mapEntityDef.zephyrScriptInitialValues );
+			// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
+			zephyrComp->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
 		}
+	}
+
+	// SpriteAnimationComponent
+	if ( mapEntityDef.entityDef->HasSpriteAnimation() )
+	{
+		m_spriteAnimScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetSpriteAnimationCompDef() );
 	}
 }
 
@@ -299,6 +302,7 @@ void Map::AddToEntityList( GameEntity* entity )
 }
 
 
+//-----------------------------------------------------------------------------------------------
 void Map::RemoveFromEntityList( GameEntity* entityToRemove )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
@@ -315,6 +319,7 @@ void Map::RemoveFromEntityList( GameEntity* entityToRemove )
 		}
 	}
 }
+
 
 //-----------------------------------------------------------------------------------------------
 void Map::DeleteGarbageEntities()
@@ -382,21 +387,6 @@ GameEntity* Map::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-EntityComponent* Map::GetZephyrComponentFromEntityId( const EntityId& id )
-{
-	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
-	{
-		if ( zephyrComponent->GetParentEntityId() == id )
-		{
-			return zephyrComponent;
-		}
-	}
-
-	return nullptr;
-}
-
-
-//-----------------------------------------------------------------------------------------------
 GameEntity* Map::GetEntityAtPosition( const Vec2& position ) const
 {
 	for ( GameEntity* entity : m_entities )
@@ -418,3 +408,32 @@ GameEntity* Map::GetEntityAtPosition( const Vec3& position ) const
 	return GetEntityAtPosition( position.XY() );
 }
 
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* Map::GetZephyrComponentFromEntityId( const EntityId& id )
+{
+	for ( const auto& zephyrComponent : m_zephyrScene->zephyrComponents )
+	{
+		if ( zephyrComponent->GetParentEntityId() == id )
+		{
+			return zephyrComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* Map::GetSpriteAnimComponentFromEntityId( const EntityId& id )
+{
+	for ( const auto& spriteAnimComponent : m_spriteAnimScene->animComponents )
+	{
+		if ( spriteAnimComponent->GetParentEntityId() == id )
+		{
+			return spriteAnimComponent;
+		}
+	}
+
+	return nullptr;
+}

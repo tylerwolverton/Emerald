@@ -719,41 +719,41 @@ void ZephyrGameEvents::AddAnimationEvent( EventArgs* args )
 		return;
 	}
 
-	SpriteAnimationSetDefinition* spriteAnimSetDef = entity->GetSpriteAnimSetDef( animName );
-	if ( spriteAnimSetDef == nullptr )
-	{
-		// Print error
-		return;
-	}
+	//SpriteAnimationSetDefinition* spriteAnimSetDef = entity->GetSpriteAnimSetDef( animName );
+	//if ( spriteAnimSetDef == nullptr )
+	//{
+	//	// Print error
+	//	return;
+	//}
 
-	int numFrames = spriteAnimSetDef->GetNumFrames();
-	if ( numFrames == 0 )
-	{
-		// print error
-		return;
-	}
+	//int numFrames = spriteAnimSetDef->GetNumFrames();
+	//if ( numFrames == 0 )
+	//{
+	//	// print error
+	//	return;
+	//}
 
-	int frameNum = 0;
-	if ( frameStr == "first" )
-	{
-		frameNum = 0;
-	}
-	else if ( frameStr == "last" )
-	{
-		frameNum = numFrames - 1;
-	}
-	else
-	{
-		frameNum = FromString( frameStr, frameNum );
-	}
+	//int frameNum = 0;
+	//if ( frameStr == "first" )
+	//{
+	//	frameNum = 0;
+	//}
+	//else if ( frameStr == "last" )
+	//{
+	//	frameNum = numFrames - 1;
+	//}
+	//else
+	//{
+	//	frameNum = FromString( frameStr, frameNum );
+	//}
 
-	if ( frameNum >= numFrames )
-	{
-		// print warning
-		frameNum = numFrames - 1;
-	}
+	//if ( frameNum >= numFrames )
+	//{
+	//	// print warning
+	//	frameNum = numFrames - 1;
+	//}
 
-	spriteAnimSetDef->AddFrameEvent( frameNum, eventName );
+	//spriteAnimSetDef->AddFrameEvent( frameNum, eventName );
 }
 
 

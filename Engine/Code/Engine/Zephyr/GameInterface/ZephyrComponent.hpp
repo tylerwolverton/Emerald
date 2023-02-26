@@ -30,7 +30,7 @@ class ZephyrComponent : public EntityComponent
 	friend class ZephyrVirtualMachine;
 
 public:
-	ZephyrComponent( const ZephyrComponentDefinition& componentDef, const EntityId& parentEntityId );
+	ZephyrComponent( const EntityId& parentEntityId, const ZephyrComponentDefinition& componentDef );
 	bool Initialize();
 	void Destroy();
 	~ZephyrComponent();

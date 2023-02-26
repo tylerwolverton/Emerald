@@ -8,7 +8,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class EntityDefinition;
+class EntityTypeDefinition;
 class MapRegionTypeDefinition;
 class Map;
 
@@ -16,7 +16,7 @@ class Map;
 //-----------------------------------------------------------------------------------------------
 struct MapEntityDefinition
 {
-	EntityDefinition* entityDef = nullptr;
+	EntityTypeDefinition* entityDef = nullptr;
 	std::string name;
 	Vec3 position = Vec3::ZERO;
 	float yawDegrees = 0.f;

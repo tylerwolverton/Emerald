@@ -7,6 +7,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/IntRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/Core/GameCommon.hpp"
 #include "Game/Framework/GameEntity.hpp"
@@ -96,6 +97,26 @@ void SpriteAnimationSetDefinition::FireFrameEvent( int frameNum, GameEntity* par
 	else
 	{
 		parent->FireScriptEvent( iter->second );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SpriteAnimationSetDefinition::FireFrameEvent( int frameNum, const EntityId& parentId )
+{
+	auto iter = m_frameToEventNames.find( frameNum );
+	if ( iter == m_frameToEventNames.end() )
+	{
+		return;
+	}
+
+	if ( parentId == INVALID_ENTITY_ID )
+	{
+		g_eventSystem->FireEvent( iter->second );
+	}
+	else
+	{
+		ZephyrSystem::FireScriptEvent( parentId, iter->second, nullptr );
 	}
 }
 

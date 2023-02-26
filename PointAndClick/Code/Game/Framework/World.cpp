@@ -14,6 +14,10 @@
 #include "Game/Framework/Map.hpp"
 #include "Game/Framework/GameEntity.hpp"
 #include "Game/DataParsing/MapDefinition.hpp"
+#include "Game/Graphics/SpriteAnimationComponent.hpp"
+#include "Game/Graphics/SpriteAnimationScene.hpp"
+#include "Game/Graphics/SpriteAnimationSystem.hpp"
+#include "Game/Graphics/SpriteRenderingSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -21,6 +25,7 @@ World::World( Clock* gameClock )
 {
 	m_worldClock = gameClock;
 	m_zephyrScene = new ZephyrScene();
+	m_spriteAnimScene = new SpriteAnimationScene();
 }
 
 
@@ -28,6 +33,7 @@ World::World( Clock* gameClock )
 World::~World()
 {
 	PTR_SAFE_DELETE( m_zephyrScene );
+	PTR_SAFE_DELETE( m_spriteAnimScene );
 	PTR_MAP_SAFE_DELETE( m_loadedMaps );
 }
 
@@ -35,43 +41,38 @@ World::~World()
 //-----------------------------------------------------------------------------------------------
 void World::Update()
 {
-	ZephyrSystem::UpdateScene( *m_zephyrScene );
+	float deltaSeconds = (float)m_worldClock->GetLastDeltaSeconds();
 
-	// TODO: Is this needed?
-	for ( GameEntity* entity : m_worldEntities )
+	// TODO: Move this to a player controller reference
+	for ( auto& worldEntity : m_worldEntities )
 	{
-		if ( entity != nullptr )
+		if ( worldEntity != nullptr )
 		{
-			entity->Update( (float)m_worldClock->GetLastDeltaSeconds() );
+			worldEntity->UpdateFromKeyboard( deltaSeconds );
 		}
 	}
+
+	ZephyrSystem::UpdateScene( *m_zephyrScene );
+	SpriteAnimationSystem::AdvanceAnimations( *m_spriteAnimScene, deltaSeconds );
 
 	if ( m_curMap == nullptr )
 	{
 		return;
 	}
 
-	m_curMap->Update( (float)m_worldClock->GetLastDeltaSeconds() );
+	m_curMap->Update( deltaSeconds );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void World::Render() const
 {
-	for ( GameEntity* entity : m_worldEntities )
+	if ( m_curMap != nullptr )
 	{
-		if ( entity != nullptr )
-		{
-			entity->Render();
-		}
+		m_curMap->Render();
 	}
 
-	if ( m_curMap == nullptr )
-	{
-		return;
-	}
-
-	m_curMap->Render();
+	SpriteRenderingSystem::RenderScene( *m_spriteAnimScene, m_worldEntities );
 }
 
 
@@ -195,7 +196,7 @@ void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMa
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* World::AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName )
+GameEntity* World::AddEntityFromDefinition( const EntityTypeDefinition& entityDef, const std::string& entityName )
 {
 	GameEntity* newEntity = new GameEntity( entityDef, nullptr );
 	newEntity->SetName( entityName );
@@ -206,6 +207,10 @@ GameEntity* World::AddEntityFromDefinition( const EntityDefinition& entityDef, c
 	if ( entityDef.HasZephyrScript() )
 	{
 		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef.GetZephyrCompDef() );
+	}
+	if ( entityDef.HasSpriteAnimation() )
+	{
+		m_spriteAnimScene->CreateAndAddComponent( newEntity, *entityDef.GetSpriteAnimationCompDef() );
 	}
 
 	return newEntity;
@@ -406,6 +411,12 @@ EntityComponent* World::GetComponentFromEntityId( const EntityId& id, const Enti
 		}
 		break;
 
+		case ENTITY_COMPONENT_TYPE_SPRITE_ANIM:
+		{
+			return GetSpriteAnimComponentFromEntityId( id );
+		}
+		break;
+
 		default:
 			return nullptr;
 	}
@@ -444,6 +455,48 @@ EntityComponent* World::GetZephyrComponentFromEntityId( const EntityId& id )
 		}
 
 		EntityComponent* entityComponent = map.second->GetZephyrComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	return nullptr;
+}
+
+//-----------------------------------------------------------------------------------------------
+EntityComponent* World::GetSpriteAnimComponentFromEntityId( const EntityId& id )
+{
+	// Check world entities
+	for ( const auto& spriteAnimComponent : m_spriteAnimScene->animComponents )
+	{
+		if ( spriteAnimComponent->GetParentEntityId() == id )
+		{
+			return spriteAnimComponent;
+		}
+	}
+	
+
+	// Check current map
+	if ( m_curMap != nullptr )
+	{
+		EntityComponent* entityComponent = m_curMap->GetSpriteAnimComponentFromEntityId( id );
+		if ( entityComponent != nullptr )
+		{
+			return entityComponent;
+		}
+	}
+
+	// Check the other maps
+	for ( auto& map : m_loadedMaps )
+	{
+		if ( map.second == m_curMap
+			 || map.second == nullptr )
+		{
+			continue;
+		}
+
+		EntityComponent* entityComponent = map.second->GetSpriteAnimComponentFromEntityId( id );
 		if ( entityComponent != nullptr )
 		{
 			return entityComponent;

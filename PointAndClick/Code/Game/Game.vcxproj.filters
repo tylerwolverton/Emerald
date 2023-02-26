@@ -55,10 +55,25 @@
     <ClCompile Include="Framework\World.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="DataParsing\EntityDefinition.cpp">
+    <ClCompile Include="DataParsing\MapDefinition.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
-    <ClCompile Include="DataParsing\MapDefinition.cpp">
+    <ClCompile Include="DataParsing\EntityTypeDefinition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteAnimationSystem.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteRenderingSystem.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteAnimationComponent.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteAnimationComponentDefinition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteAnimationScene.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +89,12 @@
     <ClInclude Include="Framework\GameEntity.hpp" />
     <ClInclude Include="Framework\Map.hpp" />
     <ClInclude Include="Framework\World.hpp" />
-    <ClInclude Include="DataParsing\EntityDefinition.hpp" />
     <ClInclude Include="DataParsing\MapDefinition.hpp" />
+    <ClInclude Include="DataParsing\EntityTypeDefinition.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationSystem.hpp" />
+    <ClInclude Include="Graphics\SpriteRenderingSystem.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationScene.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationComponent.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationComponentDefinition.hpp" />
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrComponent::ZephyrComponent( const ZephyrComponentDefinition& componentDef, const EntityId& parentEntityId )
+ZephyrComponent::ZephyrComponent( const EntityId& parentEntityId, const ZephyrComponentDefinition& componentDef )
 	: EntityComponent( parentEntityId )
 	, m_componentDef( componentDef )
 {

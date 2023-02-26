@@ -3,7 +3,7 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
 
-#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Game/Framework/Map.hpp"
 
 
@@ -101,7 +101,7 @@ void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem )
 
 	std::string entityType = ParseXmlAttribute( entityElem, "type", "" );
 	mapEntityDef.name = ParseXmlAttribute( entityElem, "name", "" );
-	mapEntityDef.entityDef = EntityDefinition::GetEntityDefinition( entityType );
+	mapEntityDef.entityDef = EntityTypeDefinition::GetEntityDefinition( entityType );
 	if ( mapEntityDef.entityDef == nullptr )
 	{
 		g_devConsole->PrintError( Stringf( "Map file '%s': Entity '%s' was not defined in EntityTypes.xml", mapName.c_str(), entityType.c_str() ) );

@@ -19,7 +19,7 @@ ZephyrComponent* ZephyrSystem::CreateComponent( Entity* parentEntity, const Zeph
 		return nullptr;
 	}
 
-	ZephyrComponent* zephyrComp = new ZephyrComponent( componentDef, parentEntity->GetId() );
+	ZephyrComponent* zephyrComp = new ZephyrComponent( parentEntity->GetId(), componentDef );
 	if ( !zephyrComp->Initialize() )
 	{
 		return zephyrComp;

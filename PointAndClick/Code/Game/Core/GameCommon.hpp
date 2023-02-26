@@ -1,4 +1,6 @@
 #pragma once
+#include "Engine/Core/EngineCommon.hpp"
+
 #include <string>
 
 class Window;
@@ -23,6 +25,12 @@ extern AudioSystem* g_audioSystem;
 extern RenderContext* g_renderer;
 extern Game* g_game;
 extern PerformanceTracker* g_performanceTracker;
+
+
+//-----------------------------------------------------------------------------------------------
+// Component Type Ids (reserve below 1000 for engine)
+//
+constexpr EntityComponentTypeId ENTITY_COMPONENT_TYPE_SPRITE_ANIM = 1000;
 
 
 //-----------------------------------------------------------------------------------------------

@@ -11,9 +11,10 @@ struct MapDefinition;
 struct Vec2;
 struct Vec3;
 struct ZephyrScene;
+struct SpriteAnimationScene;
 class Clock;
 class EntityComponent;
-class EntityDefinition;
+class EntityTypeDefinition;
 class GameEntity;
 class Map;
 
@@ -39,7 +40,7 @@ public:
 	void				ReloadAllEntityScripts();
 
 	void				WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
-	GameEntity*			AddEntityFromDefinition( const EntityDefinition& entityDef, const std::string& entityName = "" );
+	GameEntity*			AddEntityFromDefinition( const EntityTypeDefinition& entityDef, const std::string& entityName = "" );
 
 	void				InitializeAllZephyrEntityVariables();
 	void				CallAllZephyrSpawnEvents();
@@ -56,8 +57,10 @@ public:
 	GameEntity*			GetEntityByNameInCurMap( const std::string& name );
 	GameEntity*			GetEntityAtPosition( const Vec3& position ) const;
 
+	// World switches on component type instead of map since it can see all world entities and each map
 	EntityComponent*	GetComponentFromEntityId( const EntityId& id, const EntityComponentTypeId& componentTypeId );
 	EntityComponent*	GetZephyrComponentFromEntityId( const EntityId& id );
+	EntityComponent*	GetSpriteAnimComponentFromEntityId( const EntityId& id );
 
 private:
 	Map* GetLoadedMapByName( const std::string& mapName );
@@ -75,4 +78,5 @@ private:
 	std::unordered_map<EntityId, GameEntity*> m_entitiesById;
 
 	ZephyrScene* m_zephyrScene = nullptr;
+	SpriteAnimationScene* m_spriteAnimScene = nullptr;
 };

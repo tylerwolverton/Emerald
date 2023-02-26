@@ -43,6 +43,7 @@ public:
 
 	void AddFrameEvent( int frameNum, const std::string& eventName );
 	void FireFrameEvent( int frameNum, GameEntity* parent );
+	void FireFrameEvent( int frameNum, const EntityId& parentId );
 
 	int GetNumFrames() const; // Assumes directional anims all have same number of frames
 

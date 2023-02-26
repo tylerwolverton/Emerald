@@ -1,4 +1,4 @@
-#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
@@ -10,30 +10,31 @@
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
 #include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
+#include "Game/Graphics/SpriteAnimationComponentDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-std::map< std::string, EntityDefinition* > EntityDefinition::s_definitions;
+std::map< std::string, EntityTypeDefinition* > EntityTypeDefinition::s_definitions;
+
+
+////-----------------------------------------------------------------------------------------------
+//SpriteAnimationSetDefinition* EntityTypeDefinition::GetSpriteAnimSetDef( const std::string& animSetName ) const
+//{
+//	auto mapIter = m_spriteAnimSetDefs.find( animSetName );
+//
+//	if ( mapIter == m_spriteAnimSetDefs.cend() )
+//	{
+//		return nullptr;
+//	}
+//
+//	return mapIter->second;
+//}
 
 
 //-----------------------------------------------------------------------------------------------
-SpriteAnimationSetDefinition* EntityDefinition::GetSpriteAnimSetDef( const std::string& animSetName ) const
+EntityTypeDefinition* EntityTypeDefinition::GetEntityDefinition( std::string entityName )
 {
-	auto mapIter = m_spriteAnimSetDefs.find( animSetName );
-
-	if ( mapIter == m_spriteAnimSetDefs.cend() )
-	{
-		return nullptr;
-	}
-
-	return mapIter->second;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName )
-{
-	std::map< std::string, EntityDefinition* >::const_iterator  mapIter = EntityDefinition::s_definitions.find( entityName );
+	std::map< std::string, EntityTypeDefinition* >::const_iterator  mapIter = EntityTypeDefinition::s_definitions.find( entityName );
 
 	if ( mapIter == s_definitions.cend() )
 	{
@@ -45,7 +46,7 @@ EntityDefinition* EntityDefinition::GetEntityDefinition( std::string entityName 
 
 
 //-----------------------------------------------------------------------------------------------
-EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet )
+EntityTypeDefinition::EntityTypeDefinition( const XmlElement& entityDefElem, SpriteSheet* defaultSpriteSheet )
 {
 	m_type = ParseXmlAttribute( entityDefElem, "name", "" );
 	if ( m_type == "" )
@@ -58,50 +59,13 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 	const XmlElement* appearanceElem = entityDefElem.FirstChildElement( "Appearance" );
 	if ( appearanceElem != nullptr )
 	{
-		SpriteSheet* spriteSheet = defaultSpriteSheet;
-
-		std::string spriteSheetPath = ParseXmlAttribute( *appearanceElem, "spriteSheet", "" );
-		if ( spriteSheetPath != "" )
+		SpriteSheet* spriteSheet = ParseSpriteSheet( *appearanceElem );
+		if ( spriteSheet == nullptr )
 		{
-			spriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
-			if ( spriteSheet == nullptr )
-			{
-				IntVec2 spriteSheetDimensions = ParseXmlAttribute( *appearanceElem, "spriteSheetDimensions", IntVec2( -1, -1 ) );
-				if ( spriteSheetDimensions == IntVec2( -1, -1 ) )
-				{
-					g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Missing layout attribute", m_type.c_str() ) );
-					return;
-				}
-
-				Texture* texture = g_renderer->CreateOrGetTextureFromFile( spriteSheetPath.c_str() );
-				if ( texture == nullptr )
-				{
-					g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Couldn't load texture '%s'", spriteSheetPath.c_str(), m_type.c_str() ) );
-					return;
-				}
-
-				spriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
-			}
+			spriteSheet = defaultSpriteSheet;
 		}
 
-		m_localDrawBounds = ParseXmlAttribute( *appearanceElem, "localDrawBounds", m_localDrawBounds );
-		float defaultFPS = ParseXmlAttribute( *appearanceElem, "fps", 1.f );
-
-		bool isFirstAnim = true;
-
-		const XmlElement* animationSetElem = appearanceElem->FirstChildElement();
-		while ( animationSetElem != nullptr )
-		{
-			m_spriteAnimSetDefs[animationSetElem->Name()] = new SpriteAnimationSetDefinition( spriteSheet, *animationSetElem, defaultFPS );
-
-			if ( isFirstAnim )
-			{
-				isFirstAnim = false;
-				m_defaultSpriteAnimSetDef = m_spriteAnimSetDefs[animationSetElem->Name()];
-			}
-
-			animationSetElem = animationSetElem->NextSiblingElement();
-		}
+		ParseSpriteAnimCompDef( spriteSheet, *appearanceElem );
 	}
 
 	// Gameplay
@@ -123,14 +87,15 @@ EntityDefinition::EntityDefinition( const XmlElement& entityDefElem, SpriteSheet
 
 
 //-----------------------------------------------------------------------------------------------
-EntityDefinition::~EntityDefinition()
+EntityTypeDefinition::~EntityTypeDefinition()
 {
-	PTR_MAP_SAFE_DELETE( m_spriteAnimSetDefs );
+	PTR_SAFE_DELETE( m_zephyrDef );
+	PTR_SAFE_DELETE( m_spriteAnimCompDef );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void EntityDefinition::ParseZephyrCompDef( const std::string& entityType, const XmlElement& scriptElem )
+void EntityTypeDefinition::ParseZephyrCompDef( const std::string& entityType, const XmlElement& scriptElem )
 {
 	m_zephyrDef = new ZephyrComponentDefinition();
 
@@ -214,4 +179,64 @@ void EntityDefinition::ParseZephyrCompDef( const std::string& entityType, const 
 	}
 
 	m_zephyrDef->isScriptValid = true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void EntityTypeDefinition::ParseSpriteAnimCompDef( SpriteSheet* spriteSheet, const XmlElement& spriteAnimationElem )
+{
+	m_spriteAnimCompDef = new SpriteAnimationComponentDefinition();
+
+	m_spriteAnimCompDef->localDrawBounds = ParseXmlAttribute( spriteAnimationElem, "localDrawBounds", m_spriteAnimCompDef->localDrawBounds );
+	float defaultFPS = ParseXmlAttribute( spriteAnimationElem, "fps", 1.f );
+
+	bool isFirstAnim = true;
+
+	const XmlElement* animationSetElem = spriteAnimationElem.FirstChildElement();
+	while ( animationSetElem != nullptr )
+	{
+		m_spriteAnimCompDef->spriteAnimSetDefs[animationSetElem->Name()] = new SpriteAnimationSetDefinition( spriteSheet, *animationSetElem, defaultFPS );
+
+		if ( isFirstAnim )
+		{
+			isFirstAnim = false;
+			m_spriteAnimCompDef->defaultSpriteAnimSetDef = m_spriteAnimCompDef->spriteAnimSetDefs[animationSetElem->Name()];
+		}
+
+		animationSetElem = animationSetElem->NextSiblingElement();
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+SpriteSheet* EntityTypeDefinition::ParseSpriteSheet( const XmlElement& spriteSheetElem )
+{
+	SpriteSheet* spriteSheet = nullptr;
+
+	// Register a new sprite sheet if specified
+	std::string spriteSheetPath = ParseXmlAttribute( spriteSheetElem, "spriteSheet", "" );
+	if ( spriteSheetPath != "" )
+	{
+		spriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
+		if ( spriteSheet == nullptr )
+		{
+			IntVec2 spriteSheetDimensions = ParseXmlAttribute( spriteSheetElem, "spriteSheetDimensions", IntVec2( -1, -1 ) );
+			if ( spriteSheetDimensions == IntVec2( -1, -1 ) )
+			{
+				g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Missing layout attribute", m_type.c_str() ) );
+				return nullptr;
+			}
+
+			Texture* texture = g_renderer->CreateOrGetTextureFromFile( spriteSheetPath.c_str() );
+			if ( texture == nullptr )
+			{
+				g_devConsole->PrintError( Stringf( "EntityTypes.xml: '%s' Couldn't load texture '%s'", spriteSheetPath.c_str(), m_type.c_str() ) );
+				return nullptr;
+			}
+
+			spriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
+		}
+	}
+
+	return spriteSheet;
 }

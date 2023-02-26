@@ -18,22 +18,21 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 #include "Game/Core/GameCommon.hpp"
-#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Game/Framework/Game.hpp"
 #include "Game/Framework/Map.hpp"
 #include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
+#include "Game/Graphics/SpriteAnimationSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity::GameEntity( const EntityDefinition& entityDef, Map* map )
+GameEntity::GameEntity( const EntityTypeDefinition& entityDef, Map* map )
 	: m_entityDef( entityDef )
 	, m_map( map )
 {
 	m_curHealth = m_entityDef.GetMaxHealth();
 
 	Unload();
-
-	m_curSpriteAnimSetDef = m_entityDef.GetDefaultSpriteAnimSetDef();
 }
 
 
@@ -41,26 +40,6 @@ GameEntity::GameEntity( const EntityDefinition& entityDef, Map* map )
 GameEntity::~GameEntity()
 {
 	g_eventSystem->DeRegisterObject( this );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void GameEntity::Update( float deltaSeconds )
-{
-	m_cumulativeTime += deltaSeconds;
-
-	//ZephyrEntity::Update( deltaSeconds );
-
-	UpdateFromKeyboard( deltaSeconds );
-
-	SpriteAnimDefinition* animDef = nullptr;
-	if ( m_curSpriteAnimSetDef != nullptr )
-	{
-		animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( m_facingDirection );
-		int frameIndex = animDef->GetFrameIndexAtTime( m_cumulativeTime );
-
-		m_curSpriteAnimSetDef->FireFrameEvent( frameIndex, this );
-	}
 }
 
 
@@ -109,50 +88,35 @@ void GameEntity::UpdateFromKeyboard(float deltaSeconds)
 
 
 //-----------------------------------------------------------------------------------------------
-void GameEntity::Render() const
+void GameEntity::DebugRender() const
 {
-	SpriteAnimDefinition* animDef = nullptr;
-	if ( m_curSpriteAnimSetDef == nullptr )
+	g_renderer->BindTexture( 0, nullptr );
+	DrawRing2D( g_renderer, GetPosition().XY(), .5f, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
+	//DrawAABB2Outline( g_renderer, GetPosition().XY(), m_entityDef.m_localDrawBounds, Rgba8::MAGENTA, DEBUG_LINE_THICKNESS );
+	//DrawRing2D( g_renderer, GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void GameEntity::Load()
+{
+	if ( m_isDead )
 	{
 		return;
 	}
+}
 
-	animDef = m_curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( Vec2::ZERO );
-	
-	const SpriteDefinition& spriteDef = animDef->GetSpriteDefAtTime( m_cumulativeTime );
 
-	Vec2 mins, maxs;
-	spriteDef.GetUVs( mins, maxs );
-
-	std::vector<Vertex_PCU> vertexes;
-	AppendVertsForAABB2D( vertexes, m_entityDef.m_localDrawBounds, Rgba8::WHITE, mins, maxs );
-
-	Vertex_PCU::TransformVertexArray( vertexes, 1.f, 0.f, GetPosition() );
-
-	g_renderer->BindTexture( 0, &( spriteDef.GetTexture() ) );
-	g_renderer->DrawVertexArray( vertexes );
+//-----------------------------------------------------------------------------------------------
+void GameEntity::Unload()
+{
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void GameEntity::Die()
 {
-	if ( IsDead() )
-	{
-		return;
-	}
-
 	m_isDead = true;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void GameEntity::DebugRender() const
-{
-	g_renderer->BindTexture( 0, nullptr );
-	DrawRing2D( g_renderer, GetPosition().XY(), .5f, Rgba8::CYAN, DEBUG_LINE_THICKNESS );
-	DrawAABB2Outline( g_renderer, GetPosition().XY(), m_entityDef.m_localDrawBounds, Rgba8::MAGENTA, DEBUG_LINE_THICKNESS );
-	//DrawRing2D( g_renderer, GetPosition().XY() + m_forwardVector * ( GetPhysicsRadius() + .1f ), .1f, Rgba8::GREEN, DEBUG_LINE_THICKNESS );
 }
 
 
@@ -296,49 +260,16 @@ void GameEntity::SetGlobalVariable( const std::string& varName, const ZephyrValu
 
 
 //-----------------------------------------------------------------------------------------------
-void GameEntity::Load()
-{
-	if ( m_isDead )
-	{
-		return;
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void GameEntity::Unload()
-{
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void GameEntity::ChangeSpriteAnimation( const std::string& spriteAnimDefSetName )
 {
-	SpriteAnimationSetDefinition* newSpriteAnimSetDef = m_entityDef.GetSpriteAnimSetDef( spriteAnimDefSetName );
-
-	if ( newSpriteAnimSetDef == nullptr )
-	{
-		//g_devConsole->PrintWarning( Stringf( "Warning: Failed to change animation for entity '%s' to undefined animation '%s'", m_name.c_str(), spriteAnimDefSetName.c_str() ) );
-		return;
-	}
-
-	m_curSpriteAnimSetDef = newSpriteAnimSetDef;
+	SpriteAnimationSystem::ChangeSpriteAnimation( m_id, spriteAnimDefSetName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void GameEntity::PlaySpriteAnimation( const std::string& spriteAnimDefSetName )
 {
-	SpriteAnimationSetDefinition* newSpriteAnimSetDef = m_entityDef.GetSpriteAnimSetDef( spriteAnimDefSetName );
-
-	if ( newSpriteAnimSetDef == nullptr )
-	{
-		//g_devConsole->PrintWarning( Stringf( "Warning: Failed to change animation for entity '%s' to undefined animation '%s'", GetName().c_str(), spriteAnimDefSetName.c_str() ) );
-		return;
-	}
-
-	m_curSpriteAnimSetDef = newSpriteAnimSetDef;
-	m_cumulativeTime = 0.f;
+	SpriteAnimationSystem::PlaySpriteAnimation( m_id, spriteAnimDefSetName );
 }
 
 

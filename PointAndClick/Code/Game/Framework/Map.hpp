@@ -9,12 +9,13 @@
 
 //-----------------------------------------------------------------------------------------------
 class GameEntity;
-class EntityDefinition;
+class EntityTypeDefinition;
 class World;
 struct MapDefinition;
 struct MapEntityDefinition;
 struct Vec2;
 struct ZephyrScene;
+struct SpriteAnimationScene;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ public:
 	virtual void DebugRender() const;
 
 	virtual GameEntity* SpawnNewEntityFromName( const std::string& entityDefName );
-	virtual GameEntity* SpawnNewEntityFromDef( const EntityDefinition& entityDef );
+	virtual GameEntity* SpawnNewEntityFromDef( const EntityTypeDefinition& entityDef );
 	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec2& pos );
 	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec3& pos );
 
@@ -53,13 +54,15 @@ public:
 
 	GameEntity* GetEntityByName( const std::string& name );
 	GameEntity* GetEntityById( EntityId id );
-	EntityComponent* GetZephyrComponentFromEntityId( const EntityId& id );
-
 	GameEntity* GetEntityAtPosition( const Vec2& position ) const;
 	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
+	
+	EntityComponent* GetZephyrComponentFromEntityId( const EntityId& id );
+	EntityComponent* GetSpriteAnimComponentFromEntityId( const EntityId& id );
 
 private:
 	void LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& mapEntityDefs );
+	void CreateAndAttachEntityComponents( GameEntity* newEntity, const MapEntityDefinition& mapEntityDef );
 	
 	void AddToEntityList( GameEntity* entity );
 	void RemoveFromEntityList( GameEntity* entity );
@@ -71,8 +74,9 @@ protected:
 	World*						m_world = nullptr;
 
 	ZephyrScene*				m_zephyrScene = nullptr;
+	SpriteAnimationScene*		m_spriteAnimScene = nullptr;
 
-	// TODO: Remove and have portals say where in new map to go to
+	// TODO: Remove and have portals say where in new map to go to?
 	Vec3						m_playerStartPos = Vec3::ZERO;
 	float						m_playerStartYaw = 0.f;
 

@@ -262,7 +262,7 @@ void Game::InitializePlayerController()
 		return;
 	}
 
-	EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
+	EntityTypeDefinition* playerDef = EntityTypeDefinition::GetEntityDefinition( playerEntityName );
 	if ( playerDef == nullptr )
 	{
 		g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
@@ -427,10 +427,10 @@ void Game::LoadEntityTypesFromXml()
 	{
 		if ( !strcmp( element->Name(), "Entity" ) )
 		{
-			EntityDefinition* entityTypeDef = new EntityDefinition( *element, defaultSpriteSheet );
+			EntityTypeDefinition* entityTypeDef = new EntityTypeDefinition( *element, defaultSpriteSheet );
 			if ( entityTypeDef->IsValid() )
 			{
-				EntityDefinition::s_definitions[entityTypeDef->GetType()] = entityTypeDef;
+				EntityTypeDefinition::s_definitions[entityTypeDef->GetType()] = entityTypeDef;
 			}
 		}
 		else
@@ -449,7 +449,7 @@ void Game::LoadEntityTypesFromXml()
 		return;
 	}
 
-	//EntityDefinition* playerDef = EntityDefinition::GetEntityDefinition( playerEntityName );
+	//EntityTypeDefinition* playerDef = EntityTypeDefinition::GetEntityDefinition( playerEntityName );
 	//if ( playerDef == nullptr )
 	//{
 	//	g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
@@ -508,7 +508,7 @@ void Game::LoadWorldDefinitionFromXml()
 				return;
 			}
 
-			EntityDefinition* entityTypeDef = EntityDefinition::GetEntityDefinition( entityTypeStr );
+			EntityTypeDefinition* entityTypeDef = EntityTypeDefinition::GetEntityDefinition( entityTypeStr );
 			if ( entityTypeDef == nullptr )
 			{
 				g_devConsole->PrintError( Stringf( "'%s': Entity type '%s' was not defined in EntityTypes.xml", filePath.c_str(), entityTypeStr.c_str() ) );
@@ -583,7 +583,7 @@ void Game::ReloadGame()
 	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
-	PTR_MAP_SAFE_DELETE( EntityDefinition::s_definitions );
+	PTR_MAP_SAFE_DELETE( EntityTypeDefinition::s_definitions );
 	PTR_VECTOR_SAFE_DELETE( SpriteSheet::s_definitions );
 
 	//g_physicsSystem->Reset();
@@ -607,7 +607,7 @@ void Game::ReloadScripts()
 	
 	LoadAndCompileZephyrScripts();
 
-	for ( auto& entityDef : EntityDefinition::s_definitions )
+	for ( auto& entityDef : EntityTypeDefinition::s_definitions )
 	{
 		if ( entityDef.second != nullptr )
 		{
