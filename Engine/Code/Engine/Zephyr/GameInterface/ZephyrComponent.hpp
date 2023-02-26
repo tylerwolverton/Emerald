@@ -42,8 +42,6 @@ public:
 
 	// Accessors
 	std::string		GetScriptName() const													{ return m_componentDef.zephyrScriptName;	}
-	EntityId		GetParentEntityId() const;
-	std::string		GetParentEntityName() const;
 	ZephyrValue		GetGlobalVariable( const std::string& varName );
 	void			SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 	bool			IsScriptValid() const													{ return m_compState != eComponentState::INVALID_SCRIPT
@@ -58,8 +56,6 @@ private:
 
 public:
 	const ZephyrComponentDefinition& m_componentDef;
-
-	EntityId m_parentEntityId = INVALID_ENTITY_ID;
 
 	// Initial values for entity variables are given as names but must be translated into ids after all entities are loaded
 	std::vector<EntityVariableInitializer> m_entityVarInits;

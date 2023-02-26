@@ -1,4 +1,4 @@
-#include "Game/SpriteAnimationSetDefinition.hpp"
+#include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 #include "Engine/Renderer/Camera.hpp"
 #include "Engine/Renderer/SpriteSheet.hpp"
 #include "Engine/Renderer/RenderContext.hpp"
@@ -8,8 +8,8 @@
 #include "Engine/Math/IntRange.hpp"
 #include "Engine/Math/MathUtils.hpp"
 
-#include "Game/GameCommon.hpp"
-#include "Game/GameEntity.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/Framework/GameEntity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------

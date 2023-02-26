@@ -23,98 +23,58 @@
     <Filter Include="Core">
       <UniqueIdentifier>{f8621b12-feda-44ff-8829-0bd0528b6b06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataParsers">
+      <UniqueIdentifier>{b6e6e09d-d032-43d4-92a6-acda62d97e7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Game.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Map.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="EntityDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="Main_Windows.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="App.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="GameCommon.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteAnimationSetDefinition.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="MapDefinition.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="GameEntity.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Scripting\ZephyrGameEvents.cpp">
       <Filter>Scripting</Filter>
     </ClCompile>
+    <ClCompile Include="Core\App.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\GameCommon.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Main_Windows.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\SpriteAnimationSetDefinition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Game.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\GameEntity.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Map.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\World.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DataParsing\EntityDefinition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DataParsing\MapDefinition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Map.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="World.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="EntityDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="App.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="EngineBuildPreferences.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GameCommon.hpp">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteAnimationSetDefinition.hpp">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="MapDefinition.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEntity.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
       <Filter>Scripting</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="..\..\Run\Data\GameConfig.xml">
-      <Filter>Data</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Gameplay\TileDefs.xml">
-      <Filter>Data\Gameplay</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Gameplay\TileMaterialDefs.xml">
-      <Filter>Data\Gameplay</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Gameplay\EntityTypes.xml">
-      <Filter>Data\Gameplay</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Maps\Level1.xml">
-      <Filter>Data\Maps</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\Gameplay\WorldDef.xml">
-      <Filter>Data\Gameplay</Filter>
-    </Xml>
-    <Xml Include="..\..\Run\Data\PhysicsConfig.xml">
-      <Filter>Data</Filter>
-    </Xml>
+    <ClInclude Include="Core\App.hpp" />
+    <ClInclude Include="Core\EngineBuildPreferences.hpp" />
+    <ClInclude Include="Core\GameCommon.hpp" />
+    <ClInclude Include="Graphics\SpriteAnimationSetDefinition.hpp" />
+    <ClInclude Include="Framework\Game.hpp" />
+    <ClInclude Include="Framework\GameEntity.hpp" />
+    <ClInclude Include="Framework\Map.hpp" />
+    <ClInclude Include="Framework\World.hpp" />
+    <ClInclude Include="DataParsing\EntityDefinition.hpp" />
+    <ClInclude Include="DataParsing\MapDefinition.hpp" />
   </ItemGroup>
 </Project>

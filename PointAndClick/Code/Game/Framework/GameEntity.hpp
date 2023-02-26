@@ -9,7 +9,7 @@
 #include "Engine/Time/Timer.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
-#include "Game/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityDefinition.hpp"
 
 #include <string>
 #include <vector>

@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Math/Vec3.hpp"
-#include "Game/GameCommon.hpp"
+#include "Game/Core/GameCommon.hpp"
 
 #include <string>
 #include <vector>
@@ -35,20 +35,18 @@ public:
 	virtual void Render() const;
 	virtual void DebugRender() const;
 
-	virtual GameEntity* SpawnNewEntityOfType( const std::string& entityDefName );
-	virtual GameEntity* SpawnNewEntityOfType( const EntityDefinition& entityDef );
-	virtual GameEntity* SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos );
-	virtual GameEntity* SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec3& pos );
+	virtual GameEntity* SpawnNewEntityFromName( const std::string& entityDefName );
+	virtual GameEntity* SpawnNewEntityFromDef( const EntityDefinition& entityDef );
+	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec2& pos );
+	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec3& pos );
 
 	void			UnloadAllEntityScripts();
 	void			ReloadAllEntityScripts();
 	void			InitializeAllZephyrEntityVariables();
-
 	void			CallAllMapEntityZephyrSpawnEvents();
 
 	Vec3 GetPlayerStartPos() const										{ return m_playerStartPos; }
 	std::string GetName() const											{ return m_name; }
-	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
 
 	void RemoveOwnershipOfEntity( GameEntity* entityToRemove );
 	void TakeOwnershipOfEntity( GameEntity* entityToAdd );
@@ -57,15 +55,16 @@ public:
 	GameEntity* GetEntityById( EntityId id );
 	EntityComponent* GetZephyrComponentFromEntityId( const EntityId& id );
 
-	GameEntity* GetEntityAtPosition( const Vec2& position );
-	GameEntity* GetEntityAtPosition( const Vec3& position );
+	GameEntity* GetEntityAtPosition( const Vec2& position ) const;
+	GameEntity* GetEntityAtPosition( const Vec3& position ) const;
 
 private:
-	void LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs );
+	void LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& mapEntityDefs );
 	
 	void AddToEntityList( GameEntity* entity );
+	void RemoveFromEntityList( GameEntity* entity );
 
-	void DeleteDeadEntities();
+	void DeleteGarbageEntities();
 
 protected:
 	std::string					m_name;
@@ -73,7 +72,7 @@ protected:
 
 	ZephyrScene*				m_zephyrScene = nullptr;
 
-	// Multiplayer TODO: Make this into an array
+	// TODO: Remove and have portals say where in new map to go to
 	Vec3						m_playerStartPos = Vec3::ZERO;
 	float						m_playerStartYaw = 0.f;
 

@@ -16,9 +16,6 @@ class ZephyrScriptDefinition;
 class ZephyrInterpreter
 {
 public:
-	static void BeginFrame();
-	static void EndFrame();
-
 	static void InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
 											 ZephyrValueMap* globalVariables,
 											 ZephyrComponent& zephyrComponent,

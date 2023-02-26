@@ -1,10 +1,10 @@
-#include "Game/MapDefinition.hpp"
+#include "Game/DataParsing/MapDefinition.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
 
-#include "Game/EntityDefinition.hpp"
-#include "Game/Map.hpp"
+#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/Framework/Map.hpp"
 
 
 //-----------------------------------------------------------------------------------------------

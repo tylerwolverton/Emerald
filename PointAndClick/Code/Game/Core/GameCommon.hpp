@@ -43,13 +43,6 @@ constexpr float WINDOW_HEIGHT = 9.f;
 constexpr float WINDOW_WIDTH_PIXELS = 1920.f;
 constexpr float WINDOW_HEIGHT_PIXELS = 1080.f;
 
-constexpr float TILE_SIZE = 1.f;
-
-constexpr float PLAYER_PHYSICS_RADIUS = .25f;
-constexpr float PLAYER_COSMETIC_RADIUS = .4f;
-constexpr float PLAYER_SPEED = .25f;
-constexpr float PLAYER_MAX_SPEED = 1.f;
-
 constexpr float DEBUG_LINE_THICKNESS = 0.02f;
 
 constexpr float MAX_CAMERA_SHAKE_DIST = 5.f;

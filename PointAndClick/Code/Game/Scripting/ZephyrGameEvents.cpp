@@ -9,11 +9,11 @@
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/GameCommon.hpp"
-#include "Game/Game.hpp"
-#include "Game/Map.hpp"
-#include "Game/GameEntity.hpp"
-#include "Game/SpriteAnimationSetDefinition.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/Framework/Game.hpp"
+#include "Game/Framework/Map.hpp"
+#include "Game/Framework/GameEntity.hpp"
+#include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 
 
 #define REGISTER_EVENT( eventName ) {\

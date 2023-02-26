@@ -4,8 +4,8 @@
 #include <cassert>
 #include <crtdbg.h>
 
-#include "Game/GameCommon.hpp"
-#include "Game/App.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/Core/App.hpp"
 
 
 //-----------------------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 //	Downside: ALL games must now have this Code/Game/EngineBuildPreferences.hpp file.
 //
 // SD1 NOTE: THIS MEANS *EVERY* GAME MUST HAVE AN EngineBuildPreferences.hpp FILE IN ITS CODE/GAME FOLDER!!
-#include "Game/EngineBuildPreferences.hpp"
+#include "Game/Core/EngineBuildPreferences.hpp"
 #if !defined( ENGINE_DISABLE_AUDIO )
 
 

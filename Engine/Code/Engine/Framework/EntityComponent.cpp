@@ -1,4 +1,5 @@
 #include "Engine/Framework/EntityComponent.hpp"
+#include "Engine/Framework/Entity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -7,9 +8,22 @@ std::map<EntityComponentId, std::string> EntityComponent::s_componentTypeNames;
 
 
 //-----------------------------------------------------------------------------------------------
-EntityComponent::EntityComponent()
+EntityComponent::EntityComponent( const EntityId& parentEntityId )
+	: m_parentEntityId( parentEntityId )
 {
 	m_id = s_nextComponentId++;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string EntityComponent::GetParentEntityName() const
+{
+	if ( m_parentEntityId == INVALID_ENTITY_ID )
+	{
+		return "Unknown";
+	}
+
+	return Entity::GetName( m_parentEntityId );
 }
 
 

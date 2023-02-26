@@ -1,4 +1,4 @@
-#include "Game/Map.hpp"
+#include "Game/Framework/Map.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -14,12 +14,12 @@
 #include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
-#include "Game/GameCommon.hpp"
-#include "Game/Game.hpp"
-#include "Game/World.hpp"
-#include "Game/GameEntity.hpp"
-#include "Game/EntityDefinition.hpp"
-#include "Game/MapDefinition.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/DataParsing/MapDefinition.hpp"
+#include "Game/Framework/Game.hpp"
+#include "Game/Framework/World.hpp"
+#include "Game/Framework/GameEntity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void Map::Update( float deltaSeconds )
 
 	//UpdateMesh();
 
-	DeleteDeadEntities();
+	DeleteGarbageEntities();
 }
 
 
@@ -144,7 +144,7 @@ void Map::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
+GameEntity* Map::SpawnNewEntityFromName( const std::string& entityDefName )
 {
 	EntityDefinition* entityDef = EntityDefinition::GetEntityDefinition( entityDefName );
 	if ( entityDef == nullptr )
@@ -153,7 +153,7 @@ GameEntity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 		return nullptr;
 	}
 
-	GameEntity* newEntity = SpawnNewEntityOfType( *entityDef );
+	GameEntity* newEntity = SpawnNewEntityFromDef( *entityDef );
 	if ( entityDef->HasZephyrScript() )
 	{
 		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
@@ -164,7 +164,7 @@ GameEntity* Map::SpawnNewEntityOfType( const std::string& entityDefName )
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
+GameEntity* Map::SpawnNewEntityFromDef( const EntityDefinition& entityDef )
 {
 	GameEntity* entity = new GameEntity( entityDef, this );
 	AddToEntityList( entity );
@@ -173,18 +173,17 @@ GameEntity* Map::SpawnNewEntityOfType( const EntityDefinition& entityDef )
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec2& pos )
+GameEntity* Map::SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec2& pos )
 {
-	return SpawnNewEntityOfTypeAtPosition( entityDefName, Vec3( pos, 0.f ) );
+	return SpawnNewEntityFromNameAtPosition( entityDefName, Vec3( pos, 0.f ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityOfTypeAtPosition( const std::string& entityDefName, const Vec3& pos )
+GameEntity* Map::SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec3& pos )
 {
-	GameEntity* entity = SpawnNewEntityOfType( entityDefName );
+	GameEntity* entity = SpawnNewEntityFromName( entityDefName );
 	entity->SetPosition( pos );
-
 	return entity;
 }
 
@@ -220,42 +219,31 @@ void Map::CallAllMapEntityZephyrSpawnEvents()
 //-----------------------------------------------------------------------------------------------
 void Map::RemoveOwnershipOfEntity( GameEntity* entityToRemove )
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	if ( entityToRemove == nullptr )
 	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		if ( entity == entityToRemove )
-		{
-			m_entities[entityIdx] = nullptr;
-		}
+		return;
 	}
+
+	RemoveFromEntityList( entityToRemove );
+	entityToRemove->SetMap( nullptr );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void Map::TakeOwnershipOfEntity( GameEntity* entityToAdd )
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	if ( entityToAdd == nullptr )
 	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			entity = entityToAdd;
-			return;
-		}
+		return;
 	}
 
+	AddToEntityList( entityToAdd );
 	entityToAdd->m_map = this;
-	m_entities.push_back( entityToAdd );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
+void Map::LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& mapEntityDefs )
 {
 	for ( int mapEntityIdx = 0; mapEntityIdx < (int)mapEntityDefs.size(); ++mapEntityIdx )
 	{
@@ -265,7 +253,7 @@ void Map::LoadEntities( const std::vector<MapEntityDefinition>& mapEntityDefs )
 			continue;
 		}
 
-		GameEntity* newEntity = SpawnNewEntityOfType( *mapEntityDef.entityDef );
+		GameEntity* newEntity = SpawnNewEntityFromDef( *mapEntityDef.entityDef );
 		if ( newEntity == nullptr )
 		{
 			continue;
@@ -311,14 +299,31 @@ void Map::AddToEntityList( GameEntity* entity )
 }
 
 
+void Map::RemoveFromEntityList( GameEntity* entityToRemove )
+{
+	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	{
+		GameEntity*& entity = m_entities[entityIdx];
+		if ( entity == nullptr )
+		{
+			continue;
+		}
+
+		if ( entity == entityToRemove )
+		{
+			m_entities[entityIdx] = nullptr;
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------------------------
-void Map::DeleteDeadEntities()
+void Map::DeleteGarbageEntities()
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
-			 || !entity->IsDead() )
+			 || !entity->IsGarbage() )
 		{
 			continue;
 		}
@@ -333,18 +338,18 @@ void Map::DeleteDeadEntities()
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::GetEntityByName( const std::string& name )
+GameEntity* Map::GetEntityById( EntityId id )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
-			 || entity->IsDead() )
+			 || entity->IsGarbage() )
 		{
 			continue;
 		}
-		
-		if ( entity->GetName() == name )
+
+		if ( entity->GetId() == id )
 		{
 			return entity;
 		}
@@ -355,18 +360,18 @@ GameEntity* Map::GetEntityByName( const std::string& name )
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::GetEntityById( EntityId id )
+GameEntity* Map::GetEntityByName( const std::string& name )
 {
 	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
 	{
 		GameEntity*& entity = m_entities[entityIdx];
 		if ( entity == nullptr
-			 || entity->IsDead() )
+			 || entity->IsGarbage() )
 		{
 			continue;
 		}
-
-		if ( entity->GetId() == id )
+		
+		if ( entity->GetName() == name )
 		{
 			return entity;
 		}
@@ -392,42 +397,12 @@ EntityComponent* Map::GetZephyrComponentFromEntityId( const EntityId& id )
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::GetEntityAtPosition( const Vec2& position )
+GameEntity* Map::GetEntityAtPosition( const Vec2& position ) const
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
+	for ( GameEntity* entity : m_entities )
 	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr
-			 || entity->IsDead() )
-		{
-			continue;
-		}
-
 		// TODO: Interaction radius
-		if ( IsPointInsideDisc( position, entity->GetPosition().XY(), .5f ) )
-		{
-			return entity;
-		}
-	}
-
-	return nullptr;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Map::GetEntityAtPosition( const Vec3& position )
-{
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity*& entity = m_entities[entityIdx];
-		if ( entity == nullptr
-			 || entity->IsDead() )
-		{
-			continue;
-		}
-
-		// TODO: Interaction radius
-		if ( IsPointInsideSphere( position, entity->GetPosition(), .5f ) )
+		if ( IsPointInsideDiscFast( position, entity->GetPosition().XY(), .5f ) )
 		{
 			return entity;
 		}
@@ -440,14 +415,6 @@ GameEntity* Map::GetEntityAtPosition( const Vec3& position )
 //-----------------------------------------------------------------------------------------------
 GameEntity* Map::GetEntityAtPosition( const Vec3& position ) const
 {
-	for ( GameEntity* entity : m_entities )
-	{
-		if ( IsPointInsideDiscFast( position.XY(), entity->GetPosition().XY(), .5f ) )
-		{
-			return entity;
-		}
-	}
-
-	return nullptr;
+	return GetEntityAtPosition( position.XY() );
 }
 

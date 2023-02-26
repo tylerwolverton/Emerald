@@ -1,4 +1,4 @@
-#include "Game/App.hpp"
+#include "Game/Core/App.hpp"
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/Rgba8.hpp"
@@ -22,23 +22,9 @@
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/GameCommon.hpp"
-#include "Game/Game.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/Framework/Game.hpp"
 #include "Game/Scripting/ZephyrGameEvents.hpp"
-
-
-//-----------------------------------------------------------------------------------------------
-App::App()
-{
-	
-}
-
-
-//-----------------------------------------------------------------------------------------------
-App::~App()
-{
-	
-}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -171,7 +157,6 @@ void App::BeginFrame()
 	g_audioSystem->BeginFrame();
 	g_renderer->BeginFrame();
 	DebugRenderBeginFrame();
-	g_game->BeginFrame();
 }
 
 
@@ -225,7 +210,6 @@ void App::Render() const
 //-----------------------------------------------------------------------------------------------
 void App::EndFrame()
 {
-	g_game->EndFrame();
 	DebugRenderEndFrame();
 	g_renderer->EndFrame();
 	g_audioSystem->EndFrame();

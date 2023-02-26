@@ -3,7 +3,7 @@
 #include "Engine/Math/AABB2.hpp"
 #include "Engine/Math/FloatRange.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
-#include "Game/GameCommon.hpp"
+#include "Game/Core/GameCommon.hpp"
 
 #include <string>
 

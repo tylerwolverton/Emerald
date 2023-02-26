@@ -1,4 +1,4 @@
-#include "Game/GameCommon.hpp"
+#include "Game/Core/GameCommon.hpp"
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/Rgba8.hpp"
 #include "Engine/Core/Vertex_PCU.hpp"
@@ -10,7 +10,7 @@
 
 //-----------------------------------------------------------------------------------------------
 App* g_app = nullptr;								// Owned by Main_Windows.cpp
-Window* g_window = nullptr;							// Owned by Main_Windows.cpp
+Window* g_window = nullptr;							// Owned by the App
 RenderContext* g_renderer = nullptr;				// Owned by the App
 InputSystem* g_inputSystem = nullptr;				// Owned by the App
 AudioSystem* g_audioSystem = nullptr;				// Owned by the App

@@ -3,7 +3,6 @@
 #include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/XmlUtils.hpp"
-#include "Game/GameCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------

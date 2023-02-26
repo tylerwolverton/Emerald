@@ -1,9 +1,8 @@
-#include "Game/Game.hpp"
+#include "Game/Framework/Game.hpp"
 #include "Engine/Audio/AudioSystem.hpp"
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Math/MathUtils.hpp"
-#include "Engine/Math/IntVec2.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/TextBox.hpp"
@@ -24,7 +23,6 @@
 #include "Engine/Time/Time.hpp"
 #include "Engine/UI/UIPanel.hpp"
 #include "Engine/Zephyr/Core/ZephyrCompiler.hpp"
-#include "Engine/Zephyr/Core/ZephyrInterpreter.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
@@ -32,21 +30,9 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/GameEntity.hpp"
-#include "Game/World.hpp"
-#include "Game/MapDefinition.hpp"
-
-
-//-----------------------------------------------------------------------------------------------
-Game::Game()
-{
-} 
-
-
-//-----------------------------------------------------------------------------------------------
-Game::~Game()
-{
-}
+#include "Game/DataParsing/MapDefinition.hpp"
+#include "Game/Framework/World.hpp"
+#include "Game/Framework/GameEntity.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -78,13 +64,6 @@ void Game::Startup()
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
 	g_devConsole->PrintString( "Game Started", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::BeginFrame()
-{
-	ZephyrInterpreter::BeginFrame();
 }
 
 
@@ -257,13 +236,6 @@ void Game::Render() const
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::EndFrame()
-{
-	ZephyrInterpreter::EndFrame();
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::InitializeCameras()
 {
 	m_worldCamera = new Camera();
@@ -306,6 +278,14 @@ void Game::InitializePlayerController()
 		args.SetValue( "newPossessedEntity", playerEntity->GetId() );
 		playerController->FireScriptEvent( "OnPossess", &args );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::InitializeUI()
+{
+	m_uiSystem = new UISystem();
+	m_uiSystem->Startup( g_window, g_renderer );
 }
 
 
@@ -642,6 +622,17 @@ void Game::ReloadScripts()
 
 
 //-----------------------------------------------------------------------------------------------
+void Game::LoadStartingMap( const std::string& mapName )
+{
+	m_world->InitializeAllZephyrEntityVariables();
+
+	m_world->ChangeMap( mapName, nullptr );
+
+	m_world->CallAllZephyrSpawnEvents();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::UpdateFromKeyboard()
 {
 	if ( g_devConsole->IsOpen() )
@@ -719,17 +710,6 @@ void Game::UpdateFromKeyboard()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadStartingMap( const std::string& mapName )
-{
-	m_world->InitializeAllZephyrEntityVariables();
-
-	m_world->ChangeMap( mapName, nullptr );
-
-	m_world->CallAllZephyrSpawnEvents();
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::UpdateMousePositions()
 {
 	UpdateMouseWorldPosition();
@@ -767,189 +747,6 @@ void Game::UpdateCameras()
 	//m_worldCamera->Translate2D( cameraShakeOffset );
 	m_worldCamera->SetPosition( m_focalPoint + Vec3( cameraShakeOffset, 0.f ) );
 	m_worldCamera->SetProjectionOrthographic( WINDOW_HEIGHT );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::InitializeUI()
-{
-	m_uiSystem = new UISystem();
-	m_uiSystem->Startup( g_window, g_renderer );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::PrintBytecodeChunk( EventArgs* args )
-{
-	std::string entityName = args->GetValue( "entityName", "" );
-	std::string chunkName = args->GetValue( "chunkName", "" );
-
-	if ( entityName.empty()
-		 || chunkName.empty() )
-	{
-		return;
-	}
-
-	GameEntity* entity = GetEntityByName( entityName );
-	if ( entity == nullptr )
-	{
-		return;
-	}
-
-	const ZephyrBytecodeChunk* chunk = ZephyrSystem::GetBytecodeChunkByName( entity->GetId(),  chunkName );
-	if ( chunk == nullptr )
-	{
-		return;
-	}
-
-	chunk->Disassemble();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Game::GetEntityAtPosition( const Vec3& position ) const
-{
-	return m_world->GetEntityAtPosition( position );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Game::GetEntityAtPosition( const Vec2& position ) const
-{
-	return GetEntityAtPosition( Vec3( position, 0.f ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::SetWorldCameraPosition( const Vec3& position )
-{
-	m_focalPoint = position;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::AddScreenShakeIntensity(float intensity)
-{
-	m_screenShakeIntensity += intensity;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::PrintToDebugInfoBox( const Rgba8& color, const std::vector< std::string >& textLines )
-{
-	if ( (int)textLines.size() == 0 )
-	{
-		return;
-	}
-
-	m_debugInfoTextBox->SetText( textLines[0], color );
-
-	for ( int textLineIndex = 1; textLineIndex < (int)textLines.size(); ++textLineIndex )
-	{
-		m_debugInfoTextBox->AddLineOFText( textLines[ textLineIndex ], color );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
-{
-	// No entity specified, just load the new map and set camera position and orientation
-	if ( entityToWarp == nullptr )
-	{
-		if ( destMapName != "" )
-		{
-			m_world->ChangeMap( destMapName, nullptr );
-		}
-		
-		return;
-	}
-
-	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-float Game::GetLastDeltaSecondsf()
-{
-	return (float)m_gameClock->GetLastDeltaSeconds();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Game::GetEntityById( EntityId id )
-{
-	return m_world->GetEntityById( id );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Game::GetEntityByName( const std::string& name )
-{
-	return m_world->GetEntityByName( name );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Map* Game::GetMapByName( const std::string& name )
-{
-	return m_world->GetMapByName( name );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-Map* Game::GetCurrentMap()
-{
-	if ( m_world == nullptr )
-	{
-		return nullptr;
-	}
-
-	return m_world->GetCurrentMap();
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::SaveEntityByName( GameEntity* entity )
-{
-	m_world->SaveEntityByName( entity );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::PlaySoundByName( const std::string& soundName, bool isLooped, float volume, float balance, float speed, bool isPaused )
-{
-	auto iter = m_loadedSoundIds.find( soundName );
-	if ( iter == m_loadedSoundIds.end() )
-	{
-		g_devConsole->PrintError( Stringf( "Cannot play unregistered sound, '%s", soundName.c_str() ) );
-		return;
-	}
-
-	SoundID soundId = iter->second;
-
-	g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::ChangeMusic( const std::string& musicName, bool isLooped, float volume, float balance, float speed, bool isPaused )
-{
-	auto iter = m_loadedSoundIds.find( musicName );
-	if ( iter == m_loadedSoundIds.end() )
-	{
-		g_devConsole->PrintError( Stringf( "Cannot play unregistered music, '%s", musicName.c_str() ) );
-		return;
-	}
-
-	SoundID soundId = iter->second;
-	if ( m_curMusicId != (SoundPlaybackID)-1 )
-	{
-		g_audioSystem->StopSound( m_curMusicId );
-	}
-
-	m_curMusicName = musicName;
-	m_curMusicId = g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
 }
 
 
@@ -1078,6 +875,120 @@ void Game::ChangeGameState( const eGameState& newGameState )
 
 
 //-----------------------------------------------------------------------------------------------
+void Game::SetWorldCameraPosition( const Vec3& position )
+{
+	m_focalPoint = position;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::AddScreenShakeIntensity( float intensity )
+{
+	m_screenShakeIntensity += intensity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::PrintToDebugInfoBox( const Rgba8& color, const std::vector< std::string >& textLines )
+{
+	if ( (int)textLines.size() == 0 )
+	{
+		return;
+	}
+
+	m_debugInfoTextBox->SetText( textLines[0], color );
+
+	for ( int textLineIndex = 1; textLineIndex < (int)textLines.size(); ++textLineIndex )
+	{
+		m_debugInfoTextBox->AddLineOFText( textLines[textLineIndex], color );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees )
+{
+	// No entity specified, just load the new map and set camera position and orientation
+	if ( entityToWarp == nullptr )
+	{
+		if ( destMapName != "" )
+		{
+			m_world->ChangeMap( destMapName, nullptr );
+		}
+
+		return;
+	}
+
+	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::PlaySoundByName( const std::string& soundName, bool isLooped, float volume, float balance, float speed, bool isPaused )
+{
+	auto iter = m_loadedSoundIds.find( soundName );
+	if ( iter == m_loadedSoundIds.end() )
+	{
+		g_devConsole->PrintError( Stringf( "Cannot play unregistered sound, '%s", soundName.c_str() ) );
+		return;
+	}
+
+	SoundID soundId = iter->second;
+
+	g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::ChangeMusic( const std::string& musicName, bool isLooped, float volume, float balance, float speed, bool isPaused )
+{
+	auto iter = m_loadedSoundIds.find( musicName );
+	if ( iter == m_loadedSoundIds.end() )
+	{
+		g_devConsole->PrintError( Stringf( "Cannot play unregistered music, '%s", musicName.c_str() ) );
+		return;
+	}
+
+	SoundID soundId = iter->second;
+	if ( m_curMusicId != (SoundPlaybackID)-1 )
+	{
+		g_audioSystem->StopSound( m_curMusicId );
+	}
+
+	m_curMusicName = musicName;
+	m_curMusicId = g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+float Game::GetLastDeltaSecondsf()
+{
+	return (float)m_gameClock->GetLastDeltaSeconds();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityById( EntityId id )
+{
+	return m_world->GetEntityById( id );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityByName( const std::string& name )
+{
+	return m_world->GetEntityByName( name );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::SaveEntityByName( GameEntity* entity )
+{
+	m_world->SaveEntityByName( entity );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::GetComponentFromEntityId( EventArgs* args )
 {
 	EntityId entityId = args->GetValue( "entityId", INVALID_ENTITY_ID );
@@ -1085,4 +996,65 @@ void Game::GetComponentFromEntityId( EventArgs* args )
 
 	EntityComponent* entityComponent = m_world->GetComponentFromEntityId( entityId, compTypeId );
 	args->SetValue( "entityComponent", (void*)entityComponent );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityAtPosition( const Vec3& position ) const
+{
+	return m_world->GetEntityAtPosition( position );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::GetEntityAtPosition( const Vec2& position ) const
+{
+	return GetEntityAtPosition( Vec3( position, 0.f ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Map* Game::GetCurrentMap()
+{
+	if ( m_world == nullptr )
+	{
+		return nullptr;
+	}
+
+	return m_world->GetCurrentMap();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Map* Game::GetMapByName( const std::string& name )
+{
+	return m_world->GetMapByName( name );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::PrintBytecodeChunk( EventArgs* args )
+{
+	std::string entityName = args->GetValue( "entityName", "" );
+	std::string chunkName = args->GetValue( "chunkName", "" );
+
+	if ( entityName.empty()
+		 || chunkName.empty() )
+	{
+		return;
+	}
+
+	GameEntity* entity = GetEntityByName( entityName );
+	if ( entity == nullptr )
+	{
+		return;
+	}
+
+	const ZephyrBytecodeChunk* chunk = ZephyrSystem::GetBytecodeChunkByName( entity->GetId(), chunkName );
+	if ( chunk == nullptr )
+	{
+		return;
+	}
+
+	chunk->Disassemble();
 }

@@ -1,4 +1,4 @@
-#include "Game/EntityDefinition.hpp"
+#include "Game/DataParsing/EntityDefinition.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
@@ -9,7 +9,7 @@
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
-#include "Game/SpriteAnimationSetDefinition.hpp"
+#include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------

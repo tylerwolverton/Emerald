@@ -1,6 +1,5 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Math/Vec2.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -11,8 +10,6 @@ enum class eWindowMode;
 class App 
 {
 public:
-	App();
-	~App();
 	void Startup();
 	void Shutdown();
 	void RunFrame();

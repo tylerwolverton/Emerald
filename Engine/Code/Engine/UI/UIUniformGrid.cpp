@@ -7,8 +7,6 @@
 #include "Engine/UI/UIButton.hpp"
 #include "Engine/UI/UISystem.hpp"
 
-#include "Game/GameCommon.hpp"
-
 
 //-----------------------------------------------------------------------------------------------
 UIUniformGrid::UIUniformGrid( UISystem& uiSystem, const UIElement& parentPanel, const std::string& name,

@@ -1,4 +1,4 @@
-#include "Game/GameEntity.hpp"
+#include "Game/Framework/GameEntity.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Physics/2D/DiscCollider.hpp"
@@ -17,11 +17,11 @@
 #include "Engine/Time/Time.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
-#include "Game/EntityDefinition.hpp"
-#include "Game/Game.hpp"
-#include "Game/GameCommon.hpp"
-#include "Game/Map.hpp"
-#include "Game/SpriteAnimationSetDefinition.hpp"
+#include "Game/Core/GameCommon.hpp"
+#include "Game/DataParsing/EntityDefinition.hpp"
+#include "Game/Framework/Game.hpp"
+#include "Game/Framework/Map.hpp"
+#include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
