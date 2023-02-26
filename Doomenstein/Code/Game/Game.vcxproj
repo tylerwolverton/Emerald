@@ -219,7 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.hpp" />
-    <ClInclude Include="EngineBuildPreferences.hpp" />
+    <ClInclude Include="Core\EngineBuildPreferences.hpp" />
     <ClInclude Include="GameEntity.hpp" />
     <ClInclude Include="EntityController.hpp" />
     <ClInclude Include="EntityDefinition.hpp" />

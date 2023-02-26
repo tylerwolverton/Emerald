@@ -114,9 +114,6 @@
     <ClInclude Include="World.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
-    <ClInclude Include="EngineBuildPreferences.hpp">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="GameJobs.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
@@ -171,6 +168,7 @@
     <ClInclude Include="GameEntity.hpp">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Core\EngineBuildPreferences.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\Run\Data\GameConfig.xml">
