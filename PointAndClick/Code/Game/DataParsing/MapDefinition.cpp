@@ -1,21 +1,54 @@
 #include "Game/DataParsing/MapDefinition.hpp"
-#include "Engine/Core/ErrorWarningAssert.hpp"
-#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/FileUtils.hpp"
+#include "Engine/Core/StringUtils.hpp"
 
 #include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Game/Framework/Map.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-MapDefinition::MapDefinition( const XmlElement& mapDefElem, const std::string& mapName )
-	: mapName( mapName )
+MapDefinition::MapDefinition( const std::string& mapFullPath )
 {
-	if ( !ParseMapDefinitionNode( mapDefElem ) ) { return; }
-	if ( !ParseEntitiesNode( mapDefElem ) ) { return; }
+	mapName = GetFileNameWithoutExtension( mapFullPath );
 
-	isValid = true;
+	std::string fileExt = GetFileExtension( mapFullPath );
+	if ( IsEqualIgnoreCase(fileExt, ".xml") )
+	{
+		XmlDocument doc;
+		XmlError loadError = doc.LoadFile( mapFullPath.c_str() );
+		if ( loadError != tinyxml2::XML_SUCCESS )
+		{
+			g_devConsole->PrintError( Stringf( "'%s' could not be opened", mapFullPath.c_str() ) );
+			return;
+		}
+
+		XmlElement* root = doc.RootElement();
+		if ( strcmp( root->Name(), "MapDefinition" ) )
+		{
+			g_devConsole->PrintError( Stringf( "'%s': Incorrect root node name, must be MapDefinition", mapFullPath.c_str() ) );
+			return;
+		}
+
+
+		if ( !ParseMapDefinitionXmlNode( *root ) ) { return; }
+		if ( !ParseEntitiesXmlNode( *root ) ) { return; }
+		
+		isValid = true;
+	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+//MapDefinition::MapDefinition( const XmlElement& mapDefElem, const std::string& mapName )
+//	: mapName( mapName )
+//{
+//	if ( !ParseMapDefinitionXmlNode( mapDefElem ) ) { return; }
+//	if ( !ParseEntitiesXmlNode( mapDefElem ) ) { return; }
+//
+//	isValid = true;
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -25,7 +58,7 @@ MapDefinition::~MapDefinition()
 
 
 //-----------------------------------------------------------------------------------------------
-bool MapDefinition::ParseMapDefinitionNode( const XmlElement& mapDefElem )
+bool MapDefinition::ParseMapDefinitionXmlNode( const XmlElement& mapDefElem )
 {
 	type = ParseXmlAttribute( mapDefElem, "type", type );
 	if ( type == "InvalidType" )
@@ -46,7 +79,7 @@ bool MapDefinition::ParseMapDefinitionNode( const XmlElement& mapDefElem )
 
 
 //-----------------------------------------------------------------------------------------------
-bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
+bool MapDefinition::ParseEntitiesXmlNode( const XmlElement& mapDefElem )
 {
 	const XmlElement* entitiesElem = mapDefElem.FirstChildElement( "Entities" );
 	if ( entitiesElem == nullptr )
@@ -74,7 +107,7 @@ bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
 		}
 		else if ( !strcmp( entityElem->Value(), "Entity" ) )
 		{
-			CreateMapEntityDefFromNode( *entityElem );
+			CreateMapEntityDefFromXmlNode( *entityElem );
 		}
 		else
 		{
@@ -95,7 +128,7 @@ bool MapDefinition::ParseEntitiesNode( const XmlElement& mapDefElem )
 
 
 //-----------------------------------------------------------------------------------------------
-void MapDefinition::CreateMapEntityDefFromNode( const XmlElement& entityElem )
+void MapDefinition::CreateMapEntityDefFromXmlNode( const XmlElement& entityElem )
 {
 	MapEntityDefinition mapEntityDef;
 

@@ -198,6 +198,8 @@
     <ClCompile Include="Core\Main_Windows.cpp" />
     <ClCompile Include="DataParsing\EntityTypeDefinition.cpp" />
     <ClCompile Include="DataParsing\MapDefinition.cpp" />
+    <ClCompile Include="DataParsing\EntityTypesParser.cpp" />
+    <ClCompile Include="DataParsing\WorldDefinitionParser.cpp" />
     <ClCompile Include="Framework\Game.cpp" />
     <ClCompile Include="Framework\GameEntity.cpp" />
     <ClCompile Include="Framework\Map.cpp" />
@@ -216,6 +218,8 @@
     <ClInclude Include="Core\GameCommon.hpp" />
     <ClInclude Include="DataParsing\EntityTypeDefinition.hpp" />
     <ClInclude Include="DataParsing\MapDefinition.hpp" />
+    <ClInclude Include="DataParsing\EntityTypesParser.hpp" />
+    <ClInclude Include="DataParsing\WorldDefinitionParser.hpp" />
     <ClInclude Include="Framework\Game.hpp" />
     <ClInclude Include="Framework\GameEntity.hpp" />
     <ClInclude Include="Framework\Map.hpp" />

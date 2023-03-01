@@ -84,9 +84,9 @@ private:
 
 	void LoadAssets();
 	void LoadSounds();
-	void LoadMapsFromXml();
-	void LoadEntityTypesFromXml();
-	void LoadWorldDefinitionFromXml();
+	void LoadMaps();
+	void LoadEntityTypes();
+	void LoadWorldDefinition();
 	void LoadAndCompileZephyrScripts();
 	void ReloadGame();
 	void ReloadScripts();
@@ -133,4 +133,6 @@ private:
 	std::string						m_curMusicName;
 	SoundPlaybackID					m_curMusicId = (SoundPlaybackID)-1;
 	std::map<std::string, SoundID>	m_loadedSoundIds;
+
+	GameEntity* m_playerController = nullptr;
 };

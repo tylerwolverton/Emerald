@@ -44,10 +44,8 @@ GameEntity::~GameEntity()
 
 
 //-----------------------------------------------------------------------------------------------
-void GameEntity::UpdateFromKeyboard(float deltaSeconds)
+void GameEntity::UpdateFromKeyboard()
 {
-	UNUSED(deltaSeconds);
-
 	if (g_devConsole->IsOpen())
 	{
 		return;
@@ -58,11 +56,11 @@ void GameEntity::UpdateFromKeyboard(float deltaSeconds)
 		case eGameState::PLAYING:
 		{
 			// Update script button events
-			for (auto& registeredKey : m_registeredKeyEvents)
+			for (const auto& registeredKey : m_registeredKeyEvents)
 			{
 				if (g_inputSystem->IsKeyPressed(registeredKey.first))
 				{
-					for (auto& eventName : registeredKey.second)
+					for (const auto& eventName : registeredKey.second)
 					{
 						EventArgs args;
 						ZephyrSystem::FireScriptEvent( m_id, eventName, &args);

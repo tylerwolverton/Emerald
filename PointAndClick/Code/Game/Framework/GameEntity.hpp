@@ -41,7 +41,7 @@ public:
 
 	void				Die();
 
-	void				UpdateFromKeyboard(float deltaSeconds);
+	void				UpdateFromKeyboard();
 
 	void				ChangeSpriteAnimation( const std::string& spriteAnimDefSetName );
 	void				PlaySpriteAnimation( const std::string& spriteAnimDefSetName );

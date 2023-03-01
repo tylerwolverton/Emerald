@@ -30,6 +30,8 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
+#include "Game/DataParsing/EntityTypesParser.hpp"
+#include "Game/DataParsing/WorldDefinitionParser.hpp"
 #include "Game/DataParsing/MapDefinition.hpp"
 #include "Game/Framework/World.hpp"
 #include "Game/Framework/GameEntity.hpp"
@@ -133,7 +135,7 @@ void Game::Update()
 		{
 			UpdateFromKeyboard();
 
-			//m_playerController->Update();
+			m_playerController->UpdateFromKeyboard();
 			
 			m_world->Update();
 		}
@@ -271,13 +273,16 @@ void Game::InitializePlayerController()
 
 	GameEntity* playerEntity = m_world->AddEntityFromDefinition( *playerDef, playerEntityName );
 
-	GameEntity* playerController = m_world->GetEntityByName( "PlayerController" );
-	if ( playerController != nullptr )
+	m_playerController = m_world->GetEntityByName( "PlayerController" );
+	if ( m_playerController == nullptr )
 	{
-		EventArgs args;
-		args.SetValue( "newPossessedEntity", playerEntity->GetId() );
-		playerController->FireScriptEvent( "OnPossess", &args );
+		g_devConsole->PrintError( "No PlayerController defined in world" );
+		return;
 	}
+
+	EventArgs args;
+	args.SetValue( "newPossessedEntity", playerEntity->GetId() );
+	m_playerController->FireScriptEvent( "OnPossess", &args );
 }
 
 
@@ -293,14 +298,13 @@ void Game::InitializeUI()
 void Game::LoadAssets()
 {
 	g_devConsole->PrintString( "Loading Assets..." );
-	g_audioSystem->CreateOrGetSound( "Data/Audio/TestSound.mp3" );
 
 	// Music
 	LoadSounds();
 	LoadAndCompileZephyrScripts();
-	LoadEntityTypesFromXml();
-	LoadWorldDefinitionFromXml();
-	LoadMapsFromXml();
+	LoadEntityTypes();
+	LoadWorldDefinition();
+	LoadMaps();
 
 	g_devConsole->PrintString( "Assets Loaded", Rgba8::GREEN );
 }
@@ -330,13 +334,13 @@ void Game::LoadSounds()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadMapsFromXml()
+void Game::LoadMaps()
 {
 	g_devConsole->PrintString( "Loading Maps..." );
 
 	std::string folderRoot( g_gameConfigBlackboard.GetValue( "mapsRoot", "" ) );
 
-	Strings mapFiles = GetFileNamesInFolder( folderRoot, "*.xml" );
+	Strings mapFiles = GetFileNamesInFolder( folderRoot, "*.*" );
 	for ( int mapIdx = 0; mapIdx < (int)mapFiles.size(); ++mapIdx )
 	{
 		std::string& mapName = mapFiles[mapIdx];
@@ -345,22 +349,7 @@ void Game::LoadMapsFromXml()
 		mapFullPath += "/";
 		mapFullPath += mapName;
 
-		XmlDocument doc;
-		XmlError loadError = doc.LoadFile( mapFullPath.c_str() );
-		if ( loadError != tinyxml2::XML_SUCCESS )
-		{
-			g_devConsole->PrintError( Stringf( "'%s' could not be opened", mapFullPath.c_str() ) );
-			continue;
-		}
-
-		XmlElement* root = doc.RootElement();
-		if ( strcmp( root->Name(), "MapDefinition" ) )
-		{
-			g_devConsole->PrintError( Stringf( "'%s': Incorrect root node name, must be MapDefinition", mapFullPath.c_str() ) );
-			return;
-		}
-
-		MapDefinition mapData( *root, GetFileNameWithoutExtension( mapName ) );
+		MapDefinition mapData( mapFullPath );
 		if ( mapData.isValid )
 		{
 			m_world->AddNewMap( mapData );
@@ -372,159 +361,29 @@ void Game::LoadMapsFromXml()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadEntityTypesFromXml()
+void Game::LoadEntityTypes()
 {
 	g_devConsole->PrintString( "Loading Entity Types..." );
 
 	std::string entityTypesPath( g_gameConfigBlackboard.GetValue( "entityTypesPath", "" ) );
 
-	XmlDocument doc;
-	XmlError loadError = doc.LoadFile( entityTypesPath.c_str() );
-	if ( loadError != tinyxml2::XML_SUCCESS )
-	{
-		g_devConsole->PrintError( Stringf( "%s could not be opened", entityTypesPath.c_str() ) );
-		return;
-	}
-
-	XmlElement* root = doc.RootElement();
-	if ( strcmp( root->Name(), "EntityTypes" ) )
-	{
-		g_devConsole->PrintError( "EntityTypes.xml: Incorrect root node name, must be EntityTypes" );
-		return;
-	}
-
-	// Parse sprite sheet
-	std::string spriteSheetPath = ParseXmlAttribute( *root, "spriteSheet", "" );
-	if ( spriteSheetPath == "" )
-	{
-		g_devConsole->PrintError( "EntityTypes.xml: Missing spriteSheet attribute" );
-		return;
-	}
-
-	SpriteSheet* defaultSpriteSheet = SpriteSheet::GetSpriteSheetByPath( spriteSheetPath );
-	if ( defaultSpriteSheet == nullptr )
-	{
-		IntVec2 spriteSheetDimensions = ParseXmlAttribute( *root, "spriteSheetDimensions", IntVec2( -1, -1 ) );
-		if ( spriteSheetDimensions == IntVec2( -1, -1 ) )
-		{
-			g_devConsole->PrintError( "EntityTypes.xml: Missing layout attribute" );
-			return;
-		}
-
-		Texture* texture = g_renderer->CreateOrGetTextureFromFile( spriteSheetPath.c_str() );
-		if ( texture == nullptr )
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml: Couldn't load texture '%s'", spriteSheetPath.c_str() ) );
-			return;
-		}
-
-		defaultSpriteSheet = SpriteSheet::CreateAndRegister( *texture, spriteSheetDimensions );
-	}
-
-	// Parse each entity type
-	XmlElement* element = root->FirstChildElement();
-	while ( element )
-	{
-		if ( !strcmp( element->Name(), "Entity" ) )
-		{
-			EntityTypeDefinition* entityTypeDef = new EntityTypeDefinition( *element, defaultSpriteSheet );
-			if ( entityTypeDef->IsValid() )
-			{
-				EntityTypeDefinition::s_definitions[entityTypeDef->GetType()] = entityTypeDef;
-			}
-		}
-		else
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml: Unsupported node '%s'", element->Name() ) );
-		}
-
-		element = element->NextSiblingElement();
-	}
-
-	// Initialize player controller
-	std::string playerEntityName = g_gameConfigBlackboard.GetValue( std::string( "playerEntityName" ), "" );
-	if ( playerEntityName.empty() )
-	{
-		g_devConsole->PrintError( "GameConfig.xml doesn't define a playerEntityName" );
-		return;
-	}
-
-	//EntityTypeDefinition* playerDef = EntityTypeDefinition::GetEntityDefinition( playerEntityName );
-	//if ( playerDef == nullptr )
-	//{
-	//	g_devConsole->PrintError( "GameConfig.xml's playerEntityName was not loaded from EntityTypes.xml" );
-	//	return;
-	//}
-
-	//GameEntity* playerEntity = m_world->AddEntityFromDefinition( *playerDef, playerEntityName );
-
-	//GameEntity* playerController = m_world->GetEntityByName( "PlayerController" );
-	//if ( playerController != nullptr )
-	//{
-	//	EventArgs args;
-	//	args.SetValue( "newPossessedEntity", playerEntity->GetId() );
-	//	playerController->FireScriptEvent( "OnPossess", &args );
-	//}
-
-	//m_playerController->SetControlledEntity( m_world->AddEntityFromDefinition( *playerDef, playerEntityName ) );
+	EntityTypesParser::ParseFromFile( entityTypesPath );
 
 	g_devConsole->PrintString( "Entity Types Loaded", Rgba8::GREEN );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadWorldDefinitionFromXml()
+void Game::LoadWorldDefinition()
 {
 	g_devConsole->PrintString( "Loading World Definition..." );
 
 	std::string filePath( g_gameConfigBlackboard.GetValue( "worldDefPath", "" ) );
 
-	XmlDocument doc;
-	XmlError loadError = doc.LoadFile( filePath.c_str() );
-	if ( loadError != tinyxml2::XML_SUCCESS )
+	std::map<std::string, EntityTypeDefinition*> worldEntities = WorldDefinitionParser::ParseEntitiesFromFile( filePath );
+	for ( const auto& worldEntity : worldEntities )
 	{
-		g_devConsole->PrintError( Stringf( "The world xml file '%s' could not be opened.", filePath.c_str() ) );
-		return;
-	}
-
-	XmlElement* root = doc.RootElement();
-	if ( strcmp( root->Name(), "WorldDefinition" ) )
-	{
-		g_devConsole->PrintError( Stringf( "'%s': Incorrect root node name, must be WorldDefinition", filePath.c_str() ) );
-		return;
-	}
-
-	// Parse entities node
-	XmlElement* entitiesElement = root->FirstChildElement( "Entities" );
-	XmlElement* entityElement = entitiesElement->FirstChildElement();
-	while ( entityElement )
-	{
-		if ( !strcmp( entityElement->Name(), "Entity" ) )
-		{
-			std::string entityTypeStr = ParseXmlAttribute( *entityElement, "type", "" );
-			if ( entityTypeStr.empty() )
-			{
-				g_devConsole->PrintError( Stringf( "'%s': %s is missing a type attribute", filePath.c_str(), entityElement->Name() ) );
-				return;
-			}
-
-			EntityTypeDefinition* entityTypeDef = EntityTypeDefinition::GetEntityDefinition( entityTypeStr );
-			if ( entityTypeDef == nullptr )
-			{
-				g_devConsole->PrintError( Stringf( "'%s': Entity type '%s' was not defined in EntityTypes.xml", filePath.c_str(), entityTypeStr.c_str() ) );
-				return;
-			}
-
-			std::string entityName = ParseXmlAttribute( *entityElement, "name", "" );
-
-			m_world->AddEntityFromDefinition( *entityTypeDef, entityName );
-		}
-		else
-		{
-			g_devConsole->PrintError( Stringf( "WorldDef.xml: Unsupported node '%s'", entityElement->Name() ) );
-		}
-
-		entityElement = entityElement->NextSiblingElement();
+		m_world->AddEntityFromDefinition( *worldEntity.second, worldEntity.first );
 	}
 
 	g_devConsole->PrintString( "World Definition Loaded", Rgba8::GREEN );

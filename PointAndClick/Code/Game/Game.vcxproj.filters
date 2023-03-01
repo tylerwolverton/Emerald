@@ -76,6 +76,12 @@
     <ClCompile Include="Graphics\SpriteAnimationScene.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="DataParsing\EntityTypesParser.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DataParsing\WorldDefinitionParser.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
@@ -96,5 +102,7 @@
     <ClInclude Include="Graphics\SpriteAnimationScene.hpp" />
     <ClInclude Include="Graphics\SpriteAnimationComponent.hpp" />
     <ClInclude Include="Graphics\SpriteAnimationComponentDefinition.hpp" />
+    <ClInclude Include="DataParsing\EntityTypesParser.hpp" />
+    <ClInclude Include="DataParsing\WorldDefinitionParser.hpp" />
   </ItemGroup>
 </Project>

@@ -43,15 +43,6 @@ void World::Update()
 {
 	float deltaSeconds = (float)m_worldClock->GetLastDeltaSeconds();
 
-	// TODO: Move this to a player controller reference
-	for ( auto& worldEntity : m_worldEntities )
-	{
-		if ( worldEntity != nullptr )
-		{
-			worldEntity->UpdateFromKeyboard( deltaSeconds );
-		}
-	}
-
 	ZephyrSystem::UpdateScene( *m_zephyrScene );
 	SpriteAnimationSystem::AdvanceAnimations( *m_spriteAnimScene, deltaSeconds );
 

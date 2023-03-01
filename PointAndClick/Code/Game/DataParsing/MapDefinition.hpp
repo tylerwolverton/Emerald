@@ -42,11 +42,11 @@ public:
 	float playerStartYaw = 0.f;
 
 public:
-	explicit MapDefinition( const XmlElement& mapDefElem, const std::string& mapName );
+	explicit MapDefinition( const std::string& mapFullPath );
 	~MapDefinition();
 	
 private:
-	bool ParseMapDefinitionNode( const XmlElement& mapDefElem );
-	bool ParseEntitiesNode( const XmlElement& mapDefElem );
-	void CreateMapEntityDefFromNode( const XmlElement& entityElem );
+	bool ParseMapDefinitionXmlNode( const XmlElement& mapDefElem );
+	bool ParseEntitiesXmlNode( const XmlElement& mapDefElem );
+	void CreateMapEntityDefFromXmlNode( const XmlElement& entityElem );
 };

@@ -168,20 +168,22 @@ std::string GetFileName( const std::string& filePath )
 //-----------------------------------------------------------------------------------------------
 std::string GetFileNameWithoutExtension( const std::string& filePath )
 {
-	size_t extensionPos = filePath.find( "." );
+	size_t firstCharPos = 0;
+	size_t numCharsToRead = filePath.size();
+
 	size_t lastSlashPos = filePath.find_last_of( "/" );
-
-	if ( extensionPos == std::string::npos )
+	if ( lastSlashPos != std::string::npos )
 	{
-		extensionPos = filePath.size() - 1;
+		firstCharPos = lastSlashPos + 1;
 	}
 
-	if ( lastSlashPos == std::string::npos )
+	size_t extensionPos = filePath.find( "." );
+	if ( extensionPos != std::string::npos )
 	{
-		lastSlashPos = (size_t)-1;
+		numCharsToRead = extensionPos - firstCharPos;
 	}
-
-	return filePath.substr( lastSlashPos + 1, extensionPos );
+	
+	return filePath.substr( firstCharPos, numCharsToRead );
 }
 
 
