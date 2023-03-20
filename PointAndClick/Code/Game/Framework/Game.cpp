@@ -28,6 +28,7 @@
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/DataParsing/DataLoader.hpp"
 #include "Game/Framework/World.hpp"
@@ -235,34 +236,6 @@ void Game::Render() const
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::OnGameStart()
-{
-	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
-
-	InitializePlayerController();
-
-	EventArgs args;
-	g_eventSystem->FireEvent( "OnGameStart", &args );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::OnGameEnd()
-{
-	if ( m_gameState == eGameState::DIALOGUE
-		 || m_gameState == eGameState::CUTSCENE )
-	{
-		m_gameState = eGameState::PLAYING;
-	}
-
-	if ( m_curMusicId != (SoundPlaybackID)-1 )
-	{
-		g_audioSystem->StopSound( m_curMusicId );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::InitializeCameras()
 {
 	m_worldCamera = new Camera();
@@ -316,6 +289,35 @@ void Game::InitializeUI()
 {
 	m_uiSystem = new UISystem();
 	m_uiSystem->Startup( g_window, g_renderer );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::ReloadGame()
+{
+	if ( m_gameState == eGameState::DIALOGUE
+		 || m_gameState == eGameState::CUTSCENE )
+	{
+		m_gameState = eGameState::PLAYING;
+	}
+
+	if ( m_curMusicId != (SoundPlaybackID)-1 )
+	{
+		g_audioSystem->StopSound( m_curMusicId );
+	}
+	
+	m_world->Reset();
+
+	g_zephyrSubsystem->StopAllTimers();
+
+	DataLoader::ReloadAllData( *m_world );
+
+	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
+
+	InitializePlayerController();
+
+	EventArgs args;
+	g_eventSystem->FireEvent( "OnGameStart", &args );
 }
 
 
@@ -382,7 +384,7 @@ void Game::UpdateFromKeyboard()
 
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F5 ) )
 			{
-				DataLoader::ReloadAllData( *m_world );
+				ReloadGame();
 				LoadStartingMap( m_startingMapName );
 			}
 
@@ -466,14 +468,14 @@ void Game::ChangeGameState( const eGameState& newGameState )
 						g_audioSystem->StopSound( m_curMusicId );
 					}
 
-					DataLoader::ReloadAllData( *m_world );
+					ReloadGame();
 				}
 				break;
 
 				case eGameState::VICTORY:
 				{
 					//g_audioSystem->StopSound( m_victoryMusicID );
-					DataLoader::ReloadAllData( *m_world );
+					ReloadGame();
 				}
 				break;
 			}

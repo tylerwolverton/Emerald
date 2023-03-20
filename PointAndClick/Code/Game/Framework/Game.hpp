@@ -47,9 +47,6 @@ public:
 	void		Update();
 	void		Render() const;
 		
-	void		OnGameStart();
-	void		OnGameEnd();
-
 	void		ChangeGameState( const eGameState& newGameState );
 	eGameState  GetGameState()															{ return m_gameState; }
 
@@ -85,6 +82,7 @@ private:
 	void InitializePlayerController();
 	void InitializeUI();
 
+	void ReloadGame();
 	void LoadStartingMap( const std::string& mapName );
 	void PossessPlayerEntity();
 

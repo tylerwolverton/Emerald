@@ -7,7 +7,6 @@
 #include "Engine/Zephyr/Core/ZephyrCompiler.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include "Game/Core/GameCommon.hpp"
 #include "Game/DataParsing/EntityTypeDefinition.hpp"
@@ -54,23 +53,16 @@ void DataLoader::ReloadAllScripts( World& world )
 void DataLoader::ReloadAllData( World& world )
 {
 	// Unload
-	g_game->OnGameEnd();
-
-	world.Reset();
-
-	g_zephyrSubsystem->StopAllTimers();
-
 	g_gameConfigBlackboard.Clear();
-	PopulateGameConfig();
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
 	PTR_MAP_SAFE_DELETE( EntityTypeDefinition::s_definitions );
 	PTR_VECTOR_SAFE_DELETE( SpriteSheet::s_definitions );
 
 	// Load
-	LoadAllDataAssets( world );
+	PopulateGameConfig();
 
-	g_game->OnGameStart();
+	LoadAllDataAssets( world );
 }
 
 
@@ -160,16 +152,4 @@ void DataLoader::LoadAndCompileZephyrScripts()
 
 		ZephyrScriptDefinition::s_definitions[scriptFullPath] = scriptDef;
 	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void DataLoader::ReloadGame()
-{
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void DataLoader::ReloadScripts()
-{
 }

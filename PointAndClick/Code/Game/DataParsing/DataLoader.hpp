@@ -17,6 +17,4 @@ private:
 	static void LoadEntityTypes();
 	static void LoadWorldDefinition( World& world );
 	static void LoadAndCompileZephyrScripts();
-	static void ReloadGame();
-	static void ReloadScripts();
 };
