@@ -15,6 +15,6 @@ public:
 	std::vector<SpriteAnimationComponent*> animComponents;
 
 public:
-	SpriteAnimationComponent* CreateAndAddComponent( Entity* parentEntity, const SpriteAnimationComponentDefinition& componentDef );
-	void AddComponent( SpriteAnimationComponent* spriteAnimComp );
+	SpriteAnimationComponent*	CreateAndAddComponent( Entity* parentEntity, const SpriteAnimationComponentDefinition& componentDef );
+	void						Destroy();
 };

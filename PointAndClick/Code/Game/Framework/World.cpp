@@ -122,6 +122,9 @@ void World::Reset()
 {
 	UnloadAllEntityScripts();
 	ClearMapsAndEntities();
+
+	m_zephyrScene->Destroy();
+	m_spriteAnimScene->Destroy();
 }
 
 

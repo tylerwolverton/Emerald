@@ -115,7 +115,8 @@ ZephyrScriptDefinition* ZephyrScriptDefinition::GetZephyrScriptDefinitionByPath(
 //-----------------------------------------------------------------------------------------------
 ZephyrScriptDefinition* ZephyrScriptDefinition::GetZephyrScriptDefinitionByName( const std::string& scriptName )
 {
-	std::string fullPath = Stringf( "Data/Scripts%s/%s", s_dataPathSuffix.c_str(), scriptName.c_str() );
+	std::string folderRoot( g_gameConfigBlackboard.GetValue( "scriptsRoot", "" ) );
+	std::string fullPath = Stringf( "%s/%s", folderRoot.c_str(), scriptName.c_str() );
 
 	return GetZephyrScriptDefinitionByPath( fullPath );
 }

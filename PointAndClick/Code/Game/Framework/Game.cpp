@@ -28,11 +28,8 @@
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
-#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#include "Game/DataParsing/EntityTypesParser.hpp"
-#include "Game/DataParsing/WorldDefinitionParser.hpp"
-#include "Game/DataParsing/MapDefinition.hpp"
+#include "Game/DataParsing/DataLoader.hpp"
 #include "Game/Framework/World.hpp"
 #include "Game/Framework/GameEntity.hpp"
 
@@ -112,7 +109,7 @@ void Game::Update()
 
 				case 1:
 				{
-					LoadAssets();
+					DataLoader::LoadAllDataAssets( *m_world );
 					InitializePlayerController();
 					ChangeGameState( eGameState::ATTRACT );
 					Update();
@@ -238,6 +235,34 @@ void Game::Render() const
 
 
 //-----------------------------------------------------------------------------------------------
+void Game::OnGameStart()
+{
+	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
+
+	InitializePlayerController();
+
+	EventArgs args;
+	g_eventSystem->FireEvent( "OnGameStart", &args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void Game::OnGameEnd()
+{
+	if ( m_gameState == eGameState::DIALOGUE
+		 || m_gameState == eGameState::CUTSCENE )
+	{
+		m_gameState = eGameState::PLAYING;
+	}
+
+	if ( m_curMusicId != (SoundPlaybackID)-1 )
+	{
+		g_audioSystem->StopSound( m_curMusicId );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void Game::InitializeCameras()
 {
 	m_worldCamera = new Camera();
@@ -295,192 +320,6 @@ void Game::InitializeUI()
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::LoadAssets()
-{
-	g_devConsole->PrintString( "Loading Assets..." );
-
-	// Music
-	LoadSounds();
-	LoadAndCompileZephyrScripts();
-	LoadEntityTypes();
-	LoadWorldDefinition();
-	LoadMaps();
-
-	g_devConsole->PrintString( "Assets Loaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::LoadSounds()
-{
-	g_devConsole->PrintString( "Loading Audio..." );
-
-	// TODO: Allow for subfolders
-	std::string folderRoot( g_gameConfigBlackboard.GetValue( "audioRoot", "" ));
-
-	Strings audioFiles = GetFileNamesInFolder( folderRoot, "*.*" );
-	for ( int soundIdx = 0; soundIdx < (int)audioFiles.size(); ++soundIdx )
-	{
-		std::string soundName = GetFileNameWithoutExtension( audioFiles[soundIdx] );
-		std::string& soundNameWithExtension = audioFiles[soundIdx];
-
-		std::string soundFullPath( folderRoot );
-		soundFullPath += "/";
-		soundFullPath += soundNameWithExtension;
-
-		m_loadedSoundIds[soundName] = g_audioSystem->CreateOrGetSound( soundFullPath );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::LoadMaps()
-{
-	g_devConsole->PrintString( "Loading Maps..." );
-
-	std::string folderRoot( g_gameConfigBlackboard.GetValue( "mapsRoot", "" ) );
-
-	Strings mapFiles = GetFileNamesInFolder( folderRoot, "*.*" );
-	for ( int mapIdx = 0; mapIdx < (int)mapFiles.size(); ++mapIdx )
-	{
-		std::string& mapName = mapFiles[mapIdx];
-
-		std::string mapFullPath( folderRoot );
-		mapFullPath += "/";
-		mapFullPath += mapName;
-
-		MapDefinition mapData( mapFullPath );
-		if ( mapData.isValid )
-		{
-			m_world->AddNewMap( mapData );
-		}
-	}
-
-	g_devConsole->PrintString( "Maps Loaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::LoadEntityTypes()
-{
-	g_devConsole->PrintString( "Loading Entity Types..." );
-
-	std::string entityTypesPath( g_gameConfigBlackboard.GetValue( "entityTypesPath", "" ) );
-
-	EntityTypesParser::ParseFromFile( entityTypesPath );
-
-	g_devConsole->PrintString( "Entity Types Loaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::LoadWorldDefinition()
-{
-	g_devConsole->PrintString( "Loading World Definition..." );
-
-	std::string filePath( g_gameConfigBlackboard.GetValue( "worldDefPath", "" ) );
-
-	std::map<std::string, EntityTypeDefinition*> worldEntities = WorldDefinitionParser::ParseEntitiesFromFile( filePath );
-	for ( const auto& worldEntity : worldEntities )
-	{
-		m_world->AddEntityFromDefinition( *worldEntity.second, worldEntity.first );
-	}
-
-	g_devConsole->PrintString( "World Definition Loaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::LoadAndCompileZephyrScripts()
-{
-	g_devConsole->PrintString( "Loading Zephyr Scripts..." );
-
-	std::string folderRoot( g_gameConfigBlackboard.GetValue( "scriptsRoot", "" ) );
-
-	Strings scriptFiles = GetFileNamesInFolder( folderRoot, "*.zephyr" );
-	for ( int scriptIdx = 0; scriptIdx < (int)scriptFiles.size(); ++scriptIdx )
-	{
-		std::string& scriptName = scriptFiles[scriptIdx];
-
-		std::string scriptFullPath( folderRoot );
-		scriptFullPath += "/";
-		scriptFullPath += scriptName;
-
-		// Save compiled script into static map
-		ZephyrScriptDefinition* scriptDef = ZephyrCompiler::CompileScriptFile( scriptFullPath );
-		scriptDef->m_name = scriptName;
-
-		ZephyrScriptDefinition::s_definitions[scriptFullPath] = scriptDef;
-	}
-
-	g_devConsole->PrintString( "Zephyr Scripts Loaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::ReloadGame()
-{
-	if ( m_gameState == eGameState::DIALOGUE 
-		 || m_gameState == eGameState::CUTSCENE )
-	{
-		m_gameState = eGameState::PLAYING;
-	}
-
-	if ( m_curMusicId != (SoundPlaybackID)-1 )
-	{
-		g_audioSystem->StopSound( m_curMusicId );
-	}
-
-	m_world->Reset();
-
-	g_zephyrSubsystem->StopAllTimers();
-
-	g_gameConfigBlackboard.Clear();
-	PopulateGameConfig();
-	g_physicsConfig->PopulateFromXml();
-
-	m_startingMapName = g_gameConfigBlackboard.GetValue( std::string( "startMap" ), m_startingMapName );
-
-	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
-	PTR_MAP_SAFE_DELETE( EntityTypeDefinition::s_definitions );
-	PTR_VECTOR_SAFE_DELETE( SpriteSheet::s_definitions );
-
-	//g_physicsSystem->Reset();
-	m_loadedSoundIds.clear();
-
-	LoadAssets();
-
-	InitializePlayerController();
-
-	EventArgs args;
-	g_eventSystem->FireEvent( "OnGameStart", &args );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Game::ReloadScripts()
-{
-	m_world->UnloadAllEntityScripts();
-
-	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );
-	
-	LoadAndCompileZephyrScripts();
-
-	for ( auto& entityDef : EntityTypeDefinition::s_definitions )
-	{
-		if ( entityDef.second != nullptr )
-		{
-			entityDef.second->GetZephyrCompDef()->ReloadZephyrScriptDefinition();
-		}
-	}
-
-	m_world->ReloadAllEntityScripts();
-
-	g_devConsole->PrintString( "Scripts reloaded", Rgba8::GREEN );
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void Game::LoadStartingMap( const std::string& mapName )
 {
 	m_world->InitializeAllZephyrEntityVariables();
@@ -488,6 +327,19 @@ void Game::LoadStartingMap( const std::string& mapName )
 	m_world->ChangeMap( mapName, nullptr );
 
 	m_world->CallAllZephyrSpawnEvents();
+}
+
+
+//-----------------------------------------------------------------------------------------------s
+void Game::PossessPlayerEntity()
+{
+	std::string playerEntityName = g_gameConfigBlackboard.GetValue( std::string( "playerEntityName" ), "" );
+
+	GameEntity* playerEntity = m_world->GetEntityByName( playerEntityName );
+
+	EventArgs args;
+	args.SetValue( "newPossessedEntity", playerEntity->GetId() );
+	m_playerController->FireScriptEvent( "OnPossess", &args );
 }
 
 
@@ -515,6 +367,7 @@ void Game::UpdateFromKeyboard()
 		}
 		break;
 
+		case eGameState::DIALOGUE:
 		case eGameState::PLAYING:
 		{
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ESC ) )
@@ -529,38 +382,14 @@ void Game::UpdateFromKeyboard()
 
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F5 ) )
 			{
-				ReloadGame();
+				DataLoader::ReloadAllData( *m_world );
 				LoadStartingMap( m_startingMapName );
 			}
 
 			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F6 ) )
 			{
-				ReloadScripts();
-			}
-		}
-		break;
-
-		case eGameState::DIALOGUE:
-		{
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_ESC ) )
-			{
-				ChangeGameState( eGameState::PLAYING );
-			}
-
-			if ( g_inputSystem->WasKeyJustPressed( KEY_F1 ) )
-			{
-				m_isDebugRendering = !m_isDebugRendering;
-			}
-
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F5 ) )
-			{
-				ReloadGame();
-				LoadStartingMap( m_startingMapName );
-			}
-
-			if ( g_inputSystem->ConsumeAllKeyPresses( KEY_F6 ) )
-			{
-				ReloadScripts();
+				DataLoader::ReloadAllScripts( *m_world );
+				PossessPlayerEntity();
 			}
 		}
 		break;	
@@ -637,15 +466,14 @@ void Game::ChangeGameState( const eGameState& newGameState )
 						g_audioSystem->StopSound( m_curMusicId );
 					}
 
-					ReloadGame();
+					DataLoader::ReloadAllData( *m_world );
 				}
 				break;
 
 				case eGameState::VICTORY:
 				{
 					//g_audioSystem->StopSound( m_victoryMusicID );
-					
-					ReloadGame();
+					DataLoader::ReloadAllData( *m_world );
 				}
 				break;
 			}
@@ -783,38 +611,43 @@ void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, 
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::PlaySoundByName( const std::string& soundName, bool isLooped, float volume, float balance, float speed, bool isPaused )
+void Game::PlaySoundByName( const std::string& soundFileName, bool isLooped, float volume, float balance, float speed, bool isPaused )
 {
-	auto iter = m_loadedSoundIds.find( soundName );
-	if ( iter == m_loadedSoundIds.end() )
+	std::string soundFullPath( g_gameConfigBlackboard.GetValue( "audioRoot", "" ) );
+	soundFullPath += "/";
+	soundFullPath += soundFileName;
+
+	SoundID soundId = g_audioSystem->GetSound( soundFullPath );
+	if ( soundId == MISSING_SOUND_ID )
 	{
-		g_devConsole->PrintError( Stringf( "Cannot play unregistered sound, '%s", soundName.c_str() ) );
+		g_devConsole->PrintError( Stringf( "Cannot play unregistered sound, '%s", soundFileName.c_str() ) );
 		return;
 	}
-
-	SoundID soundId = iter->second;
 
 	g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void Game::ChangeMusic( const std::string& musicName, bool isLooped, float volume, float balance, float speed, bool isPaused )
+void Game::ChangeMusic( const std::string& musicFileName, bool isLooped, float volume, float balance, float speed, bool isPaused )
 {
-	auto iter = m_loadedSoundIds.find( musicName );
-	if ( iter == m_loadedSoundIds.end() )
+	std::string soundFullPath( g_gameConfigBlackboard.GetValue( "audioRoot", "" ) );
+	soundFullPath += "/";
+	soundFullPath += musicFileName;
+
+	SoundID soundId = g_audioSystem->GetSound( soundFullPath );
+	if ( soundId == MISSING_SOUND_ID )
 	{
-		g_devConsole->PrintError( Stringf( "Cannot play unregistered music, '%s", musicName.c_str() ) );
+		g_devConsole->PrintError( Stringf( "Cannot play unregistered music, '%s", musicFileName.c_str() ) );
 		return;
 	}
 
-	SoundID soundId = iter->second;
 	if ( m_curMusicId != (SoundPlaybackID)-1 )
 	{
 		g_audioSystem->StopSound( m_curMusicId );
 	}
 
-	m_curMusicName = musicName;
+	m_curMusicName = musicFileName;
 	m_curMusicId = g_audioSystem->PlaySound( soundId, isLooped, volume, balance, speed, isPaused );
 }
 

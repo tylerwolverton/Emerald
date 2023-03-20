@@ -15,16 +15,16 @@ SpriteAnimationComponent* SpriteAnimationScene::CreateAndAddComponent( Entity* p
 	}
 
 	SpriteAnimationComponent* spriteAnimComp = new SpriteAnimationComponent( parentEntity->GetId(), componentDef );
-	AddComponent( spriteAnimComp );
+	if ( spriteAnimComp != nullptr )
+	{
+		animComponents.push_back( spriteAnimComp );
+	}
 	return spriteAnimComp;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void SpriteAnimationScene::AddComponent( SpriteAnimationComponent* spriteAnimComp )
+void SpriteAnimationScene::Destroy()
 {
-	if ( spriteAnimComp != nullptr )
-	{
-		animComponents.push_back( spriteAnimComp );
-	}
+	PTR_VECTOR_SAFE_DELETE( animComponents );
 }

@@ -12,7 +12,7 @@ class ZephyrScriptDefinition;
 struct ZephyrComponentDefinition
 {
 public:
-	bool									isScriptValid = false; // ?
+	bool									isScriptValid = false;
 	std::string								zephyrScriptName;				// Used for reloading
 	ZephyrScriptDefinition*					zephyrScriptDef = nullptr;
 	ZephyrValueMap							zephyrScriptInitialValues;

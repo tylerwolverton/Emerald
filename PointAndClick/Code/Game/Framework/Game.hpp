@@ -47,6 +47,9 @@ public:
 	void		Update();
 	void		Render() const;
 		
+	void		OnGameStart();
+	void		OnGameEnd();
+
 	void		ChangeGameState( const eGameState& newGameState );
 	eGameState  GetGameState()															{ return m_gameState; }
 
@@ -71,8 +74,8 @@ public:
 
 	void		WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 
-	void		PlaySoundByName( const std::string& soundName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
-	void		ChangeMusic( const std::string& musicName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
+	void		PlaySoundByName( const std::string& soundFileName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
+	void		ChangeMusic( const std::string& musicFileName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 
 public:
 	RandomNumberGenerator* m_rng = nullptr;
@@ -82,15 +85,8 @@ private:
 	void InitializePlayerController();
 	void InitializeUI();
 
-	void LoadAssets();
-	void LoadSounds();
-	void LoadMaps();
-	void LoadEntityTypes();
-	void LoadWorldDefinition();
-	void LoadAndCompileZephyrScripts();
-	void ReloadGame();
-	void ReloadScripts();
 	void LoadStartingMap( const std::string& mapName );
+	void PossessPlayerEntity();
 
 	void UpdateFromKeyboard();
 	void UpdateMousePositions();
@@ -132,7 +128,6 @@ private:
 	// Audio
 	std::string						m_curMusicName;
 	SoundPlaybackID					m_curMusicId = (SoundPlaybackID)-1;
-	std::map<std::string, SoundID>	m_loadedSoundIds;
 
 	GameEntity* m_playerController = nullptr;
 };

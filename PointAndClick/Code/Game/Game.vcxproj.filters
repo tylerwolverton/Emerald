@@ -82,6 +82,9 @@
     <ClCompile Include="DataParsing\WorldDefinitionParser.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="DataParsing\DataLoader.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
@@ -104,5 +107,6 @@
     <ClInclude Include="Graphics\SpriteAnimationComponentDefinition.hpp" />
     <ClInclude Include="DataParsing\EntityTypesParser.hpp" />
     <ClInclude Include="DataParsing\WorldDefinitionParser.hpp" />
+    <ClInclude Include="DataParsing\DataLoader.hpp" />
   </ItemGroup>
 </Project>

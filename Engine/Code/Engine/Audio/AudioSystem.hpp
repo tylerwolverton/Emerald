@@ -18,10 +18,13 @@ public:
 	virtual void				BeginFrame();
 	virtual void				EndFrame();
 	virtual void				Shutdown();
+	virtual void				Reset();
 
 	virtual SoundID				CreateOrGetSound( const std::string& soundFilePath );
+	virtual SoundID				GetSound( const std::string& soundFilePath );
 	virtual SoundPlaybackID		PlaySound( SoundID soundID, bool isLooped=false, float volume=1.f, float balance=0.0f, float speed=1.0f, bool isPaused=false );
 	virtual void				StopSound( SoundPlaybackID soundPlaybackID );
+	virtual void				StopAllSounds();
 	virtual void				SetSoundPlaybackVolume( SoundPlaybackID soundPlaybackID, float volume );	// volume is in [0,1]
 	virtual void				SetSoundPlaybackBalance( SoundPlaybackID soundPlaybackID, float balance );	// balance is in [-1,1], where 0 is L/R centered
 	virtual void				SetSoundPlaybackSpeed( SoundPlaybackID soundPlaybackID, float speed );		// speed is frequency multiplier (1.0 == normal)

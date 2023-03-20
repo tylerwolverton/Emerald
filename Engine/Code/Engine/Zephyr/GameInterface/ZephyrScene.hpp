@@ -17,6 +17,6 @@ public:
 	ZephyrComponentVector zephyrComponents;
 
 public:
-	ZephyrComponent* CreateAndAddComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef );
-	void AddComponent( ZephyrComponent* zephyrComp );
+	ZephyrComponent*	CreateAndAddComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef );
+	void				Destroy();
 };

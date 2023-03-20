@@ -77,6 +77,25 @@ void AudioSystem::Shutdown()
 
 
 //-----------------------------------------------------------------------------------------------
+void AudioSystem::Reset()
+{
+	StopAllSounds();
+
+	FMOD_RESULT result = m_fmodSystem->release();
+	ValidateResult( result );
+	
+	m_registeredSoundIDs.clear();
+	m_registeredSounds.clear();
+
+	result = FMOD::System_Create( &m_fmodSystem );
+	ValidateResult( result );
+
+	result = m_fmodSystem->init( 512, FMOD_INIT_NORMAL, nullptr );
+	ValidateResult( result );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 SoundID AudioSystem::CreateOrGetSound( const std::string& soundFilePath )
 {
 	std::map< std::string, SoundID >::iterator found = m_registeredSoundIDs.find( soundFilePath );
@@ -95,6 +114,19 @@ SoundID AudioSystem::CreateOrGetSound( const std::string& soundFilePath )
 			m_registeredSounds.push_back( newSound );
 			return newSoundID;
 		}
+	}
+
+	return MISSING_SOUND_ID;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+SoundID AudioSystem::GetSound( const std::string& soundFilePath )
+{
+	std::map< std::string, SoundID >::iterator found = m_registeredSoundIDs.find( soundFilePath );
+	if ( found != m_registeredSoundIDs.end() )
+	{
+		return found->second;
 	}
 
 	return MISSING_SOUND_ID;
@@ -142,6 +174,14 @@ void AudioSystem::StopSound( SoundPlaybackID soundPlaybackID )
 	
 	FMOD::Channel* channelAssignedToSound = (FMOD::Channel*) soundPlaybackID;
 	channelAssignedToSound->stop();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void AudioSystem::StopAllSounds()
+{
+	// TODO: Do this if it's possible to get the master bus
+	// https://qa.fmod.com/t/stop-all-sounds-function/12663
 }
 
 

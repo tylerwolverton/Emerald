@@ -196,6 +196,7 @@
     <ClCompile Include="Core\App.cpp" />
     <ClCompile Include="Core\GameCommon.cpp" />
     <ClCompile Include="Core\Main_Windows.cpp" />
+    <ClCompile Include="DataParsing\DataLoader.cpp" />
     <ClCompile Include="DataParsing\EntityTypeDefinition.cpp" />
     <ClCompile Include="DataParsing\MapDefinition.cpp" />
     <ClCompile Include="DataParsing\EntityTypesParser.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Core\App.hpp" />
     <ClInclude Include="Core\EngineBuildPreferences.hpp" />
     <ClInclude Include="Core\GameCommon.hpp" />
+    <ClInclude Include="DataParsing\DataLoader.hpp" />
     <ClInclude Include="DataParsing\EntityTypeDefinition.hpp" />
     <ClInclude Include="DataParsing\MapDefinition.hpp" />
     <ClInclude Include="DataParsing\EntityTypesParser.hpp" />

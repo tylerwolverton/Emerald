@@ -1,5 +1,6 @@
 #include "Engine/Zephyr/GameInterface/ZephyrScene.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -7,17 +8,17 @@ ZephyrComponent* ZephyrScene::CreateAndAddComponent( Entity* parentEntity, const
 {
 	ZephyrComponent* newComp = ZephyrSystem::CreateComponent( parentEntity, componentDef );
 
-	AddComponent( newComp );
+	if ( newComp != nullptr )
+	{
+		zephyrComponents.push_back( newComp );
+	}
 
 	return newComp;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrScene::AddComponent( ZephyrComponent* zephyrComp )
+void ZephyrScene::Destroy()
 {
-	if ( zephyrComp != nullptr )
-	{
-		zephyrComponents.push_back( zephyrComp );
-	}
+	PTR_VECTOR_SAFE_DELETE( zephyrComponents );
 }
