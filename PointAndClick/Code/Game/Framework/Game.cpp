@@ -456,7 +456,6 @@ void Game::UpdateCameras()
 
 	//m_worldCamera->Translate2D( cameraShakeOffset );
 	m_worldCamera->SetPosition( m_focalPoint + Vec3( cameraShakeOffset, 0.f ) );
-	//m_worldCamera->SetProjectionOrthographic( WINDOW_HEIGHT );
 }
 
 
