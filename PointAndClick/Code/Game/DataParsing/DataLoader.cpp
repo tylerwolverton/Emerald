@@ -53,6 +53,8 @@ void DataLoader::ReloadAllScripts( World& world )
 void DataLoader::ReloadAllData( World& world )
 {
 	// Unload
+	world.Reset();
+
 	g_gameConfigBlackboard.Clear();
 
 	PTR_MAP_SAFE_DELETE( ZephyrScriptDefinition::s_definitions );

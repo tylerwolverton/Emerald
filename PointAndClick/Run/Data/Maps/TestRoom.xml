@@ -1,0 +1,15 @@
+<MapDefinition type="PointAndClick" version="1" dimensions="16,10">
+  <Entities>
+    <Entity type="UnitTester" pos="6.5,6.5" name="UnitTester"/>
+    <!-- Managers -->
+    <Entity type="TestRoomManager" name="TestRoomManager">
+      <GlobalVar type="string" var="roomId" value="Test"/>
+    </Entity>
+    <!-- Entities -->
+    <Entity type="TestRoomBackground" pos="0,0"/>
+    <Entity type="Wally" pos="2.5,2.5" name="Wally"/>
+    <PlayerStart pos="1.5,1.5"/>
+  </Entities>
+</MapDefinition>
+
+

@@ -1,9 +1,11 @@
 <GameConfig
-	startMap="Level1"
+	startMap="TestRoom"
 	playerEntityName="GuybrushThreepwood"
 	windowAspect="1.777"
 	windowTitle="Point and Click"
 	windowMode="windowed"
+  pixelsPerUnit="100"
+  windowWorldDimensions="16,9"
   dataPathSuffix=""
   physicsConfigPath="Data/PhysicsConfig.xml"
   audioRoot="Data/Audio"

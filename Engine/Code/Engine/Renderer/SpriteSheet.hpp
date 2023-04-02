@@ -25,6 +25,7 @@ public:
 
 	const Texture&			GetTexture() const																	{ return m_texture; }
 	IntVec2					GetDimensions() const																{ return m_dimensions; }
+	IntVec2					GetSpriteDimensionsInPixels() const;
 	int						GetNumSprites() const																{ return (int)m_spriteDefs.size(); }
 	const SpriteDefinition& GetSpriteDefinition( int spriteIndex ) const;
 	void					GetSpriteUVs( Vec2& out_uvAtMins, Vec2& out_uvAtMaxs, int spriteIndex ) const;

@@ -200,7 +200,7 @@ void Game::Render() const
 		case eGameState::PAUSED:
 		{
 			std::vector<Vertex_PCU> vertexes;
-			DrawAABB2( g_renderer, AABB2( Vec2::ZERO, Vec2( WINDOW_WIDTH_PIXELS, WINDOW_HEIGHT_PIXELS ) ), Rgba8( 0, 0, 0, 100 ) );
+			DrawAABB2( g_renderer, AABB2( Vec2::ZERO, g_window->GetDimensions() ), Rgba8( 0, 0, 0, 100 ) );
 
 			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 500.f, 500.f ), 100.f, "Paused" );
 			g_renderer->GetSystemFont()->AppendVertsForText2D( vertexes, Vec2( 550.f, 400.f ), 30.f, "Esc to Quit" );
@@ -238,13 +238,14 @@ void Game::Render() const
 //-----------------------------------------------------------------------------------------------
 void Game::InitializeCameras()
 {
+	Vec2 windowWorldDimensions = g_gameConfigBlackboard.GetValue( "windowWorldDimensions", Vec2( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) );
 	m_worldCamera = new Camera();
-	m_worldCamera->SetOutputSize( Vec2( WINDOW_WIDTH, WINDOW_HEIGHT ) );
+	m_worldCamera->SetOutputSize( windowWorldDimensions );
 	m_worldCamera->SetClearMode( CLEAR_COLOR_BIT, Rgba8::BLACK );
 	m_worldCamera->SetPosition( m_focalPoint );
+	m_worldCamera->SetProjectionOrthographic( windowWorldDimensions.y );
 
 	Vec2 windowDimensions = g_window->GetDimensions();
-
 	m_uiCamera = new Camera();
 	m_uiCamera->SetOutputSize( windowDimensions );
 	m_uiCamera->SetPosition( Vec3( windowDimensions * .5f, 0.f ) );
@@ -306,8 +307,6 @@ void Game::ReloadGame()
 		g_audioSystem->StopSound( m_curMusicId );
 	}
 	
-	m_world->Reset();
-
 	g_zephyrSubsystem->StopAllTimers();
 
 	DataLoader::ReloadAllData( *m_world );
@@ -357,6 +356,27 @@ void Game::UpdateFromKeyboard()
 	{
 		g_eventSystem->FireEvent( "Quit" );
 	}
+
+	if ( g_inputSystem->IsKeyPressed( 'W' ) )
+	{
+		m_focalPoint.y += .1f;
+	}
+
+	if ( g_inputSystem->IsKeyPressed( 'S' ) )
+	{
+		m_focalPoint.y -= .1f;
+	}
+
+	if ( g_inputSystem->IsKeyPressed( 'A' ) )
+	{
+		m_focalPoint.x -= .1f;
+	}
+
+	if ( g_inputSystem->IsKeyPressed( 'D' ) )
+	{
+		m_focalPoint.x += .1f;
+	}
+
 
 	switch ( m_gameState )
 	{
@@ -436,7 +456,7 @@ void Game::UpdateCameras()
 
 	//m_worldCamera->Translate2D( cameraShakeOffset );
 	m_worldCamera->SetPosition( m_focalPoint + Vec3( cameraShakeOffset, 0.f ) );
-	m_worldCamera->SetProjectionOrthographic( WINDOW_HEIGHT );
+	//m_worldCamera->SetProjectionOrthographic( WINDOW_HEIGHT );
 }
 
 

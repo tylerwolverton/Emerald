@@ -12,4 +12,5 @@ class SpriteRenderingSystem
 {
 public:
 	static void RenderScene( const SpriteAnimationScene& spriteAnimScene, const std::vector<GameEntity*>& sceneEntities );
+	static void DebugRenderScene( const SpriteAnimationScene& spriteAnimScene, const std::vector<GameEntity*>& sceneEntities );
 };

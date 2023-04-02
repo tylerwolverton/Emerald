@@ -21,7 +21,7 @@ void SpriteRenderingSystem::RenderScene( const SpriteAnimationScene& spriteAnimS
 	{
 		if ( spriteAnimComp->curSpriteAnimSetDef == nullptr )
 		{
-			return;
+			continue;
 		}
 
 		SpriteAnimDefinition* animDef = spriteAnimComp->curSpriteAnimSetDef->GetSpriteAnimationDefForDirection( Vec2::ZERO );
@@ -50,4 +50,36 @@ void SpriteRenderingSystem::RenderScene( const SpriteAnimationScene& spriteAnimS
 		g_renderer->BindTexture( 0, &( spriteDef.GetTexture() ) );
 		g_renderer->DrawVertexArray( vertexes );
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SpriteRenderingSystem::DebugRenderScene( const SpriteAnimationScene& spriteAnimScene, const std::vector<GameEntity*>& sceneEntities )
+{
+	std::vector<Vertex_PCU> vertexes;
+	for ( SpriteAnimationComponent* spriteAnimComp : spriteAnimScene.animComponents )
+	{
+		if ( spriteAnimComp->curSpriteAnimSetDef == nullptr )
+		{
+			continue;
+		}
+		
+		// HACK: Find a better way to get transforms into this function
+		Vec3 position = Vec3::ZERO;
+		for ( GameEntity* entity : sceneEntities )
+		{
+			if ( spriteAnimComp->GetParentEntityId() == entity->GetId() )
+			{
+				position = entity->GetPosition();
+				break;
+			}
+		}
+
+		AABB2 worldDrawBounds = spriteAnimComp->spriteAnimCompDef.localDrawBounds;
+		worldDrawBounds.Translate( position.XY() );
+		AppendVertsForAABB2Outline( vertexes, worldDrawBounds, Rgba8::YELLOW, DEBUG_LINE_THICKNESS );
+	}
+
+	g_renderer->BindTexture( 0, nullptr );
+	g_renderer->DrawVertexArray( vertexes );
 }

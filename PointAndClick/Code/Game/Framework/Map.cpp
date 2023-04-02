@@ -30,7 +30,6 @@
 Map::Map( const MapDefinition& mapData, World* world )
 	: m_name( mapData.mapName )
 	, m_playerStartPos( mapData.playerStartPos )
-	, m_playerStartYaw( mapData.playerStartYaw )
 	, m_world( world )
 {
 	m_zephyrScene = new ZephyrScene();
@@ -116,16 +115,7 @@ void Map::Render() const
 //-----------------------------------------------------------------------------------------------
 void Map::DebugRender() const
 {
-	for ( int entityIdx = 0; entityIdx < (int)m_entities.size(); ++entityIdx )
-	{
-		GameEntity* const& entity = m_entities[entityIdx];
-		if ( entity == nullptr )
-		{
-			continue;
-		}
-
-		entity->DebugRender();
-	}
+	SpriteRenderingSystem::DebugRenderScene( *m_spriteAnimScene, m_entities );
 }
 
 
@@ -254,7 +244,6 @@ void Map::LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& m
 		m_world->SaveEntityByName( newEntity );
 
 		newEntity->SetPosition( mapEntityDef.position );
-		newEntity->SetOrientationDegrees( mapEntityDef.yawDegrees );
 
 		CreateAndAttachEntityComponents( newEntity, mapEntityDef );
 	}

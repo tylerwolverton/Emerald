@@ -115,6 +115,17 @@ SpriteSheet::~SpriteSheet()
 
 
 //-----------------------------------------------------------------------------------------------
+IntVec2 SpriteSheet::GetSpriteDimensionsInPixels() const
+{
+	IntVec2 textureDimensionsInPixels = m_texture.GetTexelSize();
+
+	IntVec2 spriteDimensionsInPixels( textureDimensionsInPixels.x / m_dimensions.x, textureDimensionsInPixels.y / m_dimensions.y );
+
+	return spriteDimensionsInPixels;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 const SpriteDefinition& SpriteSheet::GetSpriteDefinition( int spriteIndex ) const
 {
 	return m_spriteDefs[spriteIndex];

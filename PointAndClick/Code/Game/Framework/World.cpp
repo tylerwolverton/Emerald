@@ -70,12 +70,12 @@ void World::Render() const
 //-----------------------------------------------------------------------------------------------
 void World::DebugRender() const
 {
-	if ( m_curMap == nullptr )
+	if ( m_curMap != nullptr )
 	{
-		return;
+		m_curMap->DebugRender();
 	}
 
-	m_curMap->DebugRender();
+	SpriteRenderingSystem::DebugRenderScene( *m_spriteAnimScene, m_worldEntities );
 }
 
 

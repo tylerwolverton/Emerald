@@ -1,6 +1,7 @@
 #include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/NamedStrings.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
@@ -9,6 +10,7 @@
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
+#include "Game/Core/GameCommon.hpp"
 #include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 #include "Game/Graphics/SpriteAnimationComponentDefinition.hpp"
 
@@ -187,7 +189,19 @@ void EntityTypeDefinition::ParseSpriteAnimCompDef( SpriteSheet* spriteSheet, con
 {
 	m_spriteAnimCompDef = new SpriteAnimationComponentDefinition();
 
-	m_spriteAnimCompDef->localDrawBounds = ParseXmlAttribute( spriteAnimationElem, "localDrawBounds", m_spriteAnimCompDef->localDrawBounds );
+	const float UNITS_PER_PIXEL = 1.f / g_gameConfigBlackboard.GetValue( "pixelsPerUnit", DEFAULT_PIXELS_PER_UNIT );
+
+	Vec2 localMaxs( (float)spriteSheet->GetSpriteDimensionsInPixels().x * UNITS_PER_PIXEL, (float)spriteSheet->GetSpriteDimensionsInPixels().y * UNITS_PER_PIXEL );
+	AABB2 localDrawBounds( Vec2::ZERO, localMaxs );
+
+	float spriteScale = ParseXmlAttribute( spriteAnimationElem, "spriteScale", 1.f );
+	localDrawBounds.maxs *= spriteScale;
+
+	IntVec2 localDrawOffsetInPixels = ParseXmlAttribute( spriteAnimationElem, "localDrawOffsetInPixels", IntVec2::ZERO );
+	localDrawBounds.Translate( Vec2( (float)localDrawOffsetInPixels.x * UNITS_PER_PIXEL, (float)localDrawOffsetInPixels.y * UNITS_PER_PIXEL ) );
+
+	m_spriteAnimCompDef->localDrawBounds = localDrawBounds;
+
 	float defaultFPS = ParseXmlAttribute( spriteAnimationElem, "fps", 1.f );
 
 	bool isFirstAnim = true;

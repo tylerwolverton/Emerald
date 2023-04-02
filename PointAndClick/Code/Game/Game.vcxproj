@@ -204,6 +204,7 @@
     <ClCompile Include="Framework\Game.cpp" />
     <ClCompile Include="Framework\GameEntity.cpp" />
     <ClCompile Include="Framework\Map.cpp" />
+    <ClCompile Include="Framework\PointAndClickMap.cpp" />
     <ClCompile Include="Framework\World.cpp" />
     <ClCompile Include="Graphics\SpriteAnimationComponent.cpp" />
     <ClCompile Include="Graphics\SpriteAnimationComponentDefinition.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="Framework\Game.hpp" />
     <ClInclude Include="Framework\GameEntity.hpp" />
     <ClInclude Include="Framework\Map.hpp" />
+    <ClInclude Include="Framework\PointAndClickMap.hpp" />
     <ClInclude Include="Framework\World.hpp" />
     <ClInclude Include="Graphics\SpriteAnimationComponent.hpp" />
     <ClInclude Include="Graphics\SpriteAnimationComponentDefinition.hpp" />

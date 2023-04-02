@@ -19,7 +19,6 @@ struct MapEntityDefinition
 	EntityTypeDefinition* entityDef = nullptr;
 	std::string name;
 	Vec3 position = Vec3::ZERO;
-	float yawDegrees = 0.f;
 
 	ZephyrValueMap zephyrScriptInitialValues;
 	std::vector<EntityVariableInitializer> zephyrEntityVarInits;
@@ -30,16 +29,16 @@ struct MapEntityDefinition
 struct MapDefinition
 {
 public:
-	bool isValid = false;									// Game
-	std::string mapName;									// Map
-	std::string type = "InvalidType";						// World
-	int version = -1;										
+	bool isValid = false;									
+	std::string mapName;									
+	std::string type = "InvalidType";						
+	int version = -1;			
 
 	std::vector<MapEntityDefinition> mapEntityDefs;			// Map
 
-	// Multiplayer TODO: Make this into an array
+	std::string backgroundSpritePath;						// PointAndClick Map						
+
 	Vec3 playerStartPos = Vec3::ZERO;
-	float playerStartYaw = 0.f;
 
 public:
 	explicit MapDefinition( const std::string& mapFullPath );

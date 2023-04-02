@@ -42,14 +42,11 @@ void PopulateGameConfig();
 //-----------------------------------------------------------------------------------------------
 // Game Constants
 //
-constexpr float CLIENT_ASPECT = 16.f / 9.f;
-
 constexpr float SQRT_2_OVER_2 = 0.70710678f;
 
-constexpr float WINDOW_WIDTH = 16.f;
-constexpr float WINDOW_HEIGHT = 9.f;
-constexpr float WINDOW_WIDTH_PIXELS = 1920.f;
-constexpr float WINDOW_HEIGHT_PIXELS = 1080.f;
+constexpr float DEFAULT_PIXELS_PER_UNIT = 100.f;
+constexpr float DEFAULT_WINDOW_WIDTH = 16.f;
+constexpr float DEFAULT_WINDOW_HEIGHT = 9.f;
 
 constexpr float DEBUG_LINE_THICKNESS = 0.02f;
 

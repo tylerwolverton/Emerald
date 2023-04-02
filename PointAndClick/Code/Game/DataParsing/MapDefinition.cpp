@@ -74,6 +74,8 @@ bool MapDefinition::ParseMapDefinitionXmlNode( const XmlElement& mapDefElem )
 		return false;
 	}
 
+	backgroundSpritePath = ParseXmlAttribute( mapDefElem, "backgroundSprite", "" );
+
 	return true;
 }
 
@@ -101,7 +103,6 @@ bool MapDefinition::ParseEntitiesXmlNode( const XmlElement& mapDefElem )
 			}
 
 			playerStartPos = ParseXmlAttribute( *entityElem, "pos", playerStartPos );
-			playerStartYaw = ParseXmlAttribute( *entityElem, "yaw", playerStartYaw );
 
 			hasParsedPlayerStart = true;
 		}
@@ -142,7 +143,6 @@ void MapDefinition::CreateMapEntityDefFromXmlNode( const XmlElement& entityElem 
 	}
 
 	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec3::ZERO );
-	mapEntityDef.yawDegrees = ParseXmlAttribute( entityElem, "yaw", 0.f );
 
 	const XmlElement* globalVarElem = entityElem.FirstChildElement( "GlobalVar" );
 	while ( globalVarElem != nullptr )

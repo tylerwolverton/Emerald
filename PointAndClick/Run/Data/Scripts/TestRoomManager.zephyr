@@ -1,0 +1,11 @@
+String roomId;
+
+Entity gameMgr = null
+
+
+State Default
+{
+    OnUpdate()
+    {
+    }
+}

@@ -2,7 +2,7 @@
  
   <Entity name="GuybrushThreepwood">
     <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
-    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,.75" fps="2">
+    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" spriteScale="5" localDrawOffsetInPixels="-16,-32" fps="2">
       <Walking		up="" left="18~23" down="0~7" right="9~14"/>
       <Idle				up="0"/>
     </Appearance>
@@ -11,7 +11,7 @@
 
   <Entity name="Wally">
     <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
-    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" size=".5,.5" localDrawBounds="-.25,-.25,.25,1.25" fps="2">
+    <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" spriteScale="5" localDrawOffsetInPixels="-16,-32" fps="2">
       <Walking		up="" left="18~23" down="0~7" right="9~14"/>
       <Idle				up="0"/>
     </Appearance>
@@ -27,15 +27,15 @@
     <Script name="GameManager.zephyr"/>
   </Entity>
 
-  <Entity name="Level1Manager">
-    <Script name="Level1Manager.zephyr">
+  <Entity name="TestRoomManager">
+    <Script name="TestRoomManager.zephyr">
       <GlobalVar type="entity" var="gameMgr" value="GameManager"/>
     </Script>
   </Entity>
   
   <Entity name="MouseCursor">
     <Physics radius="0.5" collisionLayer="None"/>
-    <Appearance spriteSheet="Data/Images/SpriteSheets/Cursor.png" spriteSheetDimensions="4,1" size=".5,.5" localDrawBounds="-.25,-.25,.25,.25" fps="2">
+    <Appearance spriteSheet="Data/Images/SpriteSheets/Cursor.png" spriteSheetDimensions="4,1" spriteScale="2" localDrawOffsetInPixels="-16,-16" fps="2">
       <Default up="0~1"/>
       <None up="3"/>
     </Appearance>
@@ -44,6 +44,12 @@
   
   <Entity name="PlayerController">
     <Script name="PlayerController.zephyr"/>
+  </Entity>
+
+  <Entity name="TestRoomBackground">
+    <Appearance spriteSheet="Data/Images/SpriteSheets/SCUMMBarBackground.png" spriteScale="5" spriteSheetDimensions="1,1">
+      <Default up="0"/>
+    </Appearance>
   </Entity>
 
 </EntityTypes>
