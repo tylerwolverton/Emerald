@@ -458,6 +458,7 @@ EntityComponent* World::GetZephyrComponentFromEntityId( const EntityId& id )
 	return nullptr;
 }
 
+
 //-----------------------------------------------------------------------------------------------
 EntityComponent* World::GetSpriteAnimComponentFromEntityId( const EntityId& id )
 {
@@ -470,7 +471,6 @@ EntityComponent* World::GetSpriteAnimComponentFromEntityId( const EntityId& id )
 		}
 	}
 	
-
 	// Check current map
 	if ( m_curMap != nullptr )
 	{

@@ -31,7 +31,6 @@ MapDefinition::MapDefinition( const std::string& mapFullPath )
 			return;
 		}
 
-
 		if ( !ParseMapDefinitionXmlNode( *root ) ) { return; }
 		if ( !ParseEntitiesXmlNode( *root ) ) { return; }
 		

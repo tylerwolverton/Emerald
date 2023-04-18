@@ -11,6 +11,7 @@
 #include "Engine/Zephyr/GameInterface/ZephyrComponentDefinition.hpp"
 
 #include "Game/Core/GameCommon.hpp"
+#include "Game/DataParsing/DataParsingUtils.hpp"
 #include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
 #include "Game/Graphics/SpriteAnimationComponentDefinition.hpp"
 
@@ -147,34 +148,17 @@ void EntityTypeDefinition::ParseZephyrCompDef( const std::string& entityType, co
 		}
 
 		// Convert value to correct type and store in map
-		if ( !_strcmpi( typeName.c_str(), "string" ) )
+		ZephyrValue newValue = CreateZephyrValueFromData( typeName, valueStr );
+
+		if ( newValue.GetType() == eValueType::ENTITY )
 		{
-			m_zephyrDef->zephyrScriptInitialValues[varName] = ZephyrValue( valueStr );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "number" ) )
-		{
-			m_zephyrDef->zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, 0.f ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "bool" ) )
-		{
-			m_zephyrDef->zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, false ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "vec2" ) )
-		{
-			m_zephyrDef->zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec2::ZERO ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "vec3" ) )
-		{
-			m_zephyrDef->zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec3::ZERO ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "entity" ) )
-		{
+			if ( newValue == ZephyrValue::ERROR_VALUE )
+			{
+				g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar '%s' has unsupported type '%s'", entityType.c_str(), varName.c_str(), typeName.c_str() ) );
+				break;
+			}
+
 			m_zephyrDef->zephyrEntityVarInits.emplace_back( varName, valueStr );
-		}
-		else
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar '%s' has unsupported type '%s'", entityType.c_str(), varName.c_str(), typeName.c_str() ) );
-			break;
 		}
 
 		globalVarElem = globalVarElem->NextSiblingElement( "GlobalVar" );

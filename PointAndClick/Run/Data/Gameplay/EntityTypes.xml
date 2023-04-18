@@ -18,6 +18,10 @@
     <Script name="Wally.zephyr"/>
   </Entity>
 
+  <Entity name="FollowCamera">
+    <Camera type="world" projectionType="orthographic" />
+    <Script name="FollowCamera.zephyr"/>
+  </Entity>
 
   <Entity name="UnitTester">
     <Script name="UnitTests.zephyr"/>

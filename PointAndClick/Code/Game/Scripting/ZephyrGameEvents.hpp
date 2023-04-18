@@ -44,6 +44,7 @@ private:
 	void GetNativeEntityVariable( EventArgs* args );
 	void SetNativeEntityVariable( EventArgs* args );
 	void GetEntityUnderMouse( EventArgs* args );
+	void SpawnEntity( EventArgs* args );
 	void DestroySelf( EventArgs* args );
 
 	// AI

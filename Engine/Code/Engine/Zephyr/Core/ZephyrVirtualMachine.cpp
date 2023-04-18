@@ -501,7 +501,7 @@ void ZephyrVirtualMachine::CopyEventArgVariables( EventArgs* eventArgs, ZephyrVa
 		}
 		else if ( keyValuePair.second->Is<int>() )
 		{
-			localVariables[keyValuePair.first] = ZephyrValue( eventArgs->GetValue( keyValuePair.first, (EntityId)ERROR_ZEPHYR_VAL ) );
+			localVariables[keyValuePair.first] = ZephyrValue( eventArgs->GetValue( keyValuePair.first, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) );
 		}
 		else if ( keyValuePair.second->Is<double>() )
 		{
@@ -995,7 +995,7 @@ ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableN
 	}
 
 	ReportError( Stringf( "Variable '%s' is undefined", variableName.c_str() ) );
-	return ZephyrValue( ERROR_ZEPHYR_VAL );
+	return ZephyrValue::ERROR_VALUE;
 }
 
 
@@ -1323,7 +1323,7 @@ void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::strin
 		ZephyrValue newVal = GetZephyrValFromEventArgs( paramName, args );
 		
 		if ( newVal.GetType() == eValueType::ENTITY 
-			 && newVal.EvaluateAsEntity() == (EntityId)ERROR_ZEPHYR_VAL )
+			 && newVal == ZephyrValue::ERROR_VALUE )
 		{
 			//ReportError( Stringf( "No matching arg found for parameter '%s'", param.c_str() ) );
 			continue;
@@ -1341,7 +1341,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	auto iter = keyValuePairs.find( varName );
 	if ( iter == keyValuePairs.end() )
 	{
-		return ZephyrValue( (EntityId)ERROR_ZEPHYR_VAL );
+		return ZephyrValue::ERROR_VALUE;
 	}
 	
 	if ( iter->second->Is<float>() )
@@ -1350,7 +1350,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	}
 	else if ( iter->second->Is<int>() )
 	{
-		return ZephyrValue( args.GetValue( varName, (EntityId)ERROR_ZEPHYR_VAL ) );
+		return ZephyrValue( args.GetValue( varName, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) );
 	}
 	else if ( iter->second->Is<double>() )
 	{
@@ -1374,7 +1374,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 		return ZephyrValue( iter->second->GetAsString() );
 	}
 
-	return ZephyrValue( (EntityId)ERROR_ZEPHYR_VAL );
+	return ZephyrValue::ERROR_VALUE;
 }
 
 
@@ -1473,5 +1473,5 @@ void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 //-----------------------------------------------------------------------------------------------
 bool ZephyrVirtualMachine::IsErrorValue( const ZephyrValue& zephyrValue )
 {
-	return zephyrValue.GetAsEntity() == ERROR_ZEPHYR_VAL;
+	return zephyrValue.GetAsEntity() == ZephyrValue::ERROR_VALUE;
 }

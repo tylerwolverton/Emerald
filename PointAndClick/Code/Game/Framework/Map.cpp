@@ -134,7 +134,7 @@ GameEntity* Map::SpawnNewEntityFromName( const std::string& entityDefName )
 	{
 		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
 	}
-	if ( entityDef->HasZephyrScript() )
+	if ( entityDef->HasSpriteAnimation() )
 	{
 		m_spriteAnimScene->CreateAndAddComponent( newEntity, *entityDef->GetSpriteAnimationCompDef() );
 	}

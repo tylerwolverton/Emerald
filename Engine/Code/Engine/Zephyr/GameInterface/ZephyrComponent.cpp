@@ -93,7 +93,7 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrComponent::GetGlobalVariable( const std::string& varName )
 {
-	ZephyrValue val( ERROR_ZEPHYR_VAL );
+	ZephyrValue val = ZephyrValue::ERROR_VALUE;
 
 	m_globalBytecodeChunk->TryToGetVariable( varName, val );
 

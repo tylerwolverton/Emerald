@@ -22,7 +22,7 @@ typedef std::map<std::string, ZephyrValue> ZephyrValueMap;
 typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
 typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
 
-constexpr int ERROR_ZEPHYR_VAL = -1000;
+constexpr int ERROR_ZEPHYR_ENTITY_ID = -1000;
 extern std::string PARENT_ENTITY_STR;
 extern std::string PARENT_ENTITY_ID_STR;
 extern std::string PARENT_ENTITY_NAME_STR;
@@ -166,7 +166,6 @@ enum class eValueType
 };
 
 std::string ToString( eValueType valueType );
-eValueType FromString( const std::string& strType );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -220,6 +219,7 @@ public:
 	ZephyrValue& operator=( ZephyrValue const&& other );
 	~ZephyrValue();
 
+	friend bool operator==( const ZephyrValue& lhs, const ZephyrValue& rhs );
 
 	eValueType	GetType() const			{ return m_type; }
 
@@ -243,6 +243,9 @@ public:
 private:
 	void ReportConversionError( eValueType targetType );
 
+public:
+	static const ZephyrValue ERROR_VALUE;
+
 private:
 	eValueType m_type = eValueType::NONE;
 
@@ -256,6 +259,9 @@ private:
 		EntityId entityData;
 	};
 };
+
+
+
 
 
 //-----------------------------------------------------------------------------------------------

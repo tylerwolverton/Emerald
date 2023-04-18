@@ -18,6 +18,8 @@ std::string TARGET_ENTITY_NAME_STR = "targetName";
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
 ZephyrSubsystem* g_zephyrSubsystem = nullptr;
 
+const ZephyrValue ZephyrValue::ERROR_VALUE = ZephyrValue( (EntityId)ERROR_ZEPHYR_ENTITY_ID );
+
 
 //-----------------------------------------------------------------------------------------------
 std::string ToString( eTokenType type )
@@ -479,7 +481,7 @@ float ZephyrValue::EvaluateAsNumber()
 			ReportConversionError( eValueType::NUMBER );
 	}
 
-	return ERROR_ZEPHYR_VAL;
+	return (float)ERROR_ZEPHYR_ENTITY_ID;
 }
 
 
@@ -497,7 +499,7 @@ EntityId ZephyrValue::EvaluateAsEntity()
 			ReportConversionError( eValueType::ENTITY );
 	}
 
-	return ERROR_ZEPHYR_VAL;
+	return ERROR_ZEPHYR_ENTITY_ID;
 }
 
 
@@ -552,7 +554,29 @@ void ZephyrValue::DeserializeFromString( const std::string& serlializedStr )
 void ZephyrValue::ReportConversionError( eValueType targetType )
 {
 	g_devConsole->PrintError( Stringf( "Cannot access '%s' variable as type '%s'", ToString( m_type ).c_str(), ToString( targetType ).c_str() ) );
-	entityData = ERROR_ZEPHYR_VAL;
+	entityData = ERROR_ZEPHYR_ENTITY_ID;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool operator==( const ZephyrValue& lhs, const ZephyrValue& rhs )
+{
+	if ( lhs.GetType() != rhs.GetType() )
+	{
+		return false;
+	}
+
+	switch ( lhs.GetType() )
+	{
+		case eValueType::STRING:	{ return lhs.GetAsString() == rhs.GetAsString(); }
+		case eValueType::VEC2:		{ return lhs.GetAsVec2() == rhs.GetAsVec2(); }
+		case eValueType::VEC3:		{ return lhs.GetAsVec3() == rhs.GetAsVec3(); }
+		case eValueType::NUMBER:	{ return lhs.GetAsNumber() == rhs.GetAsNumber(); }
+		case eValueType::BOOL:		{ return lhs.GetAsBool() == rhs.GetAsBool(); }
+		case eValueType::ENTITY:	{ return lhs.GetAsEntity() == rhs.GetAsEntity(); }
+	}
+
+	return false;
 }
 
 

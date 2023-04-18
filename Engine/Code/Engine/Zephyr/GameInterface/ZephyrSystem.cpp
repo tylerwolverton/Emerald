@@ -128,7 +128,7 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 {
 	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
 	{
-		return ZephyrValue( ERROR_ZEPHYR_VAL );
+		return ZephyrValue::ERROR_VALUE;
 	}
 
 	// Try to get native first

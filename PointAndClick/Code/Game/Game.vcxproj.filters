@@ -88,6 +88,12 @@
     <ClCompile Include="Framework\PointAndClickMap.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\GameCamera.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="DataParsing\DataParsingUtils.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
@@ -112,5 +118,7 @@
     <ClInclude Include="DataParsing\WorldDefinitionParser.hpp" />
     <ClInclude Include="DataParsing\DataLoader.hpp" />
     <ClInclude Include="Framework\PointAndClickMap.hpp" />
+    <ClInclude Include="Graphics\GameCamera.hpp" />
+    <ClInclude Include="DataParsing\DataParsingUtils.hpp" />
   </ItemGroup>
 </Project>
