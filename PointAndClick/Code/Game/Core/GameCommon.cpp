@@ -47,4 +47,3 @@ eCollisionLayer GetCollisionLayerFromString( const std::string& layerStr )
 
 	return eCollisionLayer::NONE;
 }
-

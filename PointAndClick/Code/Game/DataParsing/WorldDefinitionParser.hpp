@@ -1,6 +1,8 @@
 #pragma once
-#include <map>
+#include "Game/Core/GameCommon.hpp"
+
 #include <string>
+#include <vector>
 
 
 //-----------------------------------------------------------------------------------------------
@@ -11,8 +13,8 @@ class EntityTypeDefinition;
 class WorldDefinitionParser
 {
 public:
-	static std::map<std::string, EntityTypeDefinition*> ParseEntitiesFromFile( const std::string& fullPath );
+	static std::vector<EntitySpawnParams> ParseEntitiesFromFile( const std::string& fullPath );
 
 private:
-	static std::map<std::string, EntityTypeDefinition*> ParseEntitiesFromXmlFile( const std::string& fullPath );
+	static std::vector<EntitySpawnParams> ParseEntitiesFromXmlFile( const std::string& fullPath );
 };

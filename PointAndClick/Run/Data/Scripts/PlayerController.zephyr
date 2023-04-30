@@ -1,8 +1,12 @@
 Entity possessedEntity = null
+Entity followCamera = null
 
 Function OnSpawn()
 {
     RegisterKeyEvent( key: "leftClick"  event: "OnLeftClick" )
+    RegisterKeyEvent( key: "rightClick"  event: "OnRightClick" )
+
+    
 }
 
 Function OnPossess( Entity newPossessedEntity )
@@ -38,5 +42,10 @@ State Character
             // MoveToLocation( targetEntity: possessedEntity, pos: mousePosition )
             possessedEntity.SetTargetLocation(targetLocation: mousePosition)
         }
+    }
+
+    Function OnRightClick()
+    {
+        SpawnNewEntityInMap( type: "Wally" position: Vec3(2, 3, 0) )
     }
 }

@@ -7,6 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
+struct EntitySpawnParams;
 struct MapDefinition;
 struct Vec2;
 struct Vec3;
@@ -20,8 +21,18 @@ class Map;
 
 
 //-----------------------------------------------------------------------------------------------
+struct SceneSpawnParams
+{
+	ZephyrScene* zephyrScene = nullptr;
+	SpriteAnimationScene* spriteAnimScene = nullptr;
+};
+
+
+//-----------------------------------------------------------------------------------------------
 class World
 {
+	friend class Map;
+
 public:
 	World( Clock* gameClock );
 	~World();
@@ -41,6 +52,7 @@ public:
 
 	void				WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 	GameEntity*			AddEntityFromDefinition( const EntityTypeDefinition& entityDef, const std::string& entityName = "" );
+	GameEntity*			SpawnNewWorldEntity( const EntitySpawnParams& entitySpawnParams );
 
 	void				InitializeAllZephyrEntityVariables();
 	void				CallAllZephyrSpawnEvents();
@@ -49,6 +61,7 @@ public:
 	Map*				GetMapByName( const std::string& name );
 	Map*				GetCurrentMap();
 
+	void				SaveEntityById( GameEntity* entity );
 	GameEntity*			GetEntityById( EntityId id );
 	void				RemoveEntityFromWorldById( EntityId id );
 	GameEntity*			GetEntityByIdInCurMap( EntityId id );
@@ -63,7 +76,9 @@ public:
 	EntityComponent*	GetSpriteAnimComponentFromEntityId( const EntityId& id );
 
 private:
-	Map* GetLoadedMapByName( const std::string& mapName );
+	GameEntity*			SpawnNewEntity( const EntitySpawnParams& spawnParams, const SceneSpawnParams& sceneParams, Map* map );
+	void				CreateAndAttachEntityComponents( GameEntity* newEntity, const EntitySpawnParams& entitySpawnParams, const SceneSpawnParams& sceneParams );
+	Map*				GetLoadedMapByName( const std::string& mapName );
 
 	void ClearMapsAndEntities();
 

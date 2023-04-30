@@ -8,11 +8,12 @@
 #include "Engine/Renderer/SpriteSheet.hpp"
 
 #include "Game/Core/GameCommon.hpp"
+#include "Game/DataParsing/DataParsingUtils.hpp"
 #include "Game/DataParsing/EntityTypeDefinition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-std::map<std::string, EntityTypeDefinition*> WorldDefinitionParser::ParseEntitiesFromFile( const std::string& fullPath )
+std::vector<EntitySpawnParams> WorldDefinitionParser::ParseEntitiesFromFile( const std::string& fullPath )
 {
 	std::string fileExt = GetFileExtension( fullPath );
 	if ( IsEqualIgnoreCase( fileExt, ".xml" ) )
@@ -20,28 +21,28 @@ std::map<std::string, EntityTypeDefinition*> WorldDefinitionParser::ParseEntitie
 		return ParseEntitiesFromXmlFile( fullPath );
 	}
 
-	return std::map<std::string, EntityTypeDefinition*>();
+	return std::vector<EntitySpawnParams>();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-std::map<std::string, EntityTypeDefinition*> WorldDefinitionParser::ParseEntitiesFromXmlFile( const std::string& fullPath )
+std::vector<EntitySpawnParams> WorldDefinitionParser::ParseEntitiesFromXmlFile( const std::string& fullPath )
 {
-	std::map<std::string, EntityTypeDefinition*> worldEntityMap;
+	std::vector<EntitySpawnParams> worldEntitiesSpawnParams;
 
 	XmlDocument doc;
 	XmlError loadError = doc.LoadFile( fullPath.c_str() );
 	if ( loadError != tinyxml2::XML_SUCCESS )
 	{
 		g_devConsole->PrintError( Stringf( "The world xml file '%s' could not be opened.", fullPath.c_str() ) );
-		return worldEntityMap;
+		return worldEntitiesSpawnParams;
 	}
 
 	XmlElement* root = doc.RootElement();
 	if ( strcmp( root->Name(), "WorldDefinition" ) )
 	{
 		g_devConsole->PrintError( Stringf( "'%s': Incorrect root node name, must be WorldDefinition", fullPath.c_str() ) );
-		return worldEntityMap;
+		return worldEntitiesSpawnParams;
 	}
 
 	// Parse entities node
@@ -67,9 +68,24 @@ std::map<std::string, EntityTypeDefinition*> WorldDefinitionParser::ParseEntitie
 				continue;
 			}
 
-			std::string entityName = ParseXmlAttribute( *entityElement, "name", "" );
+			EntitySpawnParams spawnParams;
 
-			worldEntityMap[entityName] = entityTypeDef;
+			spawnParams.entityDef = entityTypeDef;
+			spawnParams.name = ParseXmlAttribute( *entityElement, "name", "" );
+			spawnParams.position = ParseXmlAttribute( *entityElement, "pos", Vec3::ZERO );
+
+			// Parse zephyr variable defs
+			const XmlElement* globalVarElem = entityElement->FirstChildElement( "GlobalVar" );
+			const std::string errorStr = ParseZephyrVarInitsFromData( globalVarElem, spawnParams.zephyrScriptInitialValues, spawnParams.zephyrEntityVarInits );
+
+			if ( !errorStr.empty() )
+			{
+				g_devConsole->PrintError( Stringf( "WorldDef.xml: %s", errorStr.c_str() ) );
+				entityElement = entityElement->NextSiblingElement();
+				continue;
+			}
+
+			worldEntitiesSpawnParams.push_back( spawnParams );
 		}
 		else
 		{
@@ -79,5 +95,5 @@ std::map<std::string, EntityTypeDefinition*> WorldDefinitionParser::ParseEntitie
 		entityElement = entityElement->NextSiblingElement();
 	}
 
-	return worldEntityMap;
+	return worldEntitiesSpawnParams;
 }

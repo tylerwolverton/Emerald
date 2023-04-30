@@ -120,51 +120,17 @@ void Map::DebugRender() const
 
 
 //-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityFromName( const std::string& entityDefName )
+GameEntity* Map::SpawnNewEntity( const EntitySpawnParams& entitySpawnParams )
 {
-	EntityTypeDefinition* entityDef = EntityTypeDefinition::GetEntityDefinition( entityDefName );
-	if ( entityDef == nullptr )
-	{
-		g_devConsole->PrintError( Stringf( "Tried to spawn unrecognized entity '%s'", entityDefName.c_str() ) );
-		return nullptr;
-	}
+	SceneSpawnParams sceneSpawnParams;
+	sceneSpawnParams.zephyrScene = m_zephyrScene;
+	sceneSpawnParams.spriteAnimScene = m_spriteAnimScene;
 
-	GameEntity* newEntity = SpawnNewEntityFromDef( *entityDef );
-	if ( entityDef->HasZephyrScript() )
-	{
-		m_zephyrScene->CreateAndAddComponent( newEntity, *entityDef->GetZephyrCompDef() );
-	}
-	if ( entityDef->HasSpriteAnimation() )
-	{
-		m_spriteAnimScene->CreateAndAddComponent( newEntity, *entityDef->GetSpriteAnimationCompDef() );
-	}
+	GameEntity* newEntity = m_world->SpawnNewEntity( entitySpawnParams, sceneSpawnParams, this );
+
+	AddToEntityList( newEntity );
 
 	return newEntity;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityFromDef( const EntityTypeDefinition& entityDef )
-{
-	GameEntity* entity = new GameEntity( entityDef, this );
-	AddToEntityList( entity );
-	return entity;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec2& pos )
-{
-	return SpawnNewEntityFromNameAtPosition( entityDefName, Vec3( pos, 0.f ) );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-GameEntity* Map::SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec3& pos )
-{
-	GameEntity* entity = SpawnNewEntityFromName( entityDefName );
-	entity->SetPosition( pos );
-	return entity;
 }
 
 
@@ -223,54 +189,11 @@ void Map::TakeOwnershipOfEntity( GameEntity* entityToAdd )
 
 
 //-----------------------------------------------------------------------------------------------
-void Map::LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& mapEntityDefs )
+void Map::LoadEntitiesFromInitialData( const std::vector<EntitySpawnParams>& entitiesSpawnParams )
 {
-	for ( int mapEntityIdx = 0; mapEntityIdx < (int)mapEntityDefs.size(); ++mapEntityIdx )
+	for ( const EntitySpawnParams& spawnParams : entitiesSpawnParams )
 	{
-		const MapEntityDefinition& mapEntityDef = mapEntityDefs[mapEntityIdx];
-		if ( mapEntityDef.entityDef == nullptr )
-		{
-			continue;
-		}
-
-		GameEntity* newEntity = SpawnNewEntityFromDef( *mapEntityDef.entityDef );
-		if ( newEntity == nullptr )
-		{
-			continue;
-		}
-
-		// Must be saved before initializing zephyr script
-		newEntity->SetName( mapEntityDef.name );
-		m_world->SaveEntityByName( newEntity );
-
-		newEntity->SetPosition( mapEntityDef.position );
-
-		CreateAndAttachEntityComponents( newEntity, mapEntityDef );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void Map::CreateAndAttachEntityComponents( GameEntity* newEntity, const MapEntityDefinition& mapEntityDef )
-{
-	// ZephyrComponent
-	if ( mapEntityDef.entityDef->HasZephyrScript() )
-	{
-		ZephyrComponent* zephyrComp = m_zephyrScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetZephyrCompDef() );
-		if ( zephyrComp != nullptr )
-		{
-			// Define initial script values defined in map file
-			// Note: These will override any initial values already defined in the EntityTypeDefinition
-			ZephyrSystem::InitializeGlobalVariables( zephyrComp, mapEntityDef.zephyrScriptInitialValues );
-			// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
-			zephyrComp->SetEntityVariableInitializers( mapEntityDef.zephyrEntityVarInits );
-		}
-	}
-
-	// SpriteAnimationComponent
-	if ( mapEntityDef.entityDef->HasSpriteAnimation() )
-	{
-		m_spriteAnimScene->CreateAndAddComponent( newEntity, *mapEntityDef.entityDef->GetSpriteAnimationCompDef() );
+		SpawnNewEntity( spawnParams );
 	}
 }
 

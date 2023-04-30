@@ -34,7 +34,6 @@ private:
 	void GetVec2Normalized( EventArgs* args );
 
 	// Game Events
-	//void SpawnEntity( EventArgs* args );
 	void StartDialogue( EventArgs* args );
 	void EndDialogue( EventArgs* args );
 	void StartNewTimer( EventArgs* args );
@@ -44,7 +43,8 @@ private:
 	void GetNativeEntityVariable( EventArgs* args );
 	void SetNativeEntityVariable( EventArgs* args );
 	void GetEntityUnderMouse( EventArgs* args );
-	void SpawnEntity( EventArgs* args );
+	void SpawnNewEntityInMap( EventArgs* args );
+	void SpawnNewEntityInWorld( EventArgs* args );
 	void DestroySelf( EventArgs* args );
 
 	// AI

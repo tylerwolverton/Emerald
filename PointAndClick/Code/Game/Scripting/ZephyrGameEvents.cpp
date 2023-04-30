@@ -45,7 +45,8 @@ ZephyrGameEvents::ZephyrGameEvents()
 	REGISTER_EVENT( MoveInDirection );
 	//REGISTER_EVENT( GetEntityLocation );
 
-	REGISTER_EVENT( SpawnEntity );
+	REGISTER_EVENT( SpawnNewEntityInMap );
+	REGISTER_EVENT( SpawnNewEntityInWorld );
 
 	REGISTER_EVENT( RegisterKeyEvent );
 	REGISTER_EVENT( UnRegisterKeyEvent );
@@ -321,7 +322,7 @@ void ZephyrGameEvents::GetVec2Normalized( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::SpawnEntity( EventArgs* args )
+void ZephyrGameEvents::SpawnNewEntityInMap( EventArgs* args )
 {
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 	if ( entity == nullptr )
@@ -329,15 +330,26 @@ void ZephyrGameEvents::SpawnEntity( EventArgs* args )
 		return;
 	}
 
+	EntitySpawnParams entitySpawnParams;
+
+	entitySpawnParams.name = args->GetValue( "name", "" );
+	entitySpawnParams.position = args->GetValue( "position", entity->GetPosition() );
+
 	std::string entityType = args->GetValue( "type", "" );
 	if ( entityType.empty() )
 	{
+		g_devConsole->PrintError( Stringf( "Must specify type of entity to spawn" ) );
 		return;
 	}
 
-	std::string name = args->GetValue( "name", "" );
+	entitySpawnParams.entityDef = EntityTypeDefinition::GetEntityDefinition( entityType );
+	if ( entitySpawnParams.entityDef == nullptr )
+	{
+		g_devConsole->PrintError( Stringf( "Entity with type '%s' was not defined in EntityTypes.xml", entityType.c_str() ) );
+		return;
+	}
+	
 	std::string mapName = args->GetValue( "map", "" );
-	Vec2 position = args->GetValue( "position", entity->GetPosition().XY() );
 
 	Map* mapToSpawnIn = entity->GetMap();
 	if ( mapToSpawnIn == nullptr )
@@ -355,19 +367,49 @@ void ZephyrGameEvents::SpawnEntity( EventArgs* args )
 		}
 	}
 
-	GameEntity* newEntity = mapToSpawnIn->SpawnNewEntityFromNameAtPosition( entityType, position );
-	/*newEntity->SetOrientationDegrees( orientation );
-	newEntity->SetName( name );
+	GameEntity* newEntity = mapToSpawnIn->SpawnNewEntity( entitySpawnParams );
 
-	g_game->SaveEntityByName( newEntity );
-	
-	newEntity->InitializeZephyrEntityVariables();*/
 	newEntity->FireSpawnEvent();
 
 	if ( mapToSpawnIn == g_game->GetCurrentMap() )
 	{
 		newEntity->Load();
 	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrGameEvents::SpawnNewEntityInWorld( EventArgs* args )
+{
+	GameEntity* entity = GetTargetEntityFromArgs( args );
+	if ( entity == nullptr )
+	{
+		return;
+	}
+
+	EntitySpawnParams entitySpawnParams;
+
+	entitySpawnParams.name = args->GetValue( "name", "" );
+	entitySpawnParams.position = args->GetValue( "position", entity->GetPosition() );
+
+	std::string entityType = args->GetValue( "type", "" );
+	if ( entityType.empty() )
+	{
+		g_devConsole->PrintError( Stringf( "Must specify type of entity to spawn" ) );
+		return;
+	}
+
+	entitySpawnParams.entityDef = EntityTypeDefinition::GetEntityDefinition( entityType );
+	if ( entitySpawnParams.entityDef == nullptr )
+	{
+		g_devConsole->PrintError( Stringf( "Entity with type '%s' was not defined in EntityTypes.xml", entityType.c_str() ) );
+		return;
+	}
+
+	GameEntity* newEntity = g_game->SpawnNewWorldEntity( entitySpawnParams );
+
+	newEntity->FireSpawnEvent();
+	newEntity->Load();
 }
 
 

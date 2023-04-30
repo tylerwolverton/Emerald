@@ -120,48 +120,12 @@ void EntityTypeDefinition::ParseZephyrCompDef( const std::string& entityType, co
 
 	// Parse initial values
 	const XmlElement* globalVarElem = scriptElem.FirstChildElement( "GlobalVar" );
-	while ( globalVarElem != nullptr )
+	const std::string errorStr = ParseZephyrVarInitsFromData( globalVarElem, m_zephyrDef->zephyrScriptInitialValues, m_zephyrDef->zephyrEntityVarInits );
+
+	if ( !errorStr.empty() )
 	{
-		std::string typeName = ParseXmlAttribute( *globalVarElem, "type", "" );
-		std::string varName = ParseXmlAttribute( *globalVarElem, "var", "" );
-		std::string valueStr = ParseXmlAttribute( *globalVarElem, "value", "" );
-		if ( typeName.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar is missing a variable type", entityType.c_str() ) );
-			break;
-		}
-		if ( varName.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar is missing a variable name", entityType.c_str() ) );
-			break;
-		}
-		if ( valueStr.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar is missing a variable value", entityType.c_str() ) );
-			break;
-		}
-
-		if ( varName == PARENT_ENTITY_STR )
-		{
-			g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar cannot initialize reserved entity variable '%s'.", entityType.c_str(), PARENT_ENTITY_STR.c_str() ) );
-			break;
-		}
-
-		// Convert value to correct type and store in map
-		ZephyrValue newValue = CreateZephyrValueFromData( typeName, valueStr );
-
-		if ( newValue.GetType() == eValueType::ENTITY )
-		{
-			if ( newValue == ZephyrValue::ERROR_VALUE )
-			{
-				g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': GlobalVar '%s' has unsupported type '%s'", entityType.c_str(), varName.c_str(), typeName.c_str() ) );
-				break;
-			}
-
-			m_zephyrDef->zephyrEntityVarInits.emplace_back( varName, valueStr );
-		}
-
-		globalVarElem = globalVarElem->NextSiblingElement( "GlobalVar" );
+		g_devConsole->PrintError( Stringf( "EntityTypes.xml '%s': %s", entityType.c_str(), errorStr.c_str() ) );
+		return;
 	}
 
 	m_zephyrDef->isScriptValid = true;

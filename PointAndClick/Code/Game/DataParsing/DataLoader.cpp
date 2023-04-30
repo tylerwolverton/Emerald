@@ -126,10 +126,10 @@ void DataLoader::LoadWorldDefinition( World& world )
 {
 	std::string filePath( g_gameConfigBlackboard.GetValue( "worldDefPath", "" ) );
 
-	std::map<std::string, EntityTypeDefinition*> worldEntities = WorldDefinitionParser::ParseEntitiesFromFile( filePath );
-	for ( const auto& worldEntity : worldEntities )
+	std::vector<EntitySpawnParams> worldEntitiesSpawnParams = WorldDefinitionParser::ParseEntitiesFromFile( filePath );
+	for ( const auto& worldEntitySpawnParams : worldEntitiesSpawnParams )
 	{
-		world.AddEntityFromDefinition( *worldEntity.second, worldEntity.first );
+		world.SpawnNewWorldEntity( worldEntitySpawnParams );
 	}
 }
 

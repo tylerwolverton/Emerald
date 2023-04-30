@@ -270,6 +270,9 @@ void Game::InitializePlayerController()
 		return;
 	}
 
+	EntitySpawnParams spawnParams;
+	spawnParams.name = playerEntityName;
+
 	GameEntity* playerEntity = m_world->AddEntityFromDefinition( *playerDef, playerEntityName );
 
 	m_playerController = m_world->GetEntityByName( "PlayerController" );
@@ -628,6 +631,13 @@ void Game::WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, 
 	}
 
 	m_world->WarpEntityToMap( entityToWarp, destMapName, newPos, newYawDegrees );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* Game::SpawnNewWorldEntity( const EntitySpawnParams& entitySpawnParams )
+{
+	return m_world->SpawnNewWorldEntity( entitySpawnParams );
 }
 
 

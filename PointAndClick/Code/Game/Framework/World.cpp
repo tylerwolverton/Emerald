@@ -92,7 +92,7 @@ void World::AddNewMap( const MapDefinition& mapDef )
 	m_loadedMaps[mapDef.mapName] = map;
 
 	// Load entities after map has been fully created
-	m_loadedMaps[mapDef.mapName]->LoadEntitiesFromInitialData( mapDef.mapEntityDefs );
+	m_loadedMaps[mapDef.mapName]->LoadEntitiesFromInitialData( mapDef.mapEntitiesSpawnParams );
 }
 
 
@@ -212,6 +212,76 @@ GameEntity* World::AddEntityFromDefinition( const EntityTypeDefinition& entityDe
 
 
 //-----------------------------------------------------------------------------------------------
+GameEntity* World::SpawnNewWorldEntity( const EntitySpawnParams& entitySpawnParams )
+{
+	SceneSpawnParams sceneSpawnParams;
+	sceneSpawnParams.zephyrScene = m_zephyrScene;
+	sceneSpawnParams.spriteAnimScene = m_spriteAnimScene;
+
+	GameEntity* newEntity = SpawnNewEntity( entitySpawnParams, sceneSpawnParams, nullptr );
+
+	m_worldEntities.push_back( newEntity );
+
+	return newEntity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+GameEntity* World::SpawnNewEntity( const EntitySpawnParams& entitySpawnParams, const SceneSpawnParams& sceneSpawnParams, Map* map )
+{
+	if ( entitySpawnParams.entityDef == nullptr )
+	{
+		g_devConsole->PrintError( Stringf( "Tried to spawn an entity with null entityDef" ) );
+		return nullptr;
+	}
+
+	GameEntity* newEntity = new GameEntity( *entitySpawnParams.entityDef, map );
+	newEntity->SetName( entitySpawnParams.name );
+	newEntity->SetPosition( entitySpawnParams.position );
+
+	if ( !newEntity->GetName().empty() )
+	{
+		SaveEntityByName( newEntity );
+	}
+	else
+	{
+		SaveEntityById( newEntity );
+	}
+
+	CreateAndAttachEntityComponents( newEntity, entitySpawnParams, sceneSpawnParams );
+
+	return newEntity;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void World::CreateAndAttachEntityComponents( GameEntity* newEntity, const EntitySpawnParams& entitySpawnParams, const SceneSpawnParams& sceneSpawnParams )
+{
+	// ZephyrComponent
+	if ( entitySpawnParams.entityDef->HasZephyrScript()
+		 && sceneSpawnParams.zephyrScene != nullptr )
+	{
+		ZephyrComponent* zephyrComp = sceneSpawnParams.zephyrScene->CreateAndAddComponent( newEntity, *entitySpawnParams.entityDef->GetZephyrCompDef() );
+		if ( zephyrComp != nullptr )
+		{
+			// Define initial script values defined in map file
+			// Note: These will override any initial values already defined in the EntityTypeDefinition
+			ZephyrSystem::InitializeGlobalVariables( zephyrComp, entitySpawnParams.zephyrScriptInitialValues );
+			// TODO: This may be a bug, if map overwrites all will it remove something defined in the entity but not map?
+			zephyrComp->SetEntityVariableInitializers( entitySpawnParams.zephyrEntityVarInits );
+		}
+	}
+
+	// SpriteAnimationComponent
+	if ( entitySpawnParams.entityDef->HasSpriteAnimation()
+		 && sceneSpawnParams.spriteAnimScene != nullptr )
+	{
+		sceneSpawnParams.spriteAnimScene->CreateAndAddComponent( newEntity, *entitySpawnParams.entityDef->GetSpriteAnimationCompDef() );
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void World::InitializeAllZephyrEntityVariables()
 {
 	ZephyrSystem::InitializeAllZephyrEntityVariables( *m_zephyrScene );
@@ -266,6 +336,13 @@ Map* World::GetLoadedMapByName( const std::string& mapName )
 Map* World::GetCurrentMap()
 {
 	return m_curMap;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void World::SaveEntityById( GameEntity* entity )
+{
+	m_entitiesById[entity->GetId()] = entity;
 }
 
 
@@ -377,8 +454,8 @@ void World::SaveEntityByName( GameEntity* entity )
 	{
 		g_devConsole->PrintError( Stringf( "Tried to save an entity with name '%s' in map '%s', but an entity with that name was already defined in map '%s'", 
 										   entity->GetName().c_str(), 
-										   entity->GetMap()->GetName().c_str(),
-										   entityIter->second->GetMap()->GetName().c_str() ) );
+										   entity->GetMap() ? entity->GetMap()->GetName().c_str() : "none",
+										   entityIter->second->GetMap() ? entityIter->second->GetMap()->GetName().c_str() : "none" ) );
 		return;
 	}
 

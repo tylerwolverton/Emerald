@@ -2,6 +2,7 @@
 #include "Engine/Core/XmlUtils.hpp"
 #include "Engine/Math/IntVec2.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Game/Core/GameCommon.hpp"
 
 #include <string>
 #include <map>
@@ -14,18 +15,6 @@ class Map;
 
 
 //-----------------------------------------------------------------------------------------------
-struct MapEntityDefinition
-{
-	EntityTypeDefinition* entityDef = nullptr;
-	std::string name;
-	Vec3 position = Vec3::ZERO;
-
-	ZephyrValueMap zephyrScriptInitialValues;
-	std::vector<EntityVariableInitializer> zephyrEntityVarInits;
-};
-
-
-//-----------------------------------------------------------------------------------------------
 struct MapDefinition
 {
 public:
@@ -34,7 +23,7 @@ public:
 	std::string type = "InvalidType";						
 	int version = -1;			
 
-	std::vector<MapEntityDefinition> mapEntityDefs;			// Map
+	std::vector<EntitySpawnParams> mapEntitiesSpawnParams;	// Map
 
 	std::string backgroundSpritePath;						// PointAndClick Map						
 

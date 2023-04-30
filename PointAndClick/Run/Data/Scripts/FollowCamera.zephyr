@@ -1,0 +1,13 @@
+Entity targetEntity = null
+
+State FollowTarget
+{
+    if(targetEntity == null)
+    {
+        return
+    }    
+
+    parentEntity.position = targetEntity.position
+
+    // Fit within bounds of map
+}

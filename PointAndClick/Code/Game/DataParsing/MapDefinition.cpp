@@ -4,6 +4,7 @@
 #include "Engine/Core/FileUtils.hpp"
 #include "Engine/Core/StringUtils.hpp"
 
+#include "Game/DataParsing/DataParsingUtils.hpp"
 #include "Game/DataParsing/EntityTypeDefinition.hpp"
 #include "Game/Framework/Map.hpp"
 
@@ -37,17 +38,6 @@ MapDefinition::MapDefinition( const std::string& mapFullPath )
 		isValid = true;
 	}
 }
-
-
-//-----------------------------------------------------------------------------------------------
-//MapDefinition::MapDefinition( const XmlElement& mapDefElem, const std::string& mapName )
-//	: mapName( mapName )
-//{
-//	if ( !ParseMapDefinitionXmlNode( mapDefElem ) ) { return; }
-//	if ( !ParseEntitiesXmlNode( mapDefElem ) ) { return; }
-//
-//	isValid = true;
-//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -130,81 +120,29 @@ bool MapDefinition::ParseEntitiesXmlNode( const XmlElement& mapDefElem )
 //-----------------------------------------------------------------------------------------------
 void MapDefinition::CreateMapEntityDefFromXmlNode( const XmlElement& entityElem )
 {
-	MapEntityDefinition mapEntityDef;
+	EntitySpawnParams mapEntitySpawnParams;
 
 	std::string entityType = ParseXmlAttribute( entityElem, "type", "" );
-	mapEntityDef.name = ParseXmlAttribute( entityElem, "name", "" );
-	mapEntityDef.entityDef = EntityTypeDefinition::GetEntityDefinition( entityType );
-	if ( mapEntityDef.entityDef == nullptr )
+	mapEntitySpawnParams.entityDef = EntityTypeDefinition::GetEntityDefinition( entityType );
+	if ( mapEntitySpawnParams.entityDef == nullptr )
 	{
 		g_devConsole->PrintError( Stringf( "Map file '%s': Entity '%s' was not defined in EntityTypes.xml", mapName.c_str(), entityType.c_str() ) );
 		return;
 	}
 
-	mapEntityDef.position = ParseXmlAttribute( entityElem, "pos", Vec3::ZERO );
+	mapEntitySpawnParams.name = ParseXmlAttribute( entityElem, "name", "" );
+	mapEntitySpawnParams.position = ParseXmlAttribute( entityElem, "pos", Vec3::ZERO );
 
+	// Parse zephyr variable defs
 	const XmlElement* globalVarElem = entityElem.FirstChildElement( "GlobalVar" );
-	while ( globalVarElem != nullptr )
+	const std::string errorStr = ParseZephyrVarInitsFromData( globalVarElem, mapEntitySpawnParams.zephyrScriptInitialValues, mapEntitySpawnParams.zephyrEntityVarInits );
+
+	if ( !errorStr.empty() )
 	{
-		std::string typeName = ParseXmlAttribute( *globalVarElem, "type", "" );
-		std::string varName = ParseXmlAttribute( *globalVarElem, "var", "" );
-		std::string valueStr = ParseXmlAttribute( *globalVarElem, "value", "" );
-		if ( typeName.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar is missing a variable type", mapName.c_str() ) );
-			break;
-		}
-		if ( varName.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar is missing a variable name", mapName.c_str() ) );
-			break;
-		}
-		if ( valueStr.empty() )
-		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar is missing a variable value", mapName.c_str() ) );
-			break;
-		}
-
-		if ( varName == PARENT_ENTITY_STR )
-		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar cannot initialize reserved entity variable '%s'.", mapName.c_str(), PARENT_ENTITY_STR.c_str() ) );
-			break;
-		}
-
-		// Convert value to correct type and store in map
-		if ( !_strcmpi( typeName.c_str(), "string" ) )
-		{
-			mapEntityDef.zephyrScriptInitialValues[varName] = ZephyrValue( valueStr );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "number" ) )
-		{
-			mapEntityDef.zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, 0.f ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "bool" ) )
-		{
-			mapEntityDef.zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, false ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "vec2" ) )
-		{
-			mapEntityDef.zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec2::ZERO ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "vec3" ) )
-		{
-			mapEntityDef.zephyrScriptInitialValues[varName] = ZephyrValue( FromString( valueStr, Vec3::ZERO ) );
-		}
-		else if ( !_strcmpi( typeName.c_str(), "entity" ) )
-		{
-			mapEntityDef.zephyrEntityVarInits.emplace_back( varName, valueStr );
-		}
-		else
-		{
-			g_devConsole->PrintError( Stringf( "Map file '%s': GlobalVar '%s' has unsupported type '%s'", mapName.c_str(), varName.c_str(), typeName.c_str() ) );
-			break;
-		}
-
-		globalVarElem = globalVarElem->NextSiblingElement( "GlobalVar" );
+		g_devConsole->PrintError( Stringf( "Map file '%s': %s", mapName.c_str(), errorStr.c_str() ) );
+		return;
 	}
 
-	mapEntityDefs.push_back( mapEntityDef );
+	mapEntitiesSpawnParams.push_back( mapEntitySpawnParams );
 }
 

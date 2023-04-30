@@ -8,14 +8,15 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class GameEntity;
-class EntityTypeDefinition;
-class World;
+struct EntitySpawnParams;
 struct MapDefinition;
 struct MapEntityDefinition;
+struct SpriteAnimationScene;
 struct Vec2;
 struct ZephyrScene;
-struct SpriteAnimationScene;
+class EntityTypeDefinition;
+class GameEntity;
+class World;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -36,10 +37,7 @@ public:
 	virtual void Render() const;
 	virtual void DebugRender() const;
 
-	virtual GameEntity* SpawnNewEntityFromName( const std::string& entityDefName );
-	virtual GameEntity* SpawnNewEntityFromDef( const EntityTypeDefinition& entityDef );
-	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec2& pos );
-	virtual GameEntity* SpawnNewEntityFromNameAtPosition( const std::string& entityDefName, const Vec3& pos );
+	virtual GameEntity* SpawnNewEntity( const EntitySpawnParams& entitySpawnParams );
 
 	void			UnloadAllEntityScripts();
 	void			ReloadAllEntityScripts();
@@ -61,8 +59,7 @@ public:
 	EntityComponent* GetSpriteAnimComponentFromEntityId( const EntityId& id );
 
 private:
-	void LoadEntitiesFromInitialData( const std::vector<MapEntityDefinition>& mapEntityDefs );
-	void CreateAndAttachEntityComponents( GameEntity* newEntity, const MapEntityDefinition& mapEntityDef );
+	void LoadEntitiesFromInitialData( const std::vector<EntitySpawnParams>& mapEntityDefs );
 	
 	void AddToEntityList( GameEntity* entity );
 	void RemoveFromEntityList( GameEntity* entity );

@@ -1,16 +1,19 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
 #include <string>
+#include <vector>
 
-class Window;
 class App;
-class InputSystem;
 class AudioSystem;
-class RenderContext;
+class EntityTypeDefinition;
 class Game;
+class InputSystem;
 class PerformanceTracker;
+class RenderContext;
 class SpriteSheet;
+class Window;
 struct Vec2;
 struct Rgba8;
 
@@ -69,3 +72,15 @@ enum eCollisionLayer : unsigned int
 };
 
 eCollisionLayer GetCollisionLayerFromString( const std::string& layerStr );
+
+
+//-----------------------------------------------------------------------------------------------
+struct EntitySpawnParams
+{
+	EntityTypeDefinition* entityDef = nullptr;
+	std::string name;
+	Vec3 position = Vec3::ZERO;
+
+	ZephyrValueMap zephyrScriptInitialValues;
+	std::vector<EntityVariableInitializer> zephyrEntityVarInits;
+};

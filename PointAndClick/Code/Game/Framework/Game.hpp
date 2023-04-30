@@ -71,6 +71,7 @@ public:
 
 	void		WarpToMap( GameEntity* entityToWarp, const std::string& destMapName, const Vec2& newPos, float newYawDegrees );
 
+	GameEntity* SpawnNewWorldEntity( const EntitySpawnParams& entitySpawnParams );
 	void		PlaySoundByName( const std::string& soundFileName, bool isLooped = false, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 	void		ChangeMusic( const std::string& musicFileName, bool isLooped = true, float volume = 1.f, float balance = 0.0f, float speed = 1.0f, bool isPaused = false );
 
