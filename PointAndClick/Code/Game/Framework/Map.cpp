@@ -304,7 +304,7 @@ GameEntity* Map::GetEntityAtPosition( const Vec2& position ) const
 	for ( GameEntity* entity : m_entities )
 	{
 		// TODO: Interaction radius
-		if ( IsPointInsideDiscFast( position, entity->GetPosition().XY(), .5f ) )
+		if ( IsPointInsideDiscFast( position, entity->GetPosition().XY(), entity->GetInteractionRadius() ) )
 		{
 			return entity;
 		}

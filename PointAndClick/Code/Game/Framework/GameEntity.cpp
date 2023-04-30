@@ -152,14 +152,6 @@ void GameEntity::SetOrientationDegrees( float orientationDegrees )
 
 
 //-----------------------------------------------------------------------------------------------
-void GameEntity::SetAsPlayer()
-{
-	m_isPlayer = true;
-	//m_name = "player";
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void GameEntity::RegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName )
 {
 	char keyCode = GetKeyCodeFromString( keyCodeStr );

@@ -20,20 +20,6 @@
 std::map< std::string, EntityTypeDefinition* > EntityTypeDefinition::s_definitions;
 
 
-////-----------------------------------------------------------------------------------------------
-//SpriteAnimationSetDefinition* EntityTypeDefinition::GetSpriteAnimSetDef( const std::string& animSetName ) const
-//{
-//	auto mapIter = m_spriteAnimSetDefs.find( animSetName );
-//
-//	if ( mapIter == m_spriteAnimSetDefs.cend() )
-//	{
-//		return nullptr;
-//	}
-//
-//	return mapIter->second;
-//}
-
-
 //-----------------------------------------------------------------------------------------------
 EntityTypeDefinition* EntityTypeDefinition::GetEntityDefinition( std::string entityName )
 {
@@ -56,6 +42,14 @@ EntityTypeDefinition::EntityTypeDefinition( const XmlElement& entityDefElem, Spr
 	{
 		g_devConsole->PrintError( "EntityTypes.xml: EntityType is missing a name attribute" );
 		return;
+	}
+
+	// Physics
+	const XmlElement* physicsElem = entityDefElem.FirstChildElement( "Physics" );
+	if ( physicsElem != nullptr )
+	{
+		m_interactionRadius = ParseXmlAttribute( *physicsElem, "interactionRadius", 0.f );
+
 	}
 
 	// Appearance

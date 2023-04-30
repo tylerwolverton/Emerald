@@ -44,9 +44,10 @@ private:
 	SpriteSheet* ParseSpriteSheet( const XmlElement& spriteSheetElem );
 
 protected:
-	bool			m_isValid = false;
-	std::string		m_type;
-	float			m_maxHealth = 1.f;
+	bool								m_isValid = false;
+	std::string							m_type;
+	float								m_maxHealth = 1.f;
+	float								m_interactionRadius = 0.f;
 
 	ZephyrComponentDefinition*			m_zephyrDef = nullptr;
 	SpriteAnimationComponentDefinition* m_spriteAnimCompDef = nullptr;

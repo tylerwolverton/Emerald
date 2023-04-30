@@ -51,17 +51,14 @@ public:
 	void				SetPosition( const Vec3& position );
 	const float			GetOrientationDegrees() const							{ return m_transform.GetYawDegrees(); }
 	void				SetOrientationDegrees( float orientationDegrees );
+	float				GetInteractionRadius()									{ return m_entityDef.m_interactionRadius; }
 
 	std::string			GetType() const											{ return m_entityDef.m_type; }
 	Map*				GetMap() const											{ return m_map; }
 	void				SetMap( Map* map )										{ m_map = map; }
-			
-	// TODO: See if there's a better way to do this
-	void				SetAsPlayer();
 
 	bool				IsDead() const 											{ return m_isDead; }
 	bool				IsGarbage() const										{ return m_isGarbage; }
-	bool				IsPlayer() const										{ return m_isPlayer; }
 				 
 	void				RegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
 	void				UnRegisterKeyEvent( const std::string& keyCodeStr, const std::string& eventName );
@@ -85,10 +82,9 @@ protected:
 	
 	bool									m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool									m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()
-	bool									m_isPlayer = false;
 
 	GameEntity*								m_dialoguePartner = nullptr;
-		
+	
 	// Visual
 	Vec2									m_facingDirection = Vec2::ZERO_TO_ONE;
 

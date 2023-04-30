@@ -175,8 +175,7 @@ void World::WarpEntityToMap( GameEntity* entityToWarp, const std::string& destMa
 	// TODO: Verify portal target maps exist while loading xml files
 	// Warp to a new map if one is specified and the entity is the player
 	if ( destMap != nullptr
-		 && destMap != m_curMap
-		 && entityToWarp->IsPlayer() )
+		 && destMap != m_curMap )
 	{
 		m_curMap->RemoveOwnershipOfEntity( entityToWarp );
 		ChangeMap( destMapName, entityToWarp );

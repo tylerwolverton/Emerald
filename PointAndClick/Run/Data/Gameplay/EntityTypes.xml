@@ -1,7 +1,7 @@
 <EntityTypes spriteSheet="Data/Images/TestAtlas_4x4.png" spriteSheetDimensions="4,4">
  
   <Entity name="GuybrushThreepwood">
-    <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
+    <Physics interactionRadius="0.5" speed="150.0" collisionLayer="Enemy"/>
     <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" localDrawOffsetInPixels="-16,-32" fps="2">
       <Walking		up="" left="18~23" down="0~7" right="9~14"/>
       <Idle				up="0"/>
@@ -10,7 +10,7 @@
   </Entity>
 
   <Entity name="Wally">
-    <Physics radius="0.5" speed="150.0" drag="5" collisionLayer="Enemy"/>
+    <Physics interactionRadius="0.5" speed="150.0" collisionLayer="Enemy"/>
     <Appearance spriteSheet="Data/Images/SpriteSheets/GuybrushThreepwoodSprites_9x3.png" spriteSheetDimensions="9,3" localDrawOffsetInPixels="-16,-32" fps="2">
       <Walking		up="" left="18~23" down="0~7" right="9~14"/>
       <Idle				up="0"/>
