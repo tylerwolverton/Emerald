@@ -33,6 +33,7 @@
 #include "Game/DataParsing/DataLoader.hpp"
 #include "Game/Framework/World.hpp"
 #include "Game/Framework/GameEntity.hpp"
+#include "Game/Scripting/ZephyrPosition.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -63,6 +64,9 @@ void Game::Startup()
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
+	zephyrPosition = new ZephyrPosition();
+	
+
 	g_devConsole->PrintString( "Game Started", Rgba8::GREEN );
 }
 
@@ -71,6 +75,8 @@ void Game::Startup()
 void Game::Shutdown()
 {
 	m_uiSystem->Shutdown();
+	
+	delete zephyrPosition;
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_world );

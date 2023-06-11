@@ -345,6 +345,16 @@ bool ZephyrParser::ParseStatement()
 		}
 		break;
 		
+		case eTokenType::USER_TYPE:
+		{
+			if ( !ParseVariableDeclaration( eValueType::USER_TYPE ) )
+			{
+				return false;
+			}
+
+		}
+		break;
+
 		case eTokenType::ON_ENTER:
 		case eTokenType::ON_EXIT:
 		case eTokenType::ON_UPDATE:
@@ -564,12 +574,13 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
 			switch ( varType )
 			{
 				// ZEPHYR TYPE TODO: Remove/codegen
-				case eValueType::NUMBER: WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
-				case eValueType::BOOL:	 WriteConstantToCurChunk( ZephyrValue( false ) ); break;
-				case eValueType::STRING: WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
-				case eValueType::ENTITY: WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
-				case eValueType::VEC2:	 WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
-				case eValueType::VEC3:	 WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
+				case eValueType::NUMBER:	WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
+				case eValueType::BOOL:		WriteConstantToCurChunk( ZephyrValue( false ) ); break;
+				case eValueType::STRING:	WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
+				case eValueType::ENTITY:	WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
+				case eValueType::VEC2:		WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
+				case eValueType::VEC3:		WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
+				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
 			}
 
 			/*std::string errorMsg( "Unexpected '" );
@@ -1391,6 +1402,7 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		case eTokenType::BOOL:
 		case eTokenType::STRING:
 		case eTokenType::ENTITY:
+		case eTokenType::USER_TYPE:
 		case eTokenType::BRACE_RIGHT:
 		{
 			return true;

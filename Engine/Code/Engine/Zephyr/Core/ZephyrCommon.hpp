@@ -4,6 +4,7 @@
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Timer.hpp"
 
+#include <map>
 #include <string>
 
 
@@ -49,6 +50,7 @@ enum class eTokenType
 	BOOL,
 	STRING,
 	ENTITY,
+	USER_TYPE,
 	ON_ENTER,
 	ON_UPDATE,
 	ON_EXIT,
@@ -166,6 +168,7 @@ enum class eValueType
 	BOOL,
 	STRING,
 	ENTITY,
+	USER_TYPE,
 };
 
 std::string ToString( eValueType valueType );
@@ -203,6 +206,33 @@ public:
 	}
 };
 
+
+//-----------------------------------------------------------------------------------------------
+struct ZephyrTypeMetadata
+{
+public:
+	std::string typeName;
+	std::vector<std::string> memberNames; // Make a field struct with type and name?
+	std::vector<std::string> methodNames;
+};
+
+
+//-----------------------------------------------------------------------------------------------
+class IZephyrType
+{
+public:
+	virtual std::string					ToString() const = 0;
+	const	std::string					GetTypeName() const				{ return typeMetadata.typeName; }
+	const	std::vector<std::string>	GetMemberVariableNames() const	{ return typeMetadata.memberNames; }
+	const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
+
+protected:
+	ZephyrTypeMetadata typeMetadata;
+};
+
+static std::map<std::string, ZephyrTypeMetadata> g_registeredZephyrTypes;
+
+void RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata );
 
 //-----------------------------------------------------------------------------------------------
 // ZEPHYR TYPE TODO: Codegen this class

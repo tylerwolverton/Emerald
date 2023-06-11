@@ -1,6 +1,7 @@
 Vec2 myTargetLocation = Vec2(0, 0)
 Number movementThreshhold = .1
 Number movementSpeed = .05
+Position testPos
 
 Function SetTargetLocation( Vec2 targetLocation )
 {

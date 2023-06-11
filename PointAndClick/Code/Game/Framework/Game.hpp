@@ -21,6 +21,7 @@ class Camera;
 class TextBox;
 class UISystem;
 class World;
+class ZephyrPosition;
 
 
 //-----------------------------------------------------------------------------------------------
@@ -129,4 +130,6 @@ private:
 	SoundPlaybackID					m_curMusicId = (SoundPlaybackID)-1;
 
 	GameEntity* m_playerController = nullptr;
+
+	ZephyrPosition* zephyrPosition = nullptr;
 };

@@ -120,5 +120,6 @@
     <ClInclude Include="Framework\PointAndClickMap.hpp" />
     <ClInclude Include="Graphics\GameCamera.hpp" />
     <ClInclude Include="DataParsing\DataParsingUtils.hpp" />
+    <ClInclude Include="Scripting\ZephyrPosition.hpp" />
   </ItemGroup>
 </Project>

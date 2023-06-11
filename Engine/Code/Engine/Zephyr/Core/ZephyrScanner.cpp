@@ -2,6 +2,7 @@
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Zephyr/Core/ZephyrToken.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -500,6 +501,17 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 	{ 
 		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::NULL_TOKEN );
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
+	}
+
+	auto registeredTypes = g_zephyrSubsystem->GetRegisteredUserTypes();
+	const auto& iter = registeredTypes.find( identifier );
+	if ( iter != registeredTypes.cend() )
+	{
+		switch ( MatchesReservedName( identifier, iter->first ) )
+		{
+			case eReservedKeywordResult::MATCH:			AddToken( eTokenType::USER_TYPE );
+			case eReservedKeywordResult::CASE_MISMATCH: return true;
+		}
 	}
 
 	return false;

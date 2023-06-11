@@ -126,3 +126,16 @@ void ZephyrSubsystem::StopAllTimers()
 		m_timerPool[timerIdx].timer.Stop();
 	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSubsystem::RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata )
+{
+	const auto& iter = m_registeredZephyrTypes.find( typeMetadata.typeName );
+	if ( iter != m_registeredZephyrTypes.cend() )
+	{
+		return;
+	}
+
+	m_registeredZephyrTypes[typeMetadata.typeName] = typeMetadata;
+}

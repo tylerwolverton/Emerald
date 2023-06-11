@@ -38,6 +38,7 @@ std::string ToString( eTokenType type )
 		case eTokenType::BOOL:				return "Bool";
 		case eTokenType::STRING:			return "String";
 		case eTokenType::ENTITY:			return "Entity";
+		case eTokenType::USER_TYPE:			return "UserType";
 		case eTokenType::ON_ENTER:			return "OnEnter";
 		case eTokenType::ON_UPDATE:			return "OnUpdate";
 		case eTokenType::ON_EXIT:			return "OnExit";
@@ -93,6 +94,7 @@ std::string GetTokenName( eTokenType type )
 		case eTokenType::BOOL:				return "BOOL";
 		case eTokenType::STRING:			return "STRING";
 		case eTokenType::ENTITY:			return "ENTITY";
+		case eTokenType::USER_TYPE:			return "USER_TYPE";
 		case eTokenType::ON_ENTER:			return "ON_ENTER";
 		case eTokenType::ON_UPDATE:			return "ON_UPDATE";
 		case eTokenType::ON_EXIT:			return "ON_EXIT";
@@ -192,6 +194,7 @@ std::string ToString( eValueType valueType )
 		case eValueType::BOOL:		return "Bool";
 		case eValueType::STRING:	return "String";
 		case eValueType::ENTITY:	return "Entity";
+		case eValueType::USER_TYPE:	return "UserType";
 
 		case eValueType::NONE:		
 		default: return "None";
@@ -202,12 +205,13 @@ std::string ToString( eValueType valueType )
 //-----------------------------------------------------------------------------------------------
 eValueType FromString( const std::string& strType )
 {
-	if ( strType == "Number" )	{ return eValueType::NUMBER; }
-	if ( strType == "Vec2" )	{ return eValueType::VEC2; }
-	if ( strType == "Vec3" )	{ return eValueType::VEC3; }	
-	if ( strType == "Bool" )	{ return eValueType::BOOL; }	
-	if ( strType == "String" )	{ return eValueType::STRING; }
-	if ( strType == "Entity" )	{ return eValueType::ENTITY; }
+	if ( strType == "Number" )		{ return eValueType::NUMBER; }
+	if ( strType == "Vec2" )		{ return eValueType::VEC2; }
+	if ( strType == "Vec3" )		{ return eValueType::VEC3; }	
+	if ( strType == "Bool" )		{ return eValueType::BOOL; }	
+	if ( strType == "String" )		{ return eValueType::STRING; }
+	if ( strType == "Entity" )		{ return eValueType::ENTITY; }
+	if ( strType == "UserType" )	{ return eValueType::USER_TYPE; }
 
 	return eValueType::NONE;
 }
@@ -592,4 +596,17 @@ ZephyrTimer::ZephyrTimer( Clock* clock )
 ZephyrTimer::~ZephyrTimer()
 {
 	PTR_SAFE_DELETE( callbackArgs );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata )
+{
+	const auto& iter = g_registeredZephyrTypes.find( typeMetadata.typeName );
+	if ( iter != g_registeredZephyrTypes.cend() )
+	{
+		return;
+	}
+
+	g_registeredZephyrTypes[typeMetadata.typeName] = typeMetadata;
 }

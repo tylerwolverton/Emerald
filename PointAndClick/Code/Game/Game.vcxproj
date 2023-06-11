@@ -239,6 +239,7 @@
     <ClInclude Include="Graphics\SpriteAnimationSystem.hpp" />
     <ClInclude Include="Graphics\SpriteRenderingSystem.hpp" />
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp" />
+    <ClInclude Include="Scripting\ZephyrPosition.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
