@@ -499,7 +499,7 @@ void ZephyrVirtualMachine::CopyEventArgVariables( EventArgs* eventArgs, ZephyrVa
 		{
 			localVariables[keyValuePair.first] = ZephyrValue( eventArgs->GetValue( keyValuePair.first, 0.f ) );
 		}
-		else if ( keyValuePair.second->Is<int>() )
+		else if ( keyValuePair.second->Is<EntityId>() )
 		{
 			localVariables[keyValuePair.first] = ZephyrValue( eventArgs->GetValue( keyValuePair.first, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) );
 		}
@@ -1059,6 +1059,7 @@ void ZephyrVirtualMachine::AssignToVariable( const std::string& variableName, co
 
 //-----------------------------------------------------------------------------------------------
 // TODO: Find a more general way to set member variables
+// ZEPHYR TYPE TODO: Remove/codegen
 void ZephyrVirtualMachine::AssignToVec2MemberVariable( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables )
 {
 	if ( value.GetType() != eValueType::NUMBER )
@@ -1111,6 +1112,7 @@ void ZephyrVirtualMachine::AssignToVec2MemberVariable( const std::string& variab
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Remove/codegen
 void ZephyrVirtualMachine::AssignToVec3MemberVariable( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables )
 {
 	if ( value.GetType() != eValueType::NUMBER )
@@ -1348,7 +1350,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	{
 		return ZephyrValue( args.GetValue( varName, 0.f ) );
 	}
-	else if ( iter->second->Is<int>() )
+	else if ( iter->second->Is<EntityId>() )
 	{
 		return ZephyrValue( args.GetValue( varName, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) );
 	}
@@ -1360,6 +1362,7 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	{
 		return ZephyrValue( args.GetValue( varName, false ) );
 	}
+	// ZEPHYR TYPE TODO: Remove/codegen
 	else if ( iter->second->Is<Vec2>() )
 	{
 		return ZephyrValue( args.GetValue( varName, Vec2::ZERO ) );
@@ -1393,6 +1396,7 @@ void ZephyrVirtualMachine::SetGlobalVariableInEntity( EntityId entityId, const s
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Remove/codegen
 void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value )
 {
 	Entity* entity = g_zephyrAPI->GetEntityById( entityId );
@@ -1418,6 +1422,7 @@ void ZephyrVirtualMachine::SetGlobalVec2MemberVariableInEntity( EntityId entityI
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Remove/codegen
 void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value )
 {
 	Entity* entity = g_zephyrAPI->GetEntityById( entityId );

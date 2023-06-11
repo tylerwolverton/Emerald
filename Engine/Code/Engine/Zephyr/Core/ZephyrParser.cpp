@@ -299,7 +299,7 @@ bool ZephyrParser::ParseStatement()
 			}
 		}
 		break;
-
+		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::VEC2:
 		{
 			if ( !ParseVariableDeclaration( eValueType::VEC2 ) )
@@ -495,6 +495,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 	{
 		switch ( curToken.GetType() )
 		{
+			// ZEPHYR TYPE TODO: Remove/codegen
 			case eTokenType::NUMBER: if ( !ParseVariableDeclaration( eValueType::NUMBER ) ) { return false; } break;
 			case eTokenType::VEC2:	 if ( !ParseVariableDeclaration( eValueType::VEC2   ) ) { return false; } break;
 			case eTokenType::VEC3:	 if ( !ParseVariableDeclaration( eValueType::VEC3   ) ) { return false; } break;
@@ -562,6 +563,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
 		{
 			switch ( varType )
 			{
+				// ZEPHYR TYPE TODO: Remove/codegen
 				case eValueType::NUMBER: WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
 				case eValueType::BOOL:	 WriteConstantToCurChunk( ZephyrValue( false ) ); break;
 				case eValueType::STRING: WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
@@ -596,25 +598,6 @@ bool ZephyrParser::ParseFunctionCall()
 	{
 		return false;
 	}
-
-	//if ( !DoesTokenMatchType( eventName, eTokenType::IDENTIFIER ) )
-	//{
-	//	if ( DoesTokenMatchType( eventName, eTokenType::ON_ENTER ) )
-	//	{
-	//		ReportError( "OnEnter cannot be called from FireEvent, it's automatically called when entering a state" );
-	//	}
-	//	else if ( DoesTokenMatchType( eventName, eTokenType::ON_EXIT ) )
-	//	{
-	//		ReportError( "OnExit cannot be called from FireEvent, it's automatically called when exiting a state" );
-	//	}
-	//	else if ( DoesTokenMatchType( eventName, eTokenType::ON_UPDATE ) )
-	//	{
-	//		ReportError( "OnUpdate cannot be called from FireEvent, it's automatically called when the entity updates" );
-	//	}
-	//	else
-	//	{
-	//		ReportError( "FireEvent must specify an event to call in parentheses" );
-	//	}
 
 	if ( !ParseEventArgs() )
 	{
@@ -655,6 +638,7 @@ bool ZephyrParser::ParseEventArgs()
 		ZephyrToken valueToken = GetCurToken();
 		switch ( valueToken.GetType() )
 		{
+			// ZEPHYR TYPE TODO: Remove/codegen
 			case eTokenType::CONSTANT_NUMBER:
 			case eTokenType::VEC2:
 			case eTokenType::VEC3:
@@ -989,6 +973,7 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 		case eTokenType::MINUS:				return ParseUnaryExpression();
 		case eTokenType::BANG:				return ParseUnaryExpression();
 
+		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::CONSTANT_NUMBER:	return ParseNumberConstant();
 		case eTokenType::VEC2:				return ParseVec2Constant();
 		case eTokenType::VEC3:				return ParseVec3Constant();
@@ -1012,13 +997,6 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 			{
 				return ParseMemberAccessor();
 			}
-
-			// Check if this is a function call
-			/*if ( PeekNextToken().GetType() == eTokenType::PARENTHESIS_LEFT )
-			{
-				AdvanceToNextToken();
-				return ParseFunctionCall();
-			}*/
 
 			return ParseIdentifierExpression();
 		}
@@ -1052,21 +1030,6 @@ bool ZephyrParser::CallInfixFunction( const ZephyrToken& token )
 			return ParseBinaryExpression();
 		}
 		break;
-		
-		/*case eTokenType::EQUAL:
-		{
-			return ParseAssignment();
-		}*/
-
-		/*case eTokenType::PERIOD:
-		{
-			return ParseMemberAccessor();
-		}*/
-
-		/*case eTokenType::PARENTHESIS_LEFT: 
-		{
-			return ParseFunctionCall();
-		}*/
 	}
 
 	// TODO: Make this more descriptive
@@ -1153,6 +1116,7 @@ bool ZephyrParser::ParseNumberConstant()
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Remove/codegen
 bool ZephyrParser::ParseVec2Constant()
 {
 	if ( !ConsumeExpectedNextToken( eTokenType::VEC2 ) ) { return false; }
@@ -1180,6 +1144,7 @@ bool ZephyrParser::ParseVec2Constant()
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Remove/codegen
 bool ZephyrParser::ParseVec3Constant()
 {
 	if ( !ConsumeExpectedNextToken( eTokenType::VEC3 ) ) { return false; }
@@ -1252,13 +1217,6 @@ bool ZephyrParser::ParseIdentifierExpression()
 		return false;
 	}
 
-	/*ZephyrValue value;
-	if ( !TryToGetVariable( curToken.GetData(), value ) )
-	{
-		ReportError( Stringf( "Undefined variable seen, '%s'", curToken.GetData().c_str() ) );
-		return false;
-	}*/
-	
 	WriteConstantToCurChunk( ZephyrValue( curToken.GetData() ) );
 	WriteOpCodeToCurChunk( eOpCode::GET_VARIABLE_VALUE );
 
@@ -1427,6 +1385,7 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		case eTokenType::STATE:
 		case eTokenType::FUNCTION:
 		case eTokenType::NUMBER:
+		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::VEC2:
 		case eTokenType::VEC3:
 		case eTokenType::BOOL:
@@ -1519,6 +1478,7 @@ bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueT
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Add user tpyes 
 bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType )
 {
 	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
@@ -1526,6 +1486,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 	switch ( varType )
 	{
 		case eValueType::NUMBER: value = ZephyrValue( 0.f ); break;
+		// ZEPHYR TYPE TODO: Remove/codegen
 		case eValueType::VEC2:	 value = ZephyrValue( Vec2::ZERO ); break;
 		case eValueType::VEC3:	 value = ZephyrValue( Vec3::ZERO ); break;
 		case eValueType::BOOL:	 value = ZephyrValue( false ); break;

@@ -37,7 +37,6 @@ public:
 	virtual void const* GetUniqueID() const final { return StaticUniqueId(); }
 
 public:
-	// std::string m_key;
 	VALUE_TYPE m_value;
 
 public:
@@ -46,12 +45,6 @@ public:
 		static int s_local = 0;
 		return &s_local;
 	}
-
-	/*template <typename VALUE_TYPE>
-	std::string ToString( VALUE_TYPE value ) const
-	{
-		return "";
-	}*/
 };
 
 

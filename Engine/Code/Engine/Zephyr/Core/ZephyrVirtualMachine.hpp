@@ -40,25 +40,26 @@ private:
 	ZephyrValue PopConstant();
 	ZephyrValue PeekConstant();
 
-	void PushBinaryOp( ZephyrValue& a, ZephyrValue& b, eOpCode opCode );
-	void PushAddOp( ZephyrValue& a, ZephyrValue& b );
-	void PushSubtractOp( ZephyrValue& a, ZephyrValue& b );
-	void PushMultiplyOp( ZephyrValue& a, ZephyrValue& b );
-	void PushDivideOp( ZephyrValue& a, ZephyrValue& b );
-	void PushNotEqualOp( ZephyrValue& a, ZephyrValue& b );
-	void PushEqualOp( ZephyrValue& a, ZephyrValue& b );
-	void PushGreaterOp( ZephyrValue& a, ZephyrValue& b );
-	void PushGreaterEqualOp( ZephyrValue& a, ZephyrValue& b );
-	void PushLessOp( ZephyrValue& a, ZephyrValue& b );
-	void PushLessEqualOp( ZephyrValue& a, ZephyrValue& b );
+	void PushBinaryOp		( ZephyrValue& a, ZephyrValue& b, eOpCode opCode );
+	void PushAddOp			( ZephyrValue& a, ZephyrValue& b );
+	void PushSubtractOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushMultiplyOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushDivideOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushNotEqualOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushEqualOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushGreaterOp		( ZephyrValue& a, ZephyrValue& b );
+	void PushGreaterEqualOp	( ZephyrValue& a, ZephyrValue& b );
+	void PushLessOp			( ZephyrValue& a, ZephyrValue& b );
+	void PushLessEqualOp	( ZephyrValue& a, ZephyrValue& b );
 
 	bool TryToPushVec2MultiplyOp( ZephyrValue& a, ZephyrValue& b );
 	bool TryToPushVec3MultiplyOp( ZephyrValue& a, ZephyrValue& b );
 
-	ZephyrValue GetVariableValue( const std::string& variableName, const ZephyrValueMap& localVariables );
-	void		AssignToVariable( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables );
-	void		AssignToVec2MemberVariable( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
-	void		AssignToVec3MemberVariable( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
+	ZephyrValue GetVariableValue			( const std::string& variableName, const ZephyrValueMap& localVariables );
+	void		AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables );
+	// ZEPHYR TYPE TODO: Remove/codegen
+	void		AssignToVec2MemberVariable	( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
+	void		AssignToVec3MemberVariable	( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
 	
 	MemberAccessorResult ProcessResultOfMemberAccessor( const ZephyrValueMap& localVariables );
 	
@@ -77,13 +78,13 @@ private:
 	bool IsErrorValue( const ZephyrValue& zephyrValue );
 
 private:
-	ZephyrComponent& m_zephyrComponent;
+	ZephyrComponent&		m_zephyrComponent;
 	std::stack<ZephyrValue> m_constantStack;
 	std::deque<std::string> m_curMemberAccessorNames;
 
-	ZephyrValueMap* m_globalVariables;
-	ZephyrValueMap* m_stateVariables;
-	ZephyrValueMap m_eventVariablesCopy;
-	ZephyrValueMap* m_eventVariables;
-	EventArgs* m_eventArgs;
+	ZephyrValueMap*			m_globalVariables;
+	ZephyrValueMap*			m_stateVariables;
+	ZephyrValueMap			m_eventVariablesCopy;
+	ZephyrValueMap*			m_eventVariables;
+	EventArgs*				m_eventArgs;
 };

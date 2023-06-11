@@ -217,6 +217,7 @@ bool GameEntity::FireScriptEvent( const std::string& eventName, EventArgs* args 
 ZephyrValue GameEntity::GetGlobalVariable( const std::string& varName )
 {
 	// First check c++ built in vars
+	// ZEPHYR TYPE TODO: Change to a map of var names to function ptrs, check if name in map and call function if so 
 	if ( varName == "id" )			{ return ZephyrValue( (float)GetId() ); }
 	if ( varName == "name" )		{ return ZephyrValue( GetName() ); }
 	if ( varName == "health" )		{ return ZephyrValue( (float)m_curHealth ); }

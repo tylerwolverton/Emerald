@@ -43,6 +43,7 @@ enum class eTokenType
 	STATE,
 	FUNCTION,
 	NUMBER,
+	// ZEPHYR TYPE TODO: Remove these/codegen
 	VEC2,
 	VEC3,
 	BOOL,
@@ -113,6 +114,7 @@ enum class eOpCode : byte
 	NOT,
 
 	CONSTANT,
+	// ZEPHYR TYPE TODO: Remove these/codegen
 	CONSTANT_VEC2,
 	CONSTANT_VEC3,
 
@@ -158,6 +160,7 @@ enum class eValueType
 {
 	NONE,
 	NUMBER,
+	// ZEPHYR TYPE TODO: codegen
 	VEC2,
 	VEC3,
 	BOOL,
@@ -202,6 +205,7 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+// ZEPHYR TYPE TODO: Codegen this class
 class ZephyrValue
 {
 public:
@@ -259,9 +263,6 @@ private:
 		EntityId entityData;
 	};
 };
-
-
-
 
 
 //-----------------------------------------------------------------------------------------------
