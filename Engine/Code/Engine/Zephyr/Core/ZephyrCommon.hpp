@@ -227,6 +227,8 @@ public:
 };
 
 
+class IZephyrType;
+
 //-----------------------------------------------------------------------------------------------
 struct ZephyrTypeMetadata
 {
@@ -234,6 +236,7 @@ public:
 	std::string typeName;
 	std::vector<std::string> memberNames; // Make a field struct with type and name?
 	std::vector<ZephyrTypeMethod> methods;
+	IZephyrType* prototype = nullptr;
 };
 
 
@@ -242,10 +245,14 @@ class IZephyrType
 {
 public:
 	virtual std::string					ToString() const = 0;
+	virtual IZephyrType*				CloneSelf() const = 0;
 
 	const	std::string					GetTypeName() const				{ return typeMetadata.typeName; }
 	const	std::vector<std::string>	GetMemberVariableNames() const	{ return typeMetadata.memberNames; }
 	//const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
+
+	bool DoesTypeHaveMemberVariable( const std::string& varName );
+	bool DoesTypeHaveMethod( const std::string& methodName );
 
 	void CallMethod( const std::string& methodName, EventArgs* args );
 
@@ -266,6 +273,7 @@ public:
 	ZephyrValue( bool value );
 	ZephyrValue( const std::string& value );
 	ZephyrValue( EntityId value );
+	ZephyrValue( IZephyrType* value );
 
 	ZephyrValue( ZephyrValue const& other );
 	ZephyrValue& operator=( ZephyrValue const& other );
@@ -275,21 +283,23 @@ public:
 
 	friend bool operator==( const ZephyrValue& lhs, const ZephyrValue& rhs );
 
-	eValueType	GetType() const			{ return m_type; }
+	eValueType		GetType() const			{ return m_type; }
 
-	float		GetAsNumber() const		{ return numberData; }
-	Vec2		GetAsVec2() const		{ return vec2Data; }
-	Vec3		GetAsVec3() const		{ return vec3Data; }
-	bool		GetAsBool() const		{ return boolData; }
-	std::string GetAsString() const;
-	EntityId	GetAsEntity() const		{ return entityData; }
+	float			GetAsNumber() const		{ return numberData; }
+	Vec2			GetAsVec2() const		{ return vec2Data; }
+	Vec3			GetAsVec3() const		{ return vec3Data; }
+	bool			GetAsBool() const		{ return boolData; }
+	std::string		GetAsString() const;
+	EntityId		GetAsEntity() const		{ return entityData; }
+	IZephyrType*	GetAsUserType() const	{ return userTypeData; }
 	
-	bool		EvaluateAsBool();
-	Vec2		EvaluateAsVec2();
-	Vec3		EvaluateAsVec3();
-	std::string	EvaluateAsString();
-	float		EvaluateAsNumber();
-	EntityId	EvaluateAsEntity();
+	bool			EvaluateAsBool();
+	Vec2			EvaluateAsVec2();
+	Vec3			EvaluateAsVec3();
+	std::string		EvaluateAsString();
+	float			EvaluateAsNumber();
+	EntityId		EvaluateAsEntity();
+	IZephyrType*	EvaluateAsUserType();
 
 	std::string SerializeToString() const;
 	void		DeserializeFromString( const std::string& serlializedStr );
@@ -311,6 +321,7 @@ private:
 		bool boolData;
 		std::string* strData = nullptr;
 		EntityId entityData;
+		IZephyrType* userTypeData;
 	};
 };
 

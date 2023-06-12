@@ -218,6 +218,36 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
+bool IZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
+{
+	for ( const std::string& memberName : typeMetadata.memberNames )
+	{
+		if ( IsEqualIgnoreCase( varName, memberName ) )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool IZephyrType::DoesTypeHaveMethod( const std::string& methodName )
+{
+	for ( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
+	{
+		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void IZephyrType::CallMethod( const std::string& methodName, EventArgs* args )
 {
 	for( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
@@ -288,6 +318,14 @@ ZephyrValue::ZephyrValue( EntityId value )
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrValue::ZephyrValue( IZephyrType* value )
+{
+	m_type = eValueType::USER_TYPE;
+	userTypeData = value;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue( ZephyrValue const& other )
 {
 	// If this is already a string type delete the data before setting new data
@@ -305,6 +343,7 @@ ZephyrValue::ZephyrValue( ZephyrValue const& other )
 		case eValueType::VEC3:		this->vec3Data = other.vec3Data;	break;
 		case eValueType::BOOL:		this->boolData = other.boolData;	break;
 		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
+		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
 	}
 
 	m_type = other.m_type;
@@ -328,6 +367,7 @@ ZephyrValue& ZephyrValue::operator=( ZephyrValue const& other )
 		case eValueType::VEC3:		this->vec3Data = other.vec3Data;	break;
 		case eValueType::BOOL:		this->boolData = other.boolData;	break;
 		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
+		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
 	}
 
 	m_type = other.m_type;
@@ -340,7 +380,7 @@ ZephyrValue& ZephyrValue::operator=( ZephyrValue const& other )
 ZephyrValue::ZephyrValue( ZephyrValue const&& other )
 {
 	// If this is already a string type delete the data before setting new data
-	if ( this->m_type == eValueType::STRING )
+	if ( this->m_type == eValueType::STRING  )
 	{
 		delete this->strData;
 		this->strData = nullptr;
@@ -354,6 +394,7 @@ ZephyrValue::ZephyrValue( ZephyrValue const&& other )
 		case eValueType::VEC3:		this->vec3Data = other.vec3Data;	break;
 		case eValueType::BOOL:		this->boolData = other.boolData;	break;
 		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
+		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
 	}
 
 	m_type = other.m_type;
@@ -382,6 +423,7 @@ ZephyrValue& ZephyrValue::operator=( ZephyrValue const&& other )
 		case eValueType::VEC3:		this->vec3Data = other.vec3Data;	break;
 		case eValueType::BOOL:		this->boolData = other.boolData;	break;
 		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
+		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
 	}
 
 	m_type = other.m_type;
@@ -424,6 +466,7 @@ bool ZephyrValue::EvaluateAsBool()
 		case eValueType::NUMBER: 	return !IsNearlyEqual( numberData, 0.f );			
 		case eValueType::BOOL:		return boolData;	
 		case eValueType::ENTITY:	return entityData != INVALID_ENTITY_ID;
+		case eValueType::USER_TYPE:	return userTypeData != nullptr;
 	}
 
 	return false;
@@ -436,11 +479,7 @@ Vec2 ZephyrValue::EvaluateAsVec2()
 	switch ( m_type )
 	{
 		case eValueType::VEC2: 		return vec2Data;
-		case eValueType::VEC3: 	
-		case eValueType::NUMBER: 	
-		case eValueType::STRING: 	
-		case eValueType::BOOL:		
-		case eValueType::ENTITY:	
+		default:	
 			ReportConversionError( eValueType::VEC2 );
 	}
 
@@ -456,10 +495,7 @@ Vec3 ZephyrValue::EvaluateAsVec3()
 	{
 		case eValueType::VEC3: 		return vec3Data;
 		case eValueType::VEC2: 		return Vec3( vec2Data.x, vec2Data.y, 0.f );
-		case eValueType::NUMBER:
-		case eValueType::STRING:
-		case eValueType::BOOL:
-		case eValueType::ENTITY:
+		default:
 			ReportConversionError( eValueType::VEC3 );
 	}
 
@@ -479,6 +515,7 @@ std::string ZephyrValue::EvaluateAsString()
 		case eValueType::NUMBER: 	return ToString( numberData );
 		case eValueType::BOOL:		return ToString( boolData );
 		case eValueType::ENTITY:	return ToString( entityData );
+		case eValueType::USER_TYPE:	return userTypeData ? userTypeData->ToString() : "";
 	}
 
 	return "";
@@ -492,10 +529,7 @@ float ZephyrValue::EvaluateAsNumber()
 	{
 		case eValueType::NUMBER: 	return numberData;
 		case eValueType::BOOL:		return boolData ? 1.f : 0.f;
-		case eValueType::STRING: 	
-		case eValueType::VEC2: 		
-		case eValueType::VEC3: 		
-		case eValueType::ENTITY:	
+		default:	
 			ReportConversionError( eValueType::NUMBER );
 	}
 
@@ -506,18 +540,26 @@ float ZephyrValue::EvaluateAsNumber()
 //-----------------------------------------------------------------------------------------------
 EntityId ZephyrValue::EvaluateAsEntity()
 {
-	switch ( m_type )
+	if ( m_type == eValueType::ENTITY )
 	{
-		case eValueType::ENTITY:	return entityData;
-		case eValueType::STRING: 	
-		case eValueType::VEC2: 		
-		case eValueType::VEC3: 		
-		case eValueType::NUMBER: 	
-		case eValueType::BOOL:		
-			ReportConversionError( eValueType::ENTITY );
+		return entityData;
+	}
+		
+	ReportConversionError( eValueType::ENTITY );
+	return ERROR_ZEPHYR_ENTITY_ID;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+IZephyrType* ZephyrValue::EvaluateAsUserType()
+{
+	if ( m_type == eValueType::USER_TYPE )
+	{
+		return userTypeData;
 	}
 
-	return ERROR_ZEPHYR_ENTITY_ID;
+	ReportConversionError( eValueType::USER_TYPE );
+	return nullptr;
 }
 
 

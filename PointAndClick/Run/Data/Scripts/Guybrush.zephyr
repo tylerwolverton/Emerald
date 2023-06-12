@@ -7,9 +7,9 @@ Function SetTargetLocation( Vec2 targetLocation )
 {
     myTargetLocation = targetLocation
 
-    Vec2 pos
-    testPos.GetDistFromOrigin(dist: pos)
-    PrintToConsole(text: position)
+    Number distFromOrigin
+    testPos.GetDistFromOrigin(dist: distFromOrigin)
+    PrintToConsole(text: distFromOrigin)
 }
 
 // Could be moved to code...

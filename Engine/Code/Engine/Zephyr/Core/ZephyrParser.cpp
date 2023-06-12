@@ -6,6 +6,7 @@
 #include "Engine/Zephyr/Core/ZephyrToken.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -347,7 +348,7 @@ bool ZephyrParser::ParseStatement()
 		
 		case eTokenType::USER_TYPE:
 		{
-			if ( !ParseVariableDeclaration( eValueType::USER_TYPE ) )
+			if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )
 			{
 				return false;
 			}
@@ -506,12 +507,13 @@ bool ZephyrParser::ParseFunctionDefinition()
 		switch ( curToken.GetType() )
 		{
 			// ZEPHYR TYPE TODO: Remove/codegen
-			case eTokenType::NUMBER: if ( !ParseVariableDeclaration( eValueType::NUMBER ) ) { return false; } break;
-			case eTokenType::VEC2:	 if ( !ParseVariableDeclaration( eValueType::VEC2   ) ) { return false; } break;
-			case eTokenType::VEC3:	 if ( !ParseVariableDeclaration( eValueType::VEC3   ) ) { return false; } break;
-			case eTokenType::BOOL:   if ( !ParseVariableDeclaration( eValueType::BOOL   ) ) { return false; } break;
-			case eTokenType::STRING: if ( !ParseVariableDeclaration( eValueType::STRING ) ) { return false; } break;
-			case eTokenType::ENTITY: if ( !ParseVariableDeclaration( eValueType::ENTITY ) ) { return false; } break;
+			case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )		{ return false; } break;
+			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )		{ return false; } break;
+			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )		{ return false; } break;
+			case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )		{ return false; } break;
+			case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )		{ return false; } break;
+			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )		{ return false; } break;
+			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE ) )	{ return false; } break;
 
 			default:
 			{
@@ -538,7 +540,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
+bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const std::string& typeName )
 {
 	ZephyrToken identifier = ConsumeCurToken();
 	if ( !DoesTokenMatchType( identifier, eTokenType::IDENTIFIER ) )
@@ -547,7 +549,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
 		return false;
 	}
 
-	if ( !DeclareVariable( identifier, varType ) )
+	if ( !DeclareVariable( identifier, varType, typeName ) )
 	{
 		return false;
 	}
@@ -580,7 +582,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType )
 				case eValueType::ENTITY:	WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
 				case eValueType::VEC2:		WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
 				case eValueType::VEC3:		WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
-				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
+				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( ( IZephyrType* )nullptr ) ); break;
 			}
 
 			/*std::string errorMsg( "Unexpected '" );
@@ -993,6 +995,7 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 		case eTokenType::NULL_TOKEN:		return ParseEntityConstant();
 		case eTokenType::CONSTANT_STRING:	return ParseStringConstant();
 		case eTokenType::ENTITY:
+		case eTokenType::USER_TYPE:
 
 		case eTokenType::IDENTIFIER:
 		{
@@ -1483,15 +1486,15 @@ bool ZephyrParser::DoesTokenMatchType( const ZephyrToken& token, const eTokenTyp
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueType& varType )
+bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueType& varType, const std::string& typeName )
 {
-	return DeclareVariable( identifier.GetData(), varType );
+	return DeclareVariable( identifier.GetData(), varType, typeName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 // ZEPHYR TYPE TODO: Add user tpyes 
-bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType )
+bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName )
 {
 	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
 	ZephyrValue value;
@@ -1513,6 +1516,11 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 			}
 
 			value = ZephyrValue( INVALID_ENTITY_ID ); break;
+		}
+		case eValueType::USER_TYPE:
+		{
+			ZephyrTypeMetadata userTypeMetadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
+			value = ZephyrValue( userTypeMetadata.prototype->CloneSelf() ); break;
 		}
 	}
 

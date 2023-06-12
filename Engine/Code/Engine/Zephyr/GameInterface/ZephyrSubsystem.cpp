@@ -139,3 +139,16 @@ void ZephyrSubsystem::RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata
 
 	m_registeredZephyrTypes[typeMetadata.typeName] = typeMetadata;
 }
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeMetadata ZephyrSubsystem::GetRegisteredUserType( const std::string& typeName ) const
+{
+	const auto& iter = m_registeredZephyrTypes.find( typeName );
+	if ( iter != m_registeredZephyrTypes.cend() )
+	{
+		return iter->second;
+	}
+
+	return ZephyrTypeMetadata();
+}

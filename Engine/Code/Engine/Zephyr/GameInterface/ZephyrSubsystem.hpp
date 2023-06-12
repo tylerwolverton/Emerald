@@ -36,7 +36,8 @@ public:
 	void		StopAllTimers();
 
 	void		RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata );
-	std::map<std::string, ZephyrTypeMetadata> GetRegisteredUserTypes()			{ return m_registeredZephyrTypes; }
+	std::map<std::string, ZephyrTypeMetadata> GetRegisteredUserTypes() const			{ return m_registeredZephyrTypes; }
+	ZephyrTypeMetadata GetRegisteredUserType( const std::string& typeName ) const;
 
 private:
 	void UpdateTimers();

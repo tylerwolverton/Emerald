@@ -65,7 +65,8 @@ void Game::Startup()
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
 	zephyrPosition = new ZephyrPosition();
-	
+	zephyrPosition->typeMetadata.prototype = zephyrPosition;
+	g_zephyrSubsystem->RegisterZephyrType( zephyrPosition->typeMetadata );
 
 	g_devConsole->PrintString( "Game Started", Rgba8::GREEN );
 }

@@ -150,6 +150,11 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 						SetGlobalVec3MemberVariableInEntity( entityIdWithMember, vec3VarName, lastMemberName, constantValue );
 					}
 				}
+				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
+				{
+					ReportError( Stringf( "Assigning to members in user types is not implemented yet" ) );
+					return;
+				}
 
 				PushConstant( constantValue );
 			}
@@ -220,6 +225,13 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 						PushConstant( val );
 					}
 					break;
+
+					case eValueType::USER_TYPE:
+					{
+						ReportError( Stringf( "Accessing members in user types is not implemented yet" ) );
+						return;
+					}
+					break;
 				}
 			}
 			break;
@@ -243,15 +255,28 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 
 				int memberCount = (int)memberAccessorResult.memberNames.size();
 
-				if ( memberAccessorResult.finalMemberVal.GetType() != eValueType::ENTITY )
+				if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::ENTITY )
+				{
+					CallMemberFunctionOnEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), memberAccessorResult.memberNames.back(), args );
+				}
+				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
+				{
+					IZephyrType* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
+					if ( userTypeObj == nullptr )
+					{
+						ReportError( Stringf( "User type object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
+						return;
+					}
+
+					CallMemberFunctionOnUserType( *userTypeObj, memberAccessorResult.memberNames.back(), args );
+				}
+				else
 				{
 					std::string entityVarName = memberCount > 1 ? memberAccessorResult.memberNames[memberCount - 2] : memberAccessorResult.baseObjName;
 					ReportError( Stringf( "Cannot call method on non entity variable '%s' with type '%s'", entityVarName.c_str(), ToString( memberAccessorResult.finalMemberVal.GetType() ).c_str() ) );
 					return;
 				}
-
-				CallMemberFunctionOnEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), memberAccessorResult.memberNames.back(), args );
-
+				
 				// Set new values of identifier parameters
 				UpdateIdentifierParameters( identifierToParamNames, *args, localVariables );
 
@@ -1255,6 +1280,28 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 				memberVal = val;
 			}
 			break;
+
+			case eValueType::USER_TYPE:
+			{
+				IZephyrType* userTypeObj = memberVal.GetAsUserType();
+				if ( userTypeObj == nullptr )
+				{
+					ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
+					return memberAccessResult;
+				}
+
+				if ( !userTypeObj->DoesTypeHaveMemberVariable( memberName )
+					 && !userTypeObj->DoesTypeHaveMethod( memberName ) )
+				{
+					ReportError( Stringf( "Member '%s' does not exist in object of type '%s'", memberName.c_str(), userTypeObj->GetTypeName().c_str() ) );
+					return memberAccessResult;
+				}
+
+				// TODO: Remove when refactoring Vec2 and Vec3, used to set members in other entities
+				//entityIdChain.push_back( memberVal.GetAsEntity() );
+				memberVal = ZephyrValue( userTypeObj );
+			}
+			break;
 		}
 	}
 
@@ -1463,6 +1510,15 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 	// Must be zephyr component of entityId
 	return ZephyrSystem::FireScriptEvent( zephyrComp, functionName, args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( IZephyrType& userObj, const std::string& functionName, EventArgs* args )
+{
+	userObj.CallMethod( functionName, args );
+	
+	return true;
 }
 
 

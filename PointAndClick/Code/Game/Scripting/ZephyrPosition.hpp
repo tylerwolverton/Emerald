@@ -11,6 +11,8 @@ void StandAloneFunc( EventArgs* );
 
 class ZephyrPosition : public IZephyrType
 {
+	friend class Game;
+
 public: 
 	ZephyrPosition()
 	{
@@ -20,11 +22,10 @@ public:
 		using std::placeholders::_1;
 		//ZephyrTypeMethod method( "GetDistFromOrigin", std::bind(&ZephyrPosition::GetDistFromOrigin, this, _1 ) );
 		typeMetadata.methods.emplace_back( "GetDistFromOrigin", std::bind(&ZephyrPosition::GetDistFromOrigin, this, _1 ) );
-
-		g_zephyrSubsystem->RegisterZephyrType( typeMetadata );
 	}
 
 	virtual std::string ToString() const override { return m_position.ToString(); }
+	virtual IZephyrType* CloneSelf() const override { return new ZephyrPosition(); } // TODO: Support actual clones and prototype objects
 
 private:
 	// Example function for testing
@@ -34,5 +35,6 @@ private:
 	}
 
 private:
-	Vec2 m_position = Vec2::ZERO;
+	Vec2 m_position = Vec2(3.f, 4.f);
+	//Vec2 m_position = Vec2::ZERO;
 };
