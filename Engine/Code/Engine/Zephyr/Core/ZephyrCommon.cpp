@@ -218,6 +218,20 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
+void IZephyrType::CallMethod( const std::string& methodName, EventArgs* args )
+{
+	for( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
+	{
+		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )
+		{
+			registeredMethod.methodPtr(args);
+			return;
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue()
 {
 	m_type = eValueType::NONE;
@@ -596,17 +610,4 @@ ZephyrTimer::ZephyrTimer( Clock* clock )
 ZephyrTimer::~ZephyrTimer()
 {
 	PTR_SAFE_DELETE( callbackArgs );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata )
-{
-	const auto& iter = g_registeredZephyrTypes.find( typeMetadata.typeName );
-	if ( iter != g_registeredZephyrTypes.cend() )
-	{
-		return;
-	}
-
-	g_registeredZephyrTypes[typeMetadata.typeName] = typeMetadata;
 }

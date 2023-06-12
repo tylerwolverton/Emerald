@@ -6,6 +6,10 @@ Position testPos
 Function SetTargetLocation( Vec2 targetLocation )
 {
     myTargetLocation = targetLocation
+
+    Vec2 pos
+    testPos.GetDistFromOrigin(dist: pos)
+    PrintToConsole(text: position)
 }
 
 // Could be moved to code...

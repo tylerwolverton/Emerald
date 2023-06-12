@@ -7,6 +7,8 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
+void StandAloneFunc( EventArgs* );
+
 class ZephyrPosition : public IZephyrType
 {
 public: 
@@ -14,7 +16,10 @@ public:
 	{
 		typeMetadata.typeName = "Position";
 		typeMetadata.memberNames = { "x", "y" };
-		typeMetadata.methodNames = { "GetDistFromOrigin" };
+		//ZephyrTypeMethod method( "GetDistFromOrigin", &StandAloneFunc );
+		using std::placeholders::_1;
+		//ZephyrTypeMethod method( "GetDistFromOrigin", std::bind(&ZephyrPosition::GetDistFromOrigin, this, _1 ) );
+		typeMetadata.methods.emplace_back( "GetDistFromOrigin", std::bind(&ZephyrPosition::GetDistFromOrigin, this, _1 ) );
 
 		g_zephyrSubsystem->RegisterZephyrType( typeMetadata );
 	}

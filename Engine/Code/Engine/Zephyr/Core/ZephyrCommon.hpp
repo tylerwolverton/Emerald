@@ -4,6 +4,7 @@
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Timer.hpp"
 
+#include <functional>
 #include <map>
 #include <string>
 
@@ -208,12 +209,31 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrTypeMethod
+{
+//typedef void (*MethodPtr)( EventArgs* );
+typedef std::function<void(EventArgs*)> MethodPtr;
+
+
+public:
+	std::string name;
+	MethodPtr methodPtr = nullptr;
+
+public:
+	ZephyrTypeMethod( const std::string& name, MethodPtr methodPtr )
+		: name( name )
+		, methodPtr( methodPtr )
+	{}
+};
+
+
+//-----------------------------------------------------------------------------------------------
 struct ZephyrTypeMetadata
 {
 public:
 	std::string typeName;
 	std::vector<std::string> memberNames; // Make a field struct with type and name?
-	std::vector<std::string> methodNames;
+	std::vector<ZephyrTypeMethod> methods;
 };
 
 
@@ -222,17 +242,17 @@ class IZephyrType
 {
 public:
 	virtual std::string					ToString() const = 0;
+
 	const	std::string					GetTypeName() const				{ return typeMetadata.typeName; }
 	const	std::vector<std::string>	GetMemberVariableNames() const	{ return typeMetadata.memberNames; }
-	const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
+	//const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
+
+	void CallMethod( const std::string& methodName, EventArgs* args );
 
 protected:
 	ZephyrTypeMetadata typeMetadata;
 };
 
-static std::map<std::string, ZephyrTypeMetadata> g_registeredZephyrTypes;
-
-void RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata );
 
 //-----------------------------------------------------------------------------------------------
 // ZEPHYR TYPE TODO: Codegen this class
