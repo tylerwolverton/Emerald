@@ -94,6 +94,12 @@
     <ClCompile Include="DataParsing\DataParsingUtils.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Scripting\ZephyrTypeRegistrator.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripting\ZephyrPosition.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripting\ZephyrGameEvents.hpp">
@@ -121,5 +127,6 @@
     <ClInclude Include="Graphics\GameCamera.hpp" />
     <ClInclude Include="DataParsing\DataParsingUtils.hpp" />
     <ClInclude Include="Scripting\ZephyrPosition.hpp" />
+    <ClInclude Include="Scripting\ZephyrTypeRegistrator.hpp" />
   </ItemGroup>
 </Project>

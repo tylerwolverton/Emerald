@@ -239,6 +239,21 @@ public:
 	IZephyrType* prototype = nullptr;
 };
 
+#define BEGIN_REGISTER_METADATA( zephyrTypeName, className ){\
+										ZephyrTypeMetadata metadata;\
+										\
+										className* obj = new className();\
+										metadata.prototype = obj;\
+										\
+										obj->m_typeName = metadata.typeName = #zephyrTypeName;\
+										\
+										using std::placeholders::_1;\
+
+#define REGISTER_METADATA_MEMBER( memberName ) metadata.memberNames.push_back( #memberName ); 
+
+#define REGISTER_METADATA_METHOD( methodName, className ) metadata.methods.emplace_back( #methodName, std::bind( &className::methodName, obj, _1 ) );
+
+#define END_REGISTER_METADATA g_zephyrSubsystem->RegisterZephyrType( metadata ); }
 
 //-----------------------------------------------------------------------------------------------
 class IZephyrType
@@ -247,8 +262,8 @@ public:
 	virtual std::string					ToString() const = 0;
 	virtual IZephyrType*				CloneSelf() const = 0;
 
-	const	std::string					GetTypeName() const				{ return typeMetadata.typeName; }
-	const	std::vector<std::string>	GetMemberVariableNames() const	{ return typeMetadata.memberNames; }
+	const	std::string					GetTypeName() const				{ return m_typeName; }
+	const	std::vector<std::string>	GetMemberVariableNames() const;
 	//const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
 
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
@@ -257,7 +272,7 @@ public:
 	void CallMethod( const std::string& methodName, EventArgs* args );
 
 protected:
-	ZephyrTypeMetadata typeMetadata;
+	std::string m_typeName;
 };
 
 

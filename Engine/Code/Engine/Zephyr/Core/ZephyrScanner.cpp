@@ -392,7 +392,6 @@ bool ZephyrScanner::IsLetterOrNumber( char c )
 
 
 //-----------------------------------------------------------------------------------------------
-// ZEPHYR TYPE TODO: Code gen new types as switch statements
 bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 {
 	switch	( MatchesReservedName( identifier, "State" ) ) 

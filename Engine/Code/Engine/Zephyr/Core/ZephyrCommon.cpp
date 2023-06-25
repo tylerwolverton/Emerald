@@ -1,5 +1,6 @@
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Core/DevConsole.hpp"
+#include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/MathUtils.hpp"
@@ -218,8 +219,16 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
+const std::vector<std::string> IZephyrType::GetMemberVariableNames() const 
+{ 
+	return g_zephyrSubsystem->GetRegisteredUserType( m_typeName ).memberNames;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool IZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 {
+	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
 	for ( const std::string& memberName : typeMetadata.memberNames )
 	{
 		if ( IsEqualIgnoreCase( varName, memberName ) )
@@ -235,6 +244,7 @@ bool IZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 //-----------------------------------------------------------------------------------------------
 bool IZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 {
+	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
 	for ( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
 	{
 		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )
@@ -250,6 +260,7 @@ bool IZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 //-----------------------------------------------------------------------------------------------
 void IZephyrType::CallMethod( const std::string& methodName, EventArgs* args )
 {
+	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
 	for( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
 	{
 		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )

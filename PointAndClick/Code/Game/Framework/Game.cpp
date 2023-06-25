@@ -34,6 +34,7 @@
 #include "Game/Framework/World.hpp"
 #include "Game/Framework/GameEntity.hpp"
 #include "Game/Scripting/ZephyrPosition.hpp"
+#include "Game/Scripting/ZephyrTypeRegistrator.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -64,9 +65,11 @@ void Game::Startup()
 	g_eventSystem->RegisterMethodEvent( "print_bytecode_chunk", "Usage: print_bytecode_chunk entityName=<> chunkName=<>", eUsageLocation::DEV_CONSOLE, this, &Game::PrintBytecodeChunk );
 	g_eventSystem->RegisterMethodEvent( "get_component_from_entity_id", "", eUsageLocation::GAME, this, &Game::GetComponentFromEntityId );
 
-	zephyrPosition = new ZephyrPosition();
+	/*zephyrPosition = new ZephyrPosition();
 	zephyrPosition->typeMetadata.prototype = zephyrPosition;
-	g_zephyrSubsystem->RegisterZephyrType( zephyrPosition->typeMetadata );
+	g_zephyrSubsystem->RegisterZephyrType( zephyrPosition->typeMetadata );*/
+
+	ZephyrTypeRegistrator::RegisterZephyrTypes();
 
 	g_devConsole->PrintString( "Game Started", Rgba8::GREEN );
 }
@@ -77,7 +80,7 @@ void Game::Shutdown()
 {
 	m_uiSystem->Shutdown();
 	
-	delete zephyrPosition;
+	//delete zephyrPosition;
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_world );

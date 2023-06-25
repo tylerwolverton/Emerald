@@ -131,5 +131,5 @@ private:
 
 	GameEntity* m_playerController = nullptr;
 
-	ZephyrPosition* zephyrPosition = nullptr;
+	//ZephyrPosition* zephyrPosition = nullptr;
 };
