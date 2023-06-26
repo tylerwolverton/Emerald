@@ -12,7 +12,7 @@ class ZephyrPosition : public IZephyrType
 public: 
 	// IZephyrType Overrides
 	virtual std::string ToString()		const override { return m_position.ToString(); }
-	virtual IZephyrType* CloneSelf()	const override;
+	virtual IZephyrType* ChildCloneSelf()	const override;
 	static void CreateAndRegisterMetadata();
 	// IZephyrType Overrides
 

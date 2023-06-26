@@ -152,3 +152,22 @@ ZephyrTypeMetadata ZephyrSubsystem::GetRegisteredUserType( const std::string& ty
 
 	return ZephyrTypeMetadata();
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSubsystem::AddCloneToPrototype( IZephyrType* clone )
+{
+	GUARANTEE_OR_DIE( clone != nullptr, "Can't add a nullptr as clone to prototype" );
+
+	m_registeredZephyrTypes[clone->GetTypeName()].prototype->m_clones.push_back( clone );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrSubsystem::DestroyAllCloneZephyrTypeObjects()
+{
+	for ( auto& item : m_registeredZephyrTypes )
+	{
+		PTR_VECTOR_SAFE_DELETE( item.second.prototype->m_clones );
+	}
+}

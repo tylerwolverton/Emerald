@@ -258,9 +258,13 @@ public:
 //-----------------------------------------------------------------------------------------------
 class IZephyrType
 {
+	friend class ZephyrSubsystem;
+
 public:
+	virtual ~IZephyrType();
 	virtual std::string					ToString() const = 0;
-	virtual IZephyrType*				CloneSelf() const = 0;
+	virtual IZephyrType*				CloneSelf() const;
+	virtual IZephyrType*				ChildCloneSelf() const = 0;
 
 	const	std::string					GetTypeName() const				{ return m_typeName; }
 	const	std::vector<std::string>	GetMemberVariableNames() const;
@@ -273,6 +277,7 @@ public:
 
 protected:
 	std::string m_typeName;
+	std::vector<IZephyrType*> m_clones; // TODO: Make this an object pool and reuse
 };
 
 

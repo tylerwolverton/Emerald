@@ -79,8 +79,8 @@ void Game::Startup()
 void Game::Shutdown()
 {
 	m_uiSystem->Shutdown();
-	
-	//delete zephyrPosition;
+
+	ZephyrTypeRegistrator::UnRegisterZephyrTypes();
 
 	// Clean up member variables
 	PTR_SAFE_DELETE( m_world );
@@ -321,6 +321,7 @@ void Game::ReloadGame()
 	}
 	
 	g_zephyrSubsystem->StopAllTimers();
+	g_zephyrSubsystem->DestroyAllCloneZephyrTypeObjects();
 
 	DataLoader::ReloadAllData( *m_world );
 

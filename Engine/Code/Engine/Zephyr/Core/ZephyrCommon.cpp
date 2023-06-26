@@ -219,6 +219,24 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
+IZephyrType::~IZephyrType()
+{
+	PTR_VECTOR_SAFE_DELETE( m_clones );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+IZephyrType* IZephyrType::CloneSelf() const
+{
+	IZephyrType* childObject = ChildCloneSelf();
+
+	g_zephyrSubsystem->AddCloneToPrototype( childObject );
+
+	return childObject;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 const std::vector<std::string> IZephyrType::GetMemberVariableNames() const 
 { 
 	return g_zephyrSubsystem->GetRegisteredUserType( m_typeName ).memberNames;

@@ -6,6 +6,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Clock;
+class IZephyrType;
 struct ZephyrTypeMetadata;
 struct ZephyrTimer;
 
@@ -38,6 +39,8 @@ public:
 	void										RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata );
 	std::map<std::string, ZephyrTypeMetadata>	GetRegisteredUserTypes() const									{ return m_registeredZephyrTypes; }
 	ZephyrTypeMetadata							GetRegisteredUserType( const std::string& typeName ) const;
+	void										AddCloneToPrototype( IZephyrType* clone );
+	void										DestroyAllCloneZephyrTypeObjects();
 
 private:
 	void UpdateTimers();

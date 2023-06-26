@@ -3,10 +3,11 @@
 
 
 //-----------------------------------------------------------------------------------------------
-IZephyrType* ZephyrPosition::CloneSelf() const
+IZephyrType* ZephyrPosition::ChildCloneSelf() const
 {
 	ZephyrPosition* zephyrPosition = new ZephyrPosition();
 	zephyrPosition->m_typeName = m_typeName;
+
 	return zephyrPosition;
 }
 
