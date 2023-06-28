@@ -4,6 +4,13 @@
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrScene::~ZephyrScene()
+{
+	Destroy();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrComponent* ZephyrScene::CreateAndAddComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef )
 {
 	ZephyrComponent* newComp = ZephyrSystem::CreateComponent( parentEntity, componentDef );

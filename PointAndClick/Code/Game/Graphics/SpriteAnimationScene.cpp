@@ -6,6 +6,13 @@
 
 
 //-----------------------------------------------------------------------------------------------
+SpriteAnimationScene::~SpriteAnimationScene()
+{
+	Destroy();
+}
+
+
+//-----------------------------------------------------------------------------------------------
 SpriteAnimationComponent* SpriteAnimationScene::CreateAndAddComponent( Entity* parentEntity, const SpriteAnimationComponentDefinition& componentDef )
 {
 	if ( parentEntity == nullptr )

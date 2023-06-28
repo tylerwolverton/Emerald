@@ -14,9 +14,12 @@ class ZephyrComponent;
 struct ZephyrScene
 {
 public:
+
 	ZephyrComponentVector zephyrComponents;
 
 public:
+	~ZephyrScene();
+
 	ZephyrComponent*	CreateAndAddComponent( Entity* parentEntity, const ZephyrComponentDefinition& componentDef );
 	void				Destroy();
 };

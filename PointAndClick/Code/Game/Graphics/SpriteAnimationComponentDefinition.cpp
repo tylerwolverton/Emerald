@@ -1,4 +1,13 @@
 #include "Game/Graphics/SpriteAnimationComponentDefinition.hpp"
+#include "Engine/Core/EngineCommon.hpp"
+#include "Game/Graphics/SpriteAnimationSetDefinition.hpp"
+
+
+//-----------------------------------------------------------------------------------------------
+SpriteAnimationComponentDefinition::~SpriteAnimationComponentDefinition()
+{
+	PTR_MAP_SAFE_DELETE( spriteAnimSetDefs );
+}
 
 
 //-----------------------------------------------------------------------------------------------

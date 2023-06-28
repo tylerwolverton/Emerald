@@ -41,6 +41,7 @@ Map::Map( const MapDefinition& mapData, World* world )
 Map::~Map()
 {
 	PTR_SAFE_DELETE( m_zephyrScene );
+	PTR_SAFE_DELETE( m_spriteAnimScene );
 	PTR_VECTOR_SAFE_DELETE( m_entities );
 }
 

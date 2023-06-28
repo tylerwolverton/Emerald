@@ -211,7 +211,6 @@ public:
 //-----------------------------------------------------------------------------------------------
 struct ZephyrTypeMethod
 {
-//typedef void (*MethodPtr)( EventArgs* );
 typedef std::function<void(EventArgs*)> MethodPtr;
 
 

@@ -19,5 +19,7 @@ public:
 	SpriteAnimationSetDefinition*							defaultSpriteAnimSetDef = nullptr;
 
 public:
+	~SpriteAnimationComponentDefinition();
+
 	SpriteAnimationSetDefinition* GetSpriteAnimSetDef( const std::string& animSetName ) const;
 };
