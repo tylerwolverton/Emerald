@@ -3,12 +3,14 @@
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
+//-----------------------------------------------------------------------------------------------
 void ZephyrTypeRegistrator::RegisterZephyrTypes()
 {
 	ZephyrPosition::CreateAndRegisterMetadata();
 }
 
 
+//-----------------------------------------------------------------------------------------------
 void ZephyrTypeRegistrator::UnRegisterZephyrTypes()
 {
 	std::map<std::string, ZephyrTypeMetadata> metaDataMap = g_zephyrSubsystem->GetRegisteredUserTypes();

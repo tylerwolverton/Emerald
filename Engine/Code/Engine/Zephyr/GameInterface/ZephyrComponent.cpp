@@ -37,7 +37,8 @@ bool ZephyrComponent::Initialize()
 		return false;
 	}
 
-	m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef->GetGlobalBytecodeChunk() );
+	m_globalBytecodeChunk = scriptDef->GetGlobalBytecodeChunk();
+	//m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef->GetGlobalBytecodeChunk() );
 	GUARANTEE_OR_DIE( m_globalBytecodeChunk != nullptr, "Global Bytecode Chunk was null" );
 
 	m_curStateBytecodeChunk = scriptDef->GetFirstStateBytecodeChunk();
@@ -56,7 +57,9 @@ void ZephyrComponent::Destroy()
 {
 	g_eventSystem->DeRegisterObject( this );
 
-	PTR_SAFE_DELETE( m_globalBytecodeChunk );
+	//PTR_SAFE_DELETE( m_globalBytecodeChunk );
+	m_globalBytecodeChunk = nullptr;
+	m_curStateBytecodeChunk = nullptr;
 
 	m_compState = eComponentState::UNINITIALIZED;
 }

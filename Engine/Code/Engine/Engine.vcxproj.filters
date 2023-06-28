@@ -766,6 +766,7 @@
     <ClInclude Include="Framework\Entity.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrScene.hpp" />
     <ClInclude Include="Framework\EntityComponent.hpp" />
+    <ClInclude Include="Audio\AudioCommon.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

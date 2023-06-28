@@ -12,6 +12,13 @@ ZephyrBytecodeChunk::ZephyrBytecodeChunk( const std::string& name, ZephyrBytecod
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrBytecodeChunk::~ZephyrBytecodeChunk()
+{
+	PTR_MAP_SAFE_DELETE( m_eventBytecodeChunks );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool ZephyrBytecodeChunk::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const
 {
 	auto variableEntry = m_variables.find( identifier );

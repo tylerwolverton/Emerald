@@ -21,6 +21,7 @@ class ZephyrBytecodeChunk
 {
 public:
 	ZephyrBytecodeChunk( const std::string& name, ZephyrBytecodeChunk* parent = nullptr );
+	~ZephyrBytecodeChunk();
 
 	// Accessors
 	std::string						GetName() const									{ return m_name; }

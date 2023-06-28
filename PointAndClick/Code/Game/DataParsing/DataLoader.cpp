@@ -39,7 +39,7 @@ void DataLoader::ReloadAllScripts( World& world )
 
 	for ( auto& entityDef : EntityTypeDefinition::s_definitions )
 	{
-		if ( entityDef.second != nullptr )
+		if ( entityDef.second != nullptr && entityDef.second->GetZephyrCompDef() != nullptr )
 		{
 			entityDef.second->GetZephyrCompDef()->ReloadZephyrScriptDefinition();
 		}
