@@ -13,11 +13,5 @@ void ZephyrTypeRegistrator::RegisterZephyrTypes()
 //-----------------------------------------------------------------------------------------------
 void ZephyrTypeRegistrator::UnRegisterZephyrTypes()
 {
-	std::map<std::string, ZephyrTypeMetadata> metaDataMap = g_zephyrSubsystem->GetRegisteredUserTypes();
-	for ( auto& item : metaDataMap )
-	{
-		PTR_SAFE_DELETE( item.second.prototype );
-	}
-
-	metaDataMap.clear();
+	g_zephyrSubsystem->ResetRegisteredUserTypes();
 }

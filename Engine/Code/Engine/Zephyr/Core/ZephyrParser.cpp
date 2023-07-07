@@ -582,7 +582,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const st
 				case eValueType::ENTITY:	WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
 				case eValueType::VEC2:		WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
 				case eValueType::VEC3:		WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
-				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( ( IZephyrType* )nullptr ) ); break;
+				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( ( ZephyrType* )nullptr ) ); break;
 			}
 
 			/*std::string errorMsg( "Unexpected '" );
@@ -1519,8 +1519,8 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		}
 		case eValueType::USER_TYPE:
 		{
-			ZephyrTypeMetadata userTypeMetadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
-			value = ZephyrValue( userTypeMetadata.prototype->CloneSelf() ); break;
+			// TODO: Parse params
+			value = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( typeName, nullptr ) ); break;
 		}
 	}
 

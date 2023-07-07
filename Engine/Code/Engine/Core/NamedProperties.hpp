@@ -59,7 +59,7 @@ public:
 
 	void SetValue( const std::string& keyname, const char* value );
 	std::string GetValue( const std::string& keyName, const char* defaultValue ) const;
-	void Clear();
+	void Reset();
 
 	//-----------------------------------------------------------------------------------------------
 	// for everything else, there's templates!

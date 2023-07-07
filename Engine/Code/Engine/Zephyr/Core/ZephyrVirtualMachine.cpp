@@ -261,7 +261,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
 				{
-					IZephyrType* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
+					ZephyrType* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
 					if ( userTypeObj == nullptr )
 					{
 						ReportError( Stringf( "User type object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
@@ -1283,19 +1283,19 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 
 			case eValueType::USER_TYPE:
 			{
-				IZephyrType* userTypeObj = memberVal.GetAsUserType();
+				ZephyrType* userTypeObj = memberVal.GetAsUserType();
 				if ( userTypeObj == nullptr )
 				{
 					ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
 					return memberAccessResult;
 				}
 
-				if ( !userTypeObj->DoesTypeHaveMemberVariable( memberName )
+			/*	if ( !userTypeObj->DoesTypeHaveMemberVariable( memberName )
 					 && !userTypeObj->DoesTypeHaveMethod( memberName ) )
 				{
 					ReportError( Stringf( "Member '%s' does not exist in object of type '%s'", memberName.c_str(), userTypeObj->GetTypeName().c_str() ) );
 					return memberAccessResult;
-				}
+				}*/
 
 				// TODO: Remove when refactoring Vec2 and Vec3, used to set members in other entities
 				//entityIdChain.push_back( memberVal.GetAsEntity() );
@@ -1514,7 +1514,7 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( IZephyrType& userObj, const std::string& functionName, EventArgs* args )
+bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrType& userObj, const std::string& functionName, EventArgs* args )
 {
 	userObj.CallMethod( functionName, args );
 	

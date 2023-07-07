@@ -321,7 +321,7 @@ void Game::ReloadGame()
 	}
 	
 	g_zephyrSubsystem->StopAllTimers();
-	g_zephyrSubsystem->DestroyAllCloneZephyrTypeObjects();
+	//g_zephyrSubsystem->DestroyAllCloneZephyrTypeObjects();
 
 	DataLoader::ReloadAllData( *m_world );
 

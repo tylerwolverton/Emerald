@@ -16,8 +16,10 @@ std::string PARENT_ENTITY_ID_STR = "parentEntityId";
 std::string PARENT_ENTITY_NAME_STR = "parentEntityName";
 std::string TARGET_ENTITY_STR = "targetEntity";
 std::string TARGET_ENTITY_NAME_STR = "targetName";
+
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
 ZephyrSubsystem* g_zephyrSubsystem = nullptr;
+ZephyrTypeObjFactory* g_zephyrTypeObjFactory = nullptr;
 
 const ZephyrValue ZephyrValue::ERROR_VALUE = ZephyrValue( (EntityId)ERROR_ZEPHYR_ENTITY_ID );
 
@@ -219,35 +221,10 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
-IZephyrType::~IZephyrType()
+bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 {
-	PTR_VECTOR_SAFE_DELETE( m_clones );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-IZephyrType* IZephyrType::CloneSelf() const
-{
-	IZephyrType* childObject = ChildCloneSelf();
-
-	g_zephyrSubsystem->AddCloneToPrototype( childObject );
-
-	return childObject;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-const std::vector<std::string> IZephyrType::GetMemberVariableNames() const 
-{ 
-	return g_zephyrSubsystem->GetRegisteredUserType( m_typeName ).memberNames;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool IZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
-{
-	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	for ( const std::string& memberName : typeMetadata.memberNames )
+	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
+	for ( const std::string& memberName : typeMetadata->memberNames )
 	{
 		if ( IsEqualIgnoreCase( varName, memberName ) )
 		{
@@ -260,12 +237,12 @@ bool IZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 
 
 //-----------------------------------------------------------------------------------------------
-bool IZephyrType::DoesTypeHaveMethod( const std::string& methodName )
+bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 {
-	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	for ( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
+	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
+	for ( const std::string& registeredMethod : typeMetadata->methodNames )
 	{
-		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )
+		if ( IsEqualIgnoreCase( methodName, registeredMethod ) )
 		{
 			return true;
 		}
@@ -276,16 +253,20 @@ bool IZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 
 
 //-----------------------------------------------------------------------------------------------
-void IZephyrType::CallMethod( const std::string& methodName, EventArgs* args )
+void ZephyrType::RegisterMethod( const std::string& methodName, MethodPtr callbackMethod )
 {
-	ZephyrTypeMetadata typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	for( const ZephyrTypeMethod& registeredMethod : typeMetadata.methods )
+	// TODO: Error/warn if already exists
+	m_objectMetadata.methods[methodName] = callbackMethod;
+
+}
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrType::CallMethod( const std::string& methodName, ZephyrArgs* args )
+{
+	auto iter = m_objectMetadata.methods.find( methodName );
+	if( iter != m_objectMetadata.methods.end() )
 	{
-		if ( IsEqualIgnoreCase( methodName, registeredMethod.name ) )
-		{
-			registeredMethod.methodPtr(args);
-			return;
-		}
+		iter->second( args );
 	}
 }
 
@@ -347,7 +328,7 @@ ZephyrValue::ZephyrValue( EntityId value )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( IZephyrType* value )
+ZephyrValue::ZephyrValue( ZephyrType* value )
 {
 	m_type = eValueType::USER_TYPE;
 	userTypeData = value;
@@ -580,7 +561,7 @@ EntityId ZephyrValue::EvaluateAsEntity()
 
 
 //-----------------------------------------------------------------------------------------------
-IZephyrType* ZephyrValue::EvaluateAsUserType()
+ZephyrType* ZephyrValue::EvaluateAsUserType()
 {
 	if ( m_type == eValueType::USER_TYPE )
 	{

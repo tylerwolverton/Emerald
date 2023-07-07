@@ -502,11 +502,10 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
 	}
 
-	auto registeredTypes = g_zephyrSubsystem->GetRegisteredUserTypes();
-	const auto& iter = registeredTypes.find( identifier );
-	if ( iter != registeredTypes.cend() )
+	ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( identifier );
+	if ( metadata != nullptr )
 	{
-		switch ( MatchesReservedName( identifier, iter->first ) )
+		switch ( MatchesReservedName( identifier, metadata->typeName ) )
 		{
 			case eReservedKeywordResult::MATCH:			AddToken( eTokenType::USER_TYPE, identifier );
 			case eReservedKeywordResult::CASE_MISMATCH: return true;

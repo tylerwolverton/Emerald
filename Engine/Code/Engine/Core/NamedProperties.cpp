@@ -4,15 +4,7 @@
 //-----------------------------------------------------------------------------------------------
 NamedProperties::~NamedProperties()
 {
-	std::map<std::string, TypedPropertyBase*>::iterator mapIter;
-
-	for ( mapIter = m_keyValuePairs.begin(); mapIter != m_keyValuePairs.end(); mapIter++ )
-	{
-		delete( mapIter->second );
-		mapIter->second = nullptr;
-	}
-
-	m_keyValuePairs.clear();
+	Reset();
 }
 
 
@@ -44,8 +36,16 @@ std::string NamedProperties::GetValue( const std::string& keyName, const char* d
 
 
 //-----------------------------------------------------------------------------------------------
-void NamedProperties::Clear()
+void NamedProperties::Reset()
 {
+	std::map<std::string, TypedPropertyBase*>::iterator mapIter;
+
+	for ( mapIter = m_keyValuePairs.begin(); mapIter != m_keyValuePairs.end(); mapIter++ )
+	{
+		delete( mapIter->second );
+		mapIter->second = nullptr;
+	}
+
 	m_keyValuePairs.clear();
 }
 

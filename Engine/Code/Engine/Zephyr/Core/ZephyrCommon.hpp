@@ -1,8 +1,10 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/ObjectFactory.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Timer.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 #include <functional>
 #include <map>
@@ -11,6 +13,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrValue;
+class ZephyrType;
 class ZephyrBytecodeChunk;
 class ZephyrComponent;
 class ZephyrEngineEvents;
@@ -23,6 +26,7 @@ class ZephyrSubsystem;
 typedef std::map<std::string, ZephyrValue> ZephyrValueMap;
 typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
 typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
+typedef NamedProperties ZephyrArgs;
 
 constexpr int ERROR_ZEPHYR_ENTITY_ID = -1000;
 extern std::string PARENT_ENTITY_STR;
@@ -31,6 +35,11 @@ extern std::string PARENT_ENTITY_NAME_STR;
 extern std::string TARGET_ENTITY_STR;
 extern std::string TARGET_ENTITY_NAME_STR;
 
+typedef std::string ZephyrTypeId;
+typedef ZephyrType* ( *ZephyrTypeObjCreationFunc )( ZephyrArgs* );
+typedef ObjectFactory< ZephyrType, ZephyrTypeId, ZephyrTypeObjCreationFunc, ZephyrArgs* > ZephyrTypeObjFactory;
+
+extern ZephyrTypeObjFactory* g_zephyrTypeObjFactory;
 extern ZephyrEngineEvents* g_zephyrAPI;
 extern ZephyrSubsystem* g_zephyrSubsystem;
 
@@ -209,74 +218,79 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-struct ZephyrTypeMethod
-{
-typedef std::function<void(EventArgs*)> MethodPtr;
-
-
-public:
-	std::string name;
-	MethodPtr methodPtr = nullptr;
-
-public:
-	ZephyrTypeMethod( const std::string& name, MethodPtr methodPtr )
-		: name( name )
-		, methodPtr( methodPtr )
-	{}
-};
-
-
-class IZephyrType;
-
-//-----------------------------------------------------------------------------------------------
 struct ZephyrTypeMetadata
 {
 public:
 	std::string typeName;
 	std::vector<std::string> memberNames; // Make a field struct with type and name?
-	std::vector<ZephyrTypeMethod> methods;
-	IZephyrType* prototype = nullptr;
+	std::vector<std::string> methodNames;
+	//std::vector<ZephyrTypeMethod> methods;
+
+	ZephyrTypeMetadata( const std::string& typeName )
+		: typeName( typeName )
+	{}
 };
 
-#define BEGIN_REGISTER_METADATA( zephyrTypeName, className ){\
-										ZephyrTypeMetadata metadata;\
-										\
-										className* obj = new className();\
-										metadata.prototype = obj;\
-										\
-										obj->m_typeName = metadata.typeName = #zephyrTypeName;\
-										\
-										using std::placeholders::_1;\
-
-#define REGISTER_METADATA_MEMBER( memberName ) metadata.memberNames.push_back( #memberName ); 
-
-#define REGISTER_METADATA_METHOD( methodName, className ) metadata.methods.emplace_back( #methodName, std::bind( &className::methodName, obj, _1 ) );
-
-#define END_REGISTER_METADATA g_zephyrSubsystem->RegisterZephyrType( metadata ); }
 
 //-----------------------------------------------------------------------------------------------
-class IZephyrType
+// Each object of an IZephyrType will have unique data for its methods
+struct ZephyrObjectMetadata
 {
+	typedef std::function<void( ZephyrArgs* )> MethodPtr;
+
+public:
+	std::map<std::string, MethodPtr> methods;
+};
+
+
+//-----------------------------------------------------------------------------------------------
+// Common base class for types that will be exposed to Zephyr. Lightweight, with no members and 
+// only the methods necessary to do direct object interactions (calling methods, etc.)
+class IZephyrTypeable
+{
+public:
+	virtual ~IZephyrTypeable() {}
+	virtual std::string ToString() const = 0;
+};
+
+
+//-----------------------------------------------------------------------------------------------
+class ZephyrType
+{
+	typedef std::function<void( ZephyrArgs* )> MethodPtr;
 	friend class ZephyrSubsystem;
 
 public:
-	virtual ~IZephyrType();
-	virtual std::string					ToString() const = 0;
-	virtual IZephyrType*				CloneSelf() const;
-	virtual IZephyrType*				ChildCloneSelf() const = 0;
+	explicit ZephyrType( const std::string& typeName, IZephyrTypeable* objectToWrap )
+		: m_typeName( typeName )
+		, m_object( objectToWrap )
+	{
+	}
 
-	const	std::string					GetTypeName() const				{ return m_typeName; }
-	const	std::vector<std::string>	GetMemberVariableNames() const;
-	//const	std::vector<std::string>	GetMethodNames() const			{ return typeMetadata.methodNames; }
+	virtual ~ZephyrType() { PTR_SAFE_DELETE( m_object ); }
+	std::string ToString() const										{ return m_object->ToString(); }
 
+	const std::string GetTypeName() const								{ return m_typeName; }
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
 	bool DoesTypeHaveMethod( const std::string& methodName );
+	
+	void RegisterMethod( const std::string& methodName, MethodPtr callbackMethod );
+	void CallMethod( const std::string& methodName, ZephyrArgs* args );
+	
+	// factory create
+	/*ZephyrTypeBase* Create( ZephyrArgs* params )
+	{
+		OBJ_TYPE* object = new OBJ_TYPE( params );
 
-	void CallMethod( const std::string& methodName, EventArgs* args );
+		ZephyrType<OBJ_TYPE> newZephyrObj = new ZephyrType<OBJ_TYPE>( object );
+
+		return newZephyrObj;
+	}*/
 
 protected:
 	std::string m_typeName;
-	std::vector<IZephyrType*> m_clones; // TODO: Make this an object pool and reuse
+	IZephyrTypeable* m_object = nullptr;
+	ZephyrObjectMetadata m_objectMetadata;
 };
 
 
@@ -292,7 +306,7 @@ public:
 	ZephyrValue( bool value );
 	ZephyrValue( const std::string& value );
 	ZephyrValue( EntityId value );
-	ZephyrValue( IZephyrType* value );
+	ZephyrValue( ZephyrType* value );
 
 	ZephyrValue( ZephyrValue const& other );
 	ZephyrValue& operator=( ZephyrValue const& other );
@@ -310,7 +324,7 @@ public:
 	bool			GetAsBool() const		{ return boolData; }
 	std::string		GetAsString() const;
 	EntityId		GetAsEntity() const		{ return entityData; }
-	IZephyrType*	GetAsUserType() const	{ return userTypeData; }
+	ZephyrType*		GetAsUserType() const	{ return userTypeData; }
 	
 	bool			EvaluateAsBool();
 	Vec2			EvaluateAsVec2();
@@ -318,7 +332,7 @@ public:
 	std::string		EvaluateAsString();
 	float			EvaluateAsNumber();
 	EntityId		EvaluateAsEntity();
-	IZephyrType*	EvaluateAsUserType();
+	ZephyrType*		EvaluateAsUserType();
 
 	std::string SerializeToString() const;
 	void		DeserializeFromString( const std::string& serlializedStr );
@@ -340,7 +354,7 @@ private:
 		bool boolData;
 		std::string* strData = nullptr;
 		EntityId entityData;
-		IZephyrType* userTypeData;
+		ZephyrType* userTypeData;
 	};
 };
 

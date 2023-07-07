@@ -67,7 +67,7 @@ void ZephyrSubsystem::UpdateTimers()
 		}
 
 		zephyrTimer.timer.Stop();
-		zephyrTimer.callbackArgs->Clear();
+		zephyrTimer.callbackArgs->Reset();
 	}
 }
 
@@ -76,6 +76,7 @@ void ZephyrSubsystem::UpdateTimers()
 void ZephyrSubsystem::Shutdown()
 {
 	m_timerPool.clear();
+	ResetRegisteredUserTypes();
 }
 
 
@@ -129,20 +130,22 @@ void ZephyrSubsystem::StopAllTimers()
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrSubsystem::RegisterZephyrType( const ZephyrTypeMetadata& typeMetadata )
+void ZephyrSubsystem::RegisterZephyrType( ZephyrTypeMetadata* typeMetadata )
 {
-	const auto& iter = m_registeredZephyrTypes.find( typeMetadata.typeName );
+	GUARANTEE_OR_DIE( typeMetadata != nullptr, "Can't register a null ZephyrTypeMetadata" );
+
+	const auto& iter = m_registeredZephyrTypes.find( typeMetadata->typeName );
 	if ( iter != m_registeredZephyrTypes.cend() )
 	{
 		return;
 	}
 
-	m_registeredZephyrTypes[typeMetadata.typeName] = typeMetadata;
+	m_registeredZephyrTypes[typeMetadata->typeName] = typeMetadata;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeMetadata ZephyrSubsystem::GetRegisteredUserType( const std::string& typeName ) const
+ZephyrTypeMetadata* ZephyrSubsystem::GetRegisteredUserType( const std::string& typeName ) const
 {
 	const auto& iter = m_registeredZephyrTypes.find( typeName );
 	if ( iter != m_registeredZephyrTypes.cend() )
@@ -150,24 +153,11 @@ ZephyrTypeMetadata ZephyrSubsystem::GetRegisteredUserType( const std::string& ty
 		return iter->second;
 	}
 
-	return ZephyrTypeMetadata();
+	return nullptr;
 }
 
-
 //-----------------------------------------------------------------------------------------------
-void ZephyrSubsystem::AddCloneToPrototype( IZephyrType* clone )
+void ZephyrSubsystem::ResetRegisteredUserTypes()
 {
-	GUARANTEE_OR_DIE( clone != nullptr, "Can't add a nullptr as clone to prototype" );
-
-	m_registeredZephyrTypes[clone->GetTypeName()].prototype->m_clones.push_back( clone );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrSubsystem::DestroyAllCloneZephyrTypeObjects()
-{
-	for ( auto& item : m_registeredZephyrTypes )
-	{
-		PTR_VECTOR_SAFE_DELETE( item.second.prototype->m_clones );
-	}
+	PTR_MAP_SAFE_DELETE( m_registeredZephyrTypes );
 }
