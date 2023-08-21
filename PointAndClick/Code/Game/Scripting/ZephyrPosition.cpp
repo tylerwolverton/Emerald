@@ -1,6 +1,9 @@
 #include "Game/Scripting/ZephyrPosition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
+#define TO_CREATE_ZEPHYR_TYPE_FUNC_NAME( className ) &className::CreateAsZephyrType
+#define REGISTER_ZEPHYR_METHOD( objName, funcName, className ) objName->RegisterMethod( #funcName, std::bind( &className::funcName, objName, std::placeholders::_1 ) );
+#define REGISTER_METHOD( funcName ) REGISTER_ZEPHYR_METHOD( zephyrPosition, funcName, ZephyrPosition )
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::CreateAndRegisterMetadata()
@@ -12,16 +15,13 @@ void ZephyrPosition::CreateAndRegisterMetadata()
 	//END_REGISTER_METADATA
 
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( "Position" );
-
-	metadata->memberNames.emplace_back( "x");
-	metadata->memberNames.emplace_back( "y");
-   
-	metadata->methodNames.emplace_back( "GetDistFromOrigin" );
-	//metadata.methods.emplace_back( "GetDistFromOrigin", &ZephyrPosition::GetDistFromOrigin );
+	metadata->RegisterMember( "x" );
+	metadata->RegisterMember( "y" );
+	metadata->RegisterMethod( "GetDistFromOrigin" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
-	
-	g_zephyrTypeObjFactory->RegisterCreator( metadata->typeName, &ZephyrPosition::CreateAsZephyrType );
+
+	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), TO_CREATE_ZEPHYR_TYPE_FUNC_NAME(ZephyrPosition) );
 }
 
 
@@ -34,10 +34,19 @@ ZephyrType* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 
 	// Fill in vars from args
 
-	ZephyrType* newTypeObj = new ZephyrType( "Position", zephyrPosition );
-	newTypeObj->RegisterMethod( "GetDistFromOrigin", std::bind( &ZephyrPosition::GetDistFromOrigin, zephyrPosition, std::placeholders::_1 ) );
+	//ZephyrType* newTypeObj = new ZephyrType( "Position", zephyrPosition );
+	//newTypeObj->RegisterMethod( "GetDistFromOrigin", std::bind( &ZephyrPosition::GetDistFromOrigin, zephyrPosition, std::placeholders::_1 ) );
+	//REGISTER_ZEPHYR_METHOD( zephyrPosition, GetDistFromOrigin, ZephyrPosition );
+	REGISTER_METHOD( GetDistFromOrigin );
 
-	return newTypeObj;
+	return zephyrPosition;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrPosition::ZephyrPosition()
+	: ZephyrType( "Position" )
+{
 }
 
 

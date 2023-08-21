@@ -221,10 +221,41 @@ eValueType FromString( const std::string& strType )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
+ZephyrTypeMetadata::ZephyrTypeMetadata( const std::string& typeName )
+	: m_typeName( typeName )
 {
-	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	for ( const std::string& memberName : typeMetadata->memberNames )
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrTypeMetadata::RegisterMember( const std::string& memberName )
+{
+	RegisterReadOnlyMember( memberName );
+
+	m_methodNames.push_back( "Set_" + memberName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrTypeMetadata::RegisterReadOnlyMember( const std::string& memberName )
+{
+	m_memberNames.push_back( memberName );
+
+	m_methodNames.push_back( "Get_" + memberName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrTypeMetadata::RegisterMethod( const std::string& methodName )
+{
+	m_methodNames.push_back( methodName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrTypeMetadata::DoesTypeHaveMemberVariable( const std::string& varName )
+{
+	for ( const std::string& memberName : m_memberNames )
 	{
 		if ( IsEqualIgnoreCase( varName, memberName ) )
 		{
@@ -237,10 +268,9 @@ bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
+bool ZephyrTypeMetadata::DoesTypeHaveMethod( const std::string& methodName )
 {
-	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	for ( const std::string& registeredMethod : typeMetadata->methodNames )
+	for ( const std::string& registeredMethod : m_methodNames )
 	{
 		if ( IsEqualIgnoreCase( methodName, registeredMethod ) )
 		{
@@ -249,6 +279,22 @@ bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 	}
 
 	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
+{
+	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
+	return typeMetadata->DoesTypeHaveMethod( varName );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
+{
+	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
+	return typeMetadata->DoesTypeHaveMethod( methodName );
 }
 
 

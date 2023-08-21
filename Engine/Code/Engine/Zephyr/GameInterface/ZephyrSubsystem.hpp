@@ -6,7 +6,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class Clock;
-struct ZephyrTypeMetadata;
+class ZephyrTypeMetadata;
 struct ZephyrTimer;
 
 

@@ -134,13 +134,13 @@ void ZephyrSubsystem::RegisterZephyrType( ZephyrTypeMetadata* typeMetadata )
 {
 	GUARANTEE_OR_DIE( typeMetadata != nullptr, "Can't register a null ZephyrTypeMetadata" );
 
-	const auto& iter = m_registeredZephyrTypes.find( typeMetadata->typeName );
+	const auto& iter = m_registeredZephyrTypes.find( typeMetadata->GetTypeName() );
 	if ( iter != m_registeredZephyrTypes.cend() )
 	{
 		return;
 	}
 
-	m_registeredZephyrTypes[typeMetadata->typeName] = typeMetadata;
+	m_registeredZephyrTypes[typeMetadata->GetTypeName()] = typeMetadata;
 }
 
 

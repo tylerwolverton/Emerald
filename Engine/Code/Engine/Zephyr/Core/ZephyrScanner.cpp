@@ -505,7 +505,7 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 	ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( identifier );
 	if ( metadata != nullptr )
 	{
-		switch ( MatchesReservedName( identifier, metadata->typeName ) )
+		switch ( MatchesReservedName( identifier, metadata->GetTypeName() ) )
 		{
 			case eReservedKeywordResult::MATCH:			AddToken( eTokenType::USER_TYPE, identifier );
 			case eReservedKeywordResult::CASE_MISMATCH: return true;

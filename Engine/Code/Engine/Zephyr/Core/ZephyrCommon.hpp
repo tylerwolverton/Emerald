@@ -218,17 +218,25 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-struct ZephyrTypeMetadata
+class ZephyrTypeMetadata
 {
 public:
-	std::string typeName;
-	std::vector<std::string> memberNames; // Make a field struct with type and name?
-	std::vector<std::string> methodNames;
-	//std::vector<ZephyrTypeMethod> methods;
+	ZephyrTypeMetadata( const std::string& typeName );
 
-	ZephyrTypeMetadata( const std::string& typeName )
-		: typeName( typeName )
-	{}
+	std::string GetTypeName() const							{ return m_typeName; }
+
+	void RegisterMember( const std::string& memberName );
+	void RegisterReadOnlyMember( const std::string& memberName );
+	void RegisterMethod( const std::string& methodName );
+
+	bool DoesTypeHaveMemberVariable( const std::string& varName );
+	bool DoesTypeHaveMethod( const std::string& methodName );
+
+private:
+	std::string m_typeName;
+	std::vector<std::string> m_memberNames; // Make a field struct with type and name?
+	std::vector<std::string> m_methodNames;
+	//std::vector<ZephyrTypeMethod> methods;
 };
 
 
@@ -255,20 +263,23 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+// The base class for types exposed to Zephyr. The intention is that they will only be used in scripts,
+// if C++ usage is desired, make a normal C++ class and then a ZephyrType wrapper class.
 class ZephyrType
 {
 	typedef std::function<void( ZephyrArgs* )> MethodPtr;
 	friend class ZephyrSubsystem;
 
 public:
-	explicit ZephyrType( const std::string& typeName, IZephyrTypeable* objectToWrap )
+	explicit ZephyrType( const std::string& typeName/*, IZephyrTypeable* objectToWrap*/ )
 		: m_typeName( typeName )
-		, m_object( objectToWrap )
+		//, m_object( objectToWrap )
 	{
 	}
 
-	virtual ~ZephyrType() { PTR_SAFE_DELETE( m_object ); }
-	std::string ToString() const										{ return m_object->ToString(); }
+	virtual ~ZephyrType()												{ /*PTR_SAFE_DELETE( m_object ); */}
+	virtual std::string ToString() const = 0;
+	//virtual std::string ToString() const										{ return m_object->ToString(); }
 
 	const std::string GetTypeName() const								{ return m_typeName; }
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
@@ -289,7 +300,7 @@ public:
 
 protected:
 	std::string m_typeName;
-	IZephyrTypeable* m_object = nullptr;
+	//IZephyrTypeable* m_object = nullptr;
 	ZephyrObjectMetadata m_objectMetadata;
 };
 
