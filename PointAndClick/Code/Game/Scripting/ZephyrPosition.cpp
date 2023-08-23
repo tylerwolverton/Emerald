@@ -1,27 +1,22 @@
 #include "Game/Scripting/ZephyrPosition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
-#define TO_CREATE_ZEPHYR_TYPE_FUNC_NAME( className ) &className::CreateAsZephyrType
-#define REGISTER_ZEPHYR_METHOD( objName, funcName, className ) objName->RegisterMethod( #funcName, std::bind( &className::funcName, objName, std::placeholders::_1 ) );
-#define REGISTER_METHOD( funcName ) REGISTER_ZEPHYR_METHOD( zephyrPosition, funcName, ZephyrPosition )
+
+//-----------------------------------------------------------------------------------------------
+const char* TYPE_NAME = "Position";
+
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::CreateAndRegisterMetadata()
 {
-	//BEGIN_REGISTER_METADATA( Position, ZephyrPosition );
-	//REGISTER_METADATA_MEMBER( x )
-	//REGISTER_METADATA_MEMBER( y )
-	//REGISTER_METADATA_METHOD( GetDistFromOrigin, ZephyrPosition );
-	//END_REGISTER_METADATA
-
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( "Position" );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( TYPE_NAME );
 	metadata->RegisterMember( "x" );
 	metadata->RegisterMember( "y" );
 	metadata->RegisterMethod( "GetDistFromOrigin" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
-	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), TO_CREATE_ZEPHYR_TYPE_FUNC_NAME(ZephyrPosition) );
+	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrPosition::CreateAsZephyrType );
 }
 
 
@@ -34,10 +29,9 @@ ZephyrType* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 
 	// Fill in vars from args
 
-	//ZephyrType* newTypeObj = new ZephyrType( "Position", zephyrPosition );
-	//newTypeObj->RegisterMethod( "GetDistFromOrigin", std::bind( &ZephyrPosition::GetDistFromOrigin, zephyrPosition, std::placeholders::_1 ) );
-	//REGISTER_ZEPHYR_METHOD( zephyrPosition, GetDistFromOrigin, ZephyrPosition );
-	REGISTER_METHOD( GetDistFromOrigin );
+
+	// Bind methods
+	zephyrPosition->BindMethod( "GetDistFromOrigin", &GetDistFromOrigin );
 
 	return zephyrPosition;
 }
@@ -45,7 +39,7 @@ ZephyrType* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrPosition::ZephyrPosition()
-	: ZephyrType( "Position" )
+	: ZephyrTypeTemplate( TYPE_NAME )
 {
 }
 
@@ -53,7 +47,5 @@ ZephyrPosition::ZephyrPosition()
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::GetDistFromOrigin( ZephyrArgs* args )
 {
-	//CloneSelf<ZephyrPosition>();
-
 	args->SetValue( "dist", m_position.GetLength() );
 }

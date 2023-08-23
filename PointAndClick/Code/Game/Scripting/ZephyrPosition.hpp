@@ -7,10 +7,10 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrPosition : ZephyrType
+class ZephyrPosition : public ZephyrTypeTemplate<ZephyrPosition>
 {
 public: 
-	// IZephyrType Overrides
+	// ZephyrType Overrides
 	ZephyrPosition();
 	virtual ~ZephyrPosition() {}
 	virtual std::string ToString() const override								{ return m_position.ToString(); }

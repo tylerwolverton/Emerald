@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ObjectFactory.hpp"
+#include "Engine/Core/Delegate.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Timer.hpp"
@@ -218,12 +219,29 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrTypeMetadata
+struct ZephyrTypeMethod
 {
 public:
+	explicit ZephyrTypeMethod( const std::string& methodName )
+		: name( methodName )
+	{}
+
+	std::string name;
+	Delegate<ZephyrArgs*> delegate;
+};
+
+
+//-----------------------------------------------------------------------------------------------
+class ZephyrTypeMetadata
+{
+	friend class ZephyrType;
+
+public:
+	ZephyrTypeMetadata() = default;
 	ZephyrTypeMetadata( const std::string& typeName );
 
-	std::string GetTypeName() const							{ return m_typeName; }
+	std::string GetTypeName() const									{ return m_typeName; }
+	ZephyrTypeMethod* FindMethod( const std::string& methodName );
 
 	void RegisterMember( const std::string& memberName );
 	void RegisterReadOnlyMember( const std::string& memberName );
@@ -235,30 +253,7 @@ public:
 private:
 	std::string m_typeName;
 	std::vector<std::string> m_memberNames; // Make a field struct with type and name?
-	std::vector<std::string> m_methodNames;
-	//std::vector<ZephyrTypeMethod> methods;
-};
-
-
-//-----------------------------------------------------------------------------------------------
-// Each object of an IZephyrType will have unique data for its methods
-struct ZephyrObjectMetadata
-{
-	typedef std::function<void( ZephyrArgs* )> MethodPtr;
-
-public:
-	std::map<std::string, MethodPtr> methods;
-};
-
-
-//-----------------------------------------------------------------------------------------------
-// Common base class for types that will be exposed to Zephyr. Lightweight, with no members and 
-// only the methods necessary to do direct object interactions (calling methods, etc.)
-class IZephyrTypeable
-{
-public:
-	virtual ~IZephyrTypeable() {}
-	virtual std::string ToString() const = 0;
+	std::vector<ZephyrTypeMethod> m_methods;
 };
 
 
@@ -267,41 +262,41 @@ public:
 // if C++ usage is desired, make a normal C++ class and then a ZephyrType wrapper class.
 class ZephyrType
 {
-	typedef std::function<void( ZephyrArgs* )> MethodPtr;
 	friend class ZephyrSubsystem;
 
 public:
-	explicit ZephyrType( const std::string& typeName/*, IZephyrTypeable* objectToWrap*/ )
-		: m_typeName( typeName )
-		//, m_object( objectToWrap )
-	{
-	}
+	explicit ZephyrType( const std::string& typeName );
 
-	virtual ~ZephyrType()												{ /*PTR_SAFE_DELETE( m_object ); */}
+	virtual ~ZephyrType(){}
 	virtual std::string ToString() const = 0;
-	//virtual std::string ToString() const										{ return m_object->ToString(); }
 
-	const std::string GetTypeName() const								{ return m_typeName; }
+	const std::string GetTypeName() const								{ return m_typeMetadata.GetTypeName(); }
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
 	bool DoesTypeHaveMethod( const std::string& methodName );
 	
-	void RegisterMethod( const std::string& methodName, MethodPtr callbackMethod );
 	void CallMethod( const std::string& methodName, ZephyrArgs* args );
-	
-	// factory create
-	/*ZephyrTypeBase* Create( ZephyrArgs* params )
-	{
-		OBJ_TYPE* object = new OBJ_TYPE( params );
-
-		ZephyrType<OBJ_TYPE> newZephyrObj = new ZephyrType<OBJ_TYPE>( object );
-
-		return newZephyrObj;
-	}*/
 
 protected:
-	std::string m_typeName;
-	//IZephyrTypeable* m_object = nullptr;
-	ZephyrObjectMetadata m_objectMetadata;
+	ZephyrTypeMetadata m_typeMetadata;
+};
+
+
+//-----------------------------------------------------------------------------------------------
+template <typename OBJ_TYPE>
+class ZephyrTypeTemplate : public ZephyrType
+{
+public:
+	explicit ZephyrTypeTemplate( const std::string& typeName )
+		: ZephyrType( typeName )
+	{}
+
+	void BindMethod( const std::string& name, void( OBJ_TYPE::*methodPtr )( ZephyrArgs* args ) )
+	{
+		ZephyrTypeMethod* methodToBind = m_typeMetadata.FindMethod( name );
+		GUARANTEE_OR_DIE( methodToBind != nullptr, Stringf( "Tried to bind method '%s' to an object of type '%s', but it was not found in the metadata.", name.c_str(), m_typeMetadata.GetTypeName().c_str() ) );
+
+		methodToBind->delegate.SubscribeMethod( (OBJ_TYPE*)this, methodPtr );
+	}
 };
 
 

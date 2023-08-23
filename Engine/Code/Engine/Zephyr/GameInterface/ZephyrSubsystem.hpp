@@ -37,6 +37,7 @@ public:
 
 	void										RegisterZephyrType( ZephyrTypeMetadata* typeMetadata );
 	ZephyrTypeMetadata*							GetRegisteredUserType( const std::string& typeName ) const;
+	ZephyrTypeMetadata							GetCopyOfRegisteredUserType( const std::string& typeName ) const;
 	void										ResetRegisteredUserTypes();
 
 private:

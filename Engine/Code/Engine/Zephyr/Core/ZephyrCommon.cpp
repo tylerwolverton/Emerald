@@ -228,11 +228,26 @@ ZephyrTypeMetadata::ZephyrTypeMetadata( const std::string& typeName )
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrTypeMethod* ZephyrTypeMetadata::FindMethod( const std::string& methodName )
+{
+	for ( ZephyrTypeMethod& registeredMethod : m_methods )
+	{
+		if ( methodName == registeredMethod.name )
+		{
+			return &registeredMethod;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrTypeMetadata::RegisterMember( const std::string& memberName )
 {
 	RegisterReadOnlyMember( memberName );
 
-	m_methodNames.push_back( "Set_" + memberName );
+	m_methods.emplace_back( "Set_" + memberName );
 }
 
 
@@ -241,14 +256,14 @@ void ZephyrTypeMetadata::RegisterReadOnlyMember( const std::string& memberName )
 {
 	m_memberNames.push_back( memberName );
 
-	m_methodNames.push_back( "Get_" + memberName );
+	m_methods.emplace_back( "Get_" + memberName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrTypeMetadata::RegisterMethod( const std::string& methodName )
 {
-	m_methodNames.push_back( methodName );
+	m_methods.emplace_back( methodName );
 }
 
 
@@ -257,7 +272,7 @@ bool ZephyrTypeMetadata::DoesTypeHaveMemberVariable( const std::string& varName 
 {
 	for ( const std::string& memberName : m_memberNames )
 	{
-		if ( IsEqualIgnoreCase( varName, memberName ) )
+		if ( varName == memberName )
 		{
 			return true;
 		}
@@ -270,50 +285,42 @@ bool ZephyrTypeMetadata::DoesTypeHaveMemberVariable( const std::string& varName 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrTypeMetadata::DoesTypeHaveMethod( const std::string& methodName )
 {
-	for ( const std::string& registeredMethod : m_methodNames )
-	{
-		if ( IsEqualIgnoreCase( methodName, registeredMethod ) )
-		{
-			return true;
-		}
-	}
+	return FindMethod( methodName ) != nullptr;
+}
 
-	return false;
+
+//-----------------------------------------------------------------------------------------------
+ZephyrType::ZephyrType( const std::string& typeName )
+{
+	m_typeMetadata = g_zephyrSubsystem->GetCopyOfRegisteredUserType( typeName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
 {
-	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	return typeMetadata->DoesTypeHaveMethod( varName );
+	return m_typeMetadata.DoesTypeHaveMethod( varName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
 {
-	ZephyrTypeMetadata* typeMetadata = g_zephyrSubsystem->GetRegisteredUserType( m_typeName );
-	return typeMetadata->DoesTypeHaveMethod( methodName );
+	return m_typeMetadata.DoesTypeHaveMethod( methodName );
 }
 
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrType::RegisterMethod( const std::string& methodName, MethodPtr callbackMethod )
-{
-	// TODO: Error/warn if already exists
-	m_objectMetadata.methods[methodName] = callbackMethod;
-
-}
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrType::CallMethod( const std::string& methodName, ZephyrArgs* args )
 {
-	auto iter = m_objectMetadata.methods.find( methodName );
-	if( iter != m_objectMetadata.methods.end() )
+	ZephyrTypeMethod* methodToCall = m_typeMetadata.FindMethod( methodName );
+	if ( methodToCall == nullptr )
 	{
-		iter->second( args );
+		// Error
+		return;
 	}
+
+	methodToCall->delegate.Invoke( args );
 }
 
 
