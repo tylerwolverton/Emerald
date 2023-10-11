@@ -294,7 +294,17 @@ void ZephyrGameEvents::PrintDebugScreenText( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 {
-	std::string text = args->GetValue( "text", "" );
+	ZephyrType* textType = (ZephyrType*)args->GetValue( "text", (void*)nullptr );
+	std::string text;
+	if ( textType != nullptr )
+	{
+		text = textType->ToString();
+	}
+	else
+	{
+		text = args->GetValue( "text", "");
+	}
+
 	std::string colorStr = args->GetValue( "color", "white" );
 
 	Rgba8 color = Rgba8::WHITE;
@@ -311,6 +321,8 @@ void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::GetVec2Normalized( EventArgs* args )
 {
+	// TODO: Helpers to retrieve args as ZephyrTypes and save back as those?
+	// maybe better to pass through and convert to real type (ZephyrType<ZephyrNumber>) as opposed to ZephyrType*
 	Vec2 inVec = args->GetValue( "inVec", Vec2::ZERO );
 
 	float length = inVec.GetLength();

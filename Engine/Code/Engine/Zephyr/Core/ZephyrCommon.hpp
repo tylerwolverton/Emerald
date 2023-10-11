@@ -2,6 +2,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/ObjectFactory.hpp"
 #include "Engine/Core/Delegate.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
 #include "Engine/Time/Timer.hpp"
@@ -54,7 +55,7 @@ enum class eTokenType
 	// Keywords
 	STATE,
 	FUNCTION,
-	NUMBER,
+	//NUMBER,
 	// ZEPHYR TYPE TODO: Remove these/codegen
 	VEC2,
 	VEC3,
@@ -269,6 +270,8 @@ public:
 
 	virtual ~ZephyrType(){}
 	virtual std::string ToString() const = 0;
+	virtual void FromString( const std::string& dataStr ) = 0;
+	virtual bool EvaluateAsBool() const = 0;
 
 	const std::string GetTypeName() const								{ return m_typeMetadata.GetTypeName(); }
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
@@ -340,8 +343,8 @@ public:
 	EntityId		EvaluateAsEntity();
 	ZephyrType*		EvaluateAsUserType();
 
-	std::string SerializeToString() const;
-	void		DeserializeFromString( const std::string& serlializedStr );
+	std::string		SerializeToString() const;
+	void			DeserializeFromString( const std::string& serlializedStr );
 
 private:
 	void ReportConversionError( eValueType targetType );
@@ -379,3 +382,15 @@ public:
 	ZephyrTimer( Clock* clock );
 	~ZephyrTimer();
 };
+
+
+//-----------------------------------------------------------------------------------------------
+//struct ZephyrArgs
+//
+//{
+//	ZephyrType* GetValue( const std::string& keyName );
+//	void SetValue( const std::string& keyName, ZephyrType* value );
+//
+//private:
+//	std::map< std::string, ZephyrType* >	m_keyValuePairs;
+//};

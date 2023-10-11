@@ -3,6 +3,7 @@
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Zephyr/Core/ZephyrToken.hpp"
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
@@ -292,14 +293,14 @@ bool ZephyrParser::ParseStatement()
 		}
 		
 		
-		case eTokenType::NUMBER:
-		{
-			if ( !ParseVariableDeclaration( eValueType::NUMBER ) )
-			{
-				return false;
-			}
-		}
-		break;
+		//case eTokenType::NUMBER:
+		//{
+		//	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )
+		//	{
+		//		return false;
+		//	}
+		//}
+		//break;
 		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::VEC2:
 		{
@@ -346,6 +347,7 @@ bool ZephyrParser::ParseStatement()
 		}
 		break;
 		
+		//case eTokenType::NUMBER:
 		case eTokenType::USER_TYPE:
 		{
 			if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )
@@ -507,7 +509,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 		switch ( curToken.GetType() )
 		{
 			// ZEPHYR TYPE TODO: Remove/codegen
-			case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )		{ return false; } break;
+			//case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )		{ return false; } break;
 			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )		{ return false; } break;
 			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )		{ return false; } break;
 			case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )		{ return false; } break;
@@ -576,7 +578,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const st
 			switch ( varType )
 			{
 				// ZEPHYR TYPE TODO: Remove/codegen
-				case eValueType::NUMBER:	WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
+				//case eValueType::NUMBER:	WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
 				case eValueType::BOOL:		WriteConstantToCurChunk( ZephyrValue( false ) ); break;
 				case eValueType::STRING:	WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
 				case eValueType::ENTITY:	WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
@@ -1125,7 +1127,12 @@ bool ZephyrParser::ParseNumberConstant()
 {
 	ZephyrToken curToken = ConsumeCurToken();
 
-	return WriteConstantToCurChunk( (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
+	ZephyrArgs params;
+	params.SetValue( "value", (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
+	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
+
+	return WriteConstantToCurChunk( numberConstant );
+	//return WriteConstantToCurChunk( (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
 }
 
 
@@ -1398,7 +1405,7 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		// Valid to define anywhere
 		case eTokenType::STATE:
 		case eTokenType::FUNCTION:
-		case eTokenType::NUMBER:
+		//case eTokenType::NUMBER:
 		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::VEC2:
 		case eTokenType::VEC3:
@@ -1493,14 +1500,13 @@ bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueT
 
 
 //-----------------------------------------------------------------------------------------------
-// ZEPHYR TYPE TODO: Add user tpyes 
 bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName )
 {
 	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
 	ZephyrValue value;
 	switch ( varType )
 	{
-		case eValueType::NUMBER: value = ZephyrValue( 0.f ); break;
+		//case eValueType::NUMBER: value = ZephyrValue( 0.f ); break;
 		// ZEPHYR TYPE TODO: Remove/codegen
 		case eValueType::VEC2:	 value = ZephyrValue( Vec2::ZERO ); break;
 		case eValueType::VEC3:	 value = ZephyrValue( Vec3::ZERO ); break;
@@ -1519,7 +1525,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		}
 		case eValueType::USER_TYPE:
 		{
-			// TODO: Parse params
+			// Declare only, no parameters to invoke default constructor
 			value = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( typeName, nullptr ) ); break;
 		}
 	}

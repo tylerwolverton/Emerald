@@ -14,7 +14,7 @@
 //-----------------------------------------------------------------------------------------------
 ZephyrVirtualMachine::ZephyrVirtualMachine( ZephyrValueMap* globalVariables, 
 											ZephyrComponent& zephyrComponent, 
-											EventArgs* eventArgs, 
+											ZephyrArgs* eventArgs,
 											ZephyrValueMap* stateVariables )
 	: m_globalVariables( globalVariables )
 	, m_zephyrComponent( zephyrComponent )
@@ -152,8 +152,22 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
 				{
-					ReportError( Stringf( "Assigning to members in user types is not implemented yet" ) );
-					return;
+					std::string typeName = memberAccessorResult.finalMemberVal.GetAsUserType()->GetTypeName();
+					ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
+					if ( metadata == nullptr )
+					{
+						ReportError( Stringf( "Non-registered user type '%s' can not be assigned to", typeName.c_str() ) );
+						return;
+					}
+
+					if ( !metadata->DoesTypeHaveMemberVariable( lastMemberName ) )
+					{
+						ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+					}
+
+					ZephyrArgs args;
+					args.SetValue( "value", (void*)constantValue.EvaluateAsUserType() );
+					memberAccessorResult.finalMemberVal.GetAsUserType()->CallMethod( "Set_" + lastMemberName, &args );
 				}
 
 				PushConstant( constantValue );
@@ -241,7 +255,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				// Save identifier names to be updated with new values after call
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( "Member function call" );
 
-				EventArgs* args = new EventArgs();
+				ZephyrArgs* args = new ZephyrArgs();
 				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
@@ -441,7 +455,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				// Save identifier names to be updated with new values after call
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.GetAsString() );
 
-				EventArgs* args = new EventArgs();
+				ZephyrArgs* args = new ZephyrArgs();
 				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
@@ -508,7 +522,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::CopyEventArgVariables( EventArgs* eventArgs, ZephyrValueMap& localVariables )
+void ZephyrVirtualMachine::CopyEventArgVariables( ZephyrArgs* eventArgs, ZephyrValueMap& localVariables )
 {
 	if ( eventArgs == nullptr )
 	{
@@ -548,6 +562,10 @@ void ZephyrVirtualMachine::CopyEventArgVariables( EventArgs* eventArgs, ZephyrVa
 				  || keyValuePair.second->Is<char*>() )
 		{
 			localVariables[keyValuePair.first] = ZephyrValue( keyValuePair.second->GetAsString() );
+		}
+		else if( keyValuePair.second->Is<void*>() )
+		{
+			localVariables[keyValuePair.first] = ZephyrValue( (ZephyrType*)keyValuePair.second );
 		}
 
 		// Any other variables will be ignored since they have no ZephyrType equivalent
@@ -1338,7 +1356,7 @@ std::map<std::string, std::string> ZephyrVirtualMachine::GetCallerVariableToPara
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::InsertParametersIntoEventArgs( EventArgs& args )
+void ZephyrVirtualMachine::InsertParametersIntoEventArgs( ZephyrArgs& args )
 {
 	ZephyrValue paramCount = PopConstant();
 
@@ -1350,11 +1368,12 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( EventArgs& args )
 		switch ( value.GetType() )
 		{
 			case eValueType::BOOL:		args.SetValue( param.GetAsString(), value.GetAsBool() ); break;
-			case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
+			//case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
 			case eValueType::VEC2:		args.SetValue( param.GetAsString(), value.GetAsVec2() ); break;
 			case eValueType::VEC3:		args.SetValue( param.GetAsString(), value.GetAsVec3() ); break;
 			case eValueType::STRING:	args.SetValue( param.GetAsString(), value.GetAsString() ); break;
 			case eValueType::ENTITY:	args.SetValue( param.GetAsString(), value.GetAsEntity() ); break;
+			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), (void*)value.EvaluateAsUserType() ); break;
 			default: ERROR_AND_DIE( Stringf( "Unimplemented event arg type '%s'", ToString( value.GetType() ).c_str() ) );
 		}
 	}
@@ -1362,7 +1381,7 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( EventArgs& args )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierToParamNames, const EventArgs& args, ZephyrValueMap& localVariables )
+void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierToParamNames, const ZephyrArgs& args, ZephyrValueMap& localVariables )
 {
 	for ( auto const& identifierPair : identifierToParamNames )
 	{
@@ -1384,7 +1403,7 @@ void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::strin
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& varName, const EventArgs& args )
+ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& varName, const ZephyrArgs& args )
 {
 	auto const& keyValuePairs = args.GetAllKeyValuePairs();
 	auto iter = keyValuePairs.find( varName );
@@ -1395,7 +1414,10 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	
 	if ( iter->second->Is<float>() )
 	{
-		return ZephyrValue( args.GetValue( varName, 0.f ) );
+		ZephyrArgs params;
+		params.SetValue( "value", args.GetValue( varName, 0.f ) );
+		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
+		//return ZephyrValue( args.GetValue( varName, 0.f ) );
 	}
 	else if ( iter->second->Is<EntityId>() )
 	{
@@ -1422,6 +1444,11 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 			  || iter->second->Is<char*>() )
 	{
 		return ZephyrValue( iter->second->GetAsString() );
+	}
+	else if ( iter->second->Is<void*>() )
+	{
+		return ZephyrValue( (ZephyrType*)iter->second );
+		//ReportError( "ZephyrValue saved into args but wasn't user type" );
 	}
 
 	return ZephyrValue::ERROR_VALUE;
@@ -1499,7 +1526,7 @@ void ZephyrVirtualMachine::SetGlobalVec3MemberVariableInEntity( EntityId entityI
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const std::string& functionName, EventArgs* args )
+bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const std::string& functionName, ZephyrArgs* args )
 {
 	ZephyrComponent* zephyrComp = (ZephyrComponent*)GetComponentFromEntityId( entityId, ENTITY_COMPONENT_TYPE_ZEPHYR );
 	if ( zephyrComp == nullptr )
@@ -1514,7 +1541,7 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrType& userObj, const std::string& functionName, EventArgs* args )
+bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrType& userObj, const std::string& functionName, ZephyrArgs* args )
 {
 	userObj.CallMethod( functionName, args );
 	
@@ -1525,7 +1552,7 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrType& userObj, co
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
-	g_devConsole->PrintError( Stringf( "Error in script'%s': %s", m_zephyrComponent.GetScriptName().c_str(), errorMsg.c_str() ) );
+	g_devConsole->PrintError( Stringf( "Error in script '%s': %s", m_zephyrComponent.GetScriptName().c_str(), errorMsg.c_str() ) );
 
 	m_zephyrComponent.m_compState = eComponentState::INVALID_SCRIPT;
 }

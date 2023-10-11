@@ -3,6 +3,7 @@
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrNumber.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Framework/Entity.hpp"
@@ -27,6 +28,9 @@ void ZephyrSubsystem::Startup( const ZephyrSystemParams& params )
 	{
 		m_timerPool.emplace_back( m_clock );
 	}
+
+	// Register engine types
+	ZephyrNumber::CreateAndRegisterMetadata();
 }
 
 

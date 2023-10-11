@@ -406,11 +406,11 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
 	}
 
-	switch ( MatchesReservedName( identifier, "Number" ) )
-	{ 
-		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::NUMBER );
-		case eReservedKeywordResult::CASE_MISMATCH: return true;
-	}
+	//switch ( MatchesReservedName( identifier, "Number" ) )
+	//{ 
+	//	case eReservedKeywordResult::MATCH:			AddToken( eTokenType::NUMBER );
+	//	case eReservedKeywordResult::CASE_MISMATCH: return true;
+	//}
 	
 	switch ( MatchesReservedName( identifier, "Vec2" ) )
 	{ 

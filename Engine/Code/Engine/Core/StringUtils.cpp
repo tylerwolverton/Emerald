@@ -266,7 +266,7 @@ template<> std::string ToString( const std::string& value )		{ return value; }
 template<> std::string ToString( std::string value )			{ return value; }
 template<> std::string ToString( char* value )					{ return value; }
 template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
-template<> std::string ToString( ZephyrValue value )			{ return value.SerializeToString(); }
+template<> std::string ToString( ZephyrValue value )			{ return value.EvaluateAsString(); }
 
 
 //-----------------------------------------------------------------------------------------------
@@ -354,9 +354,12 @@ template<> void* FromString( const std::string& value, void* defaultValue )
 //-----------------------------------------------------------------------------------------------
 template<> ZephyrValue FromString( const std::string& value, ZephyrValue defaultValue )
 {
+	UNUSED( value );
 	UNUSED( defaultValue );
 
-	ZephyrValue newValue;
-	newValue.DeserializeFromString( value );
-	return newValue;
+	ERROR_AND_DIE( "Serialization of ZephyrValues isn't fully implemented yet." );
+
+	//ZephyrValue newValue;
+	//newValue.DeserializeFromString( value );
+	//return newValue;
 }

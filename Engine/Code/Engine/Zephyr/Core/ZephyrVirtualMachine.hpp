@@ -29,12 +29,12 @@ class ZephyrVirtualMachine
 private:
 	ZephyrVirtualMachine( ZephyrValueMap* globalVariables,
 						  ZephyrComponent& zephyrComponent,
-						  EventArgs* eventArgs = nullptr,
+						  ZephyrArgs* eventArgs = nullptr,
 						  ZephyrValueMap* stateVariables = nullptr );
 	
 	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk );
 
-	void		CopyEventArgVariables( EventArgs* eventArgs, ZephyrValueMap& localVariables );
+	void		CopyEventArgVariables( ZephyrArgs* args, ZephyrValueMap& localVariables );
 
 	void		PushConstant( const ZephyrValue& number );
 	ZephyrValue PopConstant();
@@ -64,17 +64,17 @@ private:
 	MemberAccessorResult ProcessResultOfMemberAccessor( const ZephyrValueMap& localVariables );
 	
 	std::map<std::string, std::string> GetCallerVariableToParamNamesFromParameters( const std::string& eventName );
-	void InsertParametersIntoEventArgs( EventArgs& args );
-	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const EventArgs& args, ZephyrValueMap& localVariables );
+	void InsertParametersIntoEventArgs( ZephyrArgs& args );
+	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const ZephyrArgs& args, ZephyrValueMap& localVariables );
 	ZephyrValue GetZephyrValFromEventArgs( const std::string& varName, const EventArgs& args );
 
 	ZephyrValue GetGlobalVariableFromEntity	( EntityId entityId, const std::string& variableName );
 	void SetGlobalVariableInEntity			( EntityId entityId, const std::string& variableName, const ZephyrValue& value );
 	void SetGlobalVec2MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value );
 	void SetGlobalVec3MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value );
-	bool CallMemberFunctionOnEntity			( EntityId entityId, const std::string& functionName, EventArgs* args );
+	bool CallMemberFunctionOnEntity			( EntityId entityId, const std::string& functionName, ZephyrArgs* args );
 	
-	bool CallMemberFunctionOnUserType		( ZephyrType& userObj, const std::string& functionName, EventArgs* args );
+	bool CallMemberFunctionOnUserType		( ZephyrType& userObj, const std::string& functionName, ZephyrArgs* args );
 
 	void ReportError( const std::string& errorMsg );
 	bool IsErrorValue( const ZephyrValue& zephyrValue );
@@ -88,5 +88,5 @@ private:
 	ZephyrValueMap*			m_stateVariables;
 	ZephyrValueMap			m_eventVariablesCopy;
 	ZephyrValueMap*			m_eventVariables;
-	EventArgs*				m_eventArgs;
+	ZephyrArgs*				m_eventArgs;
 };

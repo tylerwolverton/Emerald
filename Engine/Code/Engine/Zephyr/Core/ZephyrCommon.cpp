@@ -35,7 +35,7 @@ std::string ToString( eTokenType type )
 		case eTokenType::PARENTHESIS_RIGHT:	return ")";
 		case eTokenType::STATE:				return "State";
 		case eTokenType::FUNCTION:			return "Function";
-		case eTokenType::NUMBER:			return "Number";
+		//case eTokenType::NUMBER:			return "Number";
 		case eTokenType::VEC2:				return "Vec2";
 		case eTokenType::VEC3:				return "Vec3";
 		case eTokenType::BOOL:				return "Bool";
@@ -91,7 +91,7 @@ std::string GetTokenName( eTokenType type )
 		case eTokenType::PARENTHESIS_RIGHT:	return "PARENTHESIS_RIGHT";
 		case eTokenType::STATE:				return "STATE";
 		case eTokenType::FUNCTION:			return "FUNCTION";
-		case eTokenType::NUMBER:			return "NUMBER";
+		//case eTokenType::NUMBER:			return "NUMBER";
 		case eTokenType::VEC2:				return "VEC2";
 		case eTokenType::VEC3:				return "VEC3";
 		case eTokenType::BOOL:				return "BOOL";
@@ -529,7 +529,7 @@ bool ZephyrValue::EvaluateAsBool()
 		case eValueType::NUMBER: 	return !IsNearlyEqual( numberData, 0.f );			
 		case eValueType::BOOL:		return boolData;	
 		case eValueType::ENTITY:	return entityData != INVALID_ENTITY_ID;
-		case eValueType::USER_TYPE:	return userTypeData != nullptr;
+		case eValueType::USER_TYPE:	return userTypeData ? userTypeData->EvaluateAsBool() : false;
 	}
 
 	return false;
@@ -639,6 +639,7 @@ std::string ZephyrValue::SerializeToString() const
 		case eValueType::NUMBER: 	serializedStr += ToString( numberData );
 		case eValueType::BOOL:		serializedStr += ToString( boolData );
 		case eValueType::ENTITY:	serializedStr += ToString( entityData );
+		case eValueType::USER_TYPE:	serializedStr += userTypeData->ToString();
 	}
 
 	return serializedStr;
@@ -668,6 +669,7 @@ void ZephyrValue::DeserializeFromString( const std::string& serlializedStr )
 		case eValueType::NUMBER:	{ numberData = FromString( dataStr, 0.f ); }
 		case eValueType::BOOL:		{ boolData = FromString( dataStr, false ); }
 		case eValueType::ENTITY:	{ entityData = (EntityId)FromString( dataStr, (EntityId)-1 ); }
+		//case eValueType::USER_TYPE: { userTypeData->FromString( dataStr ); }
 	}
 
 }
@@ -716,3 +718,23 @@ ZephyrTimer::~ZephyrTimer()
 {
 	PTR_SAFE_DELETE( callbackArgs );
 }
+
+
+////-----------------------------------------------------------------------------------------------
+//ZephyrType* ZephyrArgs::GetValue( const std::string& keyName )
+//{
+//	auto iter = m_keyValuePairs.find( keyName );
+//	if ( iter == m_keyValuePairs.end() )
+//	{
+//		return nullptr;
+//	}
+//
+//	return iter->second;
+//}
+//
+//
+////-----------------------------------------------------------------------------------------------
+//void ZephyrArgs::SetValue( const std::string& keyName, ZephyrType* value )
+//{
+//	m_keyValuePairs[keyName] = value;
+//}

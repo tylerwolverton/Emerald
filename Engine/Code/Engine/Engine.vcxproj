@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -286,6 +286,7 @@
     <ClCompile Include="Zephyr\GameInterface\ZephyrScene.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSubsystem.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSystem.cpp" />
+    <ClCompile Include="Zephyr\Types\ZephyrNumber.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ThirdParty\fmod\fmod.h" />
@@ -434,6 +435,7 @@
     <ClInclude Include="Zephyr\GameInterface\ZephyrScene.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrNumber.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />
