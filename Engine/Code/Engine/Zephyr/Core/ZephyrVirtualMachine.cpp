@@ -522,10 +522,10 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 
 			switch ( val.GetType() )
 			{
-				case eValueType::NUMBER:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsNumber() ); break;
+				//case eValueType::NUMBER:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsNumber() ); break;
 				case eValueType::VEC2:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsVec2() ); break;
 				case eValueType::VEC3:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsVec3() ); break;
-				case eValueType::STRING:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsString() ); break;
+				//case eValueType::STRING:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsString() ); break;
 				case eValueType::ENTITY:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
 				case eValueType::BOOL:		m_eventArgs->SetValue( keyValuePair.first, val.GetAsBool() ); break;
 			}

@@ -62,10 +62,10 @@ private:
 	// Audio/Visual
 	void ChangeSpriteAnimation( EventArgs* args );
 	void PlaySpriteAnimation( EventArgs* args );
-	void AddAnimationEvent( EventArgs* args );
-	void PlaySound( EventArgs* args );
-	void ChangeMusic( EventArgs* args );
-	void AddScreenShake( EventArgs* args );
+	//void AddAnimationEvent( EventArgs* args );
+	//void PlaySound( EventArgs* args );
+	//void ChangeMusic( EventArgs* args );
+	//void AddScreenShake( EventArgs* args );
 
 private:
 	GameEntity* GetTargetEntityFromArgs( EventArgs* args );

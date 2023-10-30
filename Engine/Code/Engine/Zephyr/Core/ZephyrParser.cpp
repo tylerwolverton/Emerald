@@ -513,7 +513,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )							{ return false; } break;
 			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )							{ return false; } break;
 			case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )							{ return false; } break;
-			case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )							{ return false; } break;
+			//case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )							{ return false; } break;
 			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )							{ return false; } break;
 			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )	{ return false; } break;
 
@@ -1159,7 +1159,6 @@ bool ZephyrParser::ParseNumberConstant()
 	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
 
 	return WriteConstantToCurChunk( numberConstant );
-	//return WriteConstantToCurChunk( (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
 }
 
 
@@ -1250,7 +1249,11 @@ bool ZephyrParser::ParseStringConstant()
 {
 	ZephyrToken curToken = ConsumeCurToken();
 
-	return WriteConstantToCurChunk( ZephyrValue( curToken.GetData() ) );
+	ZephyrArgs params;
+	params.SetValue( "value", curToken.GetData() );
+	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "String", &params ) );
+
+	return WriteConstantToCurChunk( stringConstant );
 }
 
 
@@ -1468,7 +1471,7 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		case eTokenType::VEC2:
 		case eTokenType::VEC3:
 		case eTokenType::BOOL:
-		case eTokenType::STRING:
+		//case eTokenType::STRING:
 		case eTokenType::ENTITY:
 		case eTokenType::USER_TYPE:
 		case eTokenType::BRACE_RIGHT:
@@ -1569,7 +1572,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		case eValueType::VEC2:	 value = ZephyrValue( Vec2::ZERO ); break;
 		case eValueType::VEC3:	 value = ZephyrValue( Vec3::ZERO ); break;
 		case eValueType::BOOL:	 value = ZephyrValue( false ); break;
-		case eValueType::STRING: value = ZephyrValue( std::string( "" ) ); break;
+		//case eValueType::STRING: value = ZephyrValue( std::string( "" ) ); break;
 		case eValueType::ENTITY: 
 		{
 			// Cannot redefine parent entity

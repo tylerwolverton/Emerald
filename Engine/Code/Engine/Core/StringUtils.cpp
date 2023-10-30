@@ -267,7 +267,7 @@ template<> std::string ToString( std::string value )			{ return value; }
 template<> std::string ToString( char* value )					{ return value; }
 template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
 template<> std::string ToString( ZephyrValue value )			{ return value.EvaluateAsString(); }
-template<> std::string ToString( ZephyrTypeBase* value )			{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on ZephyrType*" ); }
+template<> std::string ToString( ZephyrTypeBase* value )		{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on ZephyrType*" ); }
 
 
 //-----------------------------------------------------------------------------------------------

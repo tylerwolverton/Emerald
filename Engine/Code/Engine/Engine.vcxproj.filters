@@ -430,6 +430,9 @@
     <ClCompile Include="Zephyr\Types\ZephyrNumber.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Zephyr\Types\ZephyrString.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -771,6 +774,7 @@
     <ClInclude Include="Framework\EntityComponent.hpp" />
     <ClInclude Include="Audio\AudioCommon.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrNumber.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrString.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

@@ -4,6 +4,7 @@
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
+#include "Engine/Zephyr/Types/ZephyrString.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Framework/Entity.hpp"
@@ -31,6 +32,7 @@ void ZephyrSubsystem::Startup( const ZephyrSystemParams& params )
 
 	// Register engine types
 	ZephyrNumber::CreateAndRegisterMetadata();
+	ZephyrString::CreateAndRegisterMetadata();
 }
 
 

@@ -8,6 +8,7 @@
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrString.hpp"
 
 #include "Game/Core/GameCommon.hpp"
 #include "Game/Framework/Game.hpp"
@@ -55,11 +56,11 @@ ZephyrGameEvents::ZephyrGameEvents()
 
 	REGISTER_EVENT( ChangeSpriteAnimation );
 	REGISTER_EVENT( PlaySpriteAnimation );
-	REGISTER_EVENT( PlaySound );
-	REGISTER_EVENT( ChangeMusic );
-	REGISTER_EVENT( AddScreenShake );
+	//REGISTER_EVENT( PlaySound );
+	//REGISTER_EVENT( ChangeMusic );
+	//REGISTER_EVENT( AddScreenShake );
 
-	REGISTER_EVENT( AddAnimationEvent );
+	//REGISTER_EVENT( AddAnimationEvent );
 }
 
 
@@ -619,19 +620,19 @@ void ZephyrGameEvents::RegisterKeyEvent( EventArgs* args )
 		return;
 	}
 
-	std::string key = args->GetValue( "key", "" );
-	if ( key.empty() )
+	ZephyrString* key = (ZephyrString*)args->GetValue( "key", (ZephyrTypeBase*)nullptr );
+	if ( key == nullptr ||!key->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	std::string event = args->GetValue( "event", "" );
-	if ( event.empty() )
+	ZephyrString* event = (ZephyrString*)args->GetValue( "event", (ZephyrTypeBase*)nullptr );
+	if ( event == nullptr ||!event->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	entity->RegisterKeyEvent( key, event );
+	entity->RegisterKeyEvent( key->ToString(), event->ToString() );
 }
 
 
@@ -644,19 +645,19 @@ void ZephyrGameEvents::UnRegisterKeyEvent( EventArgs* args )
 		return;
 	}
 
-	std::string key = args->GetValue( "key", "" );
-	if ( key.empty() )
+	ZephyrString* key = (ZephyrString*)args->GetValue( "key", ( ZephyrTypeBase* )nullptr );
+	if ( key == nullptr || !key->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	std::string event = args->GetValue( "event", "" );
-	if ( event.empty() )
+	ZephyrString* event = (ZephyrString*)args->GetValue( "event", ( ZephyrTypeBase* )nullptr );
+	if ( event == nullptr || !event->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	entity->UnRegisterKeyEvent( key, event );
+	entity->UnRegisterKeyEvent( key->ToString(), event->ToString() );
 }
 
 
@@ -681,133 +682,133 @@ void ZephyrGameEvents::GetMouseCursorPositionUI( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::ChangeSpriteAnimation( EventArgs* args )
 {
-	std::string newAnim = args->GetValue( "newAnim", "" );
+	ZephyrString* newAnim = (ZephyrString*)args->GetValue( "newAnim", (ZephyrTypeBase*)nullptr );
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
-		 || newAnim.empty() )
+		 || newAnim == nullptr ||!newAnim->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	entity->ChangeSpriteAnimation( newAnim );
+	entity->ChangeSpriteAnimation( newAnim->ToString() );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::PlaySpriteAnimation( EventArgs* args )
 {
-	std::string newAnim = args->GetValue( "newAnim", "" );
+	ZephyrString* newAnim = (ZephyrString*)args->GetValue( "newAnim", ( ZephyrTypeBase* )nullptr );
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
-		 || newAnim.empty() )
+		 || newAnim == nullptr || !newAnim->EvaluateAsBool() )
 	{
 		return;
 	}
 
-	entity->PlaySpriteAnimation( newAnim );
+	entity->PlaySpriteAnimation( newAnim->ToString() );
 }
 
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::PlaySound( EventArgs* args )
-{
-	std::string soundName = args->GetValue( "name", "" );
-	if ( soundName.empty() )
-	{
-		g_devConsole->PrintError( Stringf( "PlaySound must specify \"name\" parameter" ) );
-		return;
-	}
-
-	float volume = args->GetValue( "volume", 1.f );
-	float balance = args->GetValue( "balance", 0.f );
-	float speed = args->GetValue( "speed", 1.f );
-
-	g_game->PlaySoundByName( soundName, false, volume, balance, speed );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::ChangeMusic( EventArgs* args )
-{
-	std::string musicName = args->GetValue( "musicName", "" );
-	if ( musicName.empty() )
-	{
-		return;
-	}
-
-	float volume = args->GetValue( "volume", 1.f );
-	float balance = args->GetValue( "balance", 0.f );
-	float speed = args->GetValue( "speed", 1.f );
-
-	g_game->ChangeMusic( musicName, true, volume, balance, speed );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::AddScreenShake( EventArgs* args )
-{
-	float intensity = args->GetValue( "intensity", 0.f );
-
-	g_game->AddScreenShakeIntensity( intensity );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::AddAnimationEvent( EventArgs* args )
-{
-	GameEntity* entity = GetTargetEntityFromArgs( args );
-	std::string animName = args->GetValue( "anim", "" );
-	std::string frameStr = args->GetValue( "frame", "first" );
-	std::string eventName = args->GetValue( "event", "" );
-
-	if ( entity == nullptr
-		 || animName.empty()
-		 || eventName.empty() )
-	{
-		// print warning
-		return;
-	}
-
-	//SpriteAnimationSetDefinition* spriteAnimSetDef = entity->GetSpriteAnimSetDef( animName );
-	//if ( spriteAnimSetDef == nullptr )
-	//{
-	//	// Print error
-	//	return;
-	//}
-
-	//int numFrames = spriteAnimSetDef->GetNumFrames();
-	//if ( numFrames == 0 )
-	//{
-	//	// print error
-	//	return;
-	//}
-
-	//int frameNum = 0;
-	//if ( frameStr == "first" )
-	//{
-	//	frameNum = 0;
-	//}
-	//else if ( frameStr == "last" )
-	//{
-	//	frameNum = numFrames - 1;
-	//}
-	//else
-	//{
-	//	frameNum = FromString( frameStr, frameNum );
-	//}
-
-	//if ( frameNum >= numFrames )
-	//{
-	//	// print warning
-	//	frameNum = numFrames - 1;
-	//}
-
-	//spriteAnimSetDef->AddFrameEvent( frameNum, eventName );
-}
+//
+////-----------------------------------------------------------------------------------------------
+//void ZephyrGameEvents::PlaySound( EventArgs* args )
+//{
+//	std::string soundName = args->GetValue( "name", "" );
+//	if ( soundName.empty() )
+//	{
+//		g_devConsole->PrintError( Stringf( "PlaySound must specify \"name\" parameter" ) );
+//		return;
+//	}
+//
+//	float volume = args->GetValue( "volume", 1.f );
+//	float balance = args->GetValue( "balance", 0.f );
+//	float speed = args->GetValue( "speed", 1.f );
+//
+//	g_game->PlaySoundByName( soundName, false, volume, balance, speed );
+//}
+//
+//
+////-----------------------------------------------------------------------------------------------
+//void ZephyrGameEvents::ChangeMusic( EventArgs* args )
+//{
+//	std::string musicName = args->GetValue( "musicName", "" );
+//	if ( musicName.empty() )
+//	{
+//		return;
+//	}
+//
+//	float volume = args->GetValue( "volume", 1.f );
+//	float balance = args->GetValue( "balance", 0.f );
+//	float speed = args->GetValue( "speed", 1.f );
+//
+//	g_game->ChangeMusic( musicName, true, volume, balance, speed );
+//}
+//
+//
+////-----------------------------------------------------------------------------------------------
+//void ZephyrGameEvents::AddScreenShake( EventArgs* args )
+//{
+//	float intensity = args->GetValue( "intensity", 0.f );
+//
+//	g_game->AddScreenShakeIntensity( intensity );
+//}
+//
+//
+////-----------------------------------------------------------------------------------------------
+//void ZephyrGameEvents::AddAnimationEvent( EventArgs* args )
+//{
+//	GameEntity* entity = GetTargetEntityFromArgs( args );
+//	std::string animName = args->GetValue( "anim", "" );
+//	std::string frameStr = args->GetValue( "frame", "first" );
+//	std::string eventName = args->GetValue( "event", "" );
+//
+//	if ( entity == nullptr
+//		 || animName.empty()
+//		 || eventName.empty() )
+//	{
+//		// print warning
+//		return;
+//	}
+//
+//	//SpriteAnimationSetDefinition* spriteAnimSetDef = entity->GetSpriteAnimSetDef( animName );
+//	//if ( spriteAnimSetDef == nullptr )
+//	//{
+//	//	// Print error
+//	//	return;
+//	//}
+//
+//	//int numFrames = spriteAnimSetDef->GetNumFrames();
+//	//if ( numFrames == 0 )
+//	//{
+//	//	// print error
+//	//	return;
+//	//}
+//
+//	//int frameNum = 0;
+//	//if ( frameStr == "first" )
+//	//{
+//	//	frameNum = 0;
+//	//}
+//	//else if ( frameStr == "last" )
+//	//{
+//	//	frameNum = numFrames - 1;
+//	//}
+//	//else
+//	//{
+//	//	frameNum = FromString( frameStr, frameNum );
+//	//}
+//
+//	//if ( frameNum >= numFrames )
+//	//{
+//	//	// print warning
+//	//	frameNum = numFrames - 1;
+//	//}
+//
+//	//spriteAnimSetDef->AddFrameEvent( frameNum, eventName );
+//}
 
 
 //-----------------------------------------------------------------------------------------------

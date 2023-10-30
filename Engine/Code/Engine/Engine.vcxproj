@@ -287,6 +287,7 @@
     <ClCompile Include="Zephyr\GameInterface\ZephyrSubsystem.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSystem.cpp" />
     <ClCompile Include="Zephyr\Types\ZephyrNumber.cpp" />
+    <ClCompile Include="Zephyr\Types\ZephyrString.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\ThirdParty\fmod\fmod.h" />
@@ -436,6 +437,7 @@
     <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrNumber.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrString.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

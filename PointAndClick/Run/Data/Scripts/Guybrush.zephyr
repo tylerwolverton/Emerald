@@ -2,6 +2,7 @@ Vec2 myTargetLocation = Vec2(0, 0)
 Number movementThreshhold = .1
 Number movementSpeed = .05
 Position testPos = Position(x:1, y:2)
+String testStr = "hello"
 // Position testPos(x: 1, y: 2)
 
 Function SetTargetLocation( Vec2 targetLocation )
@@ -11,6 +12,7 @@ Function SetTargetLocation( Vec2 targetLocation )
     Number distFromOrigin
     testPos.GetDistFromOrigin(dist: distFromOrigin)
     PrintToConsole(text: distFromOrigin)
+    PrintToConsole(text: testStr)
 }
 
 // Could be moved to code...
