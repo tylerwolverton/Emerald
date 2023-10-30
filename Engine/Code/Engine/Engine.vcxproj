@@ -286,6 +286,7 @@
     <ClCompile Include="Zephyr\GameInterface\ZephyrScene.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSubsystem.cpp" />
     <ClCompile Include="Zephyr\GameInterface\ZephyrSystem.cpp" />
+    <ClCompile Include="Zephyr\Types\ZephyrBool.cpp" />
     <ClCompile Include="Zephyr\Types\ZephyrNumber.cpp" />
     <ClCompile Include="Zephyr\Types\ZephyrString.cpp" />
   </ItemGroup>
@@ -436,6 +437,7 @@
     <ClInclude Include="Zephyr\GameInterface\ZephyrScene.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSubsystem.hpp" />
     <ClInclude Include="Zephyr\GameInterface\ZephyrSystem.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrBool.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrNumber.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrString.hpp" />
   </ItemGroup>

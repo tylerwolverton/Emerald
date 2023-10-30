@@ -59,8 +59,8 @@ enum class eTokenType
 	// ZEPHYR TYPE TODO: Remove these/codegen
 	VEC2,
 	VEC3,
-	BOOL,
-	STRING,
+	//BOOL,
+	//STRING,
 	ENTITY,
 	USER_TYPE,
 	ON_ENTER,

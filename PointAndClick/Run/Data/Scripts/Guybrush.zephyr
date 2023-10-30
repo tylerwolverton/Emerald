@@ -3,6 +3,7 @@ Number movementThreshhold = .1
 Number movementSpeed = .05
 Position testPos = Position(x:1, y:2)
 String testStr = "hello"
+Bool testBool = true
 // Position testPos(x: 1, y: 2)
 
 Function SetTargetLocation( Vec2 targetLocation )

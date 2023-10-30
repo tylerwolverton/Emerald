@@ -38,8 +38,8 @@ std::string ToString( eTokenType type )
 		//case eTokenType::NUMBER:			return "Number";
 		case eTokenType::VEC2:				return "Vec2";
 		case eTokenType::VEC3:				return "Vec3";
-		case eTokenType::BOOL:				return "Bool";
-		case eTokenType::STRING:			return "String";
+		//case eTokenType::BOOL:			return "Bool";
+		//case eTokenType::STRING:			return "String";
 		case eTokenType::ENTITY:			return "Entity";
 		case eTokenType::USER_TYPE:			return "UserType";
 		case eTokenType::ON_ENTER:			return "OnEnter";
@@ -94,8 +94,8 @@ std::string GetTokenName( eTokenType type )
 		//case eTokenType::NUMBER:			return "NUMBER";
 		case eTokenType::VEC2:				return "VEC2";
 		case eTokenType::VEC3:				return "VEC3";
-		case eTokenType::BOOL:				return "BOOL";
-		case eTokenType::STRING:			return "STRING";
+		//case eTokenType::BOOL:			return "BOOL";
+		//case eTokenType::STRING:			return "STRING";
 		case eTokenType::ENTITY:			return "ENTITY";
 		case eTokenType::USER_TYPE:			return "USER_TYPE";
 		case eTokenType::ON_ENTER:			return "ON_ENTER";

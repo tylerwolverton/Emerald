@@ -424,11 +424,11 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
 	}
 
-	switch ( MatchesReservedName( identifier, "Bool" ) )
-	{ 
-		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::BOOL );
-		case eReservedKeywordResult::CASE_MISMATCH: return true;
-	}
+	//switch ( MatchesReservedName( identifier, "Bool" ) )
+	//{ 
+	//	case eReservedKeywordResult::MATCH:			AddToken( eTokenType::BOOL );
+	//	case eReservedKeywordResult::CASE_MISMATCH: return true;
+	//}
 	
 	//switch ( MatchesReservedName( identifier, "String" ) )
 	//{
