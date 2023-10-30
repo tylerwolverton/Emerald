@@ -158,6 +158,7 @@ std::string ToString( eOpCode opCode )
 		case eOpCode::NOT:						return "NOT";
 		case eOpCode::CONSTANT:					return "CONSTANT";
 		case eOpCode::CONSTANT_VEC2:			return "CONSTANT_VEC2";
+		case eOpCode::CONSTANT_USER_TYPE:		return "CONSTANT_USER_TYPE";
 		case eOpCode::DEFINE_VARIABLE:			return "DEFINE_VARIABLE";
 		case eOpCode::GET_VARIABLE_VALUE:		return "GET_VARIABLE_VALUE";
 		case eOpCode::ASSIGNMENT:				return "ASSIGNMENT";
@@ -290,28 +291,28 @@ bool ZephyrTypeMetadata::DoesTypeHaveMethod( const std::string& methodName )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrType::ZephyrType( const std::string& typeName )
+ZephyrTypeBase::ZephyrTypeBase( const std::string& typeName )
 {
 	m_typeMetadata = g_zephyrSubsystem->GetCopyOfRegisteredUserType( typeName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrType::DoesTypeHaveMemberVariable( const std::string& varName )
+bool ZephyrTypeBase::DoesTypeHaveMemberVariable( const std::string& varName )
 {
 	return m_typeMetadata.DoesTypeHaveMethod( varName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrType::DoesTypeHaveMethod( const std::string& methodName )
+bool ZephyrTypeBase::DoesTypeHaveMethod( const std::string& methodName )
 {
 	return m_typeMetadata.DoesTypeHaveMethod( methodName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrType::CallMethod( const std::string& methodName, ZephyrArgs* args )
+void ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args )
 {
 	ZephyrTypeMethod* methodToCall = m_typeMetadata.FindMethod( methodName );
 	if ( methodToCall == nullptr )
@@ -381,7 +382,7 @@ ZephyrValue::ZephyrValue( EntityId value )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( ZephyrType* value )
+ZephyrValue::ZephyrValue( ZephyrTypeBase* value )
 {
 	m_type = eValueType::USER_TYPE;
 	userTypeData = value;
@@ -416,6 +417,18 @@ ZephyrValue::ZephyrValue( ZephyrValue const& other )
 //-----------------------------------------------------------------------------------------------
 ZephyrValue& ZephyrValue::operator=( ZephyrValue const& other )
 {
+	if ( this->m_type == eValueType::USER_TYPE && other.GetType() == eValueType::USER_TYPE )
+	{
+		if ( this->userTypeData->GetTypeName() != other.GetAsUserType()->GetTypeName() )
+		{
+			// Trying to set a user type to a different type
+		}
+
+		*(this->userTypeData) = *(other.GetAsUserType());
+
+		return *this;
+	}
+
 	if ( this->m_type == eValueType::STRING )
 	{
 		delete this->strData;
@@ -614,7 +627,7 @@ EntityId ZephyrValue::EvaluateAsEntity()
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrType* ZephyrValue::EvaluateAsUserType()
+ZephyrTypeBase* ZephyrValue::EvaluateAsUserType()
 {
 	if ( m_type == eValueType::USER_TYPE )
 	{

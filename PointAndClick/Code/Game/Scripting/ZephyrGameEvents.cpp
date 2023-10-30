@@ -294,7 +294,7 @@ void ZephyrGameEvents::PrintDebugScreenText( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 {
-	ZephyrType* textType = (ZephyrType*)args->GetValue( "text", (void*)nullptr );
+	ZephyrTypeBase* textType = args->GetValue( "text", (ZephyrTypeBase*)nullptr );
 	std::string text;
 	if ( textType != nullptr )
 	{

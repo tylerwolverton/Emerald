@@ -60,6 +60,19 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				ZephyrValue constant = bytecodeChunk.GetConstant( constIdx );
 				PushConstant( constant );
 			}
+			break;			
+			
+			case eOpCode::CONSTANT_USER_TYPE:
+			{
+				ZephyrValue variableName = PopConstant();
+				ZephyrValue variableType = PopConstant();
+
+				ZephyrArgs args;
+				InsertParametersIntoEventArgs( args );
+
+				// TODO: Delete this somewhere
+				PushConstant( ZephyrValue( g_zephyrTypeObjFactory->CreateObject( variableType.GetAsString(), &args ) ) );
+			}
 			break;
 
 			case eOpCode::DEFINE_VARIABLE:
@@ -82,7 +95,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				ZephyrValue constantValue = PeekConstant();
 				AssignToVariable( variableName.GetAsString(), constantValue, localVariables );
 			}
-			break;
+			break;	
 
 			case eOpCode::MEMBER_ASSIGNMENT:
 			{
@@ -166,7 +179,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 					}
 
 					ZephyrArgs args;
-					args.SetValue( "value", (void*)constantValue.EvaluateAsUserType() );
+					args.SetValue( "value", (ZephyrTypeBase*)constantValue.EvaluateAsUserType() );
 					memberAccessorResult.finalMemberVal.GetAsUserType()->CallMethod( "Set_" + lastMemberName, &args );
 				}
 
@@ -275,7 +288,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
 				{
-					ZephyrType* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
+					ZephyrTypeBase* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
 					if ( userTypeObj == nullptr )
 					{
 						ReportError( Stringf( "User type object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
@@ -563,9 +576,9 @@ void ZephyrVirtualMachine::CopyEventArgVariables( ZephyrArgs* eventArgs, ZephyrV
 		{
 			localVariables[keyValuePair.first] = ZephyrValue( keyValuePair.second->GetAsString() );
 		}
-		else if( keyValuePair.second->Is<void*>() )
+		else if ( keyValuePair.second->Is<ZephyrTypeBase*>() )
 		{
-			localVariables[keyValuePair.first] = ZephyrValue( (ZephyrType*)keyValuePair.second );
+			localVariables[keyValuePair.first] = ZephyrValue( (ZephyrTypeBase*)keyValuePair.second );
 		}
 
 		// Any other variables will be ignored since they have no ZephyrType equivalent
@@ -1045,58 +1058,48 @@ ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableN
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::AssignToVariable( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables )
 {
-	// Try to find in local variables first
-	auto localIter = localVariables.find( variableName );
-	if ( localIter != localVariables.end() )
+	EAssignToVariableInMapResult assignResult = AssignToVariableInMap( variableName, value, &localVariables );
+	if ( assignResult == EAssignToVariableInMapResult::ERROR
+		 || assignResult == EAssignToVariableInMapResult::SUCCESS )
 	{
-		if ( localVariables[variableName].GetType() != value.GetType() )
-		{
-			ReportError( Stringf( "Cannot assign a value of type '%s' to variable '%s' of type '%s'",	ToString( value.GetType() ).c_str(), 
-																										variableName.c_str(), 
-																										ToString( localVariables[variableName].GetType() ).c_str() ) );
-			return;
-		}
-
-		localVariables[variableName] = value;
+		return;
+	}
+	
+	assignResult = AssignToVariableInMap( variableName, value, m_stateVariables );
+	if ( assignResult == EAssignToVariableInMapResult::ERROR
+		 || assignResult == EAssignToVariableInMapResult::SUCCESS )
+	{
 		return;
 	}
 
-	// Check state variables
-	if ( m_stateVariables != nullptr )
-	{
-		auto stateIter = m_stateVariables->find( variableName );
-		if ( stateIter != m_stateVariables->end() )
-		{
-			if ( ( *m_stateVariables )[variableName].GetType() != value.GetType() )
-			{
-				ReportError( Stringf( "Cannot assign a value of type '%s' to variable '%s' of type '%s'",	ToString( value.GetType() ).c_str(), 
-																											variableName.c_str(), 
-																											ToString( ( *m_stateVariables )[variableName].GetType() ).c_str() ) );
-				return;
-			}
+	AssignToVariableInMap( variableName, value, m_globalVariables );
+}
 
-			( *m_stateVariables )[variableName] = value;
-			return;
-		}
+
+//-----------------------------------------------------------------------------------------------
+EAssignToVariableInMapResult ZephyrVirtualMachine::AssignToVariableInMap( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap* variableMap )
+{
+	if ( variableMap == nullptr )
+	{
+		return EAssignToVariableInMapResult::NOT_FOUND;
 	}
 
-	// Check global variables
-	if ( m_globalVariables != nullptr )
+	auto mapIter = variableMap->find( variableName );
+	if ( mapIter == variableMap->end() )
 	{
-		auto globalIter = m_globalVariables->find( variableName );
-		if ( globalIter != m_globalVariables->end() )
-		{
-			if ( ( *m_globalVariables )[variableName].GetType() != value.GetType() )
-			{
-				ReportError( Stringf( "Cannot assign a value of type '%s' to variable '%s' of type '%s'",	ToString( value.GetType() ).c_str(), 
-																											variableName.c_str(), 
-																											ToString( ( *m_globalVariables )[variableName].GetType() ).c_str() ) );
-				return;
-			}
-
-			( *m_globalVariables )[variableName] = value;
-		}
+		return EAssignToVariableInMapResult::NOT_FOUND;
 	}
+
+	if ( mapIter->second.GetType() != value.GetType() )
+	{
+		ReportError( Stringf( "Cannot assign a value of type '%s' to variable '%s' of type '%s'", ToString( value.GetType() ).c_str(),
+								variableName.c_str(),
+								ToString( ( *variableMap )[variableName].GetType() ).c_str() ) );
+		return EAssignToVariableInMapResult::ERROR;
+	}
+
+	( *variableMap )[variableName] = value;
+	return EAssignToVariableInMapResult::SUCCESS;
 }
 
 
@@ -1301,7 +1304,7 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 
 			case eValueType::USER_TYPE:
 			{
-				ZephyrType* userTypeObj = memberVal.GetAsUserType();
+				ZephyrTypeBase* userTypeObj = memberVal.GetAsUserType();
 				if ( userTypeObj == nullptr )
 				{
 					ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
@@ -1368,12 +1371,12 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( ZephyrArgs& args )
 		switch ( value.GetType() )
 		{
 			case eValueType::BOOL:		args.SetValue( param.GetAsString(), value.GetAsBool() ); break;
-			//case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
+			case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
 			case eValueType::VEC2:		args.SetValue( param.GetAsString(), value.GetAsVec2() ); break;
 			case eValueType::VEC3:		args.SetValue( param.GetAsString(), value.GetAsVec3() ); break;
 			case eValueType::STRING:	args.SetValue( param.GetAsString(), value.GetAsString() ); break;
 			case eValueType::ENTITY:	args.SetValue( param.GetAsString(), value.GetAsEntity() ); break;
-			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), (void*)value.EvaluateAsUserType() ); break;
+			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), (ZephyrTypeBase*)value.EvaluateAsUserType() ); break;
 			default: ERROR_AND_DIE( Stringf( "Unimplemented event arg type '%s'", ToString( value.GetType() ).c_str() ) );
 		}
 	}
@@ -1445,9 +1448,10 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	{
 		return ZephyrValue( iter->second->GetAsString() );
 	}
-	else if ( iter->second->Is<void*>() )
+	else if ( iter->second->Is<ZephyrTypeBase*>() )
 	{
-		return ZephyrValue( (ZephyrType*)iter->second );
+		return ZephyrValue( args.GetValue( varName, (ZephyrTypeBase*)nullptr ) );
+		//return ZephyrValue( (ZephyrTypeBase*)iter->second );
 		//ReportError( "ZephyrValue saved into args but wasn't user type" );
 	}
 
@@ -1541,7 +1545,7 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrType& userObj, const std::string& functionName, ZephyrArgs* args )
+bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrTypeBase& userObj, const std::string& functionName, ZephyrArgs* args )
 {
 	userObj.CallMethod( functionName, args );
 	

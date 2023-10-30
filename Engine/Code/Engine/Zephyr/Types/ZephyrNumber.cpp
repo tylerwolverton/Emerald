@@ -9,6 +9,14 @@ namespace ZephyrNumberType
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrTypeBase& ZephyrNumber::operator=( ZephyrTypeBase const& other )
+{
+	this->m_value = ( (ZephyrNumber*)&other )->m_value;
+	return *this;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrNumber::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrNumberType::TYPE_NAME );
@@ -21,7 +29,7 @@ void ZephyrNumber::CreateAndRegisterMetadata()
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrType* ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
+ZephyrTypeBase* ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 {
 	ZephyrNumber* zephyrNumber = new ZephyrNumber();
 
@@ -41,6 +49,6 @@ ZephyrType* ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrNumber::ZephyrNumber()
-	: ZephyrTypeTemplate( ZephyrNumberType::TYPE_NAME )
+	: ZephyrType( ZephyrNumberType::TYPE_NAME )
 {
 }

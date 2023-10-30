@@ -65,6 +65,7 @@ private:
 	bool ParseVariableDeclaration( const eValueType& varType, const std::string& typeName = "" );
 	bool ParseFunctionCall();
 	bool ParseEventArgs();
+	bool ParseParameters();
 	bool ParseChangeStateStatement();
 	bool ParseIfStatement();
 	bool ParseAssignment();
@@ -81,6 +82,7 @@ private:
 	bool ParseBoolConstant( bool value );
 	bool ParseEntityConstant();
 	bool ParseStringConstant();
+	bool ParseUserTypeConstant( const std::string& typeName );
 	bool ParseIdentifierExpression();
 
 	// Pratt Parser Helpers

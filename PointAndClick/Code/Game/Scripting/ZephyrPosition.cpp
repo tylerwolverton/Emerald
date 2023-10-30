@@ -16,6 +16,13 @@ bool ZephyrPosition::EvaluateAsBool() const
 	return !IsNearlyEqual( m_position, Vec2::ZERO );
 }
 
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase& ZephyrPosition::operator=( ZephyrTypeBase const& other )
+{
+	this->m_position = ( (ZephyrPosition*)&other )->m_position;
+	return *this;
+}
+
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::CreateAndRegisterMetadata()
@@ -32,14 +39,25 @@ void ZephyrPosition::CreateAndRegisterMetadata()
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrType* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
+ZephyrTypeBase* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 {
-	UNUSED( args );
-
 	ZephyrPosition* zephyrPosition = new ZephyrPosition();
 
 	// Fill in vars from args
+	if ( args != nullptr )
+	{
+		ZephyrTypeBase* xInit = args->GetValue( "x", (ZephyrTypeBase*)nullptr );
+		ZephyrTypeBase* yInit = args->GetValue( "y", (ZephyrTypeBase*)nullptr );
 
+		if ( xInit != nullptr && xInit->GetTypeName() == "Number" )
+		{
+			zephyrPosition->m_position.x = ::FromString( xInit->ToString(), zephyrPosition->m_position.x );
+		}
+		if ( yInit != nullptr && yInit->GetTypeName() == "Number" )
+		{
+			zephyrPosition->m_position.y = ::FromString( yInit->ToString(), zephyrPosition->m_position.y );
+		}
+	}
 
 	// Bind methods
 	zephyrPosition->BindMethod( "GetDistFromOrigin", &GetDistFromOrigin );
@@ -52,7 +70,7 @@ ZephyrType* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrPosition::ZephyrPosition()
-	: ZephyrTypeTemplate( ZephyrPositionType::TYPE_NAME )
+	: ZephyrType( ZephyrPositionType::TYPE_NAME )
 {
 }
 
@@ -67,7 +85,7 @@ void ZephyrPosition::GetDistFromOrigin( ZephyrArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::Set_x( ZephyrArgs* args )
 {
-	ZephyrType* zephyrType = (ZephyrType*)args->GetValue( "value", (void*)nullptr );
+	ZephyrTypeBase* zephyrType = args->GetValue( "value", (ZephyrTypeBase*)nullptr );
 	if ( zephyrType == nullptr )
 	{
 		// Print error?
@@ -84,7 +102,7 @@ void ZephyrPosition::Set_x( ZephyrArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::Set_y( ZephyrArgs* args )
 {
-	ZephyrType* zephyrType = (ZephyrType*)args->GetValue( "value", ( void* )nullptr );
+	ZephyrTypeBase* zephyrType = args->GetValue( "value", (ZephyrTypeBase*)nullptr );
 	if ( zephyrType == nullptr )
 	{
 		// Print error?

@@ -267,6 +267,7 @@ template<> std::string ToString( std::string value )			{ return value; }
 template<> std::string ToString( char* value )					{ return value; }
 template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
 template<> std::string ToString( ZephyrValue value )			{ return value.EvaluateAsString(); }
+template<> std::string ToString( ZephyrTypeBase* value )			{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on ZephyrType*" ); }
 
 
 //-----------------------------------------------------------------------------------------------
@@ -362,4 +363,16 @@ template<> ZephyrValue FromString( const std::string& value, ZephyrValue default
 	//ZephyrValue newValue;
 	//newValue.DeserializeFromString( value );
 	//return newValue;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+template<> ZephyrTypeBase* FromString( const std::string& value, ZephyrTypeBase* defaultValue )
+{
+	UNUSED( value );
+	UNUSED( defaultValue );
+
+	ERROR_AND_DIE( "Saving ZephyrType pointers as string values in NamedProperties is not supported." );
+
+	//return nullptr;
 }

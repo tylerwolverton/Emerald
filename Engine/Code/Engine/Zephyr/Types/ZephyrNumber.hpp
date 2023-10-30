@@ -7,7 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrNumber : public ZephyrTypeTemplate<ZephyrNumber>
+class ZephyrNumber : public ZephyrType<ZephyrNumber>
 {
 public:
 	// ZephyrType Overrides
@@ -16,11 +16,12 @@ public:
 	virtual std::string ToString() const override				{ return std::string( Stringf( "%.2f", m_value ) ); }
 	virtual void FromString( const std::string& dataStr )		{ m_value = (float)atof( dataStr.c_str() ); }
 	virtual bool EvaluateAsBool() const override				{ return !IsNearlyEqual( m_value, 0.f ); }
+	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrType* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
 
 private:
 	NUMBER_TYPE m_value = 0.f;

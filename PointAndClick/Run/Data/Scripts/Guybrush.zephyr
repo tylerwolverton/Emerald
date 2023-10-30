@@ -1,7 +1,8 @@
 Vec2 myTargetLocation = Vec2(0, 0)
 Number movementThreshhold = .1
 Number movementSpeed = .05
-Position testPos
+Position testPos = Position(x:1, y:2)
+// Position testPos(x: 1, y: 2)
 
 Function SetTargetLocation( Vec2 targetLocation )
 {
@@ -33,9 +34,9 @@ State Default
 {
     OnEnter()
     {
-        //testPos = Position(2,3)
-        testPos.x = 3
-        testPos.y = 4
+        testPos = Position(x:2, y:3)
+        // testPos.x = 3
+        // testPos.y = 4
     }
 
     OnUpdate()

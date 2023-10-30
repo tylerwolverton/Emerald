@@ -487,7 +487,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 
 	if ( g_zephyrAPI->IsMethodRegistered( functionNameToken.GetData() ) )
 	{
-		ReportError( Stringf( "Function '%s' is already defined as a reserverd event in GameEvents and can't be redefined here", functionNameToken.GetData().c_str() ) );
+		ReportError( Stringf( "Function '%s' is already defined as a reserved event in GameEvents and can't be redefined here", functionNameToken.GetData().c_str() ) );
 		return false;
 	}
 
@@ -509,13 +509,13 @@ bool ZephyrParser::ParseFunctionDefinition()
 		switch ( curToken.GetType() )
 		{
 			// ZEPHYR TYPE TODO: Remove/codegen
-			//case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )		{ return false; } break;
-			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )		{ return false; } break;
-			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )		{ return false; } break;
-			case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )		{ return false; } break;
-			case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )		{ return false; } break;
-			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )		{ return false; } break;
-			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE ) )	{ return false; } break;
+			//case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )							{ return false; } break;
+			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )							{ return false; } break;
+			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )							{ return false; } break;
+			case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )							{ return false; } break;
+			case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )							{ return false; } break;
+			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )							{ return false; } break;
+			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )	{ return false; } break;
 
 			default:
 			{
@@ -527,11 +527,6 @@ bool ZephyrParser::ParseFunctionDefinition()
 		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
 		curToken = ConsumeCurToken();
 	}
-
-	/*if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_RIGHT ) )
-	{
-		return false;
-	}*/
 
 	succeeded = ParseBlock();
 
@@ -556,6 +551,7 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const st
 		return false;
 	}
 
+	// Check for assignment in line
 	ZephyrToken curToken = GetCurToken();
 	switch ( curToken.GetType() )
 	{
@@ -570,31 +566,6 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const st
 
 			WriteConstantToCurChunk( ZephyrValue( identifier.GetData() ) );
 			WriteOpCodeToCurChunk( eOpCode::ASSIGNMENT );
-		}
-		break;
-
-		default:
-		{
-			switch ( varType )
-			{
-				// ZEPHYR TYPE TODO: Remove/codegen
-				//case eValueType::NUMBER:	WriteConstantToCurChunk( ZephyrValue( 0.f ) ); break;
-				case eValueType::BOOL:		WriteConstantToCurChunk( ZephyrValue( false ) ); break;
-				case eValueType::STRING:	WriteConstantToCurChunk( ZephyrValue( "" ) ); break;
-				case eValueType::ENTITY:	WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) ); break;
-				case eValueType::VEC2:		WriteConstantToCurChunk( ZephyrValue( Vec2::ZERO ) ); break;
-				case eValueType::VEC3:		WriteConstantToCurChunk( ZephyrValue( Vec3::ZERO ) ); break;
-				case eValueType::USER_TYPE: WriteConstantToCurChunk( ZephyrValue( ( ZephyrType* )nullptr ) ); break;
-			}
-
-			/*std::string errorMsg( "Unexpected '" );
-			errorMsg += curToken.GetDebugName();
-			errorMsg += "' seen, expected ';' or '=' after '";
-			errorMsg +=	ToString( varType );
-			errorMsg +=	" declaration";
-
-			ReportError( errorMsg );
-			return false;*/
 		}
 		break;
 	}
@@ -646,7 +617,7 @@ bool ZephyrParser::ParseEventArgs()
 	{
 		if ( !ConsumeExpectedNextToken( eTokenType::COLON ) )
 		{
-			ReportError( "Parameter to event must be in the form, var: value" );
+			ReportError( "Parameters must be in the form, var: value" );
 			return false;
 		}
 
@@ -713,6 +684,62 @@ bool ZephyrParser::ParseEventArgs()
 	}
 
 	WriteConstantToCurChunk( ZephyrValue( (float)identifierParamNames.size() ) );
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrParser::ParseParameters()
+{
+	ZephyrToken identifier = ConsumeCurToken();
+	int paramCount = 0;
+
+	while ( identifier.GetType() == eTokenType::IDENTIFIER )
+	{
+		if ( !ConsumeExpectedNextToken( eTokenType::COLON ) )
+		{
+			ReportError( "Parameters must be in the form, var: value" );
+			return false;
+		}
+
+		ZephyrToken valueToken = GetCurToken();
+		switch ( valueToken.GetType() )
+		{
+			// ZEPHYR TYPE TODO: Remove/codegen
+			case eTokenType::CONSTANT_NUMBER:
+			case eTokenType::VEC2:
+			case eTokenType::VEC3:
+			case eTokenType::ENTITY:
+			case eTokenType::TRUE_TOKEN:
+			case eTokenType::FALSE_TOKEN:
+			case eTokenType::NULL_TOKEN:
+			case eTokenType::CONSTANT_STRING:
+			case eTokenType::IDENTIFIER:
+			{
+				if ( !ParseExpression() )
+				{
+					return false;
+				}
+			}
+			break;
+
+			default:
+			{
+				ReportError( "Must set parameter equal to a value in the form, var: value" );
+				return false;
+			}
+		}
+
+		WriteConstantToCurChunk( identifier.GetData() );
+		++paramCount;
+
+		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
+
+		identifier = ConsumeCurToken();
+	}
+
+	WriteConstantToCurChunk( ZephyrValue( (float)paramCount ) );
 
 	return true;
 }
@@ -996,9 +1023,9 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 		case eTokenType::FALSE_TOKEN:		return ParseBoolConstant( false );
 		case eTokenType::NULL_TOKEN:		return ParseEntityConstant();
 		case eTokenType::CONSTANT_STRING:	return ParseStringConstant();
-		case eTokenType::ENTITY:
-		case eTokenType::USER_TYPE:
+		case eTokenType::USER_TYPE:			return ParseUserTypeConstant( token.GetData() );
 
+		case eTokenType::ENTITY:
 		case eTokenType::IDENTIFIER:
 		{
 			if ( PeekNextToken().GetType() == eTokenType::EQUAL )
@@ -1224,6 +1251,37 @@ bool ZephyrParser::ParseStringConstant()
 	ZephyrToken curToken = ConsumeCurToken();
 
 	return WriteConstantToCurChunk( ZephyrValue( curToken.GetData() ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrParser::ParseUserTypeConstant( const std::string& typeName )
+{
+	AdvanceToNextToken();
+
+	// Constructor opening paren
+	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_LEFT ) )
+	{
+		return false;
+	}
+
+	if ( !ParseParameters() )
+	{
+		return false;
+	}
+
+	// We should be one token past the closing paren
+	if ( GetLastToken().GetType() != eTokenType::PARENTHESIS_RIGHT )
+	{
+		ReportError( "Expected ')' after parameter list for object constructor" );
+		return false;
+	}
+
+	WriteConstantToCurChunk( ZephyrValue( typeName ) );
+	WriteConstantToCurChunk( ZephyrValue( "TEMPORARY_VAR" ) );
+	WriteOpCodeToCurChunk( eOpCode::CONSTANT_USER_TYPE );
+
+	return true;
 }
 
 

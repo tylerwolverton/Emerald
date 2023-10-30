@@ -22,6 +22,15 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+enum class EAssignToVariableInMapResult
+{
+	ERROR,
+	NOT_FOUND,
+	SUCCESS
+};
+
+
+//-----------------------------------------------------------------------------------------------
 class ZephyrVirtualMachine
 {
 	friend class ZephyrInterpreter;
@@ -55,8 +64,9 @@ private:
 	bool TryToPushVec2MultiplyOp( ZephyrValue& a, ZephyrValue& b );
 	bool TryToPushVec3MultiplyOp( ZephyrValue& a, ZephyrValue& b );
 
-	ZephyrValue GetVariableValue			( const std::string& variableName, const ZephyrValueMap& localVariables );
-	void		AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables );
+	ZephyrValue				GetVariableValue			( const std::string& variableName, const ZephyrValueMap& localVariables );
+	void					AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables );
+	EAssignToVariableInMapResult	AssignToVariableInMap		( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap* variableMap );
 	// ZEPHYR TYPE TODO: Remove/codegen
 	void		AssignToVec2MemberVariable	( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
 	void		AssignToVec3MemberVariable	( const std::string& variableName, const std::string& memberName, const ZephyrValue& value, ZephyrValueMap& localVariables );
@@ -74,7 +84,7 @@ private:
 	void SetGlobalVec3MemberVariableInEntity( EntityId entityId, const std::string& variableName, const std::string& memberName, const ZephyrValue& value );
 	bool CallMemberFunctionOnEntity			( EntityId entityId, const std::string& functionName, ZephyrArgs* args );
 	
-	bool CallMemberFunctionOnUserType		( ZephyrType& userObj, const std::string& functionName, ZephyrArgs* args );
+	bool CallMemberFunctionOnUserType		( ZephyrTypeBase& userObj, const std::string& functionName, ZephyrArgs* args );
 
 	void ReportError( const std::string& errorMsg );
 	bool IsErrorValue( const ZephyrValue& zephyrValue );

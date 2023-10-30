@@ -7,7 +7,7 @@
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrPosition : public ZephyrTypeTemplate<ZephyrPosition>
+class ZephyrPosition : public ZephyrType<ZephyrPosition>
 {
 public: 
 	// ZephyrType Overrides
@@ -16,11 +16,12 @@ public:
 	virtual std::string ToString() const override								{ return m_position.ToString(); }
 	virtual void FromString( const std::string& dataStr )						{ m_position.SetFromText( dataStr.c_str()); }
 	virtual bool EvaluateAsBool() const override;
+	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrType* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
 
 private:
 	void GetDistFromOrigin( ZephyrArgs* args );

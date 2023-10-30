@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------------------------
 class ZephyrValue;
-class ZephyrType;
+class ZephyrTypeBase;
 class ZephyrBytecodeChunk;
 class ZephyrComponent;
 class ZephyrEngineEvents;
@@ -38,8 +38,8 @@ extern std::string TARGET_ENTITY_STR;
 extern std::string TARGET_ENTITY_NAME_STR;
 
 typedef std::string ZephyrTypeId;
-typedef ZephyrType* ( *ZephyrTypeObjCreationFunc )( ZephyrArgs* );
-typedef ObjectFactory< ZephyrType, ZephyrTypeId, ZephyrTypeObjCreationFunc, ZephyrArgs* > ZephyrTypeObjFactory;
+typedef ZephyrTypeBase* ( *ZephyrTypeObjCreationFunc )( ZephyrArgs* );
+typedef ObjectFactory< ZephyrTypeBase, ZephyrTypeId, ZephyrTypeObjCreationFunc, ZephyrArgs* > ZephyrTypeObjFactory;
 
 extern ZephyrTypeObjFactory* g_zephyrTypeObjFactory;
 extern ZephyrEngineEvents* g_zephyrAPI;
@@ -131,6 +131,7 @@ enum class eOpCode : byte
 	// ZEPHYR TYPE TODO: Remove these/codegen
 	CONSTANT_VEC2,
 	CONSTANT_VEC3,
+	CONSTANT_USER_TYPE,
 
 	DEFINE_VARIABLE,
 	GET_VARIABLE_VALUE,
@@ -235,7 +236,7 @@ public:
 //-----------------------------------------------------------------------------------------------
 class ZephyrTypeMetadata
 {
-	friend class ZephyrType;
+	friend class ZephyrTypeBase;
 
 public:
 	ZephyrTypeMetadata() = default;
@@ -261,17 +262,18 @@ private:
 //-----------------------------------------------------------------------------------------------
 // The base class for types exposed to Zephyr. The intention is that they will only be used in scripts,
 // if C++ usage is desired, make a normal C++ class and then a ZephyrType wrapper class.
-class ZephyrType
+class ZephyrTypeBase
 {
 	friend class ZephyrSubsystem;
 
 public:
-	explicit ZephyrType( const std::string& typeName );
+	explicit ZephyrTypeBase( const std::string& typeName );
 
-	virtual ~ZephyrType(){}
+	virtual ~ZephyrTypeBase(){}
 	virtual std::string ToString() const = 0;
 	virtual void FromString( const std::string& dataStr ) = 0;
 	virtual bool EvaluateAsBool() const = 0;
+	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) = 0;
 
 	const std::string GetTypeName() const								{ return m_typeMetadata.GetTypeName(); }
 	bool DoesTypeHaveMemberVariable( const std::string& varName );
@@ -286,11 +288,11 @@ protected:
 
 //-----------------------------------------------------------------------------------------------
 template <typename OBJ_TYPE>
-class ZephyrTypeTemplate : public ZephyrType
+class ZephyrType : public ZephyrTypeBase
 {
 public:
-	explicit ZephyrTypeTemplate( const std::string& typeName )
-		: ZephyrType( typeName )
+	explicit ZephyrType( const std::string& typeName )
+		: ZephyrTypeBase( typeName )
 	{}
 
 	void BindMethod( const std::string& name, void( OBJ_TYPE::*methodPtr )( ZephyrArgs* args ) )
@@ -304,7 +306,6 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-// ZEPHYR TYPE TODO: Codegen this class
 class ZephyrValue
 {
 public:
@@ -315,7 +316,7 @@ public:
 	ZephyrValue( bool value );
 	ZephyrValue( const std::string& value );
 	ZephyrValue( EntityId value );
-	ZephyrValue( ZephyrType* value );
+	ZephyrValue( ZephyrTypeBase* value );
 
 	ZephyrValue( ZephyrValue const& other );
 	ZephyrValue& operator=( ZephyrValue const& other );
@@ -333,7 +334,7 @@ public:
 	bool			GetAsBool() const		{ return boolData; }
 	std::string		GetAsString() const;
 	EntityId		GetAsEntity() const		{ return entityData; }
-	ZephyrType*		GetAsUserType() const	{ return userTypeData; }
+	ZephyrTypeBase*	GetAsUserType() const	{ return userTypeData; }
 	
 	bool			EvaluateAsBool();
 	Vec2			EvaluateAsVec2();
@@ -341,7 +342,7 @@ public:
 	std::string		EvaluateAsString();
 	float			EvaluateAsNumber();
 	EntityId		EvaluateAsEntity();
-	ZephyrType*		EvaluateAsUserType();
+	ZephyrTypeBase*	EvaluateAsUserType();
 
 	std::string		SerializeToString() const;
 	void			DeserializeFromString( const std::string& serlializedStr );
@@ -363,7 +364,7 @@ private:
 		bool boolData;
 		std::string* strData = nullptr;
 		EntityId entityData;
-		ZephyrType* userTypeData;
+		ZephyrTypeBase* userTypeData;
 	};
 };
 
