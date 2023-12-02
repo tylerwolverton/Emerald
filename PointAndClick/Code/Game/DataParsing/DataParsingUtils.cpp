@@ -70,14 +70,6 @@ ZephyrValue CreateZephyrValueFromData( const std::string& typeName, const std::s
 	{
 		return ZephyrValue( FromString( valueStr, false ) );
 	}
-	else if ( !_strcmpi( typeName.c_str(), "vec2" ) )
-	{
-		return ZephyrValue( FromString( valueStr, Vec2::ZERO ) );
-	}
-	else if ( !_strcmpi( typeName.c_str(), "vec3" ) )
-	{
-		return ZephyrValue( FromString( valueStr, Vec3::ZERO ) );
-	}
 	else if ( !_strcmpi( typeName.c_str(), "entity" ) )
 	{
 		// This needs to be handled by the caller

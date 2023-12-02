@@ -6,6 +6,8 @@
 #include "Engine/Zephyr/Types/ZephyrBool.hpp"
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
+#include "Engine/Zephyr/Types/ZephyrVec2.hpp"
+#include "Engine/Zephyr/Types/ZephyrVec3.hpp"
 #include "Engine/Core/EventSystem.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Framework/Entity.hpp"
@@ -35,6 +37,8 @@ void ZephyrSubsystem::Startup( const ZephyrSystemParams& params )
 	ZephyrNumber::CreateAndRegisterMetadata();
 	ZephyrString::CreateAndRegisterMetadata();
 	ZephyrBool::CreateAndRegisterMetadata();
+	ZephyrVec2::CreateAndRegisterMetadata();
+	ZephyrVec3::CreateAndRegisterMetadata();
 }
 
 

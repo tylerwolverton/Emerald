@@ -3,7 +3,7 @@ Number testNumInit = 12;
 Number testNum2 = 2.5;  
 Number testNum3 = .7;
 Vec2 testVec2;		
-Vec2 testVec2Init = Vec2(5,5);
+Vec2 testVec2Init = Vec2(x:5,y:5);
 Bool testBool;
 Bool testBool2 = true;
 Bool testBool3 = false;
@@ -66,7 +66,7 @@ State GlobalAssignmentTest
 					Number temp = testVec2.x - 6
 					//testVec2.x = 1;
 					//testVec2.y = 2;
-					Vec2 actualVec = Vec2( 1, 2 );
+					Vec2 actualVec = Vec2( x:1, y:2 );
 					if( testVec2 = actualVec )
 					{
 						PrintToConsole( text: "GlobalAssignmentTest: Success", color:"green" )
@@ -209,8 +209,8 @@ State MemberTest
 {
 	OnEnter()
 	{
-		Vec2 vec1 = Vec2( 1, 2 )
-		Vec3 vector3 = Vec3( 1, 2, 3 )
+		Vec2 vec1 = Vec2( x:1, y:2 )
+		Vec3 vector3 = Vec3( x:1, y:2, z:3 )
 		// Number a = vec1.x;
 		
 		// Test for dynamic assignment
@@ -282,8 +282,8 @@ State BinaryOpTest
 	{
 		Number aNum = 4
 		Number bNum = 2
-		Vec2 aVec = Vec2( 5, 6 )
-		Vec2 bVec = Vec2( 2, 10 )
+		Vec2 aVec = Vec2( x:5, y:6 )
+		Vec2 bVec = Vec2( x:2, y:10 )
 
 		if( ( aNum - bNum ) != 2 )	  			{ PrintToConsole( text: "BinaryOpTest: Failed Number - Number", color :"red" ) }
 		if( ( aNum * bNum ) != 8 )	  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Number", color :"red" ) }
@@ -298,15 +298,15 @@ State BinaryOpTest
 	{
 		Number aNum = 4
 		Number bNum = 2
-		Vec2 aVec = Vec2( 5, 6 )
-		Vec2 bVec = Vec2( 2, 10 )
+		Vec2 aVec = Vec2( x:5, y:6 )
+		Vec2 bVec = Vec2( x:2, y:10 )
 
 		// Vec 2 tests
-		if( aVec + bVec != Vec2( 7, 16 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 + Vec2", color: "red" ) }
-		if( aVec - bVec != Vec2( 3, -4 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
-		if( aVec * bVec != Vec2( 10, 60 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Vec2", color: "red" ) }
-		if( aVec * bNum != Vec2( 10, 12 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Number", color: "red" ) }
-		if( aNum * bVec != Vec2( 8, 40 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2", color: "red" ) }
+		if( aVec + bVec != Vec2( x:7, y:16 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 + Vec2", color: "red" ) }
+		if( aVec - bVec != Vec2( x:3, y: -4 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
+		if( aVec * bVec != Vec2( x:10, y:60 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Vec2", color: "red" ) }
+		if( aVec * bNum != Vec2( x:10, y:12 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Number", color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2", color: "red" ) }
 		//bVec = aNum + bVec
 		//aVec = aVec / bVec
 		// Bool vecGreater = aVec > bVec 
@@ -316,8 +316,8 @@ State BinaryOpTest
 	{
 		Number aNum = 4
 		Number bNum = 2
-		Vec2 aVec = Vec2( 5, 6 )
-		Vec2 bVec = Vec2( 2, 10 )
+		Vec2 aVec = Vec2( x:5, y:6 )
+		Vec2 bVec = Vec2( x:2, y:10 )
 		String aStr = "hello"
 		String bStr = "goodbye"
 		Bool aBool = true
@@ -330,10 +330,10 @@ State BinaryOpTest
 		if( aVec + bStr != "5, 6goodbye" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed Vec2 + String " + aVec + bStr,  color: "red" ) }
 		if( aStr + bBool != "hellofalse" ) 				{ PrintToConsole( text: "BinaryOpTest: Failed String + Bool ",  color: "red" ) }
 		if( aBool + bStr != "truegoodbye" )				{ PrintToConsole( text: "BinaryOpTest: Failed Bool + String ",  color: "red" ) }
-		if( aNum * bVec != Vec2( 8, 40 ) )  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
-		if( aNum * bVec != Vec2( 8, 40 ) )  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
-		if( aNum * bVec != Vec2( 8, 40 ) )  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
-		if( aNum * bVec != Vec2( 8, 40 ) )  			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) ) 			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) ) 			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) ) 			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) ) 			{ PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2",   color: "red" ) }
 		if( aBool + bStr != "truegoodbye" )				{ PrintToConsole( text: "BinaryOpTest: Failed Bool + String ",  color: "red" ) }
 		if( aBool + bStr != "truegoodbye" )				{ PrintToConsole( text: "BinaryOpTest: Failed Bool + String ",  color: "red" ) }
 		if( aBool + bStr != "truegoodbye" )				{ PrintToConsole( text: "BinaryOpTest: Failed Bool + String ",  color: "red" ) }

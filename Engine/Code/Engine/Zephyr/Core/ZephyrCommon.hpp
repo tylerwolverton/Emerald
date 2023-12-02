@@ -55,12 +55,6 @@ enum class eTokenType
 	// Keywords
 	STATE,
 	FUNCTION,
-	//NUMBER,
-	// ZEPHYR TYPE TODO: Remove these/codegen
-	VEC2,
-	VEC3,
-	//BOOL,
-	//STRING,
 	ENTITY,
 	USER_TYPE,
 	ON_ENTER,
@@ -128,9 +122,6 @@ enum class eOpCode : byte
 	NOT,
 
 	CONSTANT,
-	// ZEPHYR TYPE TODO: Remove these/codegen
-	CONSTANT_VEC2,
-	CONSTANT_VEC3,
 	CONSTANT_USER_TYPE,
 
 	DEFINE_VARIABLE,
@@ -175,9 +166,6 @@ enum class eValueType
 {
 	NONE,
 	NUMBER,
-	// ZEPHYR TYPE TODO: codegen
-	VEC2,
-	VEC3,
 	BOOL,
 	STRING,
 	ENTITY,
@@ -311,8 +299,6 @@ class ZephyrValue
 public:
 	ZephyrValue();
 	ZephyrValue( NUMBER_TYPE value );
-	ZephyrValue( const Vec2& value );
-	ZephyrValue( const Vec3& value );
 	ZephyrValue( bool value );
 	ZephyrValue( const std::string& value );
 	ZephyrValue( EntityId value );
@@ -329,16 +315,12 @@ public:
 	eValueType		GetType() const			{ return m_type; }
 
 	float			GetAsNumber() const		{ return numberData; }
-	Vec2			GetAsVec2() const		{ return vec2Data; }
-	Vec3			GetAsVec3() const		{ return vec3Data; }
 	bool			GetAsBool() const		{ return boolData; }
 	std::string		GetAsString() const;
 	EntityId		GetAsEntity() const		{ return entityData; }
 	ZephyrTypeBase*	GetAsUserType() const	{ return userTypeData; }
 	
 	bool			EvaluateAsBool();
-	Vec2			EvaluateAsVec2();
-	Vec3			EvaluateAsVec3();
 	std::string		EvaluateAsString();
 	float			EvaluateAsNumber();
 	EntityId		EvaluateAsEntity();
@@ -359,8 +341,6 @@ private:
 	union
 	{
 		NUMBER_TYPE numberData;
-		Vec2 vec2Data;
-		Vec3 vec3Data;
 		bool boolData;
 		std::string* strData = nullptr;
 		EntityId entityData;

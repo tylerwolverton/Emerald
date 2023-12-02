@@ -448,7 +448,7 @@ void ZephyrGameEvents::GetNativeEntityVariable( EventArgs* args )
 	}
 
 	bool isNative = false;
-	if ( varName == "position" ) { zephyrValue = ZephyrValue( entity->GetPosition() ); isNative = true; }
+	//if ( varName == "position" ) { zephyrValue = ZephyrValue( entity->GetPosition() ); isNative = true; }
 
 	args->SetValue( "zephyrValue", zephyrValue );
 	args->SetValue( "isNative", isNative );
@@ -468,7 +468,7 @@ void ZephyrGameEvents::SetNativeEntityVariable( EventArgs* args )
 	}
 
 	bool isNative = false;
-	if ( varName == "position" ) { entity->SetPosition( zephyrValue.GetAsVec3() ); isNative = true; }
+	//if ( varName == "position" ) { entity->SetPosition( zephyrValue.GetAsVec3() ); isNative = true; }
 
 	args->SetValue( "isNative", isNative );
 }

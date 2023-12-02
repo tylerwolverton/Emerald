@@ -46,6 +46,7 @@ State Character
 
     Function OnRightClick()
     {
-        SpawnNewEntityInMap( type: "Wally" position: Vec3(2, 3, 0) )
+        // Add support for constructed temps in parameters
+        //SpawnNewEntityInMap( type: "Wally" position: Vec3(x:2, y:3, z:0) )
     }
 }

@@ -222,8 +222,8 @@ ZephyrValue GameEntity::GetGlobalVariable( const std::string& varName )
 	if ( varName == "name" )		{ return ZephyrValue( GetName() ); }
 	if ( varName == "health" )		{ return ZephyrValue( (float)m_curHealth ); }
 	if ( varName == "maxHealth" )	{ return ZephyrValue( (float)m_entityDef.GetMaxHealth() ); }
-	if ( varName == "position" )	{ return ZephyrValue( GetPosition() ); }
-	if ( varName == "forwardVec" )	{ return ZephyrValue( GetForwardVector() ); }
+	//if ( varName == "position" )	{ return ZephyrValue( GetPosition() ); }
+	//if ( varName == "forwardVec" )	{ return ZephyrValue( GetForwardVector() ); }
 
 	return ZephyrSystem::GetGlobalVariable( m_id, varName );
 }
@@ -244,7 +244,7 @@ void GameEntity::SetGlobalVariable( const std::string& varName, const ZephyrValu
 		return;
 	}
 
-	if ( varName == "position" ) { SetPosition( value.GetAsVec3() ); return; }
+	//if ( varName == "position" ) { SetPosition( value.GetAsVec3() ); return; }
 
 	ZephyrSystem::SetGlobalVariable( m_id, varName, value );
 }

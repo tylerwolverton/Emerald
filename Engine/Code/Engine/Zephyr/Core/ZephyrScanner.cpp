@@ -406,36 +406,6 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
 	}
 
-	//switch ( MatchesReservedName( identifier, "Number" ) )
-	//{ 
-	//	case eReservedKeywordResult::MATCH:			AddToken( eTokenType::NUMBER );
-	//	case eReservedKeywordResult::CASE_MISMATCH: return true;
-	//}
-	
-	switch ( MatchesReservedName( identifier, "Vec2" ) )
-	{ 
-		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::VEC2 );
-		case eReservedKeywordResult::CASE_MISMATCH: return true;
-	}
-	
-	switch ( MatchesReservedName( identifier, "Vec3" ) )
-	{
-		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::VEC3 );
-		case eReservedKeywordResult::CASE_MISMATCH: return true;
-	}
-
-	//switch ( MatchesReservedName( identifier, "Bool" ) )
-	//{ 
-	//	case eReservedKeywordResult::MATCH:			AddToken( eTokenType::BOOL );
-	//	case eReservedKeywordResult::CASE_MISMATCH: return true;
-	//}
-	
-	//switch ( MatchesReservedName( identifier, "String" ) )
-	//{
-	//	case eReservedKeywordResult::MATCH:			AddToken( eTokenType::STRING );
-	//	case eReservedKeywordResult::CASE_MISMATCH: return true;
-	//}
-
 	switch	( MatchesReservedName( identifier, "Entity" ) )
 	{ 
 		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::ENTITY );

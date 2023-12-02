@@ -292,52 +292,6 @@ bool ZephyrParser::ParseStatement()
 			return ParseFunctionDefinition();
 		}
 		
-		
-		//case eTokenType::NUMBER:
-		//{
-		//	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )
-		//	{
-		//		return false;
-		//	}
-		//}
-		//break;
-		// ZEPHYR TYPE TODO: Remove/codegen
-		case eTokenType::VEC2:
-		{
-			if ( !ParseVariableDeclaration( eValueType::VEC2 ) )
-			{
-				return false;
-			}
-		}
-		break;
-
-		case eTokenType::VEC3:
-		{
-			if ( !ParseVariableDeclaration( eValueType::VEC3 ) )
-			{
-				return false;
-			}
-		}
-		break;
-
-		//case eTokenType::BOOL:
-		//{
-		//	if ( !ParseVariableDeclaration( eValueType::BOOL ) )
-		//	{
-		//		return false;
-		//	}
-		//}
-		//break;
-
-		//case eTokenType::STRING:
-		//{
-		//	if ( !ParseVariableDeclaration( eValueType::STRING ) )
-		//	{
-		//		return false;
-		//	}
-		//}
-		//break;
-
 		case eTokenType::ENTITY:
 		{
 			if ( !ParseVariableDeclaration( eValueType::ENTITY ) )
@@ -508,12 +462,6 @@ bool ZephyrParser::ParseFunctionDefinition()
 	{
 		switch ( curToken.GetType() )
 		{
-			// ZEPHYR TYPE TODO: Remove/codegen
-			//case eTokenType::NUMBER:	if ( !ParseVariableDeclaration( eValueType::NUMBER ) )							{ return false; } break;
-			case eTokenType::VEC2:		if ( !ParseVariableDeclaration( eValueType::VEC2   ) )							{ return false; } break;
-			case eTokenType::VEC3:		if ( !ParseVariableDeclaration( eValueType::VEC3   ) )							{ return false; } break;
-			//case eTokenType::BOOL:		if ( !ParseVariableDeclaration( eValueType::BOOL   ) )							{ return false; } break;
-			//case eTokenType::STRING:	if ( !ParseVariableDeclaration( eValueType::STRING ) )							{ return false; } break;
 			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )							{ return false; } break;
 			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )	{ return false; } break;
 
@@ -626,8 +574,6 @@ bool ZephyrParser::ParseEventArgs()
 		{
 			// ZEPHYR TYPE TODO: Remove/codegen
 			case eTokenType::CONSTANT_NUMBER:
-			case eTokenType::VEC2:
-			case eTokenType::VEC3:
 			case eTokenType::ENTITY:
 			case eTokenType::TRUE_TOKEN:
 			case eTokenType::FALSE_TOKEN:
@@ -706,15 +652,14 @@ bool ZephyrParser::ParseParameters()
 		ZephyrToken valueToken = GetCurToken();
 		switch ( valueToken.GetType() )
 		{
-			// ZEPHYR TYPE TODO: Remove/codegen
+			case eTokenType::MINUS:
 			case eTokenType::CONSTANT_NUMBER:
-			case eTokenType::VEC2:
-			case eTokenType::VEC3:
 			case eTokenType::ENTITY:
 			case eTokenType::TRUE_TOKEN:
 			case eTokenType::FALSE_TOKEN:
 			case eTokenType::NULL_TOKEN:
 			case eTokenType::CONSTANT_STRING:
+			case eTokenType::USER_TYPE:
 			case eTokenType::IDENTIFIER:
 			{
 				if ( !ParseExpression() )
@@ -1015,10 +960,7 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 		case eTokenType::MINUS:				return ParseUnaryExpression();
 		case eTokenType::BANG:				return ParseUnaryExpression();
 
-		// ZEPHYR TYPE TODO: Remove/codegen
 		case eTokenType::CONSTANT_NUMBER:	return ParseNumberConstant();
-		case eTokenType::VEC2:				return ParseVec2Constant();
-		case eTokenType::VEC3:				return ParseVec3Constant();
 		case eTokenType::TRUE_TOKEN:		return ParseBoolConstant( true );
 		case eTokenType::FALSE_TOKEN:		return ParseBoolConstant( false );
 		case eTokenType::NULL_TOKEN:		return ParseEntityConstant();
@@ -1159,70 +1101,6 @@ bool ZephyrParser::ParseNumberConstant()
 	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
 
 	return WriteConstantToCurChunk( numberConstant );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-// ZEPHYR TYPE TODO: Remove/codegen
-bool ZephyrParser::ParseVec2Constant()
-{
-	if ( !ConsumeExpectedNextToken( eTokenType::VEC2 ) ) { return false; }
-
-	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_LEFT ) ) { return false; }
-
-	// Parse x value
-	if ( !ParseExpression() )
-	{
-		return false;
-	}
-
-	if ( !ConsumeExpectedNextToken( eTokenType::COMMA ) ) { return false; }
-
-	// Parse y value
-	if ( !ParseExpression() )
-	{
-		return false;
-	}
-
-	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_RIGHT ) ) { return false; }
-
-	return WriteOpCodeToCurChunk( eOpCode::CONSTANT_VEC2 );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-// ZEPHYR TYPE TODO: Remove/codegen
-bool ZephyrParser::ParseVec3Constant()
-{
-	if ( !ConsumeExpectedNextToken( eTokenType::VEC3 ) ) { return false; }
-
-	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_LEFT ) ) { return false; }
-
-	// Parse x value
-	if ( !ParseExpression() )
-	{
-		return false;
-	}
-
-	if ( !ConsumeExpectedNextToken( eTokenType::COMMA ) ) { return false; }
-
-	// Parse y value
-	if ( !ParseExpression() )
-	{
-		return false;
-	}
-
-	if ( !ConsumeExpectedNextToken( eTokenType::COMMA ) ) { return false; }
-
-	// Parse z value
-	if ( !ParseExpression() )
-	{
-		return false;
-	}
-
-	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_RIGHT ) ) { return false; }
-
-	return WriteOpCodeToCurChunk( eOpCode::CONSTANT_VEC3 );
 }
 
 
@@ -1470,12 +1348,6 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		// Valid to define anywhere
 		case eTokenType::STATE:
 		case eTokenType::FUNCTION:
-		//case eTokenType::NUMBER:
-		// ZEPHYR TYPE TODO: Remove/codegen
-		case eTokenType::VEC2:
-		case eTokenType::VEC3:
-		//case eTokenType::BOOL:
-		//case eTokenType::STRING:
 		case eTokenType::ENTITY:
 		case eTokenType::USER_TYPE:
 		case eTokenType::BRACE_RIGHT:
@@ -1571,12 +1443,6 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 	ZephyrValue value;
 	switch ( varType )
 	{
-		//case eValueType::NUMBER: value = ZephyrValue( 0.f ); break;
-		// ZEPHYR TYPE TODO: Remove/codegen
-		case eValueType::VEC2:	 value = ZephyrValue( Vec2::ZERO ); break;
-		case eValueType::VEC3:	 value = ZephyrValue( Vec3::ZERO ); break;
-		//case eValueType::BOOL:	 value = ZephyrValue( false ); break;
-		//case eValueType::STRING: value = ZephyrValue( std::string( "" ) ); break;
 		case eValueType::ENTITY: 
 		{
 			// Cannot redefine parent entity

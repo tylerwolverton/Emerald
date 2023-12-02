@@ -135,7 +135,9 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 	EventArgs args;
 	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
 	args.SetValue( "varName", varName );
-	g_eventSystem->FireEvent( "GetNativeEntityVariable", &args );
+
+	// TODO: Native variables must be a ZephyrType
+	//g_eventSystem->FireEvent( "GetNativeEntityVariable", &args );
 
 	// If this wasn't native it must be a script variable
 	bool isNative = args.GetValue( "isNative", false );

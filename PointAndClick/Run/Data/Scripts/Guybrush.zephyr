@@ -1,4 +1,4 @@
-Vec2 myTargetLocation = Vec2(0, 0)
+Vec2 myTargetLocation = Vec2(x:0, y:0)
 Number movementThreshhold = .1
 Number movementSpeed = .05
 Position testPos = Position(x:1, y:2)

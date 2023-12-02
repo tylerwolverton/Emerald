@@ -622,7 +622,7 @@ const Mat44 Mat44::CreateOrthographicProjection( const Vec3& min, const Vec3& ma
 {
 	// think of x
 	// min.x, max.x -> (-1,1)
-	// ndc.x = ((x -  min.x) / (max.x - min.x)) * (( 1.f - (-1.f)) + -1.f )
+	// ndc.x = ((x -  min.x) / (max.x - min.x)) * (( 1.f - (-1.f)) + -1.f )  // looks a lot like a range map...
 	// ndc.x = x / (max.x - min.x) - (min.x / (max.x - min.x)) * 2.f + -1.f )
 	// a = (max.x - min.x)
 	// b = (-2.f * min.x - max.x + min.x) / (max.x - min.x)
