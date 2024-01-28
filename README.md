@@ -1,2 +1,2 @@
 # Emerald
-The next version of the Guildhall engine.
+The next version of my Guildhall engine.
