@@ -1,11 +1,5 @@
 #include "Engine/Zephyr/Types/ZephyrBool.hpp"
-
-
-//-----------------------------------------------------------------------------------------------
-namespace ZephyrBoolType
-{
-	const char* TYPE_NAME = "Bool";
-}
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -17,9 +11,23 @@ ZephyrTypeBase& ZephyrBool::operator=( ZephyrTypeBase const& other )
 
 
 //-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrBool::Equal( ZephyrTypeBase* other )
+{
+	if ( m_value == other->EvaluateAsBool() )
+	{
+		return eZephyrComparatorResult::TRUE_VAL;
+	}
+	else
+	{
+		return eZephyrComparatorResult::FALSE_VAL;
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrBool::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrBoolType::TYPE_NAME );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::BOOL );
 	metadata->RegisterMember( "value" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
@@ -48,6 +56,6 @@ ZephyrTypeBase* ZephyrBool::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrBool::ZephyrBool()
-	: ZephyrType( ZephyrBoolType::TYPE_NAME )
+	: ZephyrType( ZephyrEngineTypeNames::BOOL )
 {
 }

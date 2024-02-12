@@ -17,11 +17,15 @@ public:
 	virtual void FromString( const std::string& dataStr )						{ m_value = ::FromString(dataStr, false); }
 	virtual bool EvaluateAsBool() const override								{ return m_value; }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
+
+	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
 	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+
+	bool GetValue() const { return m_value; }
 
 private:
 	bool m_value = false;

@@ -442,6 +442,9 @@
     <ClCompile Include="Zephyr\Types\ZephyrVec3.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Zephyr\Types\ZephyrTypesCommon.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math\Vec2.hpp">
@@ -787,6 +790,7 @@
     <ClInclude Include="Zephyr\Types\ZephyrBool.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrVec2.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrVec3.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrTypesCommon.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

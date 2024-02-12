@@ -176,6 +176,15 @@ std::string ToString( eValueType valueType );
 
 
 //-----------------------------------------------------------------------------------------------
+enum class eZephyrComparatorResult
+{
+	UNDEFINED_VAL = -1,
+	FALSE_VAL = 0,
+	TRUE_VAL = 1
+};
+
+
+//-----------------------------------------------------------------------------------------------
 struct EntityVariableInitializer
 {
 public:
@@ -268,6 +277,19 @@ public:
 	bool DoesTypeHaveMethod( const std::string& methodName );
 	
 	void CallMethod( const std::string& methodName, ZephyrArgs* args );
+
+	// Binary Operators
+	virtual eZephyrComparatorResult Greater( ZephyrTypeBase* other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult GreaterEqual( ZephyrTypeBase* other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Less( ZephyrTypeBase* other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult LessEqual( ZephyrTypeBase* other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult NotEqual( ZephyrTypeBase* other );
+
+	virtual ZephyrTypeBase* Add( ZephyrTypeBase* other )		{ (void)other; return nullptr; }
+	virtual ZephyrTypeBase* Subtract( ZephyrTypeBase* other )	{ (void)other; return nullptr; }
+	virtual ZephyrTypeBase* Multiply (ZephyrTypeBase* other )	{ (void)other; return nullptr; }
+	virtual ZephyrTypeBase* Divide( ZephyrTypeBase* other )		{ (void)other; return nullptr; }
 
 protected:
 	ZephyrTypeMetadata m_typeMetadata;
@@ -363,15 +385,3 @@ public:
 	ZephyrTimer( Clock* clock );
 	~ZephyrTimer();
 };
-
-
-//-----------------------------------------------------------------------------------------------
-//struct ZephyrArgs
-//
-//{
-//	ZephyrType* GetValue( const std::string& keyName );
-//	void SetValue( const std::string& keyName, ZephyrType* value );
-//
-//private:
-//	std::map< std::string, ZephyrType* >	m_keyValuePairs;
-//};

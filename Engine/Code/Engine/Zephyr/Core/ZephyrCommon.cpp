@@ -311,6 +311,17 @@ void ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args
 
 
 //-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrTypeBase* other)
+{
+	eZephyrComparatorResult equalResult = Equal(other);
+	if ( equalResult == eZephyrComparatorResult::FALSE_VAL )		{ return eZephyrComparatorResult::TRUE_VAL; }
+	if ( equalResult == eZephyrComparatorResult::TRUE_VAL )			{ return eZephyrComparatorResult::FALSE_VAL; }
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue()
 {
 	m_type = eValueType::NONE;

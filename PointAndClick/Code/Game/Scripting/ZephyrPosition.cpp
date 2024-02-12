@@ -11,20 +11,6 @@ namespace ZephyrPositionType
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrPosition::EvaluateAsBool() const
-{
-	return !IsNearlyEqual( m_position, Vec2::ZERO );
-}
-
-//-----------------------------------------------------------------------------------------------
-ZephyrTypeBase& ZephyrPosition::operator=( ZephyrTypeBase const& other )
-{
-	this->m_position = ( (ZephyrPosition*)&other )->m_position;
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrPosition::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrPositionType::TYPE_NAME );
@@ -72,6 +58,20 @@ ZephyrTypeBase* ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 ZephyrPosition::ZephyrPosition()
 	: ZephyrType( ZephyrPositionType::TYPE_NAME )
 {
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrPosition::EvaluateAsBool() const
+{
+	return !IsNearlyEqual(m_position, Vec2::ZERO);
+}
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase& ZephyrPosition::operator=(ZephyrTypeBase const& other)
+{
+	this->m_position = ((ZephyrPosition*)&other)->m_position;
+	return *this;
 }
 
 

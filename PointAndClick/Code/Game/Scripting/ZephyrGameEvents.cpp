@@ -9,6 +9,7 @@
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
+#include "Engine/Zephyr/Types/ZephyrVec2.hpp"
 
 #include "Game/Core/GameCommon.hpp"
 #include "Game/Framework/Game.hpp"
@@ -665,8 +666,10 @@ void ZephyrGameEvents::UnRegisterKeyEvent( EventArgs* args )
 void ZephyrGameEvents::GetMouseCursorPositionWorld( EventArgs* args )
 {
 	Vec2 mouseWorldPosition = g_game->GetMouseWorldPosition();
+	ZephyrArgs params;
+	params.SetValue( "value", mouseWorldPosition );
 
-	args->SetValue( "pos", mouseWorldPosition );
+	args->SetValue( "pos", ZephyrVec2::CreateAsZephyrType( &params ) );
 }
 
 

@@ -1,11 +1,5 @@
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
-
-
-//-----------------------------------------------------------------------------------------------
-namespace ZephyrStringType
-{
-	const char* TYPE_NAME = "String";
-}
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -17,9 +11,39 @@ ZephyrTypeBase& ZephyrString::operator=( ZephyrTypeBase const& other )
 
 
 //-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrString::Equal( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::STRING )
+	{
+		if ( m_value == ( (ZephyrString*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::BOOL )
+	{
+		if ( EvaluateAsBool() == other->EvaluateAsBool() )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrString::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrStringType::TYPE_NAME );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::STRING );
 	metadata->RegisterMember( "value" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
@@ -48,6 +72,6 @@ ZephyrTypeBase* ZephyrString::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrString::ZephyrString()
-	: ZephyrType( ZephyrStringType::TYPE_NAME )
+	: ZephyrType( ZephyrEngineTypeNames::STRING )
 {
 }

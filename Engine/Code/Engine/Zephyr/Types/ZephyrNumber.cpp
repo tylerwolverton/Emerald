@@ -1,11 +1,7 @@
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
-
-
-//-----------------------------------------------------------------------------------------------
-namespace ZephyrNumberType
-{
-	const char* TYPE_NAME = "Number";
-}
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
+#include "Engine/Zephyr/Types/ZephyrVec2.hpp"
+#include "Engine/Zephyr/Types/ZephyrVec3.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -19,7 +15,7 @@ ZephyrTypeBase& ZephyrNumber::operator=( ZephyrTypeBase const& other )
 //-----------------------------------------------------------------------------------------------
 void ZephyrNumber::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrNumberType::TYPE_NAME );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::NUMBER );
 	metadata->RegisterMember( "value" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
@@ -49,6 +45,206 @@ ZephyrTypeBase* ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrNumber::ZephyrNumber()
-	: ZephyrType( ZephyrNumberType::TYPE_NAME )
+	: ZephyrType( ZephyrEngineTypeNames::NUMBER )
 {
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrNumber::Greater( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		if ( m_value > ( (ZephyrNumber*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrNumber::GreaterEqual( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		if ( m_value >= ( (ZephyrNumber*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrNumber::Less( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		if ( m_value < ( (ZephyrNumber*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrNumber::LessEqual( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		if ( m_value <= ( (ZephyrNumber*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrNumber::Equal( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		if ( m_value == ( (ZephyrNumber*)other )->m_value )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::BOOL )
+	{
+		if ( EvaluateAsBool() == other->EvaluateAsBool() )
+		{
+			return eZephyrComparatorResult::TRUE_VAL;
+		}
+		else
+		{
+			return eZephyrComparatorResult::FALSE_VAL;
+		}
+	}
+
+	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase* ZephyrNumber::Add( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		ZephyrArgs params;
+		params.SetValue("value", m_value + ( (ZephyrNumber*)other )->m_value );
+		return CreateAsZephyrType(&params);
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase* ZephyrNumber::Subtract( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		ZephyrArgs params;
+		params.SetValue( "value", m_value / ( (ZephyrNumber*)other )->m_value );
+		return CreateAsZephyrType( &params );
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase* ZephyrNumber::Multiply( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		ZephyrArgs params;
+		params.SetValue( "value", m_value * ( (ZephyrNumber*)other )->m_value );
+		return CreateAsZephyrType( &params );
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC2 )
+	{
+		Vec2 newVec = ( (ZephyrVec2*)other )->GetValue() * m_value;
+
+		ZephyrArgs params;
+		params.SetValue( "x", newVec.x );
+		params.SetValue( "y", newVec.y );
+		return CreateAsZephyrType( &params );
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	{
+		Vec3 newVec = ( (ZephyrVec3*)other )->GetValue() * m_value;
+
+		ZephyrArgs params;
+		params.SetValue( "x", newVec.x );
+		params.SetValue( "y", newVec.y );
+		params.SetValue( "z", newVec.z );
+		return CreateAsZephyrType( &params );
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase* ZephyrNumber::Divide( ZephyrTypeBase* other )
+{
+	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	{
+		ZephyrArgs params;
+		params.SetValue( "value", m_value / ( (ZephyrNumber*)other )->m_value );
+		return CreateAsZephyrType( &params );
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC2 )
+	{
+		Vec2 newVec = ( (ZephyrVec2*)other )->GetValue() / m_value;
+
+		ZephyrArgs params;
+		params.SetValue( "x", newVec.x );
+		params.SetValue( "y", newVec.y );
+		return CreateAsZephyrType( &params );
+	}
+	else if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	{
+		Vec3 newVec = ( (ZephyrVec3*)other )->GetValue() / m_value;
+
+		ZephyrArgs params;
+		params.SetValue( "x", newVec.x );
+		params.SetValue( "y", newVec.y );
+		params.SetValue( "z", newVec.z );
+		return CreateAsZephyrType( &params );
+	}
+
+	return nullptr;
 }

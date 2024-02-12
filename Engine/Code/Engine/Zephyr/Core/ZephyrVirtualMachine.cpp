@@ -541,6 +541,20 @@ void ZephyrVirtualMachine::PushAddOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		ZephyrTypeBase* result = a.GetAsUserType()->Add(b.GetAsUserType());
+		if ( result != nullptr )
+		{
+			PushConstant( result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s + %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot add a variable of type %s with a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -558,6 +572,20 @@ void ZephyrVirtualMachine::PushSubtractOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		ZephyrTypeBase* result = a.GetAsUserType()->Subtract(b.GetAsUserType());
+		if ( result != nullptr )
+		{
+			PushConstant( result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s - %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot subtract a variable of type %s from a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -572,6 +600,20 @@ void ZephyrVirtualMachine::PushMultiplyOp( ZephyrValue& a, ZephyrValue& b )
 	{
 		NUMBER_TYPE result = a.GetAsNumber() * b.GetAsNumber();
 		PushConstant( result );
+		return;
+	}
+
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		ZephyrTypeBase* result = a.GetAsUserType()->Multiply(b.GetAsUserType());
+		if (result != nullptr)
+		{
+			PushConstant( result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s * %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
 		return;
 	}
 
@@ -598,6 +640,20 @@ void ZephyrVirtualMachine::PushDivideOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 	
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		ZephyrTypeBase* result = a.GetAsUserType()->Divide(b.GetAsUserType());
+		if ( result != nullptr )
+		{
+			PushConstant( result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s / %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot divide a variable of type %s by a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -634,6 +690,20 @@ void ZephyrVirtualMachine::PushNotEqualOp( ZephyrValue& a, ZephyrValue& b )
 	{
 		bool result = a.GetAsEntity() != b.GetAsEntity();
 		PushConstant( result );
+		return;
+	}
+
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->NotEqual(b.GetAsUserType());
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s != %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
 		return;
 	}
 
@@ -676,6 +746,20 @@ void ZephyrVirtualMachine::PushEqualOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->Equal( b.GetAsUserType() );
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s == %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot compare a variable of type %s with a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -690,6 +774,20 @@ void ZephyrVirtualMachine::PushGreaterOp( ZephyrValue& a, ZephyrValue& b )
 	{
 		bool result = a.GetAsNumber() > b.GetAsNumber();
 		PushConstant( result );
+		return;
+	}
+
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->Greater( b.GetAsUserType() );
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s > %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
 		return;
 	}
 	
@@ -710,6 +808,20 @@ void ZephyrVirtualMachine::PushGreaterEqualOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->GreaterEqual( b.GetAsUserType() );
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s >= %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot check if a variable of type %s is greater than or equal to a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -727,6 +839,20 @@ void ZephyrVirtualMachine::PushLessOp( ZephyrValue& a, ZephyrValue& b )
 		return;
 	}
 
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->Less( b.GetAsUserType() );
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s < %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
+		return;
+	}
+
 	ReportError( Stringf( "Cannot check if a variable of type %s is less than a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
@@ -741,6 +867,20 @@ void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 	{
 		bool result = a.GetAsNumber() > b.GetAsNumber();
 		PushConstant( !result );
+		return;
+	}
+
+	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	{
+		eZephyrComparatorResult result = a.GetAsUserType()->LessEqual( b.GetAsUserType() );
+		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
+		{
+			PushConstant( (bool)result );
+		}
+		else
+		{
+			ReportError( Stringf( "%s <= %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+		}
 		return;
 	}
 
