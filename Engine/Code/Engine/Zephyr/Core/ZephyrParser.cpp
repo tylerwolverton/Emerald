@@ -8,6 +8,7 @@
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -1098,7 +1099,7 @@ bool ZephyrParser::ParseNumberConstant()
 
 	ZephyrArgs params;
 	params.SetValue( "value", (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
-	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
+	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
 
 	return WriteConstantToCurChunk( numberConstant );
 }
@@ -1111,7 +1112,7 @@ bool ZephyrParser::ParseBoolConstant( bool value )
 
 	ZephyrArgs params;
 	params.SetValue( "value", value );
-	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Bool", &params ) );
+	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::BOOL, &params ) );
 
 	return WriteConstantToCurChunk( boolConstant );
 }
@@ -1133,7 +1134,7 @@ bool ZephyrParser::ParseStringConstant()
 
 	ZephyrArgs params;
 	params.SetValue( "value", curToken.GetData() );
-	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "String", &params ) );
+	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::STRING, &params ) );
 
 	return WriteConstantToCurChunk( stringConstant );
 }

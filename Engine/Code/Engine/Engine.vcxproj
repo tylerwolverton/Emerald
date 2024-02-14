@@ -113,7 +113,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Code/;$(SolutionDir)../Engine/Code/</AdditionalIncludeDirectories>
-      <LanguageStandard>Default</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -215,6 +215,7 @@
     <ClCompile Include="Math\Vec2.cpp" />
     <ClCompile Include="Math\Vec3.cpp" />
     <ClCompile Include="Math\Vec4.cpp" />
+    <ClCompile Include="Memory\MemoryManager.cpp" />
     <ClCompile Include="Networking\NetworkingJobs.cpp" />
     <ClCompile Include="Networking\NetworkingSystem.cpp" />
     <ClCompile Include="Networking\TCPClient.cpp" />
@@ -365,6 +366,11 @@
     <ClInclude Include="Math\Vec2.hpp" />
     <ClInclude Include="Math\Vec3.hpp" />
     <ClInclude Include="Math\Vec4.hpp" />
+    <ClInclude Include="Memory\LockPolicies.hpp" />
+    <ClInclude Include="Memory\MemoryManager.hpp" />
+    <ClInclude Include="Memory\MovableMemory.hpp" />
+    <ClInclude Include="Memory\ObjectPool.hpp" />
+    <ClInclude Include="Memory\SmartPtr.hpp" />
     <ClInclude Include="Networking\MessageProtocols.hpp" />
     <ClInclude Include="Networking\NetworkingCommon.hpp" />
     <ClInclude Include="Networking\NetworkingJobs.hpp" />
@@ -448,6 +454,7 @@
     <ClInclude Include="Zephyr\Types\ZephyrVec3.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Memory\MemoryManager.inl" />
     <None Include="Physics\CollisionResolver.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

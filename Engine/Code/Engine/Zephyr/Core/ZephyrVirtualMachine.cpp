@@ -3,6 +3,7 @@
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
@@ -408,6 +409,8 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 		}
 	}
 
+	std::vector<std::string> userTypeOutParamNames;
+
 	// Save updated event variables back into args
 	if ( m_eventArgs != nullptr )
 	{
@@ -420,7 +423,36 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 			switch ( val.GetType() )
 			{
 				case eValueType::ENTITY:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
-				case eValueType::USER_TYPE:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsUserType() ); break;
+				case eValueType::USER_TYPE:	
+				{
+					m_eventArgs->SetValue( keyValuePair.first, val.GetAsUserType() );
+					userTypeOutParamNames.push_back( keyValuePair.first );
+					break;
+				}
+			}
+		}
+	}
+
+	// Clean up local user type variables that aren't being returned as out params
+	for ( auto& keyValuePair : localVariables )
+	{
+		ZephyrValue& val = keyValuePair.second;
+
+		bool isOutParam = false;
+		if ( val.GetType() == eValueType::USER_TYPE )
+		{
+			for ( const std::string& outParam : userTypeOutParamNames )
+			{
+				if ( keyValuePair.first == outParam )
+				{
+					isOutParam = true;
+					break;
+				}
+			}
+
+			if ( !isOutParam )
+			{
+				delete val.GetAsUserType();
 			}
 		}
 	}
@@ -1161,12 +1193,12 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	if ( iter->second->Is<float>() )
 	{
 		params.SetValue( "value", args.GetValue( varName, 0.f ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
+		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
 	}
 	else if ( iter->second->Is<double>() )
 	{
 		params.SetValue( "value", (float)args.GetValue( varName, 0.0 ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Number", &params ) );
+		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
 	}
 	else if ( iter->second->Is<EntityId>() )
 	{
@@ -1175,13 +1207,13 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	else if ( iter->second->Is<bool>() )
 	{
 		params.SetValue( "value", args.GetValue( varName, false ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "Bool", &params ) );
+		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::BOOL, &params ) );
 	}
 	else if ( iter->second->Is<std::string>()
 			  || iter->second->Is<char*>() )
 	{
 		params.SetValue( "value", iter->second->GetAsString() );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( "String", &params ) );
+		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::STRING, &params ) );
 	}
 	else if ( iter->second->Is<ZephyrTypeBase*>() )
 	{
