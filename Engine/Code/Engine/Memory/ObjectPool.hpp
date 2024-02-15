@@ -1,5 +1,5 @@
 #pragma once
-typedef char byte;
+#include "Engine/Core/EngineCommon.hpp"
 
 
 // An object pool to manage the memory of a group of objects of the same type. 

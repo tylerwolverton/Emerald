@@ -30,7 +30,7 @@ Vertex_PCUTBN::Vertex_PCUTBN( const Vec3& position, const Rgba8& tint, const Vec
 
 
 //-----------------------------------------------------------------------------------------------
-bool Vertex_PCUTBN::operator==( const Vertex_PCUTBN& other )
+bool Vertex_PCUTBN::operator==( const Vertex_PCUTBN& other ) const
 {
 	if ( !IsNearlyEqual( position, other.position ) )
 	{

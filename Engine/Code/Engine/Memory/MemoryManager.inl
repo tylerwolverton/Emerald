@@ -1,6 +1,4 @@
 #pragma once
-#include "Engine/Memory/MovableMemory.hpp"
-
 #include <stdlib.h>
 #include <cstdio>
 #include <new>
@@ -119,8 +117,8 @@ IndexEntry* MemoryManager<LockPolicy, MovementPolicy>::AllocateNonMovable(int si
 		// Found a free block larger than requested, need to split it and return sub block
 		// Update newly allocated entry index
 		byte* blockLocation = curIndexEntry->blockLocation + totalSize;
-		uint64_t size = curIndexEntry->size - totalSize;
-		IndexEntry* nextEntry = new(m_indexPool.Allocate()) IndexEntry(blockLocation, size);
+		uint64_t blockSize = curIndexEntry->size - totalSize;
+		IndexEntry* nextEntry = new(m_indexPool.Allocate()) IndexEntry(blockLocation, blockSize);
 		
 		// Chop memory from the front of memory pointed to by curIndexEntry to use as new memory block
 		nextEntry->nextEntry = curIndexEntry->nextEntry;

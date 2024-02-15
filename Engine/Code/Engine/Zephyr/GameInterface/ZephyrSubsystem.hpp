@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Memory/MemoryManager.hpp"
 
 #include <vector>
 
@@ -50,4 +51,7 @@ private:
 
 	// Needs to be string keyed map so the scanner and parser can keep track of types by name
 	std::map<std::string, ZephyrTypeMetadata*> m_registeredZephyrTypes;
+
+	byte* m_zephyrManagedMemoryBlock = nullptr;
+	MemoryManager<NullLock, MovableMemory>* m_memoryMgr = nullptr;
 };

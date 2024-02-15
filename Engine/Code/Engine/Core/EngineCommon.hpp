@@ -68,6 +68,12 @@ constexpr float UI_DEBUG_LINE_THICKNESS = 2.f;
 
 constexpr int MAX_LIGHTS = 8;
 
+constexpr uint64_t KB = 1024;
+constexpr uint64_t MB = KB * 1024;
+constexpr uint64_t GB = MB * 1024;
+constexpr uint64_t TB = GB * 1024;
+
+
 //-----------------------------------------------------------------------------------------------
 enum eScreenEdgesBitField : unsigned int
 {

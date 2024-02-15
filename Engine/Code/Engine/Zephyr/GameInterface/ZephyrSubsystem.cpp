@@ -33,6 +33,9 @@ void ZephyrSubsystem::Startup( const ZephyrSystemParams& params )
 		m_timerPool.emplace_back( m_clock );
 	}
 
+	m_zephyrManagedMemoryBlock = (byte*)malloc( 500 * MB );
+	m_memoryMgr = new MemoryManager<NullLock, MovableMemory>( m_zephyrManagedMemoryBlock, 500 * MB );
+
 	// Register engine types
 	ZephyrNumber::CreateAndRegisterMetadata();
 	ZephyrString::CreateAndRegisterMetadata();
@@ -89,6 +92,9 @@ void ZephyrSubsystem::Shutdown()
 {
 	m_timerPool.clear();
 	ResetRegisteredUserTypes();
+
+	delete m_memoryMgr;
+	free( m_zephyrManagedMemoryBlock );
 }
 
 

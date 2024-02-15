@@ -366,6 +366,7 @@
     <ClInclude Include="Math\Vec2.hpp" />
     <ClInclude Include="Math\Vec3.hpp" />
     <ClInclude Include="Math\Vec4.hpp" />
+    <ClInclude Include="Memory\IndexEntry.hpp" />
     <ClInclude Include="Memory\LockPolicies.hpp" />
     <ClInclude Include="Memory\MemoryManager.hpp" />
     <ClInclude Include="Memory\MovableMemory.hpp" />
@@ -454,7 +455,6 @@
     <ClInclude Include="Zephyr\Types\ZephyrVec3.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Memory\MemoryManager.inl" />
     <None Include="Physics\CollisionResolver.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

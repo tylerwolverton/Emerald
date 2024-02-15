@@ -796,12 +796,12 @@
     <ClInclude Include="Zephyr\Types\ZephyrTypesCommon.hpp" />
     <ClInclude Include="Memory\LockPolicies.hpp" />
     <ClInclude Include="Memory\MemoryManager.hpp" />
-    <ClInclude Include="Memory\MovableMemory.hpp" />
     <ClInclude Include="Memory\ObjectPool.hpp" />
     <ClInclude Include="Memory\SmartPtr.hpp" />
+    <ClInclude Include="Memory\MovableMemory.hpp" />
+    <ClInclude Include="Memory\IndexEntry.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />
-    <None Include="Memory\MemoryManager.inl" />
   </ItemGroup>
 </Project>
