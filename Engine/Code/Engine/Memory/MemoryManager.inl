@@ -1,4 +1,7 @@
 #pragma once
+#include "Engine/Core/ErrorWarningAssert.hpp"
+#include "Engine/Core/StringUtils.hpp"
+
 #include <stdlib.h>
 #include <cstdio>
 #include <new>
@@ -23,7 +26,7 @@ void MemoryManager<LockPolicy, MovementPolicy>::Initialize(byte* memBlockToManag
 
 	if (m_mainMemoryBlock == nullptr)
 	{
-		printf("Can't manage a null memory block");
+		ERROR_AND_DIE("Can't manage a null memory block");
 		return;
 	}
 
@@ -64,9 +67,9 @@ IndexEntry* MemoryManager<LockPolicy, MovementPolicy>::AllocateNonMovable(int si
 {
 	if (size <= 0 || count <= 0 || alignment <= 0)
 	{
-		if (size <= 0)		printf("Can't allocate memory with size less than 1 \n");
-		if (count <= 0)		printf("Can't allocate memory with count less than 1 \n");
-		if (alignment <= 0)	printf("Can't allocate memory with alignment less than 1 \n");
+		if (size <= 0)		ERROR_AND_DIE( "Can't allocate memory with size less than 1 \n" );
+		if (count <= 0)		ERROR_AND_DIE( "Can't allocate memory with count less than 1 \n" );
+		if (alignment <= 0)	ERROR_AND_DIE( "Can't allocate memory with alignment less than 1 \n" );
 		
 		return nullptr;
 	}
@@ -76,14 +79,14 @@ IndexEntry* MemoryManager<LockPolicy, MovementPolicy>::AllocateNonMovable(int si
 	LockPolicy lock(m_mutex);
 	if (m_remainingMainMemory < totalSize)
 	{
-		printf("Not enough total memory remaining to allocate new blocks. size: %d count:%d \n", size, count);
+		ERROR_RECOVERABLE( Stringf( "Not enough total memory remaining to allocate new blocks. size: %d count:%d \n", size, count ));
 		return nullptr;
 	}
 
 	IndexEntry* curIndexEntry = m_memoryIndexHead;
 	while (curIndexEntry != nullptr)
 	{
-		if (!curIndexEntry->isFree || curIndexEntry->size < totalSize)
+		if (!curIndexEntry->isFree)
 		{
 			curIndexEntry = curIndexEntry->nextEntry;
 			continue;
@@ -101,6 +104,8 @@ IndexEntry* MemoryManager<LockPolicy, MovementPolicy>::AllocateNonMovable(int si
 		if (curIndexEntry->size < totalSize)
 		{
 			curIndexEntry = curIndexEntry->nextEntry;
+			// Don't accumulate padding bytes if multiple index entries can't fulfill request
+			totalSize -= numPaddingBytes; 
 			continue;
 		}
 
@@ -134,7 +139,7 @@ IndexEntry* MemoryManager<LockPolicy, MovementPolicy>::AllocateNonMovable(int si
 		return curIndexEntry;
 	}
 
-	printf("Could not find a block large enough to meet request. size: %d count:%d \n", size, count);
+	ERROR_RECOVERABLE( Stringf( "Could not find a block large enough to meet request. size: %d count:%d \n", size, count ));
 	return nullptr;
 }
 
@@ -148,8 +153,7 @@ void* MemoryManager<LockPolicy, MovementPolicy>::Reallocate(void* ptrToMemory, u
 {
 	if (ptrToMemory == nullptr)
 	{
-		printf("Can't reallocate a nullptr\n");
-		return ptrToMemory;
+		ERROR_AND_DIE( "Can't reallocate a nullptr\n" );
 	}
 
 	LockPolicy lock(m_mutex);
@@ -158,8 +162,7 @@ void* MemoryManager<LockPolicy, MovementPolicy>::Reallocate(void* ptrToMemory, u
 	ReallocIndexEntrySearchResult searchResult;
 	if (!FindIndexEntryFromDataPtrForRealloc(ptrToMemory, searchResult, newSize))
 	{
-		printf("Tried to realloc a ptr not associated with manager\n");
-		return ptrToMemory;
+		ERROR_AND_DIE( "Tried to realloc a ptr not associated with manager\n" );
 	}
 
 	// Handle cases where existing entry is large enough to accommodate realloc
@@ -174,7 +177,7 @@ void* MemoryManager<LockPolicy, MovementPolicy>::Reallocate(void* ptrToMemory, u
 	// New size is larger than current
 	if (searchResult.targetEntry == nullptr)
 	{
-		printf("No block large enough to fulfill realloc request\n");
+		ERROR_RECOVERABLE( "No block large enough to fulfill realloc request\n" );
 		return ptrToMemory;
 	}
 
@@ -224,7 +227,7 @@ void MemoryManager<LockPolicy, MovementPolicy>::Free(void* ptrToMemory)
 	IndexEntry* indexEntryToFreePrev = nullptr;
 	if (!FindIndexEntryFromDataPtr(ptrToMemory, indexEntryToFree, indexEntryToFreePrev))
 	{
-		printf("Tried to free a ptr not associated with manager\n");
+		ERROR_AND_DIE( "Tried to free a ptr not associated with manager\n" );
 		return;
 	}
 

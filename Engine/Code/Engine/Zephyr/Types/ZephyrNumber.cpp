@@ -27,19 +27,33 @@ void ZephyrNumber::CreateAndRegisterMetadata()
 //-----------------------------------------------------------------------------------------------
 ZephyrTypeBase* ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 {
-	ZephyrNumber* zephyrNumber = new ZephyrNumber();
+	Handle<ZephyrTypeBase> zephyrNumberHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrNumber>();
+	ChildSmartPtr<ZephyrTypeBase, ZephyrNumber> zephyrNumberPtr( zephyrNumberHandle );
+	
+	// Idea
+	//Handle<ZephyrTypeBase> zephyrNumberHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrNumber>();
+	//SmartPtr<ZephyrNumber> zephyrNumberPtr( zephyrNumberHandle );
+	//
+	// OR
+	//Handle<ZephyrNumber> zephyrNumberHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrNumber>();
+	//SmartPtr<ZephyrTypeBase> zephyrNumberPtr( zephyrNumberHandle ); -> saved into zephyr and used everywhere
+	
+	//ZephyrNumber* zephyrNumber = new ZephyrNumber();
 
 	if ( args == nullptr )
 	{
 		// Default constructor, don't process parameters
-		return zephyrNumber;
+		return nullptr;
+		//return zephyrNumber;
 	}
 
 	// Fill in vars from args
-	zephyrNumber->m_value = args->GetValue( "value", 0.f );
+	zephyrNumberPtr->m_value = args->GetValue( "value", 0.f );
+	//zephyrNumber->m_value = args->GetValue( "value", 0.f );
 	//zephyrNumber->m_value = FromString( value->ToString(), 0.f );
 
-	return zephyrNumber;
+	return nullptr;
+	//return zephyrNumber;
 }
 
 

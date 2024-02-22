@@ -1,6 +1,7 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Memory/MemoryManager.hpp"
+#include "Engine/Memory/SmartPtr.hpp"
 
 #include <vector>
 
@@ -40,6 +41,15 @@ public:
 	ZephyrTypeMetadata*							GetRegisteredUserType( const std::string& typeName ) const;
 	ZephyrTypeMetadata							GetCopyOfRegisteredUserType( const std::string& typeName ) const;
 	void										ResetRegisteredUserTypes();
+
+	template <typename ChildType>
+	Handle<ZephyrTypeBase>				AllocateNewZephyrTypeObject()
+	{
+		Handle<ZephyrTypeBase> handle( *m_memoryMgr );
+		handle.InitializeAsParent<ChildType>();
+
+		return handle;
+	}
 
 private:
 	void UpdateTimers();
