@@ -10,6 +10,7 @@
 #include "Engine/Input/InputSystem.hpp"
 #include "Engine/Math/RandomNumberGenerator.hpp"
 #include "Engine/Math/MathUtils.hpp"
+#include "Engine/Memory/HandleFactory.hpp"
 #include "Engine/OS/Window.hpp"
 #include "Engine/Performance/PerformanceTracker.hpp"
 #include "Engine/Physics/PhysicsCommon.hpp"
@@ -34,7 +35,7 @@ void App::Startup()
 	g_physicsConfig = new PhysicsConfig();
 
 	g_colliderFactory = new ColliderFactory();
-	g_zephyrTypeObjFactory = new ZephyrTypeObjFactory();
+	g_zephyrTypeHandleFactory = new ZephyrTypeHandleFactory();
 
 	std::string windowTitle = g_gameConfigBlackboard.GetValue( "windowTitle", "Protogame2D" );
 	float windowAspect = g_gameConfigBlackboard.GetValue( "windowAspect", 16.f / 9.f );
@@ -103,7 +104,7 @@ void App::Shutdown()
 	Clock::MasterShutdown();
 		
 	PTR_SAFE_DELETE( g_game );
-	PTR_SAFE_DELETE( g_zephyrTypeObjFactory );
+	PTR_SAFE_DELETE( g_zephyrTypeHandleFactory );
 	PTR_SAFE_DELETE( g_colliderFactory );
 	PTR_SAFE_DELETE( g_physicsConfig );
 	PTR_SAFE_DELETE( g_performanceTracker );

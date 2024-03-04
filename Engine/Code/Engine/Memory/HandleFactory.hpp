@@ -1,13 +1,14 @@
 #pragma once
 #include "Engine/Core/ErrorWarningAssert.hpp"
 #include "Engine/Core/StringUtils.hpp"
+#include "Engine/Memory/SmartPtr.hpp"
 
 #include <map>
 
 
 //-----------------------------------------------------------------------------------------------
 template< typename BaseObject, typename CreatorId, typename CreationFunc, typename ConstructionParams >
-class ObjectFactory
+class HandleFactory
 {
 public:
 	bool RegisterCreator( CreatorId id, CreationFunc creationFunc )
@@ -21,7 +22,7 @@ public:
 		return m_creatorMap.erase( id ) == 1;
 	}
 
-	BaseObject* CreateObject( CreatorId id, ConstructionParams params )
+	Handle<BaseObject> CreateHandle( CreatorId id, ConstructionParams params )
 	{
 		const auto creatorIter = m_creatorMap.find( id );
 		if ( creatorIter == m_creatorMap.end() )

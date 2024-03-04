@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Memory/SmartPtr.hpp"
 
 #include <string>
 #include <vector>
@@ -14,6 +15,12 @@ struct OBB3;
 class Polygon2;
 class ZephyrValue;
 class ZephyrTypeBase;
+
+
+//-----------------------------------------------------------------------------------------------
+// Define this here to avoid including ZephyrCommon
+typedef Handle<ZephyrTypeBase> ZephyrHandle;
+
 
 //-----------------------------------------------------------------------------------------------
 const std::string Stringv( char const* format, va_list args );
@@ -54,7 +61,7 @@ template<>				std::string ToString( std::string value );
 template<>				std::string ToString( char* value );
 template<>				std::string ToString( void* value );
 template<>				std::string ToString( ZephyrValue value ); // TODO: Should this move into someplace in Zephyr?
-template<>				std::string ToString( ZephyrTypeBase* value ); 
+template<>				std::string ToString( ZephyrHandle value ); 
 
 
 //-----------------------------------------------------------------------------------------------
@@ -76,4 +83,4 @@ template<> std::string	FromString( const std::string& value, std::string default
 template<> const char*	FromString( const std::string& value, const char* defaultValue );
 template<> void*		FromString( const std::string& value, void* defaultValue );
 template<> ZephyrValue	FromString( const std::string& value, ZephyrValue defaultValue );
-template<> ZephyrTypeBase*	FromString( const std::string& value, ZephyrTypeBase* defaultValue );
+template<> ZephyrHandle	FromString( const std::string& value, ZephyrHandle defaultValue );

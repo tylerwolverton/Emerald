@@ -20,17 +20,17 @@ public:
 	virtual bool EvaluateAsBool() const override									{ return !IsNearlyEqual( m_value, Vec3::ZERO ); }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other ) override;
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
 
-	virtual ZephyrTypeBase* Add( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Subtract( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Multiply( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Divide( ZephyrTypeBase* other ) override;
+	virtual ZephyrHandle Add( ZephyrHandle other ) override;
+	virtual ZephyrHandle Subtract( ZephyrHandle other ) override;
+	virtual ZephyrHandle Multiply( ZephyrHandle other ) override;
+	virtual ZephyrHandle Divide( ZephyrHandle other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 	Vec3 GetValue() const { return m_value; }
 
@@ -42,3 +42,7 @@ private:
 private:
 	Vec3 m_value = Vec3::ZERO;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrVec3> ZephyrVec3Ptr;

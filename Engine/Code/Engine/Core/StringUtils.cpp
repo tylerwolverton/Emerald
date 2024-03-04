@@ -267,7 +267,7 @@ template<> std::string ToString( std::string value )			{ return value; }
 template<> std::string ToString( char* value )					{ return value; }
 template<> std::string ToString( void* value )					{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on void*" ); }
 template<> std::string ToString( ZephyrValue value )			{ return value.EvaluateAsString(); }
-template<> std::string ToString( ZephyrTypeBase* value )		{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on ZephyrType*" ); }
+template<> std::string ToString( ZephyrHandle value )			{ UNUSED (value); ERROR_AND_DIE( "Can't call ToString on ZephyrHandle" ); }
 
 
 //-----------------------------------------------------------------------------------------------
@@ -367,7 +367,7 @@ template<> ZephyrValue FromString( const std::string& value, ZephyrValue default
 
 
 //-----------------------------------------------------------------------------------------------
-template<> ZephyrTypeBase* FromString( const std::string& value, ZephyrTypeBase* defaultValue )
+template<> ZephyrHandle FromString( const std::string& value, ZephyrHandle defaultValue )
 {
 	UNUSED( value );
 	UNUSED( defaultValue );

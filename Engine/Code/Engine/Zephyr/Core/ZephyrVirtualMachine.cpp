@@ -72,7 +72,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				InsertParametersIntoEventArgs( args );
 
 				// TODO: Delete this somewhere
-				PushConstant( ZephyrValue( g_zephyrTypeObjFactory->CreateObject( variableType.GetAsString(), &args ) ) );
+				PushConstant( ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( variableType.GetAsString(), &args ) ) );
 			}
 			break;
 
@@ -117,7 +117,9 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
 				{
-					std::string typeName = memberAccessorResult.finalMemberVal.GetAsUserType()->GetTypeName();
+					ZephyrHandle typeNameHandle = memberAccessorResult.finalMemberVal.GetAsUserType();
+					SmartPtr typeNamePtr( typeNameHandle );
+					std::string typeName = typeNamePtr->GetTypeName();
 					ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
 					if ( metadata == nullptr )
 					{
@@ -131,8 +133,8 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 					}
 
 					ZephyrArgs args;
-					args.SetValue( "value", (ZephyrTypeBase*)constantValue.EvaluateAsUserType() );
-					memberAccessorResult.finalMemberVal.GetAsUserType()->CallMethod( "Set_" + lastMemberName, &args );
+					args.SetValue( "value", (ZephyrHandle)constantValue.EvaluateAsUserType() );
+					typeNamePtr->CallMethod( "Set_" + lastMemberName, &args );
 				}
 
 				PushConstant( constantValue );
@@ -215,14 +217,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				}
 				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
 				{
-					ZephyrTypeBase* userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
-					if ( userTypeObj == nullptr )
+					ZephyrHandle userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
+					if ( !userTypeObj.IsValid() )
 					{
 						ReportError( Stringf( "User type object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
 						return;
 					}
 
-					CallMemberFunctionOnUserType( *userTypeObj, memberAccessorResult.memberNames.back(), args );
+					CallMemberFunctionOnUserType( userTypeObj, memberAccessorResult.memberNames.back(), args );
 				}
 				else
 				{
@@ -432,30 +434,6 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 			}
 		}
 	}
-
-	// Clean up local user type variables that aren't being returned as out params
-	for ( auto& keyValuePair : localVariables )
-	{
-		ZephyrValue& val = keyValuePair.second;
-
-		bool isOutParam = false;
-		if ( val.GetType() == eValueType::USER_TYPE )
-		{
-			for ( const std::string& outParam : userTypeOutParamNames )
-			{
-				if ( keyValuePair.first == outParam )
-				{
-					isOutParam = true;
-					break;
-				}
-			}
-
-			if ( !isOutParam )
-			{
-				delete val.GetAsUserType();
-			}
-		}
-	}
 }
 
 
@@ -493,9 +471,9 @@ void ZephyrVirtualMachine::CopyEventArgVariables( ZephyrArgs* eventArgs, ZephyrV
 		{
 			localVariables[keyValuePair.first] = ZephyrValue( keyValuePair.second->GetAsString() );
 		}
-		else if ( keyValuePair.second->Is<ZephyrTypeBase*>() )
+		else if ( keyValuePair.second->Is<ZephyrHandle>() )
 		{
-			TypedProperty<ZephyrTypeBase*>* paramAsProperty = (TypedProperty<ZephyrTypeBase*>*)keyValuePair.second;
+			TypedProperty<ZephyrHandle>* paramAsProperty = (TypedProperty<ZephyrHandle>*)keyValuePair.second;
 			localVariables[keyValuePair.first] = ZephyrValue( paramAsProperty->m_value );
 		}
 
@@ -575,14 +553,19 @@ void ZephyrVirtualMachine::PushAddOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		ZephyrTypeBase* result = a.GetAsUserType()->Add(b.GetAsUserType());
-		if ( result != nullptr )
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+		
+		ZephyrHandle result = aPtr->Add( bHandle );
+		if ( result.IsValid() )
 		{
 			PushConstant( result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s + %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s + %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -606,14 +589,19 @@ void ZephyrVirtualMachine::PushSubtractOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		ZephyrTypeBase* result = a.GetAsUserType()->Subtract(b.GetAsUserType());
-		if ( result != nullptr )
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		ZephyrHandle result = aPtr->Subtract( bHandle );
+		if ( result.IsValid() )
 		{
 			PushConstant( result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s - %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s - %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -637,14 +625,19 @@ void ZephyrVirtualMachine::PushMultiplyOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		ZephyrTypeBase* result = a.GetAsUserType()->Multiply(b.GetAsUserType());
-		if (result != nullptr)
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		ZephyrHandle result = aPtr->Multiply( bHandle );
+		if ( result.IsValid() )
 		{
 			PushConstant( result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s * %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s * %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -674,14 +667,19 @@ void ZephyrVirtualMachine::PushDivideOp( ZephyrValue& a, ZephyrValue& b )
 	
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		ZephyrTypeBase* result = a.GetAsUserType()->Divide(b.GetAsUserType());
-		if ( result != nullptr )
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		ZephyrHandle result = aPtr->Divide( bHandle );
+		if ( result.IsValid() )
 		{
 			PushConstant( result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s / %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s / %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -727,14 +725,19 @@ void ZephyrVirtualMachine::PushNotEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->NotEqual(b.GetAsUserType());
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->NotEqual(bHandle);
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s != %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s != %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -780,14 +783,19 @@ void ZephyrVirtualMachine::PushEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->Equal( b.GetAsUserType() );
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->Equal( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s == %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s == %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -811,14 +819,19 @@ void ZephyrVirtualMachine::PushGreaterOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->Greater( b.GetAsUserType() );
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->Greater( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s > %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s > %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -842,14 +855,19 @@ void ZephyrVirtualMachine::PushGreaterEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->GreaterEqual( b.GetAsUserType() );
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->GreaterEqual( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s >= %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s >= %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -873,14 +891,19 @@ void ZephyrVirtualMachine::PushLessOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->Less( b.GetAsUserType() );
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->Less( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s < %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s < %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -904,14 +927,19 @@ void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
 	{
-		eZephyrComparatorResult result = a.GetAsUserType()->LessEqual( b.GetAsUserType() );
+		ZephyrHandle aHandle = a.GetAsUserType();
+		ZephyrHandle bHandle = b.GetAsUserType();
+		SmartPtr aPtr( aHandle );
+		SmartPtr bPtr( bHandle );
+
+		eZephyrComparatorResult result = aPtr->LessEqual( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
 			PushConstant( (bool)result );
 		}
 		else
 		{
-			ReportError( Stringf( "%s <= %s is undefined", a.GetAsUserType()->GetTypeName().c_str(), b.GetAsUserType()->GetTypeName().c_str() ) );
+			ReportError( Stringf( "%s <= %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
 		}
 		return;
 	}
@@ -1080,8 +1108,8 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 
 			case eValueType::USER_TYPE:
 			{
-				ZephyrTypeBase* userTypeObj = memberVal.GetAsUserType();
-				if ( userTypeObj == nullptr )
+				ZephyrHandle userTypeObj = memberVal.GetAsUserType();
+				if ( !userTypeObj.IsValid() )
 				{
 					ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
 					return memberAccessResult;
@@ -1150,7 +1178,7 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( ZephyrArgs& args )
 			case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
 			case eValueType::STRING:	args.SetValue( param.GetAsString(), value.GetAsString() ); break;
 			case eValueType::ENTITY:	args.SetValue( param.GetAsString(), value.GetAsEntity() ); break;
-			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), (ZephyrTypeBase*)value.EvaluateAsUserType() ); break;
+			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), value.EvaluateAsUserType() ); break;
 			default: ERROR_AND_DIE( Stringf( "Unimplemented event arg type '%s'", ToString( value.GetType() ).c_str() ) );
 		}
 	}
@@ -1193,12 +1221,12 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	if ( iter->second->Is<float>() )
 	{
 		params.SetValue( "value", args.GetValue( varName, 0.f ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
+		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
 	}
 	else if ( iter->second->Is<double>() )
 	{
 		params.SetValue( "value", (float)args.GetValue( varName, 0.0 ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
+		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
 	}
 	else if ( iter->second->Is<EntityId>() )
 	{
@@ -1207,17 +1235,17 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	else if ( iter->second->Is<bool>() )
 	{
 		params.SetValue( "value", args.GetValue( varName, false ) );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::BOOL, &params ) );
+		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
 	}
 	else if ( iter->second->Is<std::string>()
 			  || iter->second->Is<char*>() )
 	{
 		params.SetValue( "value", iter->second->GetAsString() );
-		return ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::STRING, &params ) );
+		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
 	}
-	else if ( iter->second->Is<ZephyrTypeBase*>() )
+	else if ( iter->second->Is<ZephyrHandle>() )
 	{
-		return ZephyrValue( args.GetValue( varName, (ZephyrTypeBase*)nullptr ) );
+		return ZephyrValue( args.GetValue( varName, NULL_ZEPHYR_HANDLE ) );
 	}
 
 	return ZephyrValue::ERROR_VALUE;
@@ -1254,9 +1282,10 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrTypeBase& userObj, const std::string& functionName, ZephyrArgs* args )
+bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrHandle userObj, const std::string& functionName, ZephyrArgs* args )
 {
-	userObj.CallMethod( functionName, args );
+	SmartPtr userObjPtr( userObj );
+	userObjPtr->CallMethod( functionName, args );
 	
 	return true;
 }

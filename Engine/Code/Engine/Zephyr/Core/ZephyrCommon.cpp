@@ -17,10 +17,12 @@ std::string PARENT_ENTITY_NAME_STR = "parentEntityName";
 std::string TARGET_ENTITY_STR = "targetEntity";
 std::string TARGET_ENTITY_NAME_STR = "targetName";
 
+
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
 ZephyrSubsystem* g_zephyrSubsystem = nullptr;
-ZephyrTypeObjFactory* g_zephyrTypeObjFactory = nullptr;
+ZephyrTypeHandleFactory* g_zephyrTypeHandleFactory = nullptr;
 
+ZephyrHandle NULL_ZEPHYR_HANDLE = ZephyrHandle();
 const ZephyrValue ZephyrValue::ERROR_VALUE = ZephyrValue( (EntityId)ERROR_ZEPHYR_ENTITY_ID );
 
 
@@ -311,7 +313,7 @@ void ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrTypeBase* other)
+eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrHandle other)
 {
 	eZephyrComparatorResult equalResult = Equal(other);
 	if ( equalResult == eZephyrComparatorResult::FALSE_VAL )		{ return eZephyrComparatorResult::TRUE_VAL; }
@@ -362,7 +364,7 @@ ZephyrValue::ZephyrValue( EntityId value )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( ZephyrTypeBase* value )
+ZephyrValue::ZephyrValue( ZephyrHandle value )
 {
 	m_type = eValueType::USER_TYPE;
 	userTypeData = value;
@@ -397,12 +399,12 @@ ZephyrValue& ZephyrValue::operator=( ZephyrValue const& other )
 {
 	if ( this->m_type == eValueType::USER_TYPE && other.GetType() == eValueType::USER_TYPE )
 	{
-		if ( this->userTypeData->GetTypeName() != other.GetAsUserType()->GetTypeName() )
-		{
-			// Trying to set a user type to a different type
-		}
+		//if ( this->userTypeData->GetTypeName() != other.GetAsUserType()->GetTypeName() )
+		//{
+		//	// Trying to set a user type to a different type
+		//}
 
-		*(this->userTypeData) = *(other.GetAsUserType());
+		this->userTypeData = other.GetAsUserType();
 
 		return *this;
 	}
@@ -512,7 +514,18 @@ bool ZephyrValue::EvaluateAsBool()
 		case eValueType::NUMBER: 	return !IsNearlyEqual( numberData, 0.f );			
 		case eValueType::BOOL:		return boolData;	
 		case eValueType::ENTITY:	return entityData != INVALID_ENTITY_ID;
-		case eValueType::USER_TYPE:	return userTypeData ? userTypeData->EvaluateAsBool() : false;
+		case eValueType::USER_TYPE:	
+		{
+			if ( userTypeData.IsValid() )
+			{
+				SmartPtr<ZephyrTypeBase> smartPtr( userTypeData );
+				smartPtr->EvaluateAsBool();
+			}
+			else
+			{
+				return false;
+			}
+		}
 	}
 
 	return false;
@@ -528,7 +541,18 @@ std::string ZephyrValue::EvaluateAsString()
 		case eValueType::NUMBER: 	return ToString( numberData );
 		case eValueType::BOOL:		return ToString( boolData );
 		case eValueType::ENTITY:	return ToString( entityData );
-		case eValueType::USER_TYPE:	return userTypeData ? userTypeData->ToString() : "";
+		case eValueType::USER_TYPE:	
+		{
+			if ( userTypeData.IsValid() )
+			{
+				SmartPtr<ZephyrTypeBase> smartPtr( userTypeData );
+				smartPtr->ToString();
+			}
+			else
+			{
+				return "";
+			}
+		}
 	}
 
 	return "";
@@ -564,7 +588,7 @@ EntityId ZephyrValue::EvaluateAsEntity()
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrValue::EvaluateAsUserType()
+ZephyrHandle ZephyrValue::EvaluateAsUserType()
 {
 	if ( m_type == eValueType::USER_TYPE )
 	{
@@ -572,7 +596,7 @@ ZephyrTypeBase* ZephyrValue::EvaluateAsUserType()
 	}
 
 	ReportConversionError( eValueType::USER_TYPE );
-	return nullptr;
+	return NULL_ZEPHYR_HANDLE;
 }
 
 
@@ -587,7 +611,7 @@ std::string ZephyrValue::SerializeToString() const
 		case eValueType::NUMBER: 	serializedStr += ToString( numberData );
 		case eValueType::BOOL:		serializedStr += ToString( boolData );
 		case eValueType::ENTITY:	serializedStr += ToString( entityData );
-		case eValueType::USER_TYPE:	serializedStr += userTypeData->ToString();
+		case eValueType::USER_TYPE:	ERROR_AND_DIE( "Serializing user types not implemented" );//serializedStr += userTypeData.IsValid() ? userTypeData.Pin()->ToString();
 	}
 
 	return serializedStr;

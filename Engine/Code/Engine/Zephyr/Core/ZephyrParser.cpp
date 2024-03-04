@@ -1099,7 +1099,7 @@ bool ZephyrParser::ParseNumberConstant()
 
 	ZephyrArgs params;
 	params.SetValue( "value", (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
-	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::NUMBER, &params ) );
+	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
 
 	return WriteConstantToCurChunk( numberConstant );
 }
@@ -1112,7 +1112,7 @@ bool ZephyrParser::ParseBoolConstant( bool value )
 
 	ZephyrArgs params;
 	params.SetValue( "value", value );
-	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::BOOL, &params ) );
+	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
 
 	return WriteConstantToCurChunk( boolConstant );
 }
@@ -1134,7 +1134,7 @@ bool ZephyrParser::ParseStringConstant()
 
 	ZephyrArgs params;
 	params.SetValue( "value", curToken.GetData() );
-	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( ZephyrEngineTypeNames::STRING, &params ) );
+	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
 
 	return WriteConstantToCurChunk( stringConstant );
 }
@@ -1458,7 +1458,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		case eValueType::USER_TYPE:
 		{
 			// Declare only, no parameters to invoke default constructor
-			value = ZephyrValue( g_zephyrTypeObjFactory->CreateObject( typeName, nullptr ) ); break;
+			value = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( typeName, nullptr ) ); break;
 		}
 	}
 

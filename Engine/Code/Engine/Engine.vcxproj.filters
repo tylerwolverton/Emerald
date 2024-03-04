@@ -800,6 +800,7 @@
     <ClInclude Include="Memory\SmartPtr.hpp" />
     <ClInclude Include="Memory\MovableMemory.hpp" />
     <ClInclude Include="Memory\IndexEntry.hpp" />
+    <ClInclude Include="Memory\HandleFactory.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

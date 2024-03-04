@@ -11,11 +11,13 @@ ZephyrTypeBase& ZephyrString::operator=( ZephyrTypeBase const& other )
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrString::Equal( ZephyrTypeBase* other )
+eZephyrComparatorResult ZephyrString::Equal( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::STRING )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::STRING )
 	{
-		if ( m_value == ( (ZephyrString*)other )->m_value )
+		ZephyrStringPtr otherAsStringPtr( other );
+		if ( m_value == otherAsStringPtr->GetValue() )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}
@@ -24,9 +26,9 @@ eZephyrComparatorResult ZephyrString::Equal( ZephyrTypeBase* other )
 			return eZephyrComparatorResult::FALSE_VAL;
 		}
 	}
-	else if ( other->GetTypeName() == ZephyrEngineTypeNames::BOOL )
+	else if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::BOOL )
 	{
-		if ( EvaluateAsBool() == other->EvaluateAsBool() )
+		if ( EvaluateAsBool() == otherPtr->EvaluateAsBool() )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}
@@ -48,25 +50,26 @@ void ZephyrString::CreateAndRegisterMetadata()
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
-	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrString::CreateAsZephyrType );
+	g_zephyrTypeHandleFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrString::CreateAsZephyrType );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrString::CreateAsZephyrType( ZephyrArgs* args )
+ZephyrHandle ZephyrString::CreateAsZephyrType( ZephyrArgs* args )
 {
-	ZephyrString* zephyrString = new ZephyrString();
+	ZephyrHandle zephyrStringHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrString>();
+	ChildSmartPtr<ZephyrTypeBase, ZephyrString> zephyrStringPtr( zephyrStringHandle );
 
 	if ( args == nullptr )
 	{
 		// Default constructor, don't process parameters
-		return zephyrString;
+		return zephyrStringHandle;
 	}
 
 	// Fill in vars from args
-	zephyrString->m_value = args->GetValue( "value", "" );
+	zephyrStringPtr->m_value = args->GetValue( "value", "" );
 
-	return zephyrString;
+	return zephyrStringHandle;
 }
 
 

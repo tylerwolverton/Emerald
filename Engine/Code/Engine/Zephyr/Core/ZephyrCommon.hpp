@@ -1,10 +1,10 @@
 #pragma once
 #include "Engine/Core/EngineCommon.hpp"
-#include "Engine/Core/ObjectFactory.hpp"
 #include "Engine/Core/Delegate.hpp"
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Math/Vec2.hpp"
 #include "Engine/Math/Vec3.hpp"
+#include "Engine/Memory/HandleFactory.hpp"
 #include "Engine/Time/Timer.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
@@ -29,6 +29,8 @@ typedef std::map<std::string, ZephyrValue> ZephyrValueMap;
 typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
 typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
 typedef NamedProperties ZephyrArgs;
+typedef Handle<ZephyrTypeBase> ZephyrHandle;
+extern ZephyrHandle NULL_ZEPHYR_HANDLE;
 
 constexpr int ERROR_ZEPHYR_ENTITY_ID = -1000;
 extern std::string PARENT_ENTITY_STR;
@@ -38,10 +40,10 @@ extern std::string TARGET_ENTITY_STR;
 extern std::string TARGET_ENTITY_NAME_STR;
 
 typedef std::string ZephyrTypeId;
-typedef ZephyrTypeBase* ( *ZephyrTypeObjCreationFunc )( ZephyrArgs* );
-typedef ObjectFactory< ZephyrTypeBase, ZephyrTypeId, ZephyrTypeObjCreationFunc, ZephyrArgs* > ZephyrTypeObjFactory;
+typedef ZephyrHandle ( *ZephyrTypeObjCreationFunc )( ZephyrArgs* );
+typedef HandleFactory< ZephyrTypeBase, ZephyrTypeId, ZephyrTypeObjCreationFunc, ZephyrArgs* > ZephyrTypeHandleFactory;
 
-extern ZephyrTypeObjFactory* g_zephyrTypeObjFactory;
+extern ZephyrTypeHandleFactory* g_zephyrTypeHandleFactory;
 extern ZephyrEngineEvents* g_zephyrAPI;
 extern ZephyrSubsystem* g_zephyrSubsystem;
 
@@ -279,17 +281,17 @@ public:
 	void CallMethod( const std::string& methodName, ZephyrArgs* args );
 
 	// Binary Operators
-	virtual eZephyrComparatorResult Greater( ZephyrTypeBase* other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult GreaterEqual( ZephyrTypeBase* other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult Less( ZephyrTypeBase* other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult LessEqual( ZephyrTypeBase* other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult NotEqual( ZephyrTypeBase* other );
+	virtual eZephyrComparatorResult Greater( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Less( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult LessEqual( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult NotEqual( ZephyrHandle other );
 
-	virtual ZephyrTypeBase* Add( ZephyrTypeBase* other )		{ (void)other; return nullptr; }
-	virtual ZephyrTypeBase* Subtract( ZephyrTypeBase* other )	{ (void)other; return nullptr; }
-	virtual ZephyrTypeBase* Multiply (ZephyrTypeBase* other )	{ (void)other; return nullptr; }
-	virtual ZephyrTypeBase* Divide( ZephyrTypeBase* other )		{ (void)other; return nullptr; }
+	virtual ZephyrHandle Add( ZephyrHandle other )		{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Subtract( ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Multiply (ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Divide( ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
 
 protected:
 	ZephyrTypeMetadata m_typeMetadata;
@@ -324,7 +326,7 @@ public:
 	ZephyrValue( bool value );
 	ZephyrValue( const std::string& value );
 	ZephyrValue( EntityId value );
-	ZephyrValue( ZephyrTypeBase* value );
+	ZephyrValue( ZephyrHandle value );
 
 	ZephyrValue( ZephyrValue const& other );
 	ZephyrValue& operator=( ZephyrValue const& other );
@@ -340,13 +342,13 @@ public:
 	bool			GetAsBool() const		{ return boolData; }
 	std::string		GetAsString() const;
 	EntityId		GetAsEntity() const		{ return entityData; }
-	ZephyrTypeBase*	GetAsUserType() const	{ return userTypeData; }
+	ZephyrHandle	GetAsUserType() const	{ return userTypeData; }
 	
 	bool			EvaluateAsBool();
 	std::string		EvaluateAsString();
 	float			EvaluateAsNumber();
 	EntityId		EvaluateAsEntity();
-	ZephyrTypeBase*	EvaluateAsUserType();
+	ZephyrHandle	EvaluateAsUserType();
 
 	std::string		SerializeToString() const;
 	void			DeserializeFromString( const std::string& serlializedStr );
@@ -364,9 +366,9 @@ private:
 	{
 		NUMBER_TYPE numberData;
 		bool boolData;
-		std::string* strData = nullptr;
+		std::string* strData;
 		EntityId entityData;
-		ZephyrTypeBase* userTypeData;
+		ZephyrHandle userTypeData = NULL_ZEPHYR_HANDLE;
 	};
 };
 

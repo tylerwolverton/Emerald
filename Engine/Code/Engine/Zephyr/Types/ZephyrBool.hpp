@@ -18,15 +18,19 @@ public:
 	virtual bool EvaluateAsBool() const override								{ return m_value; }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other ) override;
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 	bool GetValue() const { return m_value; }
 
 private:
 	bool m_value = false;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrBool> ZephyrBoolPtr;

@@ -43,12 +43,12 @@ public:
 	void										ResetRegisteredUserTypes();
 
 	template <typename ChildType>
-	Handle<ZephyrTypeBase>				AllocateNewZephyrTypeObject()
+	ZephyrHandle				AllocateNewZephyrTypeObject()
 	{
-		Handle<ZephyrTypeBase> handle( *m_memoryMgr );
+		ZephyrHandle handle( *m_memoryMgr );
 		handle.InitializeAsParent<ChildType>();
 
-		return handle;
+		return std::move(handle);
 	}
 
 private:

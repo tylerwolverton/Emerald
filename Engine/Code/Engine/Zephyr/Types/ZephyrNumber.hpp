@@ -18,24 +18,28 @@ public:
 	virtual bool EvaluateAsBool() const override				{ return !IsNearlyEqual( m_value, 0.f ); }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	virtual eZephyrComparatorResult Greater( ZephyrTypeBase* other ) override;
-	virtual eZephyrComparatorResult GreaterEqual( ZephyrTypeBase* other ) override;
-	virtual eZephyrComparatorResult Less( ZephyrTypeBase* other ) override;
-	virtual eZephyrComparatorResult LessEqual( ZephyrTypeBase* other ) override;
-	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other ) override;
+	virtual eZephyrComparatorResult Greater( ZephyrHandle other ) override;
+	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other ) override;
+	virtual eZephyrComparatorResult Less( ZephyrHandle other ) override;
+	virtual eZephyrComparatorResult LessEqual( ZephyrHandle other ) override;
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
 
-	virtual ZephyrTypeBase* Add( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Subtract( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Multiply( ZephyrTypeBase* other ) override;
-	virtual ZephyrTypeBase* Divide( ZephyrTypeBase* other ) override;
+	virtual ZephyrHandle Add( ZephyrHandle other ) override;
+	virtual ZephyrHandle Subtract( ZephyrHandle other ) override;
+	virtual ZephyrHandle Multiply( ZephyrHandle other ) override;
+	virtual ZephyrHandle Divide( ZephyrHandle other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 	NUMBER_TYPE GetValue() const		{ return m_value; }
 
 private:
 	NUMBER_TYPE m_value = 0.f;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrNumber> ZephyrNumberPtr;

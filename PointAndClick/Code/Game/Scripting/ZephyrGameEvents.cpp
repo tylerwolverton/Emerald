@@ -296,11 +296,12 @@ void ZephyrGameEvents::PrintDebugScreenText( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 {
-	ZephyrTypeBase* textType = args->GetValue( "text", (ZephyrTypeBase*)nullptr );
+	ZephyrHandle textType = args->GetValue( "text", NULL_ZEPHYR_HANDLE );
 	std::string text;
-	if ( textType != nullptr )
+	if ( textType.IsValid() )
 	{
-		text = textType->ToString();
+		SmartPtr smartPtr( textType );
+		text = smartPtr->ToString();
 	}
 	else
 	{
@@ -621,19 +622,32 @@ void ZephyrGameEvents::RegisterKeyEvent( EventArgs* args )
 		return;
 	}
 
-	ZephyrString* key = (ZephyrString*)args->GetValue( "key", (ZephyrTypeBase*)nullptr );
-	if ( key == nullptr ||!key->EvaluateAsBool() )
+	ZephyrHandle keyHandle = args->GetValue( "key", NULL_ZEPHYR_HANDLE );
+	if ( !keyHandle.IsValid() )
 	{
 		return;
 	}
 
-	ZephyrString* event = (ZephyrString*)args->GetValue( "event", (ZephyrTypeBase*)nullptr );
-	if ( event == nullptr ||!event->EvaluateAsBool() )
+	ZephyrStringPtr keyPtr( keyHandle );
+	if ( keyPtr->IsEmpty() )
 	{
 		return;
 	}
 
-	entity->RegisterKeyEvent( key->ToString(), event->ToString() );
+
+	ZephyrHandle eventHandle = args->GetValue( "event", NULL_ZEPHYR_HANDLE );
+	if ( eventHandle.IsValid() )
+	{
+		return;
+	}
+
+	ZephyrStringPtr eventPtr( eventHandle );
+	if ( eventPtr->IsEmpty() )
+	{
+		return;
+	}
+
+	entity->RegisterKeyEvent( keyPtr->ToString(), eventPtr->ToString() );
 }
 
 
@@ -646,19 +660,32 @@ void ZephyrGameEvents::UnRegisterKeyEvent( EventArgs* args )
 		return;
 	}
 
-	ZephyrString* key = (ZephyrString*)args->GetValue( "key", ( ZephyrTypeBase* )nullptr );
-	if ( key == nullptr || !key->EvaluateAsBool() )
+	ZephyrHandle keyHandle = args->GetValue( "key", NULL_ZEPHYR_HANDLE );
+	if ( !keyHandle.IsValid() )
 	{
 		return;
 	}
 
-	ZephyrString* event = (ZephyrString*)args->GetValue( "event", ( ZephyrTypeBase* )nullptr );
-	if ( event == nullptr || !event->EvaluateAsBool() )
+	ZephyrStringPtr keyPtr( keyHandle );
+	if ( keyPtr->IsEmpty() )
 	{
 		return;
 	}
 
-	entity->UnRegisterKeyEvent( key->ToString(), event->ToString() );
+
+	ZephyrHandle eventHandle = args->GetValue( "event", NULL_ZEPHYR_HANDLE );
+	if ( eventHandle.IsValid() )
+	{
+		return;
+	}
+
+	ZephyrStringPtr eventPtr( eventHandle );
+	if ( eventPtr->IsEmpty() )
+	{
+		return;
+	}
+
+	entity->RegisterKeyEvent( keyPtr->ToString(), eventPtr->ToString() );
 }
 
 
@@ -677,20 +704,25 @@ void ZephyrGameEvents::GetMouseCursorPositionWorld( EventArgs* args )
 void ZephyrGameEvents::GetMouseCursorPositionUI( EventArgs* args )
 {
 	Vec2 mouseUIPosition = g_game->GetMouseUIPosition();
+	ZephyrArgs params;
+	params.SetValue( "value", mouseUIPosition );
 
-	args->SetValue( "pos", mouseUIPosition );
+	args->SetValue( "pos", ZephyrVec2::CreateAsZephyrType( &params ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::ChangeSpriteAnimation( EventArgs* args )
 {
-	ZephyrString* newAnim = (ZephyrString*)args->GetValue( "newAnim", (ZephyrTypeBase*)nullptr );
+	ZephyrHandle animHandle = args->GetValue( "newAnim", NULL_ZEPHYR_HANDLE );
+	ZephyrStringPtr newAnim( animHandle );
+	//ZephyrStringPtr newAnim( args->GetValue( "newAnim", NULL_ZEPHYR_HANDLE ) );
+	
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
-		 || newAnim == nullptr ||!newAnim->EvaluateAsBool() )
+		 || newAnim.IsNull() || newAnim->IsEmpty() )
 	{
 		return;
 	}
@@ -702,12 +734,13 @@ void ZephyrGameEvents::ChangeSpriteAnimation( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrGameEvents::PlaySpriteAnimation( EventArgs* args )
 {
-	ZephyrString* newAnim = (ZephyrString*)args->GetValue( "newAnim", ( ZephyrTypeBase* )nullptr );
+	ZephyrHandle animHandle = args->GetValue( "newAnim", NULL_ZEPHYR_HANDLE );
+	ZephyrStringPtr newAnim( animHandle );
 	//Entity* targetEntity = g_game->GetEntityByName( targetId );
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 
 	if ( entity == nullptr
-		 || newAnim == nullptr || !newAnim->EvaluateAsBool() )
+		 || newAnim.IsNull() || newAnim->IsEmpty() )
 	{
 		return;
 	}

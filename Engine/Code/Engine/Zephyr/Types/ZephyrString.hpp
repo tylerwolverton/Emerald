@@ -17,18 +17,23 @@ public:
 	virtual bool EvaluateAsBool() const override								{ return !m_value.empty(); }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	virtual eZephyrComparatorResult Equal( ZephyrTypeBase* other ) override;
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
 
 	// TODO: Explicit concatenate instead?
-	//virtual ZephyrTypeBase* Add( ZephyrTypeBase* other ) override;
+	//virtual ZephyrHandle Add( ZephyrHandle other ) override;
 	// IZephyrType Overrides
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 	std::string GetValue() const { return m_value; }
+	bool IsEmpty() const  { return m_value.empty(); }
 
 private:
 	std::string m_value;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrString> ZephyrStringPtr;

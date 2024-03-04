@@ -76,7 +76,7 @@ private:
 	void SetGlobalVariableInEntity			( EntityId entityId, const std::string& variableName, const ZephyrValue& value );
 	bool CallMemberFunctionOnEntity			( EntityId entityId, const std::string& functionName, ZephyrArgs* args );
 	
-	bool CallMemberFunctionOnUserType		( ZephyrTypeBase& userObj, const std::string& functionName, ZephyrArgs* args );
+	bool CallMemberFunctionOnUserType		( ZephyrHandle userObj, const std::string& functionName, ZephyrArgs* args );
 
 	void ReportError( const std::string& errorMsg );
 	bool IsErrorValue( const ZephyrValue& zephyrValue );

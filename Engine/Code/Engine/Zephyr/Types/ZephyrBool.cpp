@@ -11,9 +11,10 @@ ZephyrTypeBase& ZephyrBool::operator=( ZephyrTypeBase const& other )
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrBool::Equal( ZephyrTypeBase* other )
+eZephyrComparatorResult ZephyrBool::Equal( ZephyrHandle other )
 {
-	if ( m_value == other->EvaluateAsBool() )
+	SmartPtr otherPtr( other );
+	if ( m_value == otherPtr->EvaluateAsBool() )
 	{
 		return eZephyrComparatorResult::TRUE_VAL;
 	}
@@ -32,25 +33,26 @@ void ZephyrBool::CreateAndRegisterMetadata()
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
-	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrBool::CreateAsZephyrType );
+	g_zephyrTypeHandleFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrBool::CreateAsZephyrType );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrBool::CreateAsZephyrType( ZephyrArgs* args )
+ZephyrHandle ZephyrBool::CreateAsZephyrType( ZephyrArgs* args )
 {
-	ZephyrBool* zephyrBool = new ZephyrBool();
+	ZephyrHandle zephyrBoolHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrBool>();
+	ChildSmartPtr<ZephyrTypeBase, ZephyrBool> zephyrBoolPtr( zephyrBoolHandle );
 
 	if ( args == nullptr )
 	{
 		// Default constructor, don't process parameters
-		return zephyrBool;
+		return zephyrBoolHandle;
 	}
 
 	// Fill in vars from args
-	zephyrBool->m_value = args->GetValue( "value", false );
+	zephyrBoolPtr->m_value = args->GetValue( "value", false );
 
-	return zephyrBool;
+	return zephyrBoolHandle;
 }
 
 

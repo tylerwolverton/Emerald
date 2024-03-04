@@ -14,11 +14,13 @@ ZephyrTypeBase& ZephyrVec3::operator=( ZephyrTypeBase const& other )
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrVec3::Equal( ZephyrTypeBase* other )
+eZephyrComparatorResult ZephyrVec3::Equal( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
-		if ( m_value == ( (ZephyrVec3*)other )->m_value )
+		ZephyrVec3Ptr otherAsVec3Ptr( other );
+		if ( m_value == otherAsVec3Ptr->GetValue() )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}
@@ -27,9 +29,9 @@ eZephyrComparatorResult ZephyrVec3::Equal( ZephyrTypeBase* other )
 			return eZephyrComparatorResult::FALSE_VAL;
 		}
 	}
-	else if ( other->GetTypeName() == ZephyrEngineTypeNames::BOOL )
+	else if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::BOOL )
 	{
-		if ( EvaluateAsBool() == other->EvaluateAsBool() )
+		if ( EvaluateAsBool() == otherPtr->EvaluateAsBool() )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}
@@ -44,11 +46,13 @@ eZephyrComparatorResult ZephyrVec3::Equal( ZephyrTypeBase* other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrVec3::Add( ZephyrTypeBase* other )
+ZephyrHandle ZephyrVec3::Add( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
-		Vec3 newVec = m_value + ( (ZephyrVec3*)other )->m_value;
+		ZephyrVec3Ptr otherAsVec3Ptr( other );
+		Vec3 newVec = m_value + otherAsVec3Ptr->GetValue();
 
 		ZephyrArgs params;
 		params.SetValue( "x", newVec.x );
@@ -57,16 +61,18 @@ ZephyrTypeBase* ZephyrVec3::Add( ZephyrTypeBase* other )
 		return CreateAsZephyrType( &params );
 	}
 
-	return nullptr;
+	return NULL_ZEPHYR_HANDLE;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrVec3::Subtract( ZephyrTypeBase* other )
+ZephyrHandle ZephyrVec3::Subtract( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
-		Vec3 newVec = m_value - ( (ZephyrVec3*)other )->m_value;
+		ZephyrVec3Ptr otherAsVec3Ptr( other );
+		Vec3 newVec = m_value - otherAsVec3Ptr->GetValue();
 
 		ZephyrArgs params;
 		params.SetValue( "x", newVec.x );
@@ -75,16 +81,18 @@ ZephyrTypeBase* ZephyrVec3::Subtract( ZephyrTypeBase* other )
 		return CreateAsZephyrType( &params );
 	}
 
-	return nullptr;
+	return NULL_ZEPHYR_HANDLE;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrVec3::Multiply( ZephyrTypeBase* other )
+ZephyrHandle ZephyrVec3::Multiply( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
-		Vec3 newVec = m_value * ( (ZephyrNumber*)other )->GetValue();
+		ZephyrNumberPtr otherAsNumberPtr( other );
+		Vec3 newVec = m_value * otherAsNumberPtr->GetValue();
 
 		ZephyrArgs params;
 		params.SetValue( "x", newVec.x );
@@ -93,16 +101,18 @@ ZephyrTypeBase* ZephyrVec3::Multiply( ZephyrTypeBase* other )
 		return CreateAsZephyrType( &params );
 	}
 
-	return nullptr;
+	return NULL_ZEPHYR_HANDLE;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrVec3::Divide( ZephyrTypeBase* other )
+ZephyrHandle ZephyrVec3::Divide( ZephyrHandle other )
 {
-	if ( other->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	SmartPtr otherPtr( other );
+	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
-		Vec3 newVec = m_value / ( (ZephyrNumber*)other )->GetValue();
+		ZephyrNumberPtr otherAsNumberPtr( other );
+		Vec3 newVec = m_value / otherAsNumberPtr->GetValue();
 
 		ZephyrArgs params;
 		params.SetValue( "x", newVec.x );
@@ -111,7 +121,7 @@ ZephyrTypeBase* ZephyrVec3::Divide( ZephyrTypeBase* other )
 		return CreateAsZephyrType( &params );
 	}
 
-	return nullptr;
+	return NULL_ZEPHYR_HANDLE;
 }
 
 
@@ -125,42 +135,66 @@ void ZephyrVec3::CreateAndRegisterMetadata()
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
-	g_zephyrTypeObjFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrVec3::CreateAsZephyrType );
+	g_zephyrTypeHandleFactory->RegisterCreator( metadata->GetTypeName(), &ZephyrVec3::CreateAsZephyrType );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase* ZephyrVec3::CreateAsZephyrType( ZephyrArgs* args )
+ZephyrHandle ZephyrVec3::CreateAsZephyrType( ZephyrArgs* args )
 {
-	ZephyrVec3* zephyrVec3 = new ZephyrVec3();
+	ZephyrHandle zephyrVec3Handle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrVec3>();
+	ChildSmartPtr<ZephyrTypeBase, ZephyrVec3> zephyrVec3Ptr( zephyrVec3Handle );
 
 	// Fill in vars from args
 	if ( args != nullptr )
 	{
-		ZephyrTypeBase* xInit = args->GetValue( "x", ( ZephyrTypeBase* )nullptr );
-		ZephyrTypeBase* yInit = args->GetValue( "y", ( ZephyrTypeBase* )nullptr );
-		ZephyrTypeBase* zInit = args->GetValue( "z", ( ZephyrTypeBase* )nullptr );
+		// Try to set from Vec2
+		Vec3 valueVec3 = Vec3( -9999.f, -9999.f, -9999.f );
+		Vec3 value = args->GetValue( "value", valueVec3 );
+		if ( value != valueVec3 )
+		{
+			zephyrVec3Ptr->m_value = value;
+		}
+		else
+		{
+			// Try to set from ZephyrVec2
+			ZephyrHandle valueZephyrVec3 = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
+			if ( valueZephyrVec3.IsValid() && zephyrVec3Ptr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+			{
+				zephyrVec3Ptr->m_value = ::FromString( zephyrVec3Ptr->ToString(), Vec3::ZERO );
+			}
+			else
+			{
+				// Try to set from ZephyrNumbers
+				ZephyrHandle xInit = args->GetValue( "x", NULL_ZEPHYR_HANDLE );
+				ZephyrHandle yInit = args->GetValue( "y", NULL_ZEPHYR_HANDLE );
+				ZephyrHandle zInit = args->GetValue( "z", NULL_ZEPHYR_HANDLE );
+				SmartPtr xInitPtr( xInit );
+				SmartPtr yInitPtr( yInit );
+				SmartPtr zInitPtr( zInit );
 
-		if ( xInit != nullptr && xInit->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-		{
-			zephyrVec3->m_value.x = ::FromString( xInit->ToString(), zephyrVec3->m_value.x );
-		}
-		if ( yInit != nullptr && yInit->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-		{
-			zephyrVec3->m_value.y = ::FromString( yInit->ToString(), zephyrVec3->m_value.y );
-		}
-		if (zInit != nullptr && zInit->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-		{
-			zephyrVec3->m_value.z = ::FromString( zInit->ToString(), zephyrVec3->m_value.z );
+				if ( xInit.IsValid() && xInitPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+				{
+					zephyrVec3Ptr->m_value.x = ::FromString( xInitPtr->ToString(), zephyrVec3Ptr->m_value.x );
+				}
+				if ( yInit.IsValid() && yInitPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+				{
+					zephyrVec3Ptr->m_value.y = ::FromString( yInitPtr->ToString(), zephyrVec3Ptr->m_value.y );
+				}
+				if ( zInit.IsValid() && zInitPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+				{
+					zephyrVec3Ptr->m_value.z = ::FromString( zInitPtr->ToString(), zephyrVec3Ptr->m_value.z );
+				}
+			}
 		}
 	}
 
 	// Bind methods
-	zephyrVec3->BindMethod( "Set_x", &Set_x );
-	zephyrVec3->BindMethod( "Set_y", &Set_y );
-	zephyrVec3->BindMethod( "Set_z", &Set_z );
+	zephyrVec3Ptr->BindMethod( "Set_x", &Set_x );
+	zephyrVec3Ptr->BindMethod( "Set_y", &Set_y );
+	zephyrVec3Ptr->BindMethod( "Set_z", &Set_z );
 
-	return zephyrVec3;
+	return zephyrVec3Handle;
 }
 
 
@@ -174,16 +208,17 @@ ZephyrVec3::ZephyrVec3()
 //-----------------------------------------------------------------------------------------------
 void ZephyrVec3::Set_x( ZephyrArgs* args )
 {
-	ZephyrTypeBase* zephyrType = args->GetValue( "value", ( ZephyrTypeBase* )nullptr );
-	if ( zephyrType == nullptr )
+	ZephyrHandle zephyrType = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
+	if ( !zephyrType.IsValid() )
 	{
 		// Print error?
 		return;
 	}
 
-	if ( zephyrType->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	SmartPtr zephyrTypePtr( zephyrType );
+	if ( zephyrTypePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
-		m_value.x = ::FromString( zephyrType->ToString(), 0.f );
+		m_value.x = ::FromString( zephyrTypePtr->ToString(), 0.f );
 	}
 }
 
@@ -191,16 +226,17 @@ void ZephyrVec3::Set_x( ZephyrArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrVec3::Set_y( ZephyrArgs* args )
 {
-	ZephyrTypeBase* zephyrType = args->GetValue( "value", ( ZephyrTypeBase* )nullptr );
-	if ( zephyrType == nullptr )
+	ZephyrHandle zephyrType = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
+	if ( !zephyrType.IsValid() )
 	{
 		// Print error?
 		return;
 	}
 
-	if ( zephyrType->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	SmartPtr zephyrTypePtr( zephyrType );
+	if ( zephyrTypePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
-		m_value.y = ::FromString( zephyrType->ToString(), 0.f );
+		m_value.y = ::FromString( zephyrTypePtr->ToString(), 0.f );
 	}
 }
 
@@ -208,15 +244,16 @@ void ZephyrVec3::Set_y( ZephyrArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrVec3::Set_z( ZephyrArgs* args )
 {
-	ZephyrTypeBase* zephyrType = args->GetValue( "value", ( ZephyrTypeBase* )nullptr );
-	if ( zephyrType == nullptr )
+	ZephyrHandle zephyrType = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
+	if ( !zephyrType.IsValid() )
 	{
 		// Print error?
 		return;
 	}
 
-	if ( zephyrType->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+	SmartPtr zephyrTypePtr( zephyrType );
+	if ( zephyrTypePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
-		m_value.z = ::FromString( zephyrType->ToString(), 0.f );
+		m_value.z = ::FromString( zephyrTypePtr->ToString(), 0.f );
 	}
 }

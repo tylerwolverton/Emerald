@@ -22,7 +22,7 @@ public:
 
 	// static creation
 	static void CreateAndRegisterMetadata();
-	static ZephyrTypeBase* CreateAsZephyrType( ZephyrArgs* args );
+	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 private:
 	void GetDistFromOrigin( ZephyrArgs* args );
@@ -33,3 +33,7 @@ private:
 	//Vec2 m_position = Vec2(3.f, 4.f);
 	Vec2 m_position = Vec2::ZERO;
 };
+
+
+//-----------------------------------------------------------------------------------------------
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrPosition> ZephyrPositionPtr;

@@ -366,6 +366,7 @@
     <ClInclude Include="Math\Vec2.hpp" />
     <ClInclude Include="Math\Vec3.hpp" />
     <ClInclude Include="Math\Vec4.hpp" />
+    <ClInclude Include="Memory\HandleFactory.hpp" />
     <ClInclude Include="Memory\IndexEntry.hpp" />
     <ClInclude Include="Memory\LockPolicies.hpp" />
     <ClInclude Include="Memory\MemoryManager.hpp" />
