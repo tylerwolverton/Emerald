@@ -1134,7 +1134,7 @@ bool ZephyrParser::ParseStringConstant()
 
 	ZephyrArgs params;
 	params.SetValue( "value", curToken.GetData() );
-	ZephyrValue stringConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+	ZephyrValue stringConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
 
 	return WriteConstantToCurChunk( stringConstant );
 }

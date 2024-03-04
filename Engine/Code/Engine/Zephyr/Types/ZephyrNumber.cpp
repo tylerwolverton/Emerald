@@ -28,7 +28,7 @@ void ZephyrNumber::CreateAndRegisterMetadata()
 ZephyrHandle ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 {
 	ZephyrHandle zephyrNumberHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrNumber>();
-	ChildSmartPtr<ZephyrTypeBase, ZephyrNumber> zephyrNumberPtr( zephyrNumberHandle );
+	ZephyrNumberPtr zephyrNumberPtr( zephyrNumberHandle );
 		
 	if ( args == nullptr )
 	{

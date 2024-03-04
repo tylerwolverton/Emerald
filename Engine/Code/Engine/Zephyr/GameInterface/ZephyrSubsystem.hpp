@@ -48,7 +48,7 @@ public:
 		ZephyrHandle handle( *m_memoryMgr );
 		handle.InitializeAsParent<ChildType>();
 
-		return std::move(handle);
+		return handle;
 	}
 
 private:

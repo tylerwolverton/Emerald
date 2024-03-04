@@ -327,7 +327,6 @@ eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrHandle other)
 ZephyrValue::ZephyrValue()
 {
 	m_type = eValueType::NONE;
-	numberData = 0.f;
 }
 
 
@@ -489,6 +488,11 @@ ZephyrValue::~ZephyrValue()
 	{
 		delete strData;
 		strData = nullptr;
+	}
+
+	if ( m_type == eValueType::USER_TYPE )
+	{
+		userTypeData.~Handle();
 	}
 }
 
@@ -685,23 +689,3 @@ ZephyrTimer::~ZephyrTimer()
 {
 	PTR_SAFE_DELETE( callbackArgs );
 }
-
-
-////-----------------------------------------------------------------------------------------------
-//ZephyrType* ZephyrArgs::GetValue( const std::string& keyName )
-//{
-//	auto iter = m_keyValuePairs.find( keyName );
-//	if ( iter == m_keyValuePairs.end() )
-//	{
-//		return nullptr;
-//	}
-//
-//	return iter->second;
-//}
-//
-//
-////-----------------------------------------------------------------------------------------------
-//void ZephyrArgs::SetValue( const std::string& keyName, ZephyrType* value )
-//{
-//	m_keyValuePairs[keyName] = value;
-//}

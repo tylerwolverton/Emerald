@@ -21,6 +21,8 @@ public:
 		: m_managerWhoCreatedMe( &managerWhoCreatedMe )
 	{}
 
+
+	//----------------------------------------------------------------------------
 	template<typename ...Args>
 	void Initialize( Args&& ...args )
 	{
@@ -35,6 +37,8 @@ public:
 		new( m_entry->dataLocation ) T( std::forward<Args>( args )... );
 	}
 
+
+	//----------------------------------------------------------------------------
 	template<typename ChildType, typename ...Args>
 	void InitializeAsParent( Args&& ...args )
 	{
@@ -49,6 +53,8 @@ public:
 		new( m_entry->dataLocation ) ChildType( std::forward<Args>( args )... );
 	}
 
+
+	//----------------------------------------------------------------------------
 	Handle( const Handle& other )
 		: m_entry( other.m_entry )
 	{
@@ -59,6 +65,8 @@ public:
 		}
 	}
 
+
+	//----------------------------------------------------------------------------
 	Handle( Handle&& other )
 		: m_entry( other.m_entry )
 	{
@@ -68,6 +76,8 @@ public:
 		}
 	}
 
+
+	//----------------------------------------------------------------------------
 	Handle& operator=( const Handle& other )
 	{
 		if ( m_entry )
@@ -83,6 +93,8 @@ public:
 		return *this;
 	}
 
+
+	//----------------------------------------------------------------------------
 	Handle& operator=( Handle&& other )
 	{
 		if ( m_entry )
@@ -98,6 +110,26 @@ public:
 		return *this;
 	}
 
+
+	//----------------------------------------------------------------------------
+	void MoveCopy( Handle& other )
+	{
+		if ( m_entry )
+		{
+			Destroy();
+		}
+
+		m_entry = other.m_entry;
+		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
+
+		if ( m_entry )
+		{
+			other->Destroy();
+		}
+	}
+
+
+	//----------------------------------------------------------------------------
 	virtual ~Handle()
 	{
 		if ( IsValid() )
@@ -106,12 +138,15 @@ public:
 		}
 	}
 
+
+	//----------------------------------------------------------------------------
 	bool IsValid() const
 	{
 		return m_entry != nullptr && m_entry->refCount > 0;
 	}
 
 protected:
+	//----------------------------------------------------------------------------
 	T* Pin()
 	{
 		if ( m_entry )
@@ -124,6 +159,8 @@ protected:
 		return nullptr;
 	}
 
+
+	//----------------------------------------------------------------------------
 	void Unpin()
 	{
 		if ( m_entry )
@@ -136,6 +173,8 @@ protected:
 		}
 	}
 
+
+	//----------------------------------------------------------------------------
 	void Destroy()
 	{
 		m_entry->refCount--;
@@ -166,6 +205,8 @@ public:
 		: m_handle( handle )
 		, m_pinnedData( handle.Pin() ) {}
 
+
+	//----------------------------------------------------------------------------
 	~SmartPtr()
 	{
 		m_handle.Unpin();
@@ -176,6 +217,8 @@ public:
 
 	T* operator->() { return m_pinnedData; }
 
+
+	//----------------------------------------------------------------------------
 	bool IsNull() const
 	{
 		return m_pinnedData == nullptr;
@@ -197,6 +240,8 @@ public:
 		: m_handle( handle )
 		, m_pinnedData( (ChildType*)handle.Pin() ) {}
 
+
+	//----------------------------------------------------------------------------
 	~ChildSmartPtr()
 	{
 		m_handle.Unpin();
@@ -208,6 +253,8 @@ public:
 
 	ChildType* operator->() { return m_pinnedData; }
 
+
+	//----------------------------------------------------------------------------
 	bool IsNull() const
 	{
 		return m_pinnedData == nullptr;
