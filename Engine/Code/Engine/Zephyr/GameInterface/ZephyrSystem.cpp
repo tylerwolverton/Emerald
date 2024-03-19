@@ -329,6 +329,7 @@ void ZephyrSystem::UpdateComponent( ZephyrComponent* zephyrComp )
 {
 	if ( !zephyrComp->IsScriptValid() )
 	{
+		// TODO: Make sure this still works after type upgrade
 		EventArgs args;
 		args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
 		args.SetValue( "text", "Script Error" );

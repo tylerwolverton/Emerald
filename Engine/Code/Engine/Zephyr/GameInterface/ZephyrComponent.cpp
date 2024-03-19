@@ -94,6 +94,14 @@ void ZephyrComponent::SetEntityVariableInitializers( const std::vector<EntityVar
 
 
 //-----------------------------------------------------------------------------------------------
+std::string ZephyrComponent::GetScriptName() const
+{
+	static constexpr char const* extStr(".zephyr");
+	return m_componentDef.zephyrScriptName.substr(0, m_componentDef.zephyrScriptName.size() - strlen(extStr) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrComponent::GetGlobalVariable( const std::string& varName )
 {
 	ZephyrValue val = ZephyrValue::ERROR_VALUE;

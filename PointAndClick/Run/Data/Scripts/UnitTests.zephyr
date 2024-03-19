@@ -15,6 +15,13 @@ Entity player
 Function DebugPrint()
 {
 	Number result = 1 + 2
+	if( testNum == testNumInit )
+	{}
+
+	testVec2 = testVec2Init;
+	if( testVec2 == testVec2Init )
+	{
+	}
 }
 
 // Error cases to comment in to test parser
@@ -29,6 +36,7 @@ State NoPrint
 
 	OnEnter()
 	{
+		DebugPrint()
 		// unknownVar = 6;
 		// testVec2.z = 27;
 		// State SubState {}
@@ -58,33 +66,33 @@ State GlobalAssignmentTest
 		if( testNum == testNumInit )
 		{
 			testVec2 = testVec2Init;
-			if( testVec2 == testVec2Init )
-			{
-				testStr = testStrInit;
-				if( testStr == testStrInit )
-				{
-					Number temp = testVec2.x - 6
-					//testVec2.x = 1;
-					//testVec2.y = 2;
-					Vec2 actualVec = Vec2( x:1, y:2 );
-					if( testVec2 = actualVec )
-					{
-						PrintToConsole( text: "GlobalAssignmentTest: Success", color:"green" )
-					}
-					else
-					{
-						PrintToConsole( text:"GlobalAssignmentTest: Failed", color: "red" )
-					}
-				}
-				else
-				{
-					PrintToConsole( text: "GlobalAssignmentTest: Failed", color: "red" )
-				}
-			}
-			else
-			{	
-				PrintToConsole( text: "GlobalAssignmentTest: Failed", color: "red" )
-			}	
+			//if( testVec2 == testVec2Init )
+			//{
+			// 	testStr = testStrInit;
+			// 	if( testStr == testStrInit )
+			// 	{
+			// 		Number temp = testVec2.x - 6
+			// 		//testVec2.x = 1;
+			// 		//testVec2.y = 2;
+			// 		Vec2 actualVec = Vec2( x:1, y:2 );
+			// 		if( testVec2 == actualVec )
+			// 		{
+			// 			PrintToConsole( text: "GlobalAssignmentTest: Success", color:"green" )
+			// 		}
+			// 		else
+			// 		{
+			// 			PrintToConsole( text:"GlobalAssignmentTest: Failed", color: "red" )
+			// 		}
+			// 	}
+			// 	else
+			// 	{
+			// 		PrintToConsole( text: "GlobalAssignmentTest: Failed", color: "red" )
+			// 	}
+			//}
+			// else
+			// {	
+			// 	PrintToConsole( text: "GlobalAssignmentTest: Failed", color: "red" )
+			// }	
 		}
 		else
 		{
@@ -135,6 +143,7 @@ State OperatorTest
 {
 	OnEnter()
 	{
+		// ERROR HERE
 		Number testNum = -(1 + 2 * 3 - 4 / 2);
 		if( testNum != -5 )
 		{

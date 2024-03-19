@@ -41,7 +41,8 @@ public:
 	void SetEntityVariableInitializers( const std::vector<EntityVariableInitializer>& entityVarInits );
 
 	// Accessors
-	std::string		GetScriptName() const													{ return m_componentDef.zephyrScriptName;	}
+	std::string		GetScriptName() const;
+	std::string		GetScriptNameWithExtension() const										{ return m_componentDef.zephyrScriptName;	}
 	ZephyrValue		GetGlobalVariable( const std::string& varName );
 	void			SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 	bool			IsScriptValid() const													{ return m_compState != eComponentState::INVALID_SCRIPT

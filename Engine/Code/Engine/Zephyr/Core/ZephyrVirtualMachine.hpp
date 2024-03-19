@@ -1,12 +1,12 @@
 #pragma once
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
+#include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
 
 #include <stack>
 #include <queue>
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrBytecodeChunk;
 class ZephyrComponent;
 
 
@@ -36,12 +36,13 @@ class ZephyrVirtualMachine
 	friend class ZephyrInterpreter;
 
 private:
-	ZephyrVirtualMachine( ZephyrValueMap* globalVariables,
+	ZephyrVirtualMachine( const ZephyrBytecodeChunk& bytecodeChunk,
+						  ZephyrValueMap* globalVariables,
 						  ZephyrComponent& zephyrComponent,
 						  ZephyrArgs* eventArgs = nullptr,
 						  ZephyrValueMap* stateVariables = nullptr );
 	
-	void		InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk );
+	void		InterpretBytecodeChunk();
 
 	void		CopyEventArgVariables( ZephyrArgs* args, ZephyrValueMap& localVariables );
 
@@ -83,6 +84,7 @@ private:
 
 private:
 	ZephyrComponent&		m_zephyrComponent;
+	const ZephyrBytecodeChunk&	m_bytecodeChunk;
 	std::stack<ZephyrValue> m_constantStack;
 	std::deque<std::string> m_curMemberAccessorNames;
 

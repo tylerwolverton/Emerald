@@ -13,11 +13,13 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrVirtualMachine::ZephyrVirtualMachine( ZephyrValueMap* globalVariables, 
+ZephyrVirtualMachine::ZephyrVirtualMachine( const ZephyrBytecodeChunk& bytecodeChunk,
+											ZephyrValueMap* globalVariables, 
 											ZephyrComponent& zephyrComponent, 
 											ZephyrArgs* eventArgs,
 											ZephyrValueMap* stateVariables )
-	: m_globalVariables( globalVariables )
+	: m_bytecodeChunk( bytecodeChunk )
+	, m_globalVariables( globalVariables )
 	, m_zephyrComponent( zephyrComponent )
 	, m_stateVariables( stateVariables )
 	, m_eventArgs( eventArgs )
@@ -26,7 +28,7 @@ ZephyrVirtualMachine::ZephyrVirtualMachine( ZephyrValueMap* globalVariables,
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk )
+void ZephyrVirtualMachine::InterpretBytecodeChunk()
 {
 	if ( !m_zephyrComponent.IsScriptValid() )
 	{
@@ -36,14 +38,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 	// Event variables don't need to be persisted after this call, so save a copy as local variables
 	// TODO: Account for scopes inside if statements, etc.?
 	std::map<std::string, ZephyrValue> localVariables;
-	if (  bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
+	if ( m_bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
 	{
-		localVariables = bytecodeChunk.GetVariables();
+		localVariables = m_bytecodeChunk.GetVariables();
 		CopyEventArgVariables( m_eventArgs, localVariables );
 	}
 
 	int byteIdx = 0;
-	while ( byteIdx < bytecodeChunk.GetNumBytes() )
+	while ( byteIdx < m_bytecodeChunk.GetNumBytes() )
 	{
 		// If this script has an error during interpretation, bail out to avoid running in a broken, unknown state
 		if ( !m_zephyrComponent.IsScriptValid() )
@@ -51,14 +53,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 			return;
 		}
 
-		byte instruction = bytecodeChunk.GetByte( byteIdx++ );
+		byte instruction = m_bytecodeChunk.GetByte( byteIdx++ );
 		eOpCode opCode = ByteToOpCode( instruction );
 		switch ( opCode )
 		{
 			case eOpCode::CONSTANT:
 			{
-				int constIdx = bytecodeChunk.GetByte( byteIdx++ );
-				ZephyrValue constant = bytecodeChunk.GetConstant( constIdx );
+				int constIdx = m_bytecodeChunk.GetByte( byteIdx++ );
+				ZephyrValue constant = m_bytecodeChunk.GetConstant( constIdx );
 				PushConstant( constant );
 			}
 			break;			
@@ -71,7 +73,6 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk( const ZephyrBytecodeChunk& by
 				ZephyrArgs args;
 				InsertParametersIntoEventArgs( args );
 
-				// TODO: Delete this somewhere
 				PushConstant( ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( variableType.GetAsString(), &args ) ) );
 			}
 			break;
@@ -1294,7 +1295,21 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrHandle userObj, c
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
-	g_devConsole->PrintError( Stringf( "Error in script '%s': %s", m_zephyrComponent.GetScriptName().c_str(), errorMsg.c_str() ) );
+	g_devConsole->PrintError( Stringf( "Error in zephyr script '%s'", m_zephyrComponent.GetScriptNameWithExtension().c_str() ) );
+
+	std::string errorPrefix;
+	if ( ZephyrBytecodeChunk* parentChunk = m_bytecodeChunk.GetParentChunk() )
+	{
+		if ( parentChunk->GetType() == eBytecodeChunkType::STATE )
+		{
+			errorPrefix.append( parentChunk->GetName() );
+			errorPrefix.append( "::" );
+		}
+	}
+	
+	errorPrefix.append( m_bytecodeChunk.GetName() );
+
+	g_devConsole->PrintError( Stringf( "  %s: %s", errorPrefix.c_str(), errorMsg.c_str() ) );
 
 	m_zephyrComponent.m_compState = eComponentState::INVALID_SCRIPT;
 }

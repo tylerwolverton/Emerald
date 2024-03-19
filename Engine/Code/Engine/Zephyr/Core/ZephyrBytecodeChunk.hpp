@@ -36,6 +36,7 @@ public:
 	const ZephyrBytecodeChunkMap&	GetEventBytecodeChunks() const					{ return m_eventBytecodeChunks; }
 	eBytecodeChunkType				GetType() const									{ return m_type; }
 	bool							IsInitialState() const							{ return m_isInitialState; }
+	ZephyrBytecodeChunk*			GetParentChunk() const							{ return m_parentChunk; }
 
 	// Methods to write data to chunk
 	void WriteByte( byte newByte );

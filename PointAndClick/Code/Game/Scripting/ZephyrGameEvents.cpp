@@ -308,7 +308,17 @@ void ZephyrGameEvents::PrintToConsole( EventArgs* args )
 		text = args->GetValue( "text", "");
 	}
 
-	std::string colorStr = args->GetValue( "color", "white" );
+	ZephyrHandle colorHandle = args->GetValue( "color", NULL_ZEPHYR_HANDLE );
+	std::string colorStr;
+	if ( colorHandle.IsValid() )
+	{
+		SmartPtr smartPtr( colorHandle );
+		colorStr = smartPtr->ToString();
+	}
+	else
+	{
+		colorStr = "white";
+	}
 
 	Rgba8 color = Rgba8::WHITE;
 	if		( colorStr == "white" ) { color = Rgba8::WHITE; }

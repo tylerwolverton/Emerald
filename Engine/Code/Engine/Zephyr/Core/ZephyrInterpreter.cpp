@@ -10,8 +10,8 @@ void ZephyrInterpreter::InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& 
 													 ZephyrComponent& zephyrComponent,
 													 ZephyrValueMap* stateVariables )
 {
-	ZephyrVirtualMachine vm( globalVariables, zephyrComponent, nullptr, stateVariables );
-	vm.InterpretBytecodeChunk( bytecodeChunk );
+	ZephyrVirtualMachine vm( bytecodeChunk, globalVariables, zephyrComponent, nullptr, stateVariables );
+	vm.InterpretBytecodeChunk();
 }
 
 
@@ -22,6 +22,6 @@ void ZephyrInterpreter::InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& 
 													 EventArgs* eventArgs, 
 													 ZephyrValueMap* stateVariables )
 {
-	ZephyrVirtualMachine vm( globalVariables, zephyrComponent, eventArgs, stateVariables );
-	vm.InterpretBytecodeChunk( bytecodeChunk );
+	ZephyrVirtualMachine vm( bytecodeChunk, globalVariables, zephyrComponent, eventArgs, stateVariables );
+	vm.InterpretBytecodeChunk();
 }

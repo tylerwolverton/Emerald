@@ -302,7 +302,6 @@ bool ZephyrParser::ParseStatement()
 		}
 		break;
 		
-		//case eTokenType::NUMBER:
 		case eTokenType::USER_TYPE:
 		{
 			if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )
