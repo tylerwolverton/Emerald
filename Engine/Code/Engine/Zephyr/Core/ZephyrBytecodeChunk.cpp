@@ -19,6 +19,21 @@ ZephyrBytecodeChunk::~ZephyrBytecodeChunk()
 
 
 //-----------------------------------------------------------------------------------------------
+std::string ZephyrBytecodeChunk::GetFullyQualifiedName() const
+{
+	std::string fullName;
+	if ( m_parentChunk != nullptr )
+	{
+		fullName.append( m_parentChunk->GetName() );
+		fullName.append( "::" );
+	}
+
+	fullName.append( GetName() );
+	return fullName;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 bool ZephyrBytecodeChunk::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const
 {
 	auto variableEntry = m_variables.find( identifier );

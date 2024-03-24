@@ -29,7 +29,7 @@ ZephyrScriptDefinition* ZephyrParser::ParseTokensIntoScriptDefinition()
 	{
 		if ( !ParseStatement() )
 		{
-			return new ZephyrScriptDefinition( nullptr, m_bytecodeChunks );
+			return new ZephyrScriptDefinition( nullptr, m_bytecodeChunks, m_bytecodeOpCodeToLineNumMap );
 		}
 
 		nextToken = GetCurToken();
@@ -59,10 +59,10 @@ ZephyrScriptDefinition* ZephyrParser::ParseTokensIntoScriptDefinition()
 
 	if ( anyErrorChunks )
 	{
-		return new ZephyrScriptDefinition( nullptr, m_bytecodeChunks );
+		return new ZephyrScriptDefinition( nullptr, m_bytecodeChunks, m_bytecodeOpCodeToLineNumMap );
 	}
 
-	ZephyrScriptDefinition* validScript =  new ZephyrScriptDefinition( m_globalBytecodeChunk, m_bytecodeChunks );
+	ZephyrScriptDefinition* validScript =  new ZephyrScriptDefinition( m_globalBytecodeChunk, m_bytecodeChunks, m_bytecodeOpCodeToLineNumMap );
 	validScript->SetIsValid( true );
 
 	return validScript;
@@ -206,7 +206,7 @@ bool ZephyrParser::WriteByteToCurChunk( byte newByte )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::WriteOpCodeToCurChunk( eOpCode opCode )
+bool ZephyrParser::WriteOpCodeToCurChunk( eOpCode opCode, int lineNum )
 {
 	if ( m_curBytecodeChunk == nullptr )
 	{
@@ -216,6 +216,23 @@ bool ZephyrParser::WriteOpCodeToCurChunk( eOpCode opCode )
 
 	m_curBytecodeChunk->WriteByte( opCode );
 
+	//AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), (int)opCode );
+	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), lineNum );
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrParser::WriteConstantOpToCurChunk( const ZephyrValue& constant, int lineNum )
+{
+	if ( !WriteConstantToCurChunk( constant ) )
+	{
+		return false;
+	}
+
+	//AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), 3 );
+	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), lineNum );
 	return true;
 }
 
@@ -233,6 +250,19 @@ bool ZephyrParser::WriteConstantToCurChunk( const ZephyrValue& constant )
 	m_curBytecodeChunk->WriteConstant( constant );
 
 	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrParser::AddOpCodeLineNumToMap( const std::string& bytecodeChunkName, int lineNum )
+{
+	const auto& mapIter = m_bytecodeOpCodeToLineNumMap.find( bytecodeChunkName );
+	if ( mapIter == m_bytecodeOpCodeToLineNumMap.cend() )
+	{
+		m_bytecodeOpCodeToLineNumMap[bytecodeChunkName] = std::vector<int>();
+	}
+
+	m_bytecodeOpCodeToLineNumMap[bytecodeChunkName].push_back( lineNum );
 }
 
 
@@ -350,7 +380,7 @@ bool ZephyrParser::ParseStatement()
 
 		case eTokenType::RETURN:
 		{
-			m_curBytecodeChunk->WriteByte( eOpCode::RETURN );
+			WriteOpCodeToCurChunk( eOpCode::RETURN, curToken.GetLineNum() );
 		}
 		break;
 		
@@ -512,8 +542,8 @@ bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const st
 				return false;
 			}
 
-			WriteConstantToCurChunk( ZephyrValue( identifier.GetData() ) );
-			WriteOpCodeToCurChunk( eOpCode::ASSIGNMENT );
+			WriteConstantOpToCurChunk( ZephyrValue( identifier.GetData() ), curToken.GetLineNum() );
+			WriteOpCodeToCurChunk( eOpCode::ASSIGNMENT, curToken.GetLineNum() );
 		}
 		break;
 	}
@@ -545,8 +575,8 @@ bool ZephyrParser::ParseFunctionCall()
 		return false;
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( functionName.GetData() ) );
-	WriteOpCodeToCurChunk( eOpCode::FUNCTION_CALL );
+	WriteConstantOpToCurChunk( ZephyrValue( functionName.GetData() ), functionName.GetLineNum() );
+	WriteOpCodeToCurChunk( eOpCode::FUNCTION_CALL, functionName.GetLineNum() );
 
 	return true;
 }
@@ -572,7 +602,6 @@ bool ZephyrParser::ParseEventArgs()
 		ZephyrToken valueToken = GetCurToken();
 		switch ( valueToken.GetType() )
 		{
-			// ZEPHYR TYPE TODO: Remove/codegen
 			case eTokenType::CONSTANT_NUMBER:
 			case eTokenType::ENTITY:
 			case eTokenType::TRUE_TOKEN:
@@ -613,7 +642,7 @@ bool ZephyrParser::ParseEventArgs()
 			}
 		}
 
-		WriteConstantToCurChunk( identifier.GetData() );
+		WriteConstantOpToCurChunk( identifier.GetData(), valueToken.GetLineNum() );
 		++paramCount;
 
 		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
@@ -621,15 +650,15 @@ bool ZephyrParser::ParseEventArgs()
 		identifier = ConsumeCurToken();
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( (float)paramCount ) );
+	WriteConstantOpToCurChunk( ZephyrValue( (float)paramCount ), identifier.GetLineNum() );
 
 	for ( int identifierIdx = 0; identifierIdx < (int)identifierParamNames.size(); ++identifierIdx )
 	{
-		WriteConstantToCurChunk( identifierNames[identifierIdx] );
-		WriteConstantToCurChunk( identifierParamNames[identifierIdx] );
+		WriteConstantOpToCurChunk( identifierNames[identifierIdx], identifier.GetLineNum() );
+		WriteConstantOpToCurChunk( identifierParamNames[identifierIdx], identifier.GetLineNum() );
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( (float)identifierParamNames.size() ) );
+	WriteConstantOpToCurChunk( ZephyrValue( (float)identifierParamNames.size() ), identifier.GetLineNum() );
 
 	return true;
 }
@@ -676,7 +705,7 @@ bool ZephyrParser::ParseParameters()
 			}
 		}
 
-		WriteConstantToCurChunk( identifier.GetData() );
+		WriteConstantOpToCurChunk( identifier.GetData(), identifier.GetLineNum() );
 		++paramCount;
 
 		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
@@ -684,7 +713,7 @@ bool ZephyrParser::ParseParameters()
 		identifier = ConsumeCurToken();
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( (float)paramCount ) );
+	WriteConstantOpToCurChunk( ZephyrValue( (float)paramCount ), identifier.GetLineNum() );
 
 	return true;
 }
@@ -715,8 +744,8 @@ bool ZephyrParser::ParseChangeStateStatement()
 		return false;
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( stateName.GetData() ) );
-	WriteOpCodeToCurChunk( eOpCode::CHANGE_STATE );
+	WriteConstantOpToCurChunk( ZephyrValue( stateName.GetData() ), stateName.GetLineNum() );
+	WriteOpCodeToCurChunk( eOpCode::CHANGE_STATE, stateName.GetLineNum() );
 
 	return true;
 }
@@ -729,6 +758,8 @@ bool ZephyrParser::ParseIfStatement()
 	m_curBytecodeChunk->WriteByte( eOpCode::CONSTANT );
 	int ifInstructionCountIdx = m_curBytecodeChunk->AddConstant( ZephyrValue( 0.f ) );
 	m_curBytecodeChunk->WriteByte( ifInstructionCountIdx );
+	// Manually add the constant op code to the lineNum map
+	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), GetCurToken().GetLineNum() );
 
 	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_LEFT ) ) return false;
 
@@ -736,7 +767,9 @@ bool ZephyrParser::ParseIfStatement()
 
 	if ( !ConsumeExpectedNextToken( eTokenType::PARENTHESIS_RIGHT ) ) return false;
 
-	WriteOpCodeToCurChunk( eOpCode::IF );
+	// Need the last token to use the closing parenthesis line for error reporting
+	int lastLineNum = GetLastToken().GetLineNum();
+	WriteOpCodeToCurChunk( eOpCode::IF, lastLineNum );
 
 	int preIfBlockByteCount = (int)m_curBytecodeChunk->GetCode().size();
 
@@ -750,8 +783,10 @@ bool ZephyrParser::ParseIfStatement()
 	m_curBytecodeChunk->WriteByte( eOpCode::CONSTANT );
 	int elseInstructionCountIdx = m_curBytecodeChunk->AddConstant( ZephyrValue( 0.f ) );
 	m_curBytecodeChunk->WriteByte( elseInstructionCountIdx );
+	// Manually add the constant op code to the lineNum map
+	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), lastLineNum );
 
-	WriteOpCodeToCurChunk( eOpCode::JUMP );
+	WriteOpCodeToCurChunk( eOpCode::JUMP, lastLineNum );
 
 	// Check for else statement
 	if ( GetCurToken().GetType() == eTokenType::ELSE )
@@ -791,8 +826,8 @@ bool ZephyrParser::ParseAssignment()
 				return false;
 			}
 
-			WriteConstantToCurChunk( ZephyrValue( identifier.GetData() ) );
-			WriteOpCodeToCurChunk( eOpCode::ASSIGNMENT );
+			WriteConstantOpToCurChunk( ZephyrValue( identifier.GetData() ), identifier.GetLineNum() );
+			WriteOpCodeToCurChunk( eOpCode::ASSIGNMENT, identifier.GetLineNum() );
 		}
 		break;
 
@@ -836,9 +871,9 @@ bool ZephyrParser::ParseMemberAssignment()
 		return false;
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( identifier.GetData() ) );
-	WriteConstantToCurChunk( ZephyrValue( member.GetData() ) );
-	WriteOpCodeToCurChunk( eOpCode::MEMBER_ASSIGNMENT );
+	WriteConstantOpToCurChunk( ZephyrValue( identifier.GetData() ), identifier.GetLineNum() );
+	WriteConstantOpToCurChunk( ZephyrValue( member.GetData() ), member.GetLineNum() );
+	WriteOpCodeToCurChunk( eOpCode::MEMBER_ASSIGNMENT, member.GetLineNum() );
 
 	return true;
 }
@@ -868,12 +903,12 @@ bool ZephyrParser::ParseMemberAccessor()
 			return false;
 		}
 
-		WriteConstantToCurChunk( ZephyrValue( member.GetData() ) );
+		WriteConstantOpToCurChunk( ZephyrValue( member.GetData() ), member.GetLineNum() );
 	}
 
 	// Write number of accessors as number
-	WriteConstantToCurChunk( ZephyrValue( topLevelObj.GetData() ) );
-	WriteConstantToCurChunk( ZephyrValue( (float)memberCount ) );
+	WriteConstantOpToCurChunk( ZephyrValue( topLevelObj.GetData() ), topLevelObj.GetLineNum() );
+	WriteConstantOpToCurChunk( ZephyrValue( (float)memberCount ), topLevelObj.GetLineNum() );
 		
 	switch ( GetCurTokenType() )
 	{
@@ -885,7 +920,7 @@ bool ZephyrParser::ParseMemberAccessor()
 				return false;
 			}
 
-			WriteOpCodeToCurChunk( eOpCode::MEMBER_ASSIGNMENT );
+			WriteOpCodeToCurChunk( eOpCode::MEMBER_ASSIGNMENT, GetCurToken().GetLineNum() );
 		}
 		break;
 
@@ -904,14 +939,14 @@ bool ZephyrParser::ParseMemberAccessor()
 				return false;
 			}
 
-			WriteOpCodeToCurChunk( eOpCode::MEMBER_FUNCTION_CALL );
+			WriteOpCodeToCurChunk( eOpCode::MEMBER_FUNCTION_CALL, GetLastToken().GetLineNum() );
 		}
 		break;
 
 		// If something else is at current token, must just be an accessor in an expression
 		default:
 		{
-			WriteOpCodeToCurChunk( eOpCode::MEMBER_ACCESSOR );
+			WriteOpCodeToCurChunk( eOpCode::MEMBER_ACCESSOR, GetLastToken().GetLineNum() );
 		}
 		break;
 	}
@@ -1049,8 +1084,8 @@ bool ZephyrParser::ParseUnaryExpression()
 
 	switch ( curToken.GetType() )
 	{
-		case eTokenType::MINUS:			return WriteOpCodeToCurChunk( eOpCode::NEGATE );
-		case eTokenType::BANG:			return WriteOpCodeToCurChunk( eOpCode::NOT );
+		case eTokenType::MINUS:			return WriteOpCodeToCurChunk( eOpCode::NEGATE, curToken.GetLineNum() );
+		case eTokenType::BANG:			return WriteOpCodeToCurChunk( eOpCode::NOT, curToken.GetLineNum() );
 	}
 		
 	ReportError( Stringf( "Invalid unary operation '%s'", ToString( curToken.GetType() ).c_str() ) );
@@ -1072,18 +1107,18 @@ bool ZephyrParser::ParseBinaryExpression()
 
 	switch ( curToken.GetType() )
 	{
-		case eTokenType::PLUS:			return WriteOpCodeToCurChunk( eOpCode::ADD );
-		case eTokenType::MINUS:			return WriteOpCodeToCurChunk( eOpCode::SUBTRACT );
-		case eTokenType::STAR:			return WriteOpCodeToCurChunk( eOpCode::MULTIPLY );
-		case eTokenType::SLASH:			return WriteOpCodeToCurChunk( eOpCode::DIVIDE );
-		case eTokenType::BANG_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::NOT_EQUAL );
-		case eTokenType::EQUAL_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::EQUAL );
-		case eTokenType::GREATER:		return WriteOpCodeToCurChunk( eOpCode::GREATER );
-		case eTokenType::GREATER_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::GREATER_EQUAL );
-		case eTokenType::LESS:			return WriteOpCodeToCurChunk( eOpCode::LESS );
-		case eTokenType::LESS_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::LESS_EQUAL );
-		case eTokenType::AND:			return WriteOpCodeToCurChunk( eOpCode::AND );
-		case eTokenType::OR:			return WriteOpCodeToCurChunk( eOpCode::OR );
+		case eTokenType::PLUS:			return WriteOpCodeToCurChunk( eOpCode::ADD,				curToken.GetLineNum() );
+		case eTokenType::MINUS:			return WriteOpCodeToCurChunk( eOpCode::SUBTRACT,		curToken.GetLineNum() );
+		case eTokenType::STAR:			return WriteOpCodeToCurChunk( eOpCode::MULTIPLY,		curToken.GetLineNum() );
+		case eTokenType::SLASH:			return WriteOpCodeToCurChunk( eOpCode::DIVIDE,			curToken.GetLineNum() );
+		case eTokenType::BANG_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::NOT_EQUAL,		curToken.GetLineNum() );
+		case eTokenType::EQUAL_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::EQUAL,			curToken.GetLineNum() );
+		case eTokenType::GREATER:		return WriteOpCodeToCurChunk( eOpCode::GREATER,			curToken.GetLineNum() );
+		case eTokenType::GREATER_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::GREATER_EQUAL,	curToken.GetLineNum() );
+		case eTokenType::LESS:			return WriteOpCodeToCurChunk( eOpCode::LESS,			curToken.GetLineNum() );
+		case eTokenType::LESS_EQUAL:	return WriteOpCodeToCurChunk( eOpCode::LESS_EQUAL,		curToken.GetLineNum() );
+		case eTokenType::AND:			return WriteOpCodeToCurChunk( eOpCode::AND,				curToken.GetLineNum() );
+		case eTokenType::OR:			return WriteOpCodeToCurChunk( eOpCode::OR,				curToken.GetLineNum() );
 	}
 
 	ReportError( Stringf( "Invalid binary operation '%s'", ToString( curToken.GetType() ).c_str() ) );
@@ -1100,29 +1135,29 @@ bool ZephyrParser::ParseNumberConstant()
 	params.SetValue( "value", (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
 	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
 
-	return WriteConstantToCurChunk( numberConstant );
+	return WriteConstantOpToCurChunk( numberConstant, curToken.GetLineNum() );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrParser::ParseBoolConstant( bool value )
 {
-	ConsumeCurToken();
+	ZephyrToken curToken = ConsumeCurToken();
 
 	ZephyrArgs params;
 	params.SetValue( "value", value );
 	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
 
-	return WriteConstantToCurChunk( boolConstant );
+	return WriteConstantOpToCurChunk( boolConstant, curToken.GetLineNum() );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrParser::ParseEntityConstant()
 {
-	ConsumeCurToken();
+	ZephyrToken curToken = ConsumeCurToken();
 
-	return WriteConstantToCurChunk( ZephyrValue( INVALID_ENTITY_ID ) );
+	return WriteConstantOpToCurChunk( ZephyrValue( INVALID_ENTITY_ID ), curToken.GetLineNum() );
 }
 
 
@@ -1135,7 +1170,7 @@ bool ZephyrParser::ParseStringConstant()
 	params.SetValue( "value", curToken.GetData() );
 	ZephyrValue stringConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
 
-	return WriteConstantToCurChunk( stringConstant );
+	return WriteConstantOpToCurChunk( stringConstant, curToken.GetLineNum() );
 }
 
 
@@ -1162,9 +1197,10 @@ bool ZephyrParser::ParseUserTypeConstant( const std::string& typeName )
 		return false;
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( typeName ) );
-	WriteConstantToCurChunk( ZephyrValue( "TEMPORARY_VAR" ) );
-	WriteOpCodeToCurChunk( eOpCode::CONSTANT_USER_TYPE );
+	int lastTokenLineNum = GetLastToken().GetLineNum();
+	WriteConstantOpToCurChunk( ZephyrValue( typeName ), lastTokenLineNum );
+	WriteConstantOpToCurChunk( ZephyrValue( "TEMPORARY_VAR" ), lastTokenLineNum );
+	WriteOpCodeToCurChunk( eOpCode::CONSTANT_USER_TYPE, lastTokenLineNum );
 
 	return true;
 }
@@ -1181,8 +1217,8 @@ bool ZephyrParser::ParseIdentifierExpression()
 		return false;
 	}
 
-	WriteConstantToCurChunk( ZephyrValue( curToken.GetData() ) );
-	WriteOpCodeToCurChunk( eOpCode::GET_VARIABLE_VALUE );
+	WriteConstantOpToCurChunk( ZephyrValue( curToken.GetData() ), curToken.GetLineNum() );
+	WriteOpCodeToCurChunk( eOpCode::GET_VARIABLE_VALUE, curToken.GetLineNum() );
 
 	return true;
 }

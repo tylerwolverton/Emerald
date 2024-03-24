@@ -14,7 +14,7 @@ class ZephyrBytecodeChunk;
 class ZephyrScriptDefinition
 {
 public:
-	ZephyrScriptDefinition( ZephyrBytecodeChunk* globalBytecodeChunk, const ZephyrBytecodeChunkMap& bytecodeChunks );
+	ZephyrScriptDefinition( ZephyrBytecodeChunk* globalBytecodeChunk, const ZephyrBytecodeChunkMap& bytecodeChunks, const std::map<std::string, std::vector<int>>& bytecodeOpCodeToLineNumMap );
 	~ZephyrScriptDefinition();
 
 	bool IsValid() const																	{ return m_isValid; }
@@ -25,6 +25,8 @@ public:
 	ZephyrBytecodeChunk* GetFirstStateBytecodeChunk() const;
 	ZephyrBytecodeChunkMap GetAllStateBytecodeChunks() const;
 	ZephyrBytecodeChunkMap GetAllEventBytecodeChunks() const;
+
+	int GetLineNumFromOpCodeIdx( const std::string& bytecodeChunkName, int opCodeIdx ) const;
 
 	static ZephyrScriptDefinition* GetZephyrScriptDefinitionByPath( const std::string& scriptPath );
 	static ZephyrScriptDefinition* GetZephyrScriptDefinitionByName( const std::string& scriptName );
@@ -41,4 +43,6 @@ private:
 
 	ZephyrBytecodeChunk* m_globalBytecodeChunk = nullptr;					// Owned by ZephyrScriptDefinition
 	ZephyrBytecodeChunkMap m_bytecodeChunks;								// Owned by ZephyrScriptDefinition
+
+	std::map<std::string, std::vector<int>> m_bytecodeOpCodeToLineNumMap;
 };

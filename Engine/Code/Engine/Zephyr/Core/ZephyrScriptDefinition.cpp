@@ -13,9 +13,11 @@ std::string ZephyrScriptDefinition::s_dataPathSuffix;
 
 //-----------------------------------------------------------------------------------------------
 ZephyrScriptDefinition::ZephyrScriptDefinition( ZephyrBytecodeChunk* globalBytecodeChunk,
-												const ZephyrBytecodeChunkMap& bytecodeChunks )
+												const ZephyrBytecodeChunkMap& bytecodeChunks, 
+												const std::map<std::string, std::vector<int>>& bytecodeOpCodeToLineNumMap )
 	: m_globalBytecodeChunk( globalBytecodeChunk )
 	, m_bytecodeChunks( bytecodeChunks )
+	, m_bytecodeOpCodeToLineNumMap( bytecodeOpCodeToLineNumMap )
 {
 	s_dataPathSuffix = g_gameConfigBlackboard.GetValue( std::string( "dataPathSuffix" ), "" );
 }
@@ -95,6 +97,20 @@ ZephyrBytecodeChunkMap ZephyrScriptDefinition::GetAllEventBytecodeChunks() const
 	}
 
 	return eventChunks;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+int ZephyrScriptDefinition::GetLineNumFromOpCodeIdx( const std::string& bytecodeChunkName, int opCodeIdx ) const
+{
+	const auto& mapIter = m_bytecodeOpCodeToLineNumMap.find( bytecodeChunkName );
+	if ( mapIter == m_bytecodeOpCodeToLineNumMap.cend() 
+		|| opCodeIdx >= mapIter->second.size() )
+	{
+		return -1;
+	}
+
+	return mapIter->second[opCodeIdx];
 }
 
 

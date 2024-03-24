@@ -47,8 +47,10 @@ private:
 	void FinalizeCurBytecodeChunk();
 
 	bool WriteByteToCurChunk( byte newByte );
-	bool WriteOpCodeToCurChunk( eOpCode opCode );
+	bool WriteOpCodeToCurChunk( eOpCode opCode, int lineNum );
+	bool WriteConstantOpToCurChunk( const ZephyrValue& constant, int lineNum );
 	bool WriteConstantToCurChunk( const ZephyrValue& constant );
+	void AddOpCodeLineNumToMap( const std::string& bytecodeChunkName, int lineNum );
 
 	bool IsCurTokenType( const eTokenType& type );
 	bool DoesTokenMatchType( const ZephyrToken& token, const eTokenType& type );
@@ -111,6 +113,7 @@ private:
 private:
 	std::string m_filename;
 	std::vector<ZephyrToken> m_tokens;
+	std::map<std::string, std::vector<int>> m_bytecodeOpCodeToLineNumMap;
 	int m_curTokenIdx = 0;
 	
 	bool m_isFirstStateDef = true;

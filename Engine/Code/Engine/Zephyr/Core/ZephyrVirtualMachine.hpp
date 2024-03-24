@@ -85,6 +85,7 @@ private:
 private:
 	ZephyrComponent&		m_zephyrComponent;
 	const ZephyrBytecodeChunk&	m_bytecodeChunk;
+	int m_curOpCodeIdx = 0;
 	std::stack<ZephyrValue> m_constantStack;
 	std::deque<std::string> m_curMemberAccessorNames;
 

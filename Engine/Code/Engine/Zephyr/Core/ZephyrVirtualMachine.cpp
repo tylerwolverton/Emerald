@@ -1,5 +1,6 @@
 #include "Engine/Zephyr/Core/ZephyrVirtualMachine.hpp"
 #include "Engine/Zephyr/Core/ZephyrBytecodeChunk.hpp"
+#include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
@@ -44,8 +45,10 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 		CopyEventArgVariables( m_eventArgs, localVariables );
 	}
 
-	int byteIdx = 0;
-	while ( byteIdx < m_bytecodeChunk.GetNumBytes() )
+	int curByteIdx = 0;
+	// Start at -1 so first op code index is set to 0 when reading next code
+	m_curOpCodeIdx = -1;
+	while ( curByteIdx < m_bytecodeChunk.GetNumBytes() )
 	{
 		// If this script has an error during interpretation, bail out to avoid running in a broken, unknown state
 		if ( !m_zephyrComponent.IsScriptValid() )
@@ -53,13 +56,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			return;
 		}
 
-		byte instruction = m_bytecodeChunk.GetByte( byteIdx++ );
+		++m_curOpCodeIdx;
+		byte instruction = m_bytecodeChunk.GetByte( curByteIdx++ );
 		eOpCode opCode = ByteToOpCode( instruction );
 		switch ( opCode )
 		{
 			case eOpCode::CONSTANT:
 			{
-				int constIdx = m_bytecodeChunk.GetByte( byteIdx++ );
+				int constIdx = m_bytecodeChunk.GetByte( curByteIdx++ );
 				ZephyrValue constant = m_bytecodeChunk.GetConstant( constIdx );
 				PushConstant( constant );
 			}
@@ -256,7 +260,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				// The if statement is false, jump over the bytes corresponding to that code block
 				if ( !expression.EvaluateAsBool() )
 				{
-					byteIdx += (int)ifBlockByteCount.GetAsNumber();
+					curByteIdx += (int)ifBlockByteCount.GetAsNumber();
 				}
 			}
 			break;
@@ -264,7 +268,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			case eOpCode::JUMP:
 			{
 				ZephyrValue numBytesToJump = PopConstant();
-				byteIdx += (int)numBytesToJump.GetAsNumber();
+				curByteIdx += (int)numBytesToJump.GetAsNumber();
 			}
 			break;
 
@@ -1295,21 +1299,26 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrHandle userObj, c
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
+	//m_bytecodeChunk.Disassemble();
+
 	g_devConsole->PrintError( Stringf( "Error in zephyr script '%s'", m_zephyrComponent.GetScriptNameWithExtension().c_str() ) );
 
 	std::string errorPrefix;
-	if ( ZephyrBytecodeChunk* parentChunk = m_bytecodeChunk.GetParentChunk() )
+	/*if ( ZephyrBytecodeChunk* parentChunk = m_bytecodeChunk.GetParentChunk() )
 	{
 		if ( parentChunk->GetType() == eBytecodeChunkType::STATE )
 		{
 			errorPrefix.append( parentChunk->GetName() );
 			errorPrefix.append( "::" );
 		}
-	}
+	}*/
 	
-	errorPrefix.append( m_bytecodeChunk.GetName() );
+	errorPrefix.append( m_bytecodeChunk.GetFullyQualifiedName() );
 
-	g_devConsole->PrintError( Stringf( "  %s: %s", errorPrefix.c_str(), errorMsg.c_str() ) );
+	ZephyrScriptDefinition* zephyrScriptDef = ZephyrScriptDefinition::GetZephyrScriptDefinitionByName( m_zephyrComponent.GetScriptNameWithExtension() );
+	int lineNum = zephyrScriptDef->GetLineNumFromOpCodeIdx( m_bytecodeChunk.GetFullyQualifiedName(), m_curOpCodeIdx );
+	
+	g_devConsole->PrintError( Stringf( "  %s line %i: %s", errorPrefix.c_str(), lineNum, errorMsg.c_str() ) );
 
 	m_zephyrComponent.m_compState = eComponentState::INVALID_SCRIPT;
 }

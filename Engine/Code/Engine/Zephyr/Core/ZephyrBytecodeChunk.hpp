@@ -25,6 +25,7 @@ public:
 
 	// Accessors
 	std::string						GetName() const									{ return m_name; }
+	std::string						GetFullyQualifiedName() const;
 	std::vector<byte>				GetCode() const									{ return m_bytes; }
 	int								GetNumBytes() const								{ return (int)m_bytes.size(); }
 	int								GetNumConstants() const							{ return (int)m_constants.size(); }
