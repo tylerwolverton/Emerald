@@ -85,10 +85,14 @@ public:
 			Destroy();
 		}
 
-		other.m_entry->refCount++;
+		if ( other.IsValid() )
+		{
+			other.m_entry->refCount++;
+		}
 
 		m_entry = other.m_entry;
 		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
+		m_numPinned = other.m_numPinned;
 
 		return *this;
 	}
@@ -106,6 +110,9 @@ public:
 
 		m_entry = other.m_entry;
 		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
+		m_numPinned = other.m_numPinned;
+
+		other.m_entry = nullptr;
 
 		return *this;
 	}
@@ -121,6 +128,7 @@ public:
 
 		m_entry = other.m_entry;
 		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
+		m_numPinned = other->m_numPinned;
 
 		if ( m_entry )
 		{
@@ -180,6 +188,11 @@ protected:
 		m_entry->refCount--;
 		if ( m_entry->refCount == 0 )
 		{
+			if ( m_entry->isPinned )
+			{
+				m_entry->isPinned = false;
+			}
+
 			// Call destructor of allocated data
 			( (T*)m_entry->dataLocation )->~T();
 			m_managerWhoCreatedMe->Free( m_entry->dataLocation );
@@ -210,6 +223,7 @@ public:
 	~SmartPtr()
 	{
 		m_handle.Unpin();
+		m_pinnedData = nullptr;
 	}
 
 	// For now, don't allow copying smart pointers

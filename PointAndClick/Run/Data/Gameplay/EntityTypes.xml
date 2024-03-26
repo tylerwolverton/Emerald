@@ -27,6 +27,10 @@
     <Script name="UnitTests.zephyr"/>
   </Entity>
 
+  <Entity name="VariableAllocationTester">
+    <Script name="VariableAllocationTests.zephyr"/>
+  </Entity>
+  
   <Entity name="GameManager">
     <Script name="GameManager.zephyr"/>
   </Entity>

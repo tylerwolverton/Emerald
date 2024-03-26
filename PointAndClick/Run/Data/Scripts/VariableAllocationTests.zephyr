@@ -1,0 +1,41 @@
+Number testNum; 
+Number testNumInit = 12; 
+Number testNum2 = 2.5;  
+Vec2 testVec2;		
+Vec2 testVec2Init = Vec2(x:5,y:5);
+Bool testBool;
+Bool testBool2 = true;
+Bool testBool3 = false;
+String testStr;
+String testStrInit = "Hello";
+
+State Default
+{
+    OnEnter()
+    {
+        TestNumbers();
+        TestVec2s();
+    }
+}
+
+Function TestNumbers()
+{
+    testNum = 15;
+    testNum = 10 + 6;
+
+    testNum = testNum2;
+
+    testNumInit = testNum2;
+}
+
+Function TestVec2s()
+{
+    testVec2 = Vec2(x:1,y:1);
+
+    testVec2 = testVec2Init;
+
+    if(testVec2 == testVec2Init)
+    {
+        PrintToConsole( text: "Test Vec2s Success" ) 
+    }
+}

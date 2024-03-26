@@ -150,7 +150,8 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor( localVariables );
 
-				if ( IsErrorValue( memberAccessorResult.finalMemberVal ) )
+				// TODO: Helper function for error checking user types?
+				if ( memberAccessorResult.finalMemberVal == NULL_ZEPHYR_HANDLE )
 				{
 					return;
 				}

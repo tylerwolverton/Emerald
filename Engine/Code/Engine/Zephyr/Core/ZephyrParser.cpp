@@ -1197,9 +1197,13 @@ bool ZephyrParser::ParseUserTypeConstant( const std::string& typeName )
 		return false;
 	}
 
+	ZephyrArgs params;
+	params.SetValue( "value", "TEMPORARY_VAR" );
+	ZephyrValue nameConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+
 	int lastTokenLineNum = GetLastToken().GetLineNum();
 	WriteConstantOpToCurChunk( ZephyrValue( typeName ), lastTokenLineNum );
-	WriteConstantOpToCurChunk( ZephyrValue( "TEMPORARY_VAR" ), lastTokenLineNum );
+	WriteConstantOpToCurChunk( nameConstant, lastTokenLineNum );
 	WriteOpCodeToCurChunk( eOpCode::CONSTANT_USER_TYPE, lastTokenLineNum );
 
 	return true;
