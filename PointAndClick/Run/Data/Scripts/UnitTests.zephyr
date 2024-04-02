@@ -71,7 +71,7 @@ State GlobalAssignmentTest
 				testStr = testStrInit;
 				if( testStr == testStrInit )
 				{
-					Number temp = testVec2.x - 6
+					Number temp = testVec2.frog - 6
 					//testVec2.x = 1;
 					//testVec2.y = 2;
 					Vec2 actualVec = Vec2( x:1, y:2 );

@@ -1121,12 +1121,15 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 					return memberAccessResult;
 				}
 
-			/*	if ( !userTypeObj->DoesTypeHaveMemberVariable( memberName )
-					 && !userTypeObj->DoesTypeHaveMethod( memberName ) )
-				{
-					ReportError( Stringf( "Member '%s' does not exist in object of type '%s'", memberName.c_str(), userTypeObj->GetTypeName().c_str() ) );
-					return memberAccessResult;
-				}*/
+				// TODO: Do this in MEMBER_ACCESSOR since this case is only the objects leading up to the final member. 
+				// This probably needs to check for existing variables though, since it could be a chain of accessors
+				//SmartPtr userTypeObjPtr( userTypeObj );
+				//if ( !userTypeObjPtr->DoesTypeHaveMemberVariable( memberName )
+				//	 && !userTypeObjPtr->DoesTypeHaveMethod( memberName ) )
+				//{
+				//	ReportError( Stringf( "Member '%s' does not exist in object of type '%s'", memberName.c_str(), userTypeObjPtr->GetTypeName().c_str() ) );
+				//	return memberAccessResult;
+				//}
 
 				// TODO: Remove when refactoring Vec2 and Vec3, used to set members in other entities
 				//entityIdChain.push_back( memberVal.GetAsEntity() );

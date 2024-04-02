@@ -34,8 +34,8 @@ Function TestVec2s()
 
     testVec2 = testVec2Init;
 
-    if(testVec2 == testVec2Init)
+    if(testVec2 != testVec2Init)
     {
-        PrintToConsole( text: "Test Vec2s Success" ) 
+        PrintToConsole( text: "Test Vec2s Failed", color: "red" ) 
     }
 }

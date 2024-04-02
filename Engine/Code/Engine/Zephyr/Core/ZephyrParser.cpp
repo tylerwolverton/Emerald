@@ -951,6 +951,8 @@ bool ZephyrParser::ParseMemberAccessor()
 		break;
 	}
 	
+	AdvanceThroughAllMatchingTokens( eTokenType::SEMICOLON );
+
 	return true;
 }
 
