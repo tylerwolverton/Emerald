@@ -32,7 +32,7 @@
   </Entity>
 
   <Entity name="MemberTester">
-    <Script name="MemberTests.zephyr"/>
+    <Script name="Tests/MemberTests.zephyr"/>
   </Entity>
   
   <Entity name="GameManager">
