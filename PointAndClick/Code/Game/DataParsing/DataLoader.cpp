@@ -71,20 +71,13 @@ void DataLoader::ReloadAllData( World& world )
 //-----------------------------------------------------------------------------------------------
 void DataLoader::LoadSounds()
 {
-	// TODO: Allow for subfolders
 	std::string folderRoot( g_gameConfigBlackboard.GetValue( "audioRoot", "" ) );
 
-	Strings audioFiles = GetFileNamesInFolder( folderRoot, "*.*" );
+	Strings audioFiles;
+	GetAllFilePathsInFolderRecursive( folderRoot, "*", audioFiles );
 	for ( int soundIdx = 0; soundIdx < (int)audioFiles.size(); ++soundIdx )
 	{
-		std::string soundName = GetFileNameWithoutExtension( audioFiles[soundIdx] );
-		std::string& soundNameWithExtension = audioFiles[soundIdx];
-
-		std::string soundFullPath( folderRoot );
-		soundFullPath += "/";
-		soundFullPath += soundNameWithExtension;
-
-		g_audioSystem->CreateOrGetSound( soundFullPath );
+		g_audioSystem->CreateOrGetSound( audioFiles[soundIdx] );
 	}
 }
 
@@ -94,16 +87,11 @@ void DataLoader::LoadMaps( World& world )
 {
 	std::string folderRoot( g_gameConfigBlackboard.GetValue( "mapsRoot", "" ) );
 
-	Strings mapFiles = GetFileNamesInFolder( folderRoot, "*.*" );
+	Strings mapFiles;
+	GetAllFilePathsInFolderRecursive( folderRoot, ".xml", mapFiles );
 	for ( int mapIdx = 0; mapIdx < (int)mapFiles.size(); ++mapIdx )
 	{
-		std::string& mapName = mapFiles[mapIdx];
-
-		std::string mapFullPath( folderRoot );
-		mapFullPath += "/";
-		mapFullPath += mapName;
-
-		MapDefinition mapData( mapFullPath );
+		MapDefinition mapData( mapFiles[mapIdx] );
 		if ( mapData.isValid )
 		{
 			world.AddNewMap( mapData );
@@ -139,19 +127,21 @@ void DataLoader::LoadAndCompileZephyrScripts()
 {
 	std::string folderRoot( g_gameConfigBlackboard.GetValue( "scriptsRoot", "" ) );
 
-	Strings scriptFiles = GetFileNamesInFolder( folderRoot, "*.zephyr" );
+	Strings scriptFiles;
+	GetAllFilePathsInFolderRecursive( folderRoot, ".zephyr", scriptFiles );
+	//Strings scriptFiles = GetFileNamesInFolder( folderRoot, "*.zephyr" );
 	for ( int scriptIdx = 0; scriptIdx < (int)scriptFiles.size(); ++scriptIdx )
 	{
 		std::string& scriptName = scriptFiles[scriptIdx];
 
-		std::string scriptFullPath( folderRoot );
-		scriptFullPath += "/";
-		scriptFullPath += scriptName;
+		//std::string scriptFullPath( folderRoot );
+		//scriptFullPath += "/";
+		//scriptFullPath += scriptName;
 
 		// Save compiled script into static map
-		ZephyrScriptDefinition* scriptDef = ZephyrCompiler::CompileScriptFile( scriptFullPath );
+		ZephyrScriptDefinition* scriptDef = ZephyrCompiler::CompileScriptFile( scriptName );
 		scriptDef->m_name = scriptName;
 
-		ZephyrScriptDefinition::s_definitions[scriptFullPath] = scriptDef;
+		ZephyrScriptDefinition::s_definitions[scriptName] = scriptDef;
 	}
 }

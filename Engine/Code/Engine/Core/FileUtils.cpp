@@ -118,7 +118,49 @@ Strings SplitFileIntoLines( const std::string& filename )
 
 
 //-----------------------------------------------------------------------------------------------
-Strings GetFileNamesInFolder( const std::string& relativeFolderPath, const char* filePattern )
+void GetAllFilePathsInFolderRecursive( const std::string& relativeRootFolderPath, const char* filePattern, Strings& out_fileNames )
+{
+	std::string filePath = relativeRootFolderPath + "/*";
+	std::string fileNamePattern = filePattern ? filePattern : "*";
+
+	// Get all file names from subfolders
+	_finddata_t fileInfo;
+	intptr_t searchHandle = _findfirst( filePath.c_str(), &fileInfo );
+	while ( searchHandle != -1 )
+	{
+		if ( !strcmp( fileInfo.name, "." )
+			|| !strcmp( fileInfo.name, ".." ) )
+		{
+			// Ignore these
+		}
+		else if ( fileInfo.attrib & _A_SUBDIR )
+		{
+			std::string subDirectoryPath = relativeRootFolderPath + "/" + fileInfo.name;
+			GetAllFilePathsInFolderRecursive( subDirectoryPath, filePattern, out_fileNames );
+		}
+		// Any file with other attributes will be considered a valid file for return
+		else
+		{
+			std::string fileName( relativeRootFolderPath + "/" + fileInfo.name );
+
+			if ( fileNamePattern == "*"
+				|| fileName.ends_with( fileNamePattern ) )
+			{
+				out_fileNames.push_back( fileName );
+			}
+		}
+
+		int errorCode = _findnext( searchHandle, &fileInfo );
+		if ( errorCode != 0 )
+		{
+			break;
+		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------------------------
+Strings GetAllFileNamesInFolder( const std::string& relativeFolderPath, const char* filePattern )
 {
 	Strings fileNamesInFolder;
 
