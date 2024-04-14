@@ -176,6 +176,15 @@ eZephyrComparatorResult ZephyrVec2::Equal( ZephyrHandle other )
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrHandle ZephyrVec2::Negate()
+{
+	ZephyrArgs args;
+	args.SetValue( "value", -m_value );
+	return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC2, &args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 ZephyrHandle ZephyrVec2::Add( ZephyrHandle other )
 {
 	SmartPtr otherPtr( other );

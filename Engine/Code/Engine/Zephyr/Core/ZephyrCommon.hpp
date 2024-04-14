@@ -257,7 +257,8 @@ public:
 	ZephyrTypeMetadata( const std::string& typeName );
 
 	std::string GetTypeName() const									{ return m_typeName; }
-	ZephyrTypeMethod* FindMethod( const std::string& methodName );
+	ZephyrTypeMethod* GetMethod( const std::string& methodName );
+	ZephyrTypeMemberVariable* GetMemberVariable( const std::string& memberName );
 
 	void RegisterMember( const std::string& memberName, const std::string& memberType );
 	void RegisterReadOnlyMember( const std::string& memberName, const std::string& memberType );
@@ -301,7 +302,7 @@ protected:
 	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) = 0;
 	virtual ZephyrHandle GetMember( const std::string& memberName ) = 0;
 
-	// Binary Operators
+	// Operators
 	virtual eZephyrComparatorResult Greater( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult Less( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
@@ -309,6 +310,7 @@ protected:
 	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult NotEqual( ZephyrHandle other );
 
+	virtual ZephyrHandle Negate()										{  return NULL_ZEPHYR_HANDLE; }
 	virtual ZephyrHandle Add( ZephyrHandle other )		{ (void)other; return NULL_ZEPHYR_HANDLE; }
 	virtual ZephyrHandle Subtract( ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
 	virtual ZephyrHandle Multiply (ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
@@ -330,7 +332,7 @@ public:
 
 	void BindMethod( const std::string& name, void( OBJ_TYPE::*methodPtr )( ZephyrArgs* args ) )
 	{
-		ZephyrTypeMethod* methodToBind = m_typeMetadata.FindMethod( name );
+		ZephyrTypeMethod* methodToBind = m_typeMetadata.GetMethod( name );
 		GUARANTEE_OR_DIE( methodToBind != nullptr, Stringf( "Tried to bind method '%s' to an object of type '%s', but it was not found in the metadata.", name.c_str(), m_typeMetadata.GetTypeName().c_str() ) );
 
 		methodToBind->delegate.SubscribeMethod( (OBJ_TYPE*)this, methodPtr );

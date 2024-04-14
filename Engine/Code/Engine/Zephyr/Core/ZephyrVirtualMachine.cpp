@@ -132,9 +132,16 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 						return;
 					}
 
-					if ( !metadata->HasMemberVariable( lastMemberName ) )
+					ZephyrTypeMemberVariable* memberVariable = metadata->GetMemberVariable( lastMemberName );
+					if ( memberVariable == nullptr )
 					{
 						ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+						return;
+					}
+
+					if ( memberVariable->isReadonly )
+					{
+						ReportError( Stringf( "Can't set readonly member '%s' in user type '%s'", lastMemberName.c_str(), typeName.c_str() ) );
 						return;
 					}
 
@@ -339,6 +346,21 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				{
 					PushConstant( -a.GetAsNumber() );
 				}
+				else if ( a.GetType() == eValueType::USER_TYPE )
+				{
+					ZephyrHandle aHandle = a.GetAsUserType();
+					SmartPtr aPtr( aHandle );
+
+					ZephyrHandle result = aPtr->Negate();
+
+					if ( !result.IsValid() )
+					{
+						ReportError( Stringf( "ZephyrType '%s' doesn't define a Negate function", aPtr->GetTypeName().c_str() ) );
+						return;
+					}
+
+					PushConstant( result );
+				}
 			}
 			break;
 
@@ -370,6 +392,17 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 					{
 						PushConstant( ZephyrValue( false ) );
 					}
+				}
+				else if ( a.GetType() == eValueType::USER_TYPE )
+				{
+					ZephyrHandle aHandle = a.GetAsUserType();
+					SmartPtr aPtr( aHandle );
+
+					bool result = aPtr->EvaluateAsBool();
+					
+					ZephyrArgs args;
+					args.SetValue( "value", !result );
+					PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 				}
 			}
 			break;
@@ -764,7 +797,9 @@ void ZephyrVirtualMachine::PushNotEqualOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->NotEqual(bHandle);
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 		}
 		else
 		{
@@ -822,7 +857,9 @@ void ZephyrVirtualMachine::PushEqualOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->Equal( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 		}
 		else
 		{
@@ -858,7 +895,9 @@ void ZephyrVirtualMachine::PushGreaterOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->Greater( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 		}
 		else
 		{
@@ -894,7 +933,10 @@ void ZephyrVirtualMachine::PushGreaterEqualOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->GreaterEqual( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle(ZephyrEngineTypeNames::BOOL, &args ) );
+			//PushConstant( (bool)result );
 		}
 		else
 		{
@@ -930,7 +972,9 @@ void ZephyrVirtualMachine::PushLessOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->Less( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 		}
 		else
 		{
@@ -966,7 +1010,9 @@ void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 		eZephyrComparatorResult result = aPtr->LessEqual( bHandle );
 		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
 		{
-			PushConstant( (bool)result );
+			ZephyrArgs args;
+			args.SetValue( "value", (bool)result );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
 		}
 		else
 		{
@@ -1146,18 +1192,6 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 					return memberAccessResult;
 				}
 
-				// TODO: Do this in MEMBER_ACCESSOR since this case is only the objects leading up to the final member. 
-				// This probably needs to check for existing variables though, since it could be a chain of accessors
-				//SmartPtr userTypeObjPtr( userTypeObj );
-				//if ( !userTypeObjPtr->DoesTypeHaveMemberVariable( memberName )
-				//	 && !userTypeObjPtr->DoesTypeHaveMethod( memberName ) )
-				//{
-				//	ReportError( Stringf( "Member '%s' does not exist in object of type '%s'", memberName.c_str(), userTypeObjPtr->GetTypeName().c_str() ) );
-				//	return memberAccessResult;
-				//}
-
-				// TODO: Remove when refactoring Vec2 and Vec3, used to set members in other entities
-				//entityIdChain.push_back( memberVal.GetAsEntity() );
 				memberVal = ZephyrValue( userTypeObj );
 			}
 			break;

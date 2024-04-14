@@ -216,7 +216,7 @@ ZephyrTypeMetadata::ZephyrTypeMetadata( const std::string& typeName )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeMethod* ZephyrTypeMetadata::FindMethod( const std::string& methodName )
+ZephyrTypeMethod* ZephyrTypeMetadata::GetMethod( const std::string& methodName )
 {
 	for ( ZephyrTypeMethod& registeredMethod : m_methods )
 	{
@@ -231,11 +231,24 @@ ZephyrTypeMethod* ZephyrTypeMetadata::FindMethod( const std::string& methodName 
 
 
 //-----------------------------------------------------------------------------------------------
+ZephyrTypeMemberVariable* ZephyrTypeMetadata::GetMemberVariable( const std::string& memberName )
+{
+	for ( ZephyrTypeMemberVariable& registeredMember : m_memberVariables )
+	{
+		if ( memberName == registeredMember.name )
+		{
+			return &registeredMember;
+		}
+	}
+
+	return nullptr;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrTypeMetadata::RegisterMember( const std::string& memberName, const std::string& memberType )
 {
-	RegisterReadOnlyMember( memberName, memberType );
-
-	m_methods.emplace_back( "Set_" + memberName );
+	m_memberVariables.emplace_back( memberName, memberType );
 }
 
 
@@ -244,8 +257,6 @@ void ZephyrTypeMetadata::RegisterReadOnlyMember( const std::string& memberName, 
 {
 	m_memberVariables.emplace_back( memberName, memberType );
 	m_memberVariables.back().isReadonly = true;
-
-	m_methods.emplace_back( "Get_" + memberName );
 }
 
 
@@ -274,7 +285,7 @@ bool ZephyrTypeMetadata::HasMemberVariable( const std::string& varName )
 //-----------------------------------------------------------------------------------------------
 bool ZephyrTypeMetadata::HasMethod( const std::string& methodName )
 {
-	return FindMethod( methodName ) != nullptr;
+	return GetMethod( methodName ) != nullptr;
 }
 
 
@@ -302,7 +313,7 @@ bool ZephyrTypeBase::HasMethod( const std::string& methodName )
 //-----------------------------------------------------------------------------------------------
 void ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args )
 {
-	ZephyrTypeMethod* methodToCall = m_typeMetadata.FindMethod( methodName );
+	ZephyrTypeMethod* methodToCall = m_typeMetadata.GetMethod( methodName );
 	if ( methodToCall == nullptr )
 	{
 		// Error
@@ -524,7 +535,7 @@ bool ZephyrValue::EvaluateAsBool()
 			if ( userTypeData.IsValid() )
 			{
 				SmartPtr<ZephyrTypeBase> smartPtr( userTypeData );
-				smartPtr->EvaluateAsBool();
+				return smartPtr->EvaluateAsBool();
 			}
 			else
 			{

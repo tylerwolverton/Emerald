@@ -33,6 +33,7 @@ protected:
 
 	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
 
+	virtual ZephyrHandle Negate() override;
 	virtual ZephyrHandle Add( ZephyrHandle other ) override;
 	virtual ZephyrHandle Subtract( ZephyrHandle other ) override;
 	virtual ZephyrHandle Multiply( ZephyrHandle other ) override;
