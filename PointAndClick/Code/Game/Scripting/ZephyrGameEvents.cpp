@@ -21,7 +21,7 @@
 
 #define REGISTER_EVENT( eventName ) {\
 										m_registeredMethods.insert( #eventName );\
-										g_eventSystem->RegisterMethodEvent( #eventName, "", EVERYWHERE, this, &ZephyrGameEvents::eventName );\
+										g_eventSystem->RegisterMethodEvent( #eventName, "", SCRIPT, this, &ZephyrGameEvents::eventName );\
 									}
 
 //-----------------------------------------------------------------------------------------------

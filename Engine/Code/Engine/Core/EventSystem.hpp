@@ -17,7 +17,8 @@ enum eUsageLocation : uint
 {
 	GAME = BIT_FLAG( 1 ),
 	DEV_CONSOLE = BIT_FLAG( 2 ),
-	EVERYWHERE = GAME | DEV_CONSOLE
+	SCRIPT = BIT_FLAG( 3 ),
+	EVERYWHERE = GAME | DEV_CONSOLE | SCRIPT
 };
 
 
