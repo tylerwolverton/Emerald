@@ -15,6 +15,7 @@ State Default
     {
         TestNumbers();
         TestVec2s();
+        TestTempObjects();
     }
 }
 
@@ -26,6 +27,11 @@ Function TestNumbers()
     testNum = testNum2;
 
     testNumInit = testNum2;
+
+    if(testNum != testNumInit)
+    {
+        PrintToConsole( text: "Test Numbers Failed", color: "red" );
+    }
 }
 
 Function TestVec2s()
@@ -36,6 +42,18 @@ Function TestVec2s()
 
     if(testVec2 != testVec2Init)
     {
-        PrintToConsole( text: "Test Vec2s Failed", color: "red" ) 
+        PrintToConsole( text: "Test Vec2s Failed", color: "red" );
     }
+}
+
+Function TestTempObjects()
+{
+    Vec2 compVec = Vec2(x:1, y:1);
+    
+    if(compVec != Vec2(x:1, y:1))
+    {
+        PrintToConsole( text: "Temp object not equal to local variable", color: "red" );
+    }
+
+    PrintToConsole( text: "TestTempObjects: Success", color: "green" );
 }

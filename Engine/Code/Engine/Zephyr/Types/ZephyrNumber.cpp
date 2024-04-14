@@ -248,9 +248,8 @@ ZephyrHandle ZephyrNumber::Multiply( ZephyrHandle other )
 		Vec2 newVec = otherAsVec2Ptr->GetValue() * m_value;
 
 		ZephyrArgs params;
-		params.SetValue( "x", newVec.x );
-		params.SetValue( "y", newVec.y );
-		return CreateAsZephyrType( &params );
+		params.SetValue( "value", newVec );
+		return g_zephyrTypeHandleFactory->CreateHandle(ZephyrEngineTypeNames::VEC2, &params );
 	}
 	else if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
@@ -258,10 +257,8 @@ ZephyrHandle ZephyrNumber::Multiply( ZephyrHandle other )
 		Vec3 newVec = otherAsVec3Ptr->GetValue() * m_value;
 
 		ZephyrArgs params;
-		params.SetValue( "x", newVec.x );
-		params.SetValue( "y", newVec.y );
-		params.SetValue( "z", newVec.z );
-		return CreateAsZephyrType( &params );
+		params.SetValue( "value", newVec );
+		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC3, &params );
 	}
 
 	return NULL_ZEPHYR_HANDLE;
@@ -285,9 +282,8 @@ ZephyrHandle ZephyrNumber::Divide( ZephyrHandle other )
 		Vec2 newVec = otherAsVec2Ptr->GetValue() / m_value;
 
 		ZephyrArgs params;
-		params.SetValue( "x", newVec.x );
-		params.SetValue( "y", newVec.y );
-		return CreateAsZephyrType( &params );
+		params.SetValue( "value", newVec );
+		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC2, &params );
 	}
 	else if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
@@ -295,10 +291,8 @@ ZephyrHandle ZephyrNumber::Divide( ZephyrHandle other )
 		Vec3 newVec = otherAsVec3Ptr->GetValue() / m_value;
 
 		ZephyrArgs params;
-		params.SetValue( "x", newVec.x );
-		params.SetValue( "y", newVec.y );
-		params.SetValue( "z", newVec.z );
-		return CreateAsZephyrType( &params );
+		params.SetValue( "value", newVec );
+		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC3, &params );
 	}
 
 	return NULL_ZEPHYR_HANDLE;

@@ -50,7 +50,7 @@ void Game::Startup()
 
 	m_gameClock = new Clock();
 	//m_gameClock->SetFrameLimits( 1.0 / 60.0, .1 );
-	Clock::GetMaster()->SetFrameLimits( 1.0/60.0, .1 );
+	Clock::GetMaster()->SetFrameLimits( 1.0/120.0, .1 );
 
 	g_renderer->Setup( m_gameClock );
 

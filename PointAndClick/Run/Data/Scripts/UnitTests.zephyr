@@ -311,11 +311,11 @@ State BinaryOpTest
 		Vec2 bVec = Vec2( x:2, y:10 )
 
 		// Vec 2 tests
-		// if( aVec + bVec != Vec2( x:7, y:16 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 + Vec2", color: "red" ) }
-		// if( aVec - bVec != Vec2( x:3, y: -4 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
-		// if( aVec * bVec != Vec2( x:10, y:60 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Vec2", color: "red" ) }
-		// if( aVec * bNum != Vec2( x:10, y:12 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Number", color: "red" ) }
-		// if( aNum * bVec != Vec2( x:8, y:40 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2", color: "red" ) }
+		if( aVec + bVec != Vec2( x:7, y:16 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 + Vec2", color: "red" ) }
+		if( aVec - bVec != Vec2( x:3, y: -4 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
+		//if( aVec * bVec != Vec2( x:10, y:60 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Vec2", color: "red" ) }
+		if( aVec * bNum != Vec2( x:10, y:12 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Number", color: "red" ) }
+		if( aNum * bVec != Vec2( x:8, y:40 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2", color: "red" ) }
 		//bVec = aNum + bVec
 		//aVec = aVec / bVec
 		// Bool vecGreater = aVec > bVec 
