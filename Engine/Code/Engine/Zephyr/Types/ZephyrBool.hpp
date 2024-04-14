@@ -9,6 +9,9 @@
 //-----------------------------------------------------------------------------------------------
 class ZephyrBool : public ZephyrType<ZephyrBool>
 {
+	friend class ZephyrSubsystem;
+	friend class ZephyrVirtualMachine;
+
 public:
 	// ZephyrType Overrides
 	ZephyrBool();
@@ -18,14 +21,20 @@ public:
 	virtual bool EvaluateAsBool() const override								{ return m_value; }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
-	// IZephyrType Overrides
+	bool GetValue() const { return m_value; }
 
-	// static creation
+// ZephyrType Overrides accessed by friend ZephyrVirtualMachine
+protected:
+	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
+	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
+	virtual ZephyrHandle GetMember( const std::string& memberName ) override;
+
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
+
+private:
+	// static creation accessed by friend ZephyrSubsystem
 	static void CreateAndRegisterMetadata();
 	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
-
-	bool GetValue() const { return m_value; }
 
 private:
 	bool m_value = false;

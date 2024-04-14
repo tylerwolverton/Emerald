@@ -374,5 +374,5 @@ template<> ZephyrHandle FromString( const std::string& value, ZephyrHandle defau
 
 	ERROR_AND_DIE( "Saving ZephyrType pointers as string values in NamedProperties is not supported." );
 
-	//return nullptr;
+	//return defaultValue;
 }

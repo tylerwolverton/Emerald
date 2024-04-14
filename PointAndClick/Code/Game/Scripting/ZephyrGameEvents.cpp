@@ -8,6 +8,7 @@
 #include "Engine/Renderer/DebugRender.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
 #include "Engine/Zephyr/Types/ZephyrVec2.hpp"
 
@@ -705,8 +706,8 @@ void ZephyrGameEvents::GetMouseCursorPositionWorld( EventArgs* args )
 	Vec2 mouseWorldPosition = g_game->GetMouseWorldPosition();
 	ZephyrArgs params;
 	params.SetValue( "value", mouseWorldPosition );
-
-	args->SetValue( "pos", ZephyrVec2::CreateAsZephyrType( &params ) );
+	
+	args->SetValue( "pos", g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC2, &params ) );
 }
 
 
@@ -717,7 +718,7 @@ void ZephyrGameEvents::GetMouseCursorPositionUI( EventArgs* args )
 	ZephyrArgs params;
 	params.SetValue( "value", mouseUIPosition );
 
-	args->SetValue( "pos", ZephyrVec2::CreateAsZephyrType( &params ) );
+	args->SetValue( "pos", g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC2, &params ) );
 }
 
 

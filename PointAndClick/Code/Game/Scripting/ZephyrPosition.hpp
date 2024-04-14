@@ -9,6 +9,9 @@
 //-----------------------------------------------------------------------------------------------
 class ZephyrPosition : public ZephyrType<ZephyrPosition>
 {
+	friend class ZephyrTypeRegistrator;
+	friend class ZephyrVirtualMachine;
+
 public: 
 	ZephyrPosition();
 	virtual ~ZephyrPosition() {}
@@ -18,16 +21,19 @@ public:
 	virtual void FromString( const std::string& dataStr )						{ m_position.SetFromText( dataStr.c_str()); }
 	virtual bool EvaluateAsBool() const override;
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
-	// ZephyrType Overrides
+	
+// ZephyrType Overrides accessed by friend ZephyrVirtualMachine
+protected:
+	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
+	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
+	virtual ZephyrHandle GetMember( const std::string& memberName ) override;
 
-	// static creation
+private:
+	// static creation accessed by friend ZephyrTypeRegistrator
 	static void CreateAndRegisterMetadata();
 	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
-private:
 	void GetDistFromOrigin( ZephyrArgs* args );
-	void Set_x( ZephyrArgs* args );
-	void Set_y( ZephyrArgs* args );
 
 private:
 	//Vec2 m_position = Vec2(3.f, 4.f);

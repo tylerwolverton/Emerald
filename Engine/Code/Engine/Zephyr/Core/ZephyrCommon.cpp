@@ -231,18 +231,19 @@ ZephyrTypeMethod* ZephyrTypeMetadata::FindMethod( const std::string& methodName 
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrTypeMetadata::RegisterMember( const std::string& memberName )
+void ZephyrTypeMetadata::RegisterMember( const std::string& memberName, const std::string& memberType )
 {
-	RegisterReadOnlyMember( memberName );
+	RegisterReadOnlyMember( memberName, memberType );
 
 	m_methods.emplace_back( "Set_" + memberName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrTypeMetadata::RegisterReadOnlyMember( const std::string& memberName )
+void ZephyrTypeMetadata::RegisterReadOnlyMember( const std::string& memberName, const std::string& memberType )
 {
-	m_memberNames.push_back( memberName );
+	m_memberVariables.emplace_back( memberName, memberType );
+	m_memberVariables.back().isReadonly = true;
 
 	m_methods.emplace_back( "Get_" + memberName );
 }
@@ -256,11 +257,11 @@ void ZephyrTypeMetadata::RegisterMethod( const std::string& methodName )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrTypeMetadata::DoesTypeHaveMemberVariable( const std::string& varName )
+bool ZephyrTypeMetadata::HasMemberVariable( const std::string& varName )
 {
-	for ( const std::string& memberName : m_memberNames )
+	for ( const ZephyrTypeMemberVariable& member : m_memberVariables )
 	{
-		if ( varName == memberName )
+		if ( varName == member.name )
 		{
 			return true;
 		}
@@ -271,7 +272,7 @@ bool ZephyrTypeMetadata::DoesTypeHaveMemberVariable( const std::string& varName 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrTypeMetadata::DoesTypeHaveMethod( const std::string& methodName )
+bool ZephyrTypeMetadata::HasMethod( const std::string& methodName )
 {
 	return FindMethod( methodName ) != nullptr;
 }
@@ -285,16 +286,16 @@ ZephyrTypeBase::ZephyrTypeBase( const std::string& typeName )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrTypeBase::DoesTypeHaveMemberVariable( const std::string& varName )
+bool ZephyrTypeBase::HasMemberVariable( const std::string& varName )
 {
-	return m_typeMetadata.DoesTypeHaveMethod( varName );
+	return m_typeMetadata.HasMethod( varName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrTypeBase::DoesTypeHaveMethod( const std::string& methodName )
+bool ZephyrTypeBase::HasMethod( const std::string& methodName )
 {
-	return m_typeMetadata.DoesTypeHaveMethod( methodName );
+	return m_typeMetadata.HasMethod( methodName );
 }
 
 

@@ -220,6 +220,21 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
+struct ZephyrTypeMemberVariable
+{
+public:
+	explicit ZephyrTypeMemberVariable( const std::string& memberName, const std::string& memberType )
+		: name( memberName )
+		, type( memberType )
+	{}
+
+	std::string name;
+	std::string type;
+	bool isReadonly = false;
+};
+
+
+//-----------------------------------------------------------------------------------------------
 struct ZephyrTypeMethod
 {
 public:
@@ -244,16 +259,16 @@ public:
 	std::string GetTypeName() const									{ return m_typeName; }
 	ZephyrTypeMethod* FindMethod( const std::string& methodName );
 
-	void RegisterMember( const std::string& memberName );
-	void RegisterReadOnlyMember( const std::string& memberName );
+	void RegisterMember( const std::string& memberName, const std::string& memberType );
+	void RegisterReadOnlyMember( const std::string& memberName, const std::string& memberType );
 	void RegisterMethod( const std::string& methodName );
 
-	bool DoesTypeHaveMemberVariable( const std::string& varName );
-	bool DoesTypeHaveMethod( const std::string& methodName );
+	bool HasMemberVariable( const std::string& varName );
+	bool HasMethod( const std::string& methodName );
 
 private:
 	std::string m_typeName;
-	std::vector<std::string> m_memberNames; // Make a field struct with type and name?
+	std::vector<ZephyrTypeMemberVariable> m_memberVariables;
 	std::vector<ZephyrTypeMethod> m_methods;
 };
 
@@ -264,6 +279,7 @@ private:
 class ZephyrTypeBase
 {
 	friend class ZephyrSubsystem;
+	friend class ZephyrVirtualMachine;
 
 public:
 	explicit ZephyrTypeBase( const std::string& typeName );
@@ -275,10 +291,15 @@ public:
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) = 0;
 
 	const std::string GetTypeName() const								{ return m_typeMetadata.GetTypeName(); }
-	bool DoesTypeHaveMemberVariable( const std::string& varName );
-	bool DoesTypeHaveMethod( const std::string& methodName );
+	bool HasMemberVariable( const std::string& varName );
+	bool HasMethod( const std::string& methodName );
 	
 	void CallMethod( const std::string& methodName, ZephyrArgs* args );
+
+protected:
+	virtual bool SetMembersFromArgs( ZephyrArgs* args ) = 0;
+	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) = 0;
+	virtual ZephyrHandle GetMember( const std::string& memberName ) = 0;
 
 	// Binary Operators
 	virtual eZephyrComparatorResult Greater( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }

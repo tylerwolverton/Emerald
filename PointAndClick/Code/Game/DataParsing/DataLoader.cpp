@@ -129,14 +129,9 @@ void DataLoader::LoadAndCompileZephyrScripts()
 
 	Strings scriptFiles;
 	GetAllFilePathsInFolderRecursive( folderRoot, ".zephyr", scriptFiles );
-	//Strings scriptFiles = GetFileNamesInFolder( folderRoot, "*.zephyr" );
 	for ( int scriptIdx = 0; scriptIdx < (int)scriptFiles.size(); ++scriptIdx )
 	{
 		std::string& scriptName = scriptFiles[scriptIdx];
-
-		//std::string scriptFullPath( folderRoot );
-		//scriptFullPath += "/";
-		//scriptFullPath += scriptName;
 
 		// Save compiled script into static map
 		ZephyrScriptDefinition* scriptDef = ZephyrCompiler::CompileScriptFile( scriptName );

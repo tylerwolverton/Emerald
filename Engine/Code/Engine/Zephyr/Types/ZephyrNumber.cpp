@@ -5,18 +5,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase& ZephyrNumber::operator=( ZephyrTypeBase const& other )
-{
-	this->m_value = ( (ZephyrNumber*)&other )->m_value;
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrNumber::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::NUMBER );
-	metadata->RegisterMember( "value" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -29,7 +20,7 @@ ZephyrHandle ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 {
 	ZephyrHandle zephyrNumberHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrNumber>();
 	ZephyrNumberPtr zephyrNumberPtr( zephyrNumberHandle );
-		
+
 	if ( args == nullptr )
 	{
 		// Default constructor, don't process parameters
@@ -47,6 +38,39 @@ ZephyrHandle ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 ZephyrNumber::ZephyrNumber()
 	: ZephyrType( ZephyrEngineTypeNames::NUMBER )
 {
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase& ZephyrNumber::operator=( ZephyrTypeBase const& other )
+{
+	this->m_value = ( (ZephyrNumber*)&other )->m_value;
+	return *this;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrNumber::SetMembersFromArgs( ZephyrArgs* args )
+{
+	UNUSED( args );
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrNumber::SetMember( const std::string& memberName, ZephyrHandle value )
+{
+	UNUSED( memberName );
+	UNUSED( value );
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrHandle ZephyrNumber::GetMember( const std::string& memberName )
+{
+	UNUSED( memberName );
+	return NULL_ZEPHYR_HANDLE;
 }
 
 

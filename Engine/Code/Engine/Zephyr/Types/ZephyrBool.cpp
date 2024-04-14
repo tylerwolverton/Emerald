@@ -3,33 +3,9 @@
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrTypeBase& ZephyrBool::operator=( ZephyrTypeBase const& other )
-{
-	this->m_value = ( (ZephyrBool*)&other )->m_value;
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrBool::Equal( ZephyrHandle other )
-{
-	SmartPtr otherPtr( other );
-	if ( m_value == otherPtr->EvaluateAsBool() )
-	{
-		return eZephyrComparatorResult::TRUE_VAL;
-	}
-	else
-	{
-		return eZephyrComparatorResult::FALSE_VAL;
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrBool::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::BOOL );
-	metadata->RegisterMember( "value" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -60,4 +36,52 @@ ZephyrHandle ZephyrBool::CreateAsZephyrType( ZephyrArgs* args )
 ZephyrBool::ZephyrBool()
 	: ZephyrType( ZephyrEngineTypeNames::BOOL )
 {
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrTypeBase& ZephyrBool::operator=( ZephyrTypeBase const& other )
+{
+	this->m_value = ( (ZephyrBool*)&other )->m_value;
+	return *this;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrBool::SetMembersFromArgs( ZephyrArgs* args )
+{
+	UNUSED( args );
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrBool::SetMember( const std::string& memberName, ZephyrHandle value )
+{
+	UNUSED( memberName );
+	UNUSED( value );
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrHandle ZephyrBool::GetMember( const std::string& memberName )
+{
+	UNUSED( memberName );
+	return NULL_ZEPHYR_HANDLE;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+eZephyrComparatorResult ZephyrBool::Equal( ZephyrHandle other )
+{
+	SmartPtr otherPtr( other );
+	if ( m_value == otherPtr->EvaluateAsBool() )
+	{
+		return eZephyrComparatorResult::TRUE_VAL;
+	}
+	else
+	{
+		return eZephyrComparatorResult::FALSE_VAL;
+	}
 }

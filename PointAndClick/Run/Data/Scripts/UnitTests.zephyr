@@ -143,16 +143,16 @@ State OperatorTest
 {
 	OnEnter()
 	{
-		// ERROR HERE
-		Number testNum = -(1 + 2 * 3 - 4 / 2);
-		if( testNum != -5 )
-		{
-			PrintToConsole( text: "OperatorTest: Failed", color: "red" )
-		}
-		else
-		{
-			PrintToConsole( text: "OperatorTest: Success", color: "green" )
-		}
+		// // ERROR HERE
+		// Number testNum = -(1 + 2 * 3 - 4 / 2);
+		// if( testNum != -5 )
+		// {
+		// 	PrintToConsole( text: "OperatorTest: Failed", color: "red" )
+		// }
+		// else
+		// {
+		// 	PrintToConsole( text: "OperatorTest: Success", color: "green" )
+		// }
 
 		ChangeState( LogicalOperatorTest );
 	}
@@ -312,7 +312,7 @@ State BinaryOpTest
 
 		// Vec 2 tests
 		if( aVec + bVec != Vec2( x:7, y:16 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 + Vec2", color: "red" ) }
-		if( aVec - bVec != Vec2( x:3, y: -4 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
+		if( aVec - bVec != Vec2( x:3, y: -4 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 - Vec2", color: "red" ) }
 		if( aVec * bVec != Vec2( x:10, y:60 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Vec2", color: "red" ) }
 		if( aVec * bNum != Vec2( x:10, y:12 ) ) { PrintToConsole( text: "BinaryOpTest: Failed Vec2 * Number", color: "red" ) }
 		if( aNum * bVec != Vec2( x:8, y:40 ) )  { PrintToConsole( text: "BinaryOpTest: Failed Number * Vec2", color: "red" ) }

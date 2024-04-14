@@ -15,8 +15,8 @@ namespace ZephyrPositionType
 void ZephyrPosition::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrPositionType::TYPE_NAME );
-	metadata->RegisterMember( "x" );
-	metadata->RegisterMember( "y" );
+	metadata->RegisterMember( "x", "" );
+	metadata->RegisterMember( "y", "" );
 	metadata->RegisterMethod( "GetDistFromOrigin" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
@@ -51,28 +51,13 @@ ZephyrHandle ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 			}
 			else
 			{
-				// Try to set from ZephyrNumbers
-				ZephyrHandle xInit = args->GetValue( "x", NULL_ZEPHYR_HANDLE );
-				ZephyrHandle yInit = args->GetValue( "y", NULL_ZEPHYR_HANDLE );
-				SmartPtr xInitPtr( xInit );
-				SmartPtr yInitPtr( yInit );
-
-				if ( xInit.IsValid() && xInitPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-				{
-					zephyrPositionPtr->m_position.x = ::FromString( xInitPtr->ToString(), zephyrPositionPtr->m_position.x );
-				}
-				if ( yInit.IsValid() && yInitPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-				{
-					zephyrPositionPtr->m_position.y = ::FromString( yInitPtr->ToString(), zephyrPositionPtr->m_position.y );
-				}
+				zephyrPositionPtr->SetMembersFromArgs( args );
 			}
 		}
 	}
 
 	// Bind methods
 	zephyrPositionPtr->BindMethod( "GetDistFromOrigin", &GetDistFromOrigin );
-	zephyrPositionPtr->BindMethod( "Set_x", &Set_x );
-	zephyrPositionPtr->BindMethod( "Set_y", &Set_y );
 
 	return zephyrPositionHandle;
 }
@@ -100,43 +85,76 @@ ZephyrTypeBase& ZephyrPosition::operator=(ZephyrTypeBase const& other)
 
 
 //-----------------------------------------------------------------------------------------------
+bool ZephyrPosition::SetMembersFromArgs( ZephyrArgs* args )
+{
+	ZephyrHandle xType = args->GetValue( "x", NULL_ZEPHYR_HANDLE );
+	if ( xType.IsValid() )
+	{
+		SetMember( "x", xType );
+	}
+
+	ZephyrHandle yType = args->GetValue( "y", NULL_ZEPHYR_HANDLE );
+	if ( yType.IsValid() )
+	{
+		SetMember( "y", yType );
+	}
+
+	return true;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrPosition::SetMember( const std::string& memberName, ZephyrHandle value )
+{
+	if ( !value.IsValid() )
+	{
+		return false;
+	}
+
+	SmartPtr valuePtr( value );
+
+	if ( memberName == "x" )
+	{
+		if ( valuePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+		{
+			m_position.x = ::FromString( valuePtr->ToString(), m_position.x );
+			return true;
+		}
+	}
+	else if ( memberName == "y" )
+	{
+		if ( valuePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+		{
+			m_position.y = ::FromString( valuePtr->ToString(), m_position.y );
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrHandle ZephyrPosition::GetMember( const std::string& memberName )
+{
+	ZephyrArgs params;
+	if ( memberName == "x" )
+	{
+		params.SetValue( "value", m_position.x );
+		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params );
+	}
+	else if ( memberName == "y" )
+	{
+		params.SetValue( "value", m_position.y );
+		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params );
+	}
+
+	return NULL_ZEPHYR_HANDLE;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrPosition::GetDistFromOrigin( ZephyrArgs* args )
 {
 	args->SetValue( "dist", m_position.GetLength() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrPosition::Set_x( ZephyrArgs* args )
-{
-	ZephyrHandle zephyrType = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
-	if ( !zephyrType.IsValid() )
-	{
-		// Print error?
-		return;
-	}
-
-	SmartPtr zephyrTypePtr( zephyrType );
-	if ( zephyrTypePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-	{
-		m_position.x = ::FromString( zephyrTypePtr->ToString(), 0.f );
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void ZephyrPosition::Set_y( ZephyrArgs* args )
-{
-	ZephyrHandle zephyrType = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
-	if ( !zephyrType.IsValid() )
-	{
-		// Print error?
-		return;
-	}
-
-	SmartPtr zephyrTypePtr( zephyrType );
-	if ( zephyrTypePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
-	{
-		m_position.y = ::FromString( zephyrTypePtr->ToString(), 0.f );
-	}
 }

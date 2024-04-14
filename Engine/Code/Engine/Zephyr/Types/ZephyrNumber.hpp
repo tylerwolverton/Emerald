@@ -9,6 +9,9 @@
 //-----------------------------------------------------------------------------------------------
 class ZephyrNumber : public ZephyrType<ZephyrNumber>
 {
+	friend class ZephyrSubsystem;
+	friend class ZephyrVirtualMachine;
+
 public:
 	// ZephyrType Overrides
 	ZephyrNumber();
@@ -17,6 +20,14 @@ public:
 	virtual void FromString( const std::string& dataStr )		{ m_value = (float)atof( dataStr.c_str() ); }
 	virtual bool EvaluateAsBool() const override				{ return !IsNearlyEqual( m_value, 0.f ); }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
+
+	NUMBER_TYPE GetValue() const		{ return m_value; }
+
+// ZephyrType Overrides accessed by friend ZephyrVirtualMachine
+protected:
+	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
+	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
+	virtual ZephyrHandle GetMember( const std::string& memberName ) override;
 
 	virtual eZephyrComparatorResult Greater( ZephyrHandle other ) override;
 	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other ) override;
@@ -28,13 +39,11 @@ public:
 	virtual ZephyrHandle Subtract( ZephyrHandle other ) override;
 	virtual ZephyrHandle Multiply( ZephyrHandle other ) override;
 	virtual ZephyrHandle Divide( ZephyrHandle other ) override;
-	// IZephyrType Overrides
 
-	// static creation
+private:
+	// static creation accessed by friend ZephyrSubsystem
 	static void CreateAndRegisterMetadata();
 	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
-
-	NUMBER_TYPE GetValue() const		{ return m_value; }
 
 private:
 	NUMBER_TYPE m_value = 0.f;

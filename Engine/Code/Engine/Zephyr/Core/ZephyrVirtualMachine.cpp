@@ -132,14 +132,17 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 						return;
 					}
 
-					if ( !metadata->DoesTypeHaveMemberVariable( lastMemberName ) )
+					if ( !metadata->HasMemberVariable( lastMemberName ) )
 					{
 						ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+						return;
 					}
 
-					ZephyrArgs args;
-					args.SetValue( "value", (ZephyrHandle)constantValue.EvaluateAsUserType() );
-					typeNamePtr->CallMethod( "Set_" + lastMemberName, &args );
+					if ( !typeNamePtr->SetMember( lastMemberName, constantValue.EvaluateAsUserType() ) )
+					{
+						ReportError( Stringf( "User type '%s' does not implement SetMembers", typeName.c_str() ) );
+						return;
+					}
 				}
 
 				PushConstant( constantValue );
@@ -190,8 +193,30 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 					case eValueType::USER_TYPE:
 					{
-						ReportError( Stringf( "Accessing members in user types is not implemented yet" ) );
-						return;
+						ZephyrHandle typeNameHandle = memberAccessorResult.finalMemberVal.GetAsUserType();
+						SmartPtr typeNamePtr( typeNameHandle );
+						std::string typeName = typeNamePtr->GetTypeName();
+						ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
+						if ( metadata == nullptr )
+						{
+							ReportError( Stringf( "Can't access members of non-registered user type '%s'", typeName.c_str() ) );
+							return;
+						}
+
+						if ( !metadata->HasMemberVariable( lastMemberName ) )
+						{
+							ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+							return;
+						}
+
+						ZephyrHandle memberVal = typeNamePtr->GetMember( lastMemberName );
+						if ( !memberVal.IsValid() )
+						{
+							ReportError( Stringf( "User type '%s' does not implement GetMember for '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+							return;
+						}
+
+						PushConstant( memberVal );
 					}
 					break;
 				}
