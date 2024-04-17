@@ -29,8 +29,6 @@ ZephyrGameEvents::ZephyrGameEvents()
 {
 	//REGISTER_EVENT( ChangeZephyrScriptState );
 	REGISTER_EVENT( PrintDebugText );
-	REGISTER_EVENT( PrintDebugScreenText );
-	REGISTER_EVENT( PrintToConsole );
 
 	REGISTER_EVENT( GetVec2Normalized );
 
@@ -235,100 +233,6 @@ void ZephyrGameEvents::PrintDebugText( EventArgs* args )
 	}
 	
 	DebugAddWorldText( textLocation, Vec2::HALF, color, color, duration, .1f, eDebugRenderMode::DEBUG_RENDER_ALWAYS, text.c_str() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Print debug screen text at given position.
- *
- * params:
- *	- text: text to print
- *		- Zephyr type: String
- *	- duration: duration in seconds to display text
- *		- Zephyr type: Number
- *		- default: 0 ( single frame )
- *	- fontSize: height in pixels of font 
- *		- Zephyr type: Number 
- *		- default: 24
- *	- locationRatio: position of font on screen, x and y are between 0 and 1
- *		- Zephyr type: Vec2
- *		- default: ( 0, 0 )
- *	- padding: how much padding in pixels to add to text position
- *		- Zephyr type: Vec2
- *		- default: ( 0, 0 )
- *	- color: name of color to print in ( supported colors: white, red, green, blue, black )
- *		- Zephyr type: String
- *		- default: "white"
-*/
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::PrintDebugScreenText( EventArgs* args )
-{
-	std::string text = args->GetValue( "text", "" );
-	float duration = args->GetValue( "duration", 0.f );
-	float fontSize = args->GetValue( "fontSize", 24.f );
-	Vec2 locationRatio = args->GetValue( "locationRatio", Vec2::ZERO );
-	Vec2 padding = args->GetValue( "padding", Vec2::ZERO );
-
-	std::string colorStr = args->GetValue( "color", "white" );
-
-	Rgba8 color = Rgba8::WHITE;
-	if ( colorStr == "white" )		{ color = Rgba8::WHITE; }
-	else if ( colorStr == "red" )	{ color = Rgba8::RED; }
-	else if ( colorStr == "green" ) { color = Rgba8::GREEN; }
-	else if ( colorStr == "blue" )	{ color = Rgba8::BLUE; }
-	else if ( colorStr == "black" )	{ color = Rgba8::BLACK; }
-	
-	DebugAddScreenText( Vec4( locationRatio, padding ), Vec2::ZERO, fontSize, color, color, duration, text.c_str() );
-}
-
-
-//-----------------------------------------------------------------------------------------------
-/**
- * Print text to dev console.
- *
- * params:
- *	- text: text to print
- *		- Zephyr type: String
- *	- color: name of color to print in ( supported colors: white, red, green, blue, black )
- *		- Zephyr type: String
- *		- default: "white"
-*/
-//-----------------------------------------------------------------------------------------------
-void ZephyrGameEvents::PrintToConsole( EventArgs* args )
-{
-	ZephyrHandle textType = args->GetValue( "text", NULL_ZEPHYR_HANDLE );
-	std::string text;
-	if ( textType.IsValid() )
-	{
-		SmartPtr smartPtr( textType );
-		text = smartPtr->ToString();
-	}
-	else
-	{
-		text = args->GetValue( "text", "");
-	}
-
-	ZephyrHandle colorHandle = args->GetValue( "color", NULL_ZEPHYR_HANDLE );
-	std::string colorStr;
-	if ( colorHandle.IsValid() )
-	{
-		SmartPtr smartPtr( colorHandle );
-		colorStr = smartPtr->ToString();
-	}
-	else
-	{
-		colorStr = "white";
-	}
-
-	Rgba8 color = Rgba8::WHITE;
-	if		( colorStr == "white" ) { color = Rgba8::WHITE; }
-	else if ( colorStr == "red" )	{ color = Rgba8::RED; }
-	else if ( colorStr == "green" )	{ color = Rgba8::GREEN; }
-	else if ( colorStr == "blue" )	{ color = Rgba8::BLUE; }
-	else if ( colorStr == "black" ) { color = Rgba8::BLACK; }
-	
-	g_devConsole->PrintString( text.c_str(), color );
 }
 
 

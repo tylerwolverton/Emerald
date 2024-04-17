@@ -622,6 +622,16 @@ void ZephyrVirtualMachine::PushAddOp( ZephyrValue& a, ZephyrValue& b )
 		SmartPtr aPtr( aHandle );
 		SmartPtr bPtr( bHandle );
 		
+		// Handle ZephyrString concatenation with other types
+		if ( aPtr->GetTypeName() == ZephyrEngineTypeNames::STRING
+			|| bPtr->GetTypeName() == ZephyrEngineTypeNames::STRING )
+		{
+			ZephyrArgs args;
+			args.SetValue( "value", aPtr->ToString() + bPtr->ToString() );
+			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &args ) );
+			return;
+		}
+
 		ZephyrHandle result = aPtr->Add( bHandle );
 		if ( result.IsValid() )
 		{

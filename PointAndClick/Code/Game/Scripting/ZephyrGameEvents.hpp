@@ -27,8 +27,6 @@ private:
 
 	// Debug Events
 	void PrintDebugText( EventArgs* args );
-	void PrintDebugScreenText( EventArgs* args );
-	void PrintToConsole( EventArgs* args );
 
 	// Math
 	void GetVec2Normalized( EventArgs* args );

@@ -223,7 +223,7 @@ ZephyrHandle ZephyrNumber::Subtract( ZephyrHandle other )
 	{
 		ZephyrNumberPtr otherAsNumberPtr( other );
 		ZephyrArgs params;
-		params.SetValue( "value", m_value / otherAsNumberPtr->m_value );
+		params.SetValue( "value", m_value - otherAsNumberPtr->m_value );
 		return CreateAsZephyrType( &params );
 	}
 

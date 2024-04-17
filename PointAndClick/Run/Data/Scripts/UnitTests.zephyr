@@ -143,16 +143,17 @@ State OperatorTest
 {
 	OnEnter()
 	{
-		// // ERROR HERE
 		Number testNum = -(1 + 2 * 3 - 4 / 2);
-		if( testNum != -5 )
-		{
-			PrintToConsole( text: "OperatorTest: Failed", color: "red" )
-		}
-		else
-		{
-			PrintToConsole( text: "OperatorTest: Success", color: "green" )
-		}
+		// Verify( result: testNum == 5, errorMsg: "OperatorTest failed " + testNum )
+		Verify( result: testNum == -5, errorMsg: "OperatorTest failed testNum = " + testNum + " expected -5")
+		// if( testNum != -5 )
+		// {
+		// 	PrintToConsole( text: "OperatorTest: Failed", color: "red" )
+		// }
+		// else
+		// {
+		// 	PrintToConsole( text: "OperatorTest: Success", color: "green" )
+		// }
 
 		ChangeState( LogicalOperatorTest );
 	}
@@ -253,8 +254,7 @@ State MemberTest
 		vec1.x = 6
 		if( vec1.x != 6 )
 		{
-			PrintToConsole( text: "MemberTest: Failed, expected 6 but found ", color: "red" )
-			PrintToConsole( text: vec1.x, color: "red" )
+			PrintToConsole( text: "MemberTest: Failed, expected 6 but found " + vec1.x, color: "red" )
 			return;
 		}
 		

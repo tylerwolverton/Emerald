@@ -102,3 +102,4 @@ eZephyrComparatorResult ZephyrString::Equal( ZephyrHandle other )
 
 	return eZephyrComparatorResult::UNDEFINED_VAL;
 }
+
