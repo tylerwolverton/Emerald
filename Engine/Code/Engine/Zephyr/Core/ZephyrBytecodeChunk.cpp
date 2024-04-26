@@ -36,19 +36,7 @@ std::string ZephyrBytecodeChunk::GetFullyQualifiedName() const
 //-----------------------------------------------------------------------------------------------
 bool ZephyrBytecodeChunk::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const
 {
-	auto variableEntry = m_variables.find( identifier );
-	if ( variableEntry != m_variables.end() )
-	{
-		out_value = variableEntry->second;
-		return true;
-	}
-
-	if ( m_parentChunk != nullptr )
-	{
-		return m_parentChunk->TryToGetVariable( identifier, out_value );
-	}
-
-	return false;
+	return m_variableScope.TryToGetVariable( identifier, out_value );
 }
 
 
@@ -118,7 +106,14 @@ void ZephyrBytecodeChunk::AddEventChunk( ZephyrBytecodeChunk* eventBytecodeChunk
 //-----------------------------------------------------------------------------------------------
 void ZephyrBytecodeChunk::SetVariable( const std::string& identifier, const ZephyrValue& value )
 {
-	m_variables[identifier] = value;
+	m_variableScope.SetVariable( identifier, value );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrBytecodeChunk::DefineVariable( const std::string& identifier, const ZephyrValue& value )
+{
+	m_variableScope.DefineVariable( identifier, value );
 }
 
 

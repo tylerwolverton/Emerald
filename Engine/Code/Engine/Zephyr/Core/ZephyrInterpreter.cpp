@@ -5,23 +5,19 @@
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrInterpreter::InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
-													 ZephyrValueMap* globalVariables, 
-													 ZephyrComponent& zephyrComponent,
-													 ZephyrValueMap* stateVariables )
+void ZephyrInterpreter::InterpretStateBytecodeChunk( ZephyrBytecodeChunk& bytecodeChunk, 
+													 ZephyrComponent& zephyrComponent )
 {
-	ZephyrVirtualMachine vm( bytecodeChunk, globalVariables, zephyrComponent, nullptr, stateVariables );
+	ZephyrVirtualMachine vm( bytecodeChunk, zephyrComponent, nullptr );
 	vm.InterpretBytecodeChunk();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrInterpreter::InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk, 
-													 ZephyrValueMap* globalVariables,
+void ZephyrInterpreter::InterpretEventBytecodeChunk( ZephyrBytecodeChunk& bytecodeChunk, 
 													 ZephyrComponent& zephyrComponent,
-													 EventArgs* eventArgs, 
-													 ZephyrValueMap* stateVariables )
+													 EventArgs* eventArgs )
 {
-	ZephyrVirtualMachine vm( bytecodeChunk, globalVariables, zephyrComponent, eventArgs, stateVariables );
+	ZephyrVirtualMachine vm( bytecodeChunk, zephyrComponent, eventArgs );
 	vm.InterpretBytecodeChunk();
 }

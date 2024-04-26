@@ -16,14 +16,10 @@ class ZephyrScriptDefinition;
 class ZephyrInterpreter
 {
 public:
-	static void InterpretStateBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
-											 ZephyrValueMap* globalVariables,
-											 ZephyrComponent& zephyrComponent,
-											 ZephyrValueMap* stateVariables = nullptr );
+	static void InterpretStateBytecodeChunk( ZephyrBytecodeChunk& bytecodeChunk,
+											 ZephyrComponent& zephyrComponent );
 
-	static void InterpretEventBytecodeChunk( const ZephyrBytecodeChunk& bytecodeChunk,
-											 ZephyrValueMap* globalVariables,
+	static void InterpretEventBytecodeChunk( ZephyrBytecodeChunk& bytecodeChunk,
 											 ZephyrComponent& zephyrComponent,
-											 EventArgs* eventArgs = nullptr,
-											 ZephyrValueMap* stateVariables = nullptr );
+											 EventArgs* eventArgs = nullptr );
 };

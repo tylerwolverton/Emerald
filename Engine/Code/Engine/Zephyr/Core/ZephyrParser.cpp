@@ -78,7 +78,7 @@ void ZephyrParser::CreateGlobalBytecodeChunk()
 	m_curBytecodeChunk = m_globalBytecodeChunk;
 	
 	// Save reference to this entity into global state
-	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( INVALID_ENTITY_ID ) );
+	m_globalBytecodeChunk->DefineVariable( PARENT_ENTITY_STR, ZephyrValue( INVALID_ENTITY_ID ) );
 
 	m_curBytecodeChunksStack.push( m_globalBytecodeChunk );
 }
@@ -134,7 +134,7 @@ bool ZephyrParser::CreateBytecodeChunk( const std::string& chunkName, const eByt
 
 		default:
 		{
-			ReportError( "Tried to define a new bytecode chunk while inside an invalid chunk, make Tyler fix this" );
+			ReportError( "Tried to define a new bytecode chunk while inside an invalid chunk" );
 			return false;
 		}
 		break;
@@ -142,7 +142,8 @@ bool ZephyrParser::CreateBytecodeChunk( const std::string& chunkName, const eByt
 
 	// This is a valid chunk definition, create with current chunk as parent scope
 	ZephyrBytecodeChunk* newChunk = new ZephyrBytecodeChunk( chunkName, m_curBytecodeChunk );
-	
+	newChunk->SetParentScope( m_curBytecodeChunk->GetVariableScope() );
+
 	/*for ( auto globalVar : m_curBytecodeChunk->GetVariables() )
 	{
 		newChunk->SetVariable( globalVar.first, globalVar.second );
@@ -1503,7 +1504,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		}
 	}
 
-	m_curBytecodeChunk->SetVariable( identifier, value );
+	m_curBytecodeChunk->DefineVariable( identifier, value );
 	return true;
 }
 

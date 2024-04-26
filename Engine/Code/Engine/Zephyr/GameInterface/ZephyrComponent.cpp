@@ -38,7 +38,6 @@ bool ZephyrComponent::Initialize()
 	}
 
 	m_globalBytecodeChunk = scriptDef->GetGlobalBytecodeChunk();
-	//m_globalBytecodeChunk = new ZephyrBytecodeChunk( *scriptDef->GetGlobalBytecodeChunk() );
 	GUARANTEE_OR_DIE( m_globalBytecodeChunk != nullptr, "Global Bytecode Chunk was null" );
 
 	m_curStateBytecodeChunk = scriptDef->GetFirstStateBytecodeChunk();
@@ -76,12 +75,12 @@ ZephyrComponent::~ZephyrComponent()
 // TODO: Why are we interpreting current chunk (to initialize variables defined in state) and should the system do this?
 void ZephyrComponent::InterpretGlobalBytecodeChunk()
 {
-	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), *this );
+	ZephyrInterpreter::InterpretStateBytecodeChunk( *m_globalBytecodeChunk, *this );
 	
 	// Initialize default state variables
 	if ( m_curStateBytecodeChunk != nullptr )
 	{
-		ZephyrInterpreter::InterpretStateBytecodeChunk( *m_curStateBytecodeChunk, m_globalBytecodeChunk->GetUpdateableVariables(), *this, m_curStateBytecodeChunk->GetUpdateableVariables() );
+		ZephyrInterpreter::InterpretStateBytecodeChunk( *m_curStateBytecodeChunk, *this );
 	}
 }
 

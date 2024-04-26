@@ -93,23 +93,19 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 		return;
 	}
 
-	ZephyrValueMap* globalVariables = zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables();
-	if ( globalVariables == nullptr )
+	ZephyrScope* globalVariableScope = zephyrComp->m_globalBytecodeChunk->GetVariableScope();
+	if ( globalVariableScope == nullptr )
 	{
 		return;
 	}
 
 	for ( auto const& initialValue : initialValues )
 	{
-		const auto globalVarIter = globalVariables->find( initialValue.first );
-		if ( globalVarIter == globalVariables->end() )
+		if ( !globalVariableScope->SetVariable( initialValue.first.c_str(), initialValue.second ) )
 		{
 			g_devConsole->PrintError( Stringf( "Cannot initialize nonexistent variable '%s' in script '%s'", initialValue.first.c_str(), zephyrComp->GetScriptName().c_str() ) );
 			zephyrComp->m_compState = eComponentState::INVALID_SCRIPT;
-			continue;
 		}
-
-		( *globalVariables )[initialValue.first] = initialValue.second;
 	}
 }
 
@@ -225,7 +221,7 @@ void ZephyrSystem::ChangeZephyrScriptState( ZephyrComponent* zephyrComp, const s
 
 	zephyrComp->m_curStateBytecodeChunk = targetStateBytecodeChunk;
 	// Initialize state variables each time the state is entered
-	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables() );
+	ZephyrInterpreter::InterpretStateBytecodeChunk( *zephyrComp->m_curStateBytecodeChunk, *zephyrComp );
 
 	ZephyrSystem::FireScriptEvent( zephyrComp, "OnEnter" );
 	//zephyrComp->m_state = eComponentState::STARTED;
@@ -396,15 +392,9 @@ bool ZephyrSystem::FireScriptEvent( ZephyrComponent* zephyrComp, const std::stri
 		return false;
 	}
 
-	ZephyrValueMap* stateVariables = nullptr;
-	if ( zephyrComp->m_curStateBytecodeChunk != nullptr )
-	{
-		stateVariables = zephyrComp->m_curStateBytecodeChunk->GetUpdateableVariables();
-	}
-
 	//zephyrComp->m_parentEntity->AddGameEventParams( args );
 
-	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, zephyrComp->m_globalBytecodeChunk->GetUpdateableVariables(), *zephyrComp, args, stateVariables );
+	ZephyrInterpreter::InterpretEventBytecodeChunk( *eventChunk, *zephyrComp, args );
 	return true;
 }
 

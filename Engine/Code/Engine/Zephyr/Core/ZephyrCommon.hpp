@@ -216,6 +216,10 @@ public:
 		, parentScope( parentScope )
 	{
 	}
+
+	bool TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const;
+	bool SetVariable( const std::string& identifier, const ZephyrValue& value );
+	bool DefineVariable( const std::string& identifier, const ZephyrValue& value );
 };
 
 

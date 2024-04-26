@@ -14,10 +14,10 @@ State Default
 
 Function TestVec2Members()
 {
-    // testVec2 = Vec2(x:1,y:1);
+    testVec2 = Vec2(x:1,y:1);
 
     Number newX = testVec2.x + 10;
-    if(newX != 10)
+    if(newX != 11)
     {
         PrintToConsole( text: "Vec2: Accessing x failed" color: "red" );
         return; 
@@ -25,7 +25,7 @@ Function TestVec2Members()
 
     testVec2.x = newX;
     testVec2.Get();
-    if(testVec2.x != 10)
+    if(testVec2.x != 11)
     {
         PrintToConsole( text: "Vec2: Setting x failed" color: "red" )
         return; 

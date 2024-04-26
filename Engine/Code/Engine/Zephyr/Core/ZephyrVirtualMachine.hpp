@@ -22,29 +22,19 @@ public:
 
 
 //-----------------------------------------------------------------------------------------------
-enum class EAssignToVariableInMapResult
-{
-	ERROR,
-	NOT_FOUND,
-	SUCCESS
-};
-
-
-//-----------------------------------------------------------------------------------------------
 class ZephyrVirtualMachine
 {
 	friend class ZephyrInterpreter;
 
 private:
-	ZephyrVirtualMachine( const ZephyrBytecodeChunk& bytecodeChunk,
-						  ZephyrValueMap* globalVariables,
+	ZephyrVirtualMachine( ZephyrBytecodeChunk& bytecodeChunk,
 						  ZephyrComponent& zephyrComponent,
-						  ZephyrArgs* eventArgs = nullptr,
-						  ZephyrValueMap* stateVariables = nullptr );
+						  ZephyrArgs* eventArgs = nullptr );
 	
 	void		InterpretBytecodeChunk();
 
-	void		CopyEventArgVariables( ZephyrArgs* args, ZephyrValueMap& localVariables );
+	void		CopyEventArgsToZephyrVariables( ZephyrArgs* args, ZephyrScope& localVariableScope );
+	void		CopyZephyrVariablesToEventArgs( ZephyrArgs* args, ZephyrScope& localVariableScope );
 
 	void		PushConstant( const ZephyrValue& number );
 	ZephyrValue PopConstant();
@@ -62,16 +52,15 @@ private:
 	void PushLessOp			( ZephyrValue& a, ZephyrValue& b );
 	void PushLessEqualOp	( ZephyrValue& a, ZephyrValue& b );
 
-	ZephyrValue						GetVariableValue			( const std::string& variableName, const ZephyrValueMap& localVariables );
-	void							AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap& localVariables );
-	EAssignToVariableInMapResult	AssignToVariableInMap		( const std::string& variableName, const ZephyrValue& value, ZephyrValueMap* variableMap );
+	ZephyrValue						GetVariableValue			( const std::string& variableName, const ZephyrScope& localVariableScope );
+	void							AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrScope& localVariableScope );
 	
-	MemberAccessorResult ProcessResultOfMemberAccessor( const ZephyrValueMap& localVariables );
+	MemberAccessorResult ProcessResultOfMemberAccessor( const ZephyrScope& localVariableScope );
 	
 	std::map<std::string, std::string> GetCallerVariableToParamNamesFromParameters( const std::string& eventName );
 	void InsertParametersIntoEventArgs( ZephyrArgs& args );
-	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const ZephyrArgs& args, ZephyrValueMap& localVariables );
-	ZephyrValue GetZephyrValFromEventArgs( const std::string& varName, const EventArgs& args );
+	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const ZephyrArgs& args, ZephyrScope& localVariableScope );
+	ZephyrValue GetZephyrValFromEventArgs( const std::string& varName, const ZephyrArgs& args );
 
 	ZephyrValue GetGlobalVariableFromEntity	( EntityId entityId, const std::string& variableName );
 	void SetGlobalVariableInEntity			( EntityId entityId, const std::string& variableName, const ZephyrValue& value );
@@ -83,15 +72,10 @@ private:
 	bool IsErrorValue( const ZephyrValue& zephyrValue );
 
 private:
-	ZephyrComponent&		m_zephyrComponent;
-	const ZephyrBytecodeChunk&	m_bytecodeChunk;
+	ZephyrComponent&			m_zephyrComponent;
+	ZephyrBytecodeChunk&		m_bytecodeChunk;
 	int m_curOpCodeIdx = 0;
-	std::stack<ZephyrValue> m_constantStack;
-	std::deque<std::string> m_curMemberAccessorNames;
+	std::stack<ZephyrValue>		m_constantStack;
 
-	ZephyrValueMap*			m_globalVariables;
-	ZephyrValueMap*			m_stateVariables;
-	ZephyrValueMap			m_eventVariablesCopy;
-	ZephyrValueMap*			m_eventVariables;
-	ZephyrArgs*				m_eventArgs;
+	ZephyrArgs*					m_eventArgs;
 };

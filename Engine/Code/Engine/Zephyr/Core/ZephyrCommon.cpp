@@ -627,7 +627,15 @@ std::string ZephyrValue::SerializeToString() const
 		case eValueType::NUMBER: 	serializedStr += ToString( numberData );
 		case eValueType::BOOL:		serializedStr += ToString( boolData );
 		case eValueType::ENTITY:	serializedStr += ToString( entityData );
-		case eValueType::USER_TYPE:	ERROR_AND_DIE( "Serializing user types not implemented" );//serializedStr += userTypeData.IsValid() ? userTypeData.Pin()->ToString();
+		case eValueType::USER_TYPE:	
+		{		
+			ZephyrHandle userHandle = GetAsUserType();
+			if ( userHandle.IsValid() )
+			{
+				SmartPtr userPtr( userHandle );
+				serializedStr += userPtr->ToString();
+			}
+		}
 	}
 
 	return serializedStr;
@@ -701,3 +709,58 @@ ZephyrTimer::~ZephyrTimer()
 {
 	PTR_SAFE_DELETE( callbackArgs );
 }
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrScope::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const
+{
+	ZephyrScope const* curScope = this;
+	while ( curScope != nullptr )
+	{
+		auto variableEntry = curScope->variables.find( identifier );
+		if ( variableEntry != curScope->variables.end() )
+		{
+			out_value = variableEntry->second;
+			return true;
+		}
+
+		curScope = curScope->parentScope;
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrScope::SetVariable( const std::string& identifier, const ZephyrValue& value )
+{
+	ZephyrScope* curScope = this;
+	while ( curScope != nullptr )
+	{
+		auto variableEntry = curScope->variables.find( identifier );
+		if ( variableEntry != curScope->variables.end() )
+		{
+			curScope->variables[identifier] = value;
+			return true;
+		}
+
+		curScope = curScope->parentScope;
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrScope::DefineVariable( const std::string& identifier, const ZephyrValue& value )
+{
+	auto variableEntry = variables.find( identifier );
+	if ( variableEntry != variables.end() )
+	{
+		return false;
+	}
+
+	variables[identifier] = value;
+	return true;
+}
+
