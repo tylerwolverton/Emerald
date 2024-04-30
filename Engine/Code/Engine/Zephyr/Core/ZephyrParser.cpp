@@ -1482,8 +1482,14 @@ bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueT
 //-----------------------------------------------------------------------------------------------
 bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName )
 {
-	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
 	ZephyrValue value;
+	if ( m_curBytecodeChunk->TryToGetVariable( identifier, value ) )
+	{
+		ReportError( Stringf( "Variable redefinition, '%s' already exists in scope.", identifier.c_str() ) );
+		return false;
+	}
+
+	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
 	switch ( varType )
 	{
 		case eValueType::ENTITY: 

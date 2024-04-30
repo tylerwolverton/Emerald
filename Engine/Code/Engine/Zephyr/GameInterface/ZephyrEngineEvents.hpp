@@ -24,7 +24,8 @@ public:
 protected:
 	void PrintDebugScreenText( EventArgs* args );
 	void PrintToConsole( EventArgs* args );
-	void Verify( EventArgs* args );
+	void Assert( EventArgs* args );
+	void AssertEqual( EventArgs* args );
 
 protected:
 	std::unordered_set<std::string> m_registeredMethods;

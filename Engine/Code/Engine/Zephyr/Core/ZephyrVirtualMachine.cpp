@@ -529,9 +529,9 @@ void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args, Zep
 	std::vector<std::string> userTypeOutParamNames;
 
 	// Save updated event variables back into args
-	if ( m_eventArgs != nullptr )
+	if ( args != nullptr )
 	{
-		std::map<std::string, TypedPropertyBase*> argKeyValuePairs = m_eventArgs->GetAllKeyValuePairs();
+		std::map<std::string, TypedPropertyBase*> argKeyValuePairs = args->GetAllKeyValuePairs();
 
 		for ( auto const& keyValuePair : argKeyValuePairs )
 		{
@@ -544,10 +544,10 @@ void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args, Zep
 
 			switch ( val.GetType() )
 			{
-				case eValueType::ENTITY:	m_eventArgs->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
+				case eValueType::ENTITY:	args->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
 				case eValueType::USER_TYPE:
 				{
-					m_eventArgs->SetValue( keyValuePair.first, val.GetAsUserType() );
+					args->SetValue( keyValuePair.first, val.GetAsUserType() );
 					userTypeOutParamNames.push_back( keyValuePair.first );
 					break;
 				}

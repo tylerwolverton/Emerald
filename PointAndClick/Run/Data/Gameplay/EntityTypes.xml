@@ -24,17 +24,21 @@
   </Entity>
 
   <Entity name="UnitTester">
-    <Script name="UnitTests.zephyr"/>
+    <Script name="Tests/UnitTests.zephyr"/>
   </Entity>
 
   <Entity name="VariableAllocationTester">
-    <Script name="VariableAllocationTests.zephyr"/>
+    <Script name="Tests/VariableAllocationTests.zephyr"/>
   </Entity>
 
   <Entity name="MemberTester">
     <Script name="Tests/MemberTests.zephyr"/>
   </Entity>
   
+  <Entity name="ScopeTester">
+    <Script name="Tests/ScopeTests.zephyr"/>
+  </Entity>
+
   <Entity name="GameManager">
     <Script name="GameManager.zephyr"/>
   </Entity>

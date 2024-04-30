@@ -145,7 +145,7 @@ State OperatorTest
 	{
 		Number testNum = -(1 + 2 * 3 - 4 / 2);
 		// Verify( result: testNum == 5, errorMsg: "OperatorTest failed " + testNum )
-		Verify( result: testNum == -5, errorMsg: "OperatorTest failed testNum = " + testNum + " expected -5")
+		Assert( result: testNum == -5, errorMsg: "OperatorTest failed testNum = " + testNum + " expected -5")
 		// if( testNum != -5 )
 		// {
 		// 	PrintToConsole( text: "OperatorTest: Failed", color: "red" )

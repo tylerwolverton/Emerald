@@ -23,7 +23,8 @@ ZephyrEngineEvents::ZephyrEngineEvents()
 {
 	REGISTER_EVENT( PrintDebugScreenText );
 	REGISTER_EVENT( PrintToConsole );
-	REGISTER_EVENT( Verify );
+	REGISTER_EVENT( Assert );
+	REGISTER_EVENT( AssertEqual );
 }
 
 
@@ -138,7 +139,7 @@ void ZephyrEngineEvents::PrintToConsole( EventArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrEngineEvents::Verify( EventArgs* args )
+void ZephyrEngineEvents::Assert( EventArgs* args )
 {
 	ZephyrHandle errorMsgType = args->GetValue( "errorMsg", NULL_ZEPHYR_HANDLE );
 	std::string errorMsg;
@@ -169,3 +170,38 @@ void ZephyrEngineEvents::Verify( EventArgs* args )
 		g_devConsole->PrintError( errorMsg );
 	}
 }
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrEngineEvents::AssertEqual( EventArgs* args )
+{
+	ZephyrHandle errorMsgType = args->GetValue( "errorMsg", NULL_ZEPHYR_HANDLE );
+	std::string errorMsg;
+	if ( errorMsgType.IsValid() )
+	{
+		SmartPtr smartPtr( errorMsgType );
+		errorMsg = smartPtr->ToString();
+	}
+	else
+	{
+		errorMsg = args->GetValue( "errorMsg", "" );
+	}
+
+	ZephyrHandle aType = args->GetValue( "a", NULL_ZEPHYR_HANDLE );
+	ZephyrHandle bType = args->GetValue( "b", NULL_ZEPHYR_HANDLE );
+	
+	if ( !aType.IsValid() || !bType.IsValid() )
+	{
+		return;
+	}
+
+	SmartPtr aPtr( aType );
+	SmartPtr bPtr( bType );
+		
+	eZephyrComparatorResult result = aPtr->Equal(bType);
+	if ( result != eZephyrComparatorResult::TRUE_VAL )
+	{
+		g_devConsole->PrintError( Stringf( "Assert failed %s == %s, %s", aPtr->ToString().c_str(), bPtr->ToString().c_str(), errorMsg.c_str() ));
+	}
+}
+

@@ -1,0 +1,69 @@
+Number globalTestNum = 0;
+Number testNum = 0;
+Bool isFirst = true;
+
+
+State First
+{
+    Number stateTestNum = 1;
+    Number testNum = 10;
+    OnEnter()
+    {
+        if(isFirst)
+        {
+            isFirst = false;
+
+            AssertEqual( a: globalTestNum,  b: 0, errorMsg: "Global test num is incorrect" );
+            AssertEqual( a: stateTestNum, b: 1, errorMsg: "State First test num is incorrect" );
+    
+            AssertEqual( a: testNum, b: 10, errorMsg: "Shadowed global not changed" );
+            TestFunc();
+            AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in function call" );
+            
+            stateTestNum = 100;
+            
+            if(true)
+            {
+                Number testNum2 = 1000;
+            }
+            AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in if statement" );
+            AssertEqual( a: testNum2, b: 1000, errorMsg: "If statement variable outlived statement" );
+            
+            ChangeState(Second);
+        }
+        else
+        {
+            AssertEqual( a: globalTestNum,  b: 0, errorMsg: "Global test num is incorrect in second pass" );
+            AssertEqual( a: stateTestNum, b: 1, errorMsg: "State First test num is incorrect in second pass" );
+    
+            AssertEqual( a: testNum, b: 10, errorMsg: "Shadowed global not changed in second pass" );
+            TestFunc();
+            AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in function call in second pass" );
+            
+            if(true)
+            {
+               // Number testNum = 1000;
+            }
+            AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in if statement in second pass" );
+        }
+    }
+
+    Function TestFunc()
+    {
+        Number testNum = 30;
+    }
+}
+
+State Second
+{
+    Number stateTestNum = 2;
+
+    OnEnter()
+    {
+        Assert( result: globalTestNum == 0, errorMsg: "Global test num is incorrect" );
+        Assert( result: stateTestNum == 2, errorMsg: "State Second test num is incorrect" );
+        Assert( result: testNum == 0, errorMsg: "Global variable incorrectly changed" );
+
+        ChangeState(First);
+    }
+}

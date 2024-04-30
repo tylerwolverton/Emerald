@@ -3,6 +3,7 @@
     <Entity type="UnitTester"/>
     <Entity type="VariableAllocationTester"/>
     <Entity type="MemberTester"/>
+    <Entity type="ScopeTester"/>
     <!-- Managers -->
     <Entity type="TestRoomManager" name="TestRoomManager">
       <GlobalVar type="string" var="roomId" value="Test"/>

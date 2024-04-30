@@ -301,6 +301,8 @@ public:
 	
 	void CallMethod( const std::string& methodName, ZephyrArgs* args );
 
+	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) = 0;
 	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) = 0;
@@ -311,7 +313,6 @@ protected:
 	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult Less( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult LessEqual( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 	virtual eZephyrComparatorResult NotEqual( ZephyrHandle other );
 
 	virtual ZephyrHandle Negate()										{  return NULL_ZEPHYR_HANDLE; }
