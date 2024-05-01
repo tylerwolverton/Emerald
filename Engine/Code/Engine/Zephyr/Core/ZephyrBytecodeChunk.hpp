@@ -32,8 +32,9 @@ public:
 	byte							GetByte( int idx ) const						{ return m_bytes[idx]; }
 	ZephyrValue						GetConstant( int idx ) const					{ return m_constants[idx]; }
 	bool							TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const;
-	//ZephyrScope						GetVariableScope() const						{ return m_variableScope; }
-	ZephyrScope*					GetVariableScope()								{ return &m_variableScope; }
+	bool							TryToGetVariableFromCurrentScope( const std::string& identifier, ZephyrValue& out_value ) const;
+	ZephyrScope*					GetChunkVariableScope() const					{ return m_variableScopes[0]; }
+	void							SetScopeFromIdx( int newScopeIdx );
 	const ZephyrBytecodeChunkMap&	GetEventBytecodeChunks() const					{ return m_eventBytecodeChunks; }
 	eBytecodeChunkType				GetType() const									{ return m_type; }
 	bool							IsInitialState() const							{ return m_isInitialState; }
@@ -47,10 +48,11 @@ public:
 	int AddConstant( const ZephyrValue& constant );
 	void SetConstantAtIdx( int idx, const ZephyrValue& constant );
 	void AddEventChunk( ZephyrBytecodeChunk* eventBytecodeChunk );
+	int PushVariableScope();
+	int PopVariableScope();
 
 	void SetVariable( const std::string& identifier, const ZephyrValue& value );
 	void DefineVariable( const std::string& identifier, const ZephyrValue& value );
-	void SetParentScope( ZephyrScope* parentScope )									{ m_variableScope.parentScope = parentScope; }
 
 	void SetType( eBytecodeChunkType type )											{ m_type = type; }
 	void SetAsInitialState()														{ m_isInitialState = true; }
@@ -63,8 +65,10 @@ private:
 	ZephyrBytecodeChunk* m_parentChunk = nullptr;
 	std::vector<byte> m_bytes;
 	std::vector<ZephyrValue> m_constants;
-	ZephyrScope m_variableScope;
+	std::vector<ZephyrScope*> m_variableScopes;
 	ZephyrBytecodeChunkMap m_eventBytecodeChunks;
+
 	eBytecodeChunkType m_type = eBytecodeChunkType::NONE;
+	int m_curScopeIdx = 0;
 	bool m_isInitialState = false;
 };

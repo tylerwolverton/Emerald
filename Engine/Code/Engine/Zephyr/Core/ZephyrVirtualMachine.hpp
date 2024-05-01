@@ -33,8 +33,8 @@ private:
 	
 	void		InterpretBytecodeChunk();
 
-	void		CopyEventArgsToZephyrVariables( ZephyrArgs* args, ZephyrScope& localVariableScope );
-	void		CopyZephyrVariablesToEventArgs( ZephyrArgs* args, ZephyrScope& localVariableScope );
+	void		CopyEventArgsToZephyrVariables( ZephyrArgs* args );
+	void		CopyZephyrVariablesToEventArgs( ZephyrArgs* args );
 
 	void		PushConstant( const ZephyrValue& number );
 	ZephyrValue PopConstant();
@@ -52,14 +52,14 @@ private:
 	void PushLessOp			( ZephyrValue& a, ZephyrValue& b );
 	void PushLessEqualOp	( ZephyrValue& a, ZephyrValue& b );
 
-	ZephyrValue						GetVariableValue			( const std::string& variableName, const ZephyrScope& localVariableScope );
-	void							AssignToVariable			( const std::string& variableName, const ZephyrValue& value, ZephyrScope& localVariableScope );
+	ZephyrValue						GetVariableValue			( const std::string& variableName );
+	void							AssignToVariable			( const std::string& variableName, const ZephyrValue& value );
 	
-	MemberAccessorResult ProcessResultOfMemberAccessor( const ZephyrScope& localVariableScope );
+	MemberAccessorResult ProcessResultOfMemberAccessor();
 	
 	std::map<std::string, std::string> GetCallerVariableToParamNamesFromParameters( const std::string& eventName );
 	void InsertParametersIntoEventArgs( ZephyrArgs& args );
-	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const ZephyrArgs& args, ZephyrScope& localVariableScope );
+	void UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierParams, const ZephyrArgs& args );
 	ZephyrValue GetZephyrValFromEventArgs( const std::string& varName, const ZephyrArgs& args );
 
 	ZephyrValue GetGlobalVariableFromEntity	( EntityId entityId, const std::string& variableName );

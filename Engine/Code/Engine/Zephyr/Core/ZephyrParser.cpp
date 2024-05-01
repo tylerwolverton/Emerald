@@ -76,9 +76,10 @@ void ZephyrParser::CreateGlobalBytecodeChunk()
 	m_globalBytecodeChunk->SetType( eBytecodeChunkType::GLOBAL );
 
 	m_curBytecodeChunk = m_globalBytecodeChunk;
-	
+
 	// Save reference to this entity into global state
 	m_globalBytecodeChunk->DefineVariable( PARENT_ENTITY_STR, ZephyrValue( INVALID_ENTITY_ID ) );
+	m_globalBytecodeChunk->DefineVariable( PARENT_ENTITY_NAME_STR, ZephyrValue( "" ));
 
 	m_curBytecodeChunksStack.push( m_globalBytecodeChunk );
 }
@@ -142,7 +143,6 @@ bool ZephyrParser::CreateBytecodeChunk( const std::string& chunkName, const eByt
 
 	// This is a valid chunk definition, create with current chunk as parent scope
 	ZephyrBytecodeChunk* newChunk = new ZephyrBytecodeChunk( chunkName, m_curBytecodeChunk );
-	newChunk->SetParentScope( m_curBytecodeChunk->GetVariableScope() );
 
 	/*for ( auto globalVar : m_curBytecodeChunk->GetVariables() )
 	{
@@ -774,7 +774,15 @@ bool ZephyrParser::ParseIfStatement()
 
 	int preIfBlockByteCount = (int)m_curBytecodeChunk->GetCode().size();
 
+	int scopeIdx = m_curBytecodeChunk->PushVariableScope();
+	WriteConstantToCurChunk( ZephyrValue( (float)scopeIdx ) );
+	WriteOpCodeToCurChunk( eOpCode::SET_SCOPE, lastLineNum );
+
 	if ( !ParseBlock() ) return false;
+
+	scopeIdx = m_curBytecodeChunk->PopVariableScope();
+	WriteConstantToCurChunk( ZephyrValue( (float)scopeIdx ) );
+	WriteOpCodeToCurChunk( eOpCode::SET_SCOPE, GetLastToken().GetLineNum() );
 
 	// Set the number of bytes to jump to be the size of the if block plus 3 bytes
 	// 2 for the constant declaration and 1 for the JUMP op to jump over the else statement
@@ -796,7 +804,15 @@ bool ZephyrParser::ParseIfStatement()
 
 		int preElseBlockByteCount = (int)m_curBytecodeChunk->GetCode().size();
 
+		scopeIdx = m_curBytecodeChunk->PushVariableScope();
+		WriteConstantToCurChunk( ZephyrValue( (float)scopeIdx ) );
+		WriteOpCodeToCurChunk( eOpCode::SET_SCOPE, GetLastToken().GetLineNum() );
+
 		if ( !ParseBlock() ) return false;
+
+		scopeIdx = m_curBytecodeChunk->PopVariableScope();
+		WriteConstantToCurChunk( ZephyrValue( (float)scopeIdx ) );
+		WriteOpCodeToCurChunk( eOpCode::SET_SCOPE, GetLastToken().GetLineNum() );
 
 		m_curBytecodeChunk->SetConstantAtIdx( elseInstructionCountIdx, ZephyrValue( (float)( m_curBytecodeChunk->GetCode().size() - preElseBlockByteCount ) ) );
 	}
@@ -1483,7 +1499,7 @@ bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueT
 bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName )
 {
 	ZephyrValue value;
-	if ( m_curBytecodeChunk->TryToGetVariable( identifier, value ) )
+	if ( m_curBytecodeChunk->TryToGetVariableFromCurrentScope( identifier, value ) )
 	{
 		ReportError( Stringf( "Variable redefinition, '%s' already exists in scope.", identifier.c_str() ) );
 		return false;

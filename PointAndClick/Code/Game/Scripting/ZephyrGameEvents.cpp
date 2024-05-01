@@ -767,7 +767,7 @@ GameEntity* ZephyrGameEvents::GetTargetEntityFromArgs( EventArgs* args )
 {
 	EntityId targetId = (EntityId)args->GetValue( TARGET_ENTITY_STR, INVALID_ENTITY_ID );
 	std::string targetName = args->GetValue( TARGET_ENTITY_NAME_STR, "" );
-	EntityId entityId = args->GetValue( PARENT_ENTITY_ID_STR, INVALID_ENTITY_ID );
+	EntityId entityId = args->GetValue( PARENT_ENTITY_STR, INVALID_ENTITY_ID );
 	GameEntity* entity = (GameEntity*)g_game->GetEntityById( entityId );
 	
 	// Named entities are returned first

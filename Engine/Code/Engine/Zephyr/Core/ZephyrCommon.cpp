@@ -12,11 +12,9 @@
 
 //-----------------------------------------------------------------------------------------------
 std::string PARENT_ENTITY_STR = "parentEntity";
-std::string PARENT_ENTITY_ID_STR = "parentEntityId";
 std::string PARENT_ENTITY_NAME_STR = "parentEntityName";
 std::string TARGET_ENTITY_STR = "targetEntity";
 std::string TARGET_ENTITY_NAME_STR = "targetName";
-
 
 ZephyrEngineEvents* g_zephyrAPI = nullptr;
 ZephyrSubsystem* g_zephyrSubsystem = nullptr;
@@ -150,7 +148,6 @@ std::string ToString( eOpCode opCode )
 		case eOpCode::NOT:						return "NOT";
 		case eOpCode::CONSTANT:					return "CONSTANT";
 		case eOpCode::CONSTANT_USER_TYPE:		return "CONSTANT_USER_TYPE";
-		case eOpCode::DEFINE_VARIABLE:			return "DEFINE_VARIABLE";
 		case eOpCode::GET_VARIABLE_VALUE:		return "GET_VARIABLE_VALUE";
 		case eOpCode::ASSIGNMENT:				return "ASSIGNMENT";
 		case eOpCode::MEMBER_ASSIGNMENT:		return "MEMBER_ASSIGNMENT";
@@ -173,6 +170,7 @@ std::string ToString( eOpCode opCode )
 		case eOpCode::JUMP:						return "JUMP";
 		case eOpCode::AND:						return "AND";
 		case eOpCode::OR:						return "OR";
+		case eOpCode::SET_SCOPE:				return "SET_SCOPE";
 		case eOpCode::LAST_VAL:					return "LAST_VAL";
 		default:								return "UNKNOWN";
 	}

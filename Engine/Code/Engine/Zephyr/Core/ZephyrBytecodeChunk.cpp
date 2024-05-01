@@ -8,6 +8,12 @@ ZephyrBytecodeChunk::ZephyrBytecodeChunk( const std::string& name, ZephyrBytecod
 	: m_name( name )
 	, m_parentChunk( parent )
 {
+	m_variableScopes.push_back( new ZephyrScope() );
+	
+	if ( parent != nullptr )
+	{
+		m_variableScopes[0]->parentScope = parent->GetChunkVariableScope();
+	}
 }
 
 
@@ -15,6 +21,7 @@ ZephyrBytecodeChunk::ZephyrBytecodeChunk( const std::string& name, ZephyrBytecod
 ZephyrBytecodeChunk::~ZephyrBytecodeChunk()
 {
 	PTR_MAP_SAFE_DELETE( m_eventBytecodeChunks );
+	PTR_VECTOR_SAFE_DELETE( m_variableScopes );
 }
 
 
@@ -36,7 +43,28 @@ std::string ZephyrBytecodeChunk::GetFullyQualifiedName() const
 //-----------------------------------------------------------------------------------------------
 bool ZephyrBytecodeChunk::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value ) const
 {
-	return m_variableScope.TryToGetVariable( identifier, out_value );
+	return m_variableScopes[m_curScopeIdx]->TryToGetVariable(identifier, out_value);
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrBytecodeChunk::TryToGetVariableFromCurrentScope( const std::string& identifier, ZephyrValue& out_value ) const
+{
+	auto iter = m_variableScopes[m_curScopeIdx]->variables.find( identifier );
+	if ( iter != m_variableScopes[m_curScopeIdx]->variables.end() )
+	{
+		out_value = iter->second;
+		return true;
+	}
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void ZephyrBytecodeChunk::SetScopeFromIdx( int newScopeIdx )
+{
+	m_curScopeIdx = newScopeIdx;
 }
 
 
@@ -104,16 +132,53 @@ void ZephyrBytecodeChunk::AddEventChunk( ZephyrBytecodeChunk* eventBytecodeChunk
 
 
 //-----------------------------------------------------------------------------------------------
+int ZephyrBytecodeChunk::PushVariableScope()
+{
+	ZephyrScope* newScope = new ZephyrScope();
+	newScope->parentScope = m_variableScopes[m_curScopeIdx];
+	m_variableScopes.push_back( newScope );
+	
+	m_curScopeIdx = (int)m_variableScopes.size() - 1;
+	return m_curScopeIdx;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+int ZephyrBytecodeChunk::PopVariableScope()
+{
+	// TODO: Need to tell VM to reset vars when popping?
+
+	if ( m_variableScopes.size() <= 1 )
+	{
+		ERROR_AND_DIE( Stringf( "Tried to pop too many variable scopes from %s", m_name.c_str() ) );
+	}
+	
+	ZephyrScope* parentScope = m_variableScopes[m_curScopeIdx]->parentScope;
+
+	for ( int scopeIdx = (int)m_variableScopes.size() - 1; scopeIdx >= 0; --scopeIdx )
+	{
+		if ( parentScope == m_variableScopes[scopeIdx] )
+		{
+			m_curScopeIdx = scopeIdx;
+			return scopeIdx;
+		}
+	}
+
+	return -1;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrBytecodeChunk::SetVariable( const std::string& identifier, const ZephyrValue& value )
 {
-	m_variableScope.SetVariable( identifier, value );
+	m_variableScopes[m_curScopeIdx]->SetVariable(identifier, value);
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrBytecodeChunk::DefineVariable( const std::string& identifier, const ZephyrValue& value )
 {
-	m_variableScope.DefineVariable( identifier, value );
+	m_variableScopes[m_curScopeIdx]->DefineVariable(identifier, value);
 }
 
 

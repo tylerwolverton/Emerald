@@ -2,7 +2,6 @@ Number globalTestNum = 0;
 Number testNum = 0;
 Bool isFirst = true;
 
-
 State First
 {
     Number stateTestNum = 1;
@@ -26,8 +25,10 @@ State First
             {
                 Number testNum2 = 1000;
             }
+
             AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in if statement" );
-            AssertEqual( a: testNum2, b: 1000, errorMsg: "If statement variable outlived statement" );
+            // Compiler error
+            //AssertEqual( a: testNum2, b: 1000, errorMsg: "If statement variable outlived statement" );
             
             ChangeState(Second);
         }
@@ -42,15 +43,21 @@ State First
             
             if(true)
             {
-               // Number testNum = 1000;
+                Number testNum = 1000;
             }
+            else
+            {
+                Number testNum = 2000;
+            }
+
             AssertEqual( a: testNum, b: 10, errorMsg: "State variable incorrectly changed in if statement in second pass" );
         }
     }
 
-    Function TestFunc()
+    Function TestFunc( Number testNum )
     {
-        Number testNum = 30;
+        // Compiler error
+        //Number testNum = 30;
     }
 }
 

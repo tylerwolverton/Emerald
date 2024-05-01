@@ -93,7 +93,7 @@ void ZephyrSystem::InitializeGlobalVariables( ZephyrComponent* zephyrComp, const
 		return;
 	}
 
-	ZephyrScope* globalVariableScope = zephyrComp->m_globalBytecodeChunk->GetVariableScope();
+	ZephyrScope* globalVariableScope = zephyrComp->m_globalBytecodeChunk->GetChunkVariableScope();
 	if ( globalVariableScope == nullptr )
 	{
 		return;
@@ -129,7 +129,7 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 
 	// Try to get native first
 	EventArgs args;
-	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+	args.SetValue( PARENT_ENTITY_STR, zephyrComp->GetParentEntityId() );
 	args.SetValue( "varName", varName );
 
 	// TODO: Native variables must be a ZephyrType
@@ -165,7 +165,7 @@ void ZephyrSystem::SetGlobalVariable( ZephyrComponent* zephyrComp, const std::st
 
 	// Try to set native first
 	EventArgs args;
-	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+	args.SetValue( PARENT_ENTITY_STR, zephyrComp->GetParentEntityId() );
 	args.SetValue( "varName", varName );
 	args.SetValue( "zephyrValue", value );
 	g_eventSystem->FireEvent( "SetNativeEntityVariable", &args );
@@ -327,7 +327,7 @@ void ZephyrSystem::UpdateComponent( ZephyrComponent* zephyrComp )
 	{
 		// TODO: Make sure this still works after type upgrade
 		EventArgs args;
-		args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
+		args.SetValue( PARENT_ENTITY_STR, zephyrComp->GetParentEntityId() );
 		args.SetValue( "text", "Script Error" );
 		args.SetValue( "color", "red" );
 
@@ -355,11 +355,7 @@ void ZephyrSystem::FireSpawnEvent( ZephyrComponent* zephyrComp )
 		return;
 	}
 
-	EventArgs args;
-	args.SetValue( PARENT_ENTITY_ID_STR, zephyrComp->GetParentEntityId() );
-	args.SetValue( PARENT_ENTITY_NAME_STR, zephyrComp->GetParentEntityName() );
-
-	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn", &args );
+	ZephyrSystem::FireScriptEvent( zephyrComp, "OnSpawn" );
 }
 
 

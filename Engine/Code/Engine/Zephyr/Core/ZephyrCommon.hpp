@@ -34,7 +34,6 @@ extern ZephyrHandle NULL_ZEPHYR_HANDLE;
 
 constexpr int ERROR_ZEPHYR_ENTITY_ID = -1000;
 extern std::string PARENT_ENTITY_STR;
-extern std::string PARENT_ENTITY_ID_STR;
 extern std::string PARENT_ENTITY_NAME_STR;
 extern std::string TARGET_ENTITY_STR;
 extern std::string TARGET_ENTITY_NAME_STR;
@@ -126,7 +125,6 @@ enum class eOpCode : byte
 	CONSTANT,
 	CONSTANT_USER_TYPE,
 
-	DEFINE_VARIABLE,
 	GET_VARIABLE_VALUE,
 	ASSIGNMENT,
 	MEMBER_ASSIGNMENT,
@@ -156,6 +154,8 @@ enum class eOpCode : byte
 	JUMP,
 	AND,
 	OR,
+
+	SET_SCOPE,
 
 	LAST_VAL,
 };

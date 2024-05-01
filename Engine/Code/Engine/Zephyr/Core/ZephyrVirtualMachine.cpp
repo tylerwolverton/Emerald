@@ -35,11 +35,12 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 	// Event variables don't need to be persisted after this call, so save a copy as local variables
 	// TODO: Account for scopes inside if statements, etc.?
 	//std::map<std::string, ZephyrValue> localVariables;
-	ZephyrScope localVariableScope;
-	localVariableScope.parentScope = m_bytecodeChunk.GetVariableScope();
+	m_bytecodeChunk.SetScopeFromIdx( 0 );
+	//ZephyrScope localVariableScope;
+	//localVariableScope.parentScope = m_bytecodeChunk.GetChunkVariableScope();
 	if ( m_bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
 	{
-		CopyEventArgsToZephyrVariables( m_eventArgs, localVariableScope );
+		CopyEventArgsToZephyrVariables( m_eventArgs );
 	}
 
 	int curByteIdx = 0;
@@ -78,17 +79,10 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			}
 			break;
 
-			case eOpCode::DEFINE_VARIABLE:
-			{
-				ZephyrValue variableName = PopConstant();
-				localVariableScope.DefineVariable( variableName.GetAsString(), PopConstant() );
-			}
-			break;
-
 			case eOpCode::GET_VARIABLE_VALUE:
 			{
 				ZephyrValue variableName = PopConstant();
-				PushConstant( GetVariableValue( variableName.GetAsString(), localVariableScope ) );
+				PushConstant( GetVariableValue( variableName.GetAsString() ) );
 			}
 			break;
 			
@@ -96,7 +90,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				ZephyrValue variableName = PopConstant(); 
 				ZephyrValue constantValue = PeekConstant();
-				AssignToVariable( variableName.GetAsString(), constantValue, localVariableScope );
+				AssignToVariable( variableName.GetAsString(), constantValue );
 			}
 			break;	
 
@@ -104,7 +98,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				ZephyrValue constantValue = PopConstant();
 
-				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor( localVariableScope );
+				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
 				if ( IsErrorValue( memberAccessorResult.finalMemberVal ) )
 				{
@@ -155,7 +149,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 			case eOpCode::MEMBER_ACCESSOR:
 			{
-				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor( localVariableScope );
+				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
 				// TODO: Helper function for error checking user types?
 				if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE
@@ -235,11 +229,11 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( "Member function call" );
 
 				ZephyrArgs* args = new ZephyrArgs();
-				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
+				args->SetValue( PARENT_ENTITY_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
 
-				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor( localVariableScope );
+				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
 				if ( IsErrorValue( memberAccessorResult.finalMemberVal ) )
 				{
@@ -271,7 +265,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				}
 				
 				// Set new values of identifier parameters
-				UpdateIdentifierParameters( identifierToParamNames, *args, localVariableScope );
+				UpdateIdentifierParameters( identifierToParamNames, *args );
 
 				PTR_SAFE_DELETE( args );
 			}
@@ -301,6 +295,13 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				ZephyrValue numBytesToJump = PopConstant();
 				curByteIdx += (int)numBytesToJump.GetAsNumber();
+			}
+			break;
+
+			case eOpCode::SET_SCOPE:
+			{
+				ZephyrValue scopeIdx = PopConstant();
+				m_bytecodeChunk.SetScopeFromIdx( (int)scopeIdx.EvaluateAsNumber() );
 			}
 			break;
 
@@ -432,7 +433,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.GetAsString() );
 
 				ZephyrArgs* args = new ZephyrArgs();
-				args->SetValue( PARENT_ENTITY_ID_STR, m_zephyrComponent.GetParentEntityId() );
+				args->SetValue( PARENT_ENTITY_STR, m_zephyrComponent.GetParentEntityId() );
 
 				InsertParametersIntoEventArgs( *args );
 
@@ -450,7 +451,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				}
 
 				// Set new values of identifier parameters
-				UpdateIdentifierParameters( identifierToParamNames, *args, localVariableScope );
+				UpdateIdentifierParameters( identifierToParamNames, *args );
 
 				PTR_SAFE_DELETE( args );
 			}
@@ -474,12 +475,13 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 		}
 	}
 
-	CopyZephyrVariablesToEventArgs( m_eventArgs, localVariableScope );
+	//m_bytecodeChunk.SetScopeFromIdx( 0 );
+	CopyZephyrVariablesToEventArgs( m_eventArgs );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs, ZephyrScope& localVariables )
+void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs )
 {
 	if ( eventArgs == nullptr )
 	{
@@ -493,29 +495,29 @@ void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs
 	{
 		if ( keyValuePair.second->Is<float>() )
 		{
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, 0.f ) ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, 0.f ) ) );
 		}
 		else if ( keyValuePair.second->Is<EntityId>() )
 		{
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, (EntityId)ERROR_ZEPHYR_ENTITY_ID ) ) );
 		}
 		else if ( keyValuePair.second->Is<double>() )
 		{
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( (float)eventArgs->GetValue( keyValuePair.first, 0.0 ) ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( (float)eventArgs->GetValue( keyValuePair.first, 0.0 ) ) );
 		}
 		else if ( keyValuePair.second->Is<bool>() )
 		{
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, false ) ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( eventArgs->GetValue( keyValuePair.first, false ) ) );
 		}
 		else if ( keyValuePair.second->Is<std::string>() 
 				  || keyValuePair.second->Is<char*>() )
 		{
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( keyValuePair.second->GetAsString() ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( keyValuePair.second->GetAsString() ) );
 		}
 		else if ( keyValuePair.second->Is<ZephyrHandle>() )
 		{
 			TypedProperty<ZephyrHandle>* paramAsProperty = (TypedProperty<ZephyrHandle>*)keyValuePair.second;
-			localVariables.DefineVariable( keyValuePair.first, ZephyrValue( paramAsProperty->m_value ) );
+			m_bytecodeChunk.SetVariable( keyValuePair.first, ZephyrValue( paramAsProperty->m_value ) );
 		}
 
 		// Any other variables will be ignored since they have no ZephyrType equivalent
@@ -524,7 +526,7 @@ void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args, ZephyrScope& localVariableScope )
+void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args )
 {
 	std::vector<std::string> userTypeOutParamNames;
 
@@ -536,7 +538,7 @@ void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args, Zep
 		for ( auto const& keyValuePair : argKeyValuePairs )
 		{
 			ZephyrValue val;
-			if ( !localVariableScope.TryToGetVariable( keyValuePair.first, val ) )
+			if ( !m_bytecodeChunk.TryToGetVariable( keyValuePair.first, val ) )
 			{
 				ReportError( Stringf( "Couldn't find local variable %s to save back into event arg", keyValuePair.first.c_str() ) );
 				continue;
@@ -1047,10 +1049,10 @@ void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableName, const ZephyrScope& localVariableScope )
+ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableName )
 {
 	ZephyrValue returnVal;
-	if ( localVariableScope.TryToGetVariable( variableName, returnVal ) )
+	if ( m_bytecodeChunk.TryToGetVariable( variableName, returnVal ) )
 	{
 		return returnVal;
 	}
@@ -1061,9 +1063,9 @@ ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableN
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::AssignToVariable( const std::string& variableName, const ZephyrValue& value, ZephyrScope& localVariableScope )
+void ZephyrVirtualMachine::AssignToVariable( const std::string& variableName, const ZephyrValue& value )
 {
-	localVariableScope.SetVariable( variableName, value );
+	m_bytecodeChunk.SetVariable( variableName, value );
 
 	//ReportError( Stringf( "Cannot assign a value of type '%s' to variable '%s' of type '%s'", ToString( value.GetType() ).c_str(),
 	//							variableName.c_str(),
@@ -1072,7 +1074,7 @@ void ZephyrVirtualMachine::AssignToVariable( const std::string& variableName, co
 
 
 //-----------------------------------------------------------------------------------------------
-MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const ZephyrScope& localVariableScope )
+MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 {
 	MemberAccessorResult memberAccessResult;
 
@@ -1092,7 +1094,7 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor( const 
 	}
 
 	// Find base object in this bytecode chunk
-	ZephyrValue memberVal = GetVariableValue( baseObjName.GetAsString(), localVariableScope );
+	ZephyrValue memberVal = GetVariableValue( baseObjName.GetAsString() );
 	if ( IsErrorValue( memberVal ) )
 	{
 		return memberAccessResult;
@@ -1206,7 +1208,7 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( ZephyrArgs& args )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierToParamNames, const ZephyrArgs& args, ZephyrScope& localVariables )
+void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::string, std::string>& identifierToParamNames, const ZephyrArgs& args )
 {
 	for ( auto const& identifierPair : identifierToParamNames )
 	{
@@ -1222,7 +1224,7 @@ void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::strin
 			continue;
 		}
 		
-		AssignToVariable( identifier, newVal, localVariables );
+		AssignToVariable( identifier, newVal );
 	}
 }
 

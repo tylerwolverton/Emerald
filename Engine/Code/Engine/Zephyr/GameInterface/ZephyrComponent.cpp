@@ -45,6 +45,7 @@ bool ZephyrComponent::Initialize()
 
 	// Initialize parentEntity in script
 	m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_STR, ZephyrValue( m_parentEntityId ) );
+	//m_globalBytecodeChunk->SetVariable( PARENT_ENTITY_NAME_STR, ZephyrValue(  ) );
 
 	m_compState = eComponentState::INITIALIZED;
 	return true;
