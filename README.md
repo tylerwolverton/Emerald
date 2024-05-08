@@ -1,2 +1,10 @@
 # Emerald
-The next version of my Guildhall engine.
+A personal engine to explore and experiment with cool engine features.
+
+## Current Work
+I'm currently using the ZephyrRefactor branch to overhaul how types are exposed to Zephyr scripts. Earlier, when adding engine types like Vec2, the type was explicitly added into the parser and VM which was not scalable when trying to expand with more new types. I've since redesigned the scripting engine code to use UserTypes (and a couple of built in types for VM functionality) which are variants that can hold arbitrary types defined in engine or game code. I've also integrated a memory manager I made for another project into the engine so that all Zephyr objects are automatically managed using a custom handle and pointer system. Along the way I've also done a bunch of smaller bug fixes, optimizations and refactors to make the language more stable and easier to use.
+
+## Background
+Initially started during my coursework at SMU Guildhall, the Emerald Engine is my C++ engine written (almost) entirely from scratch for Windows games. Aside from a few libraries (fmod, tinyxml2, stb_image, and mikktspace) we were taught the theory and design behind major engine systems (input, game framework, event system, math library, dx11 renderer, 2D physics, dev console, networking, and other bits) and left to implement them as we saw fit with the occasional code review with our professors. I made multiple small games and tech demos in the engine and had the freedom to do a couple of self driven game projects where I chose to make an adventure game in the style of Monkey Island and a Diablo-style game using my own scripting language, Zephyr. Zephyr was my master's thesis project; a state-based, event-driven scripting language that could be reloaded at runtime and was integrated into my game framework to allow for entity gameplay logic to be implemented as data.
+
+After graduating, I've continued the development of the engine with work such as: converting entities to ECS, adding simple cylinder vs AABB3 3D physics (and refactoring my physics engine), refactoring how data files are parsed and managed, and adding more features to Zephyr scripts.
