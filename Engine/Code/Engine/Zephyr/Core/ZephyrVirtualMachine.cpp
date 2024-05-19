@@ -1058,7 +1058,7 @@ ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableN
 	}
 
 	ReportError( Stringf( "Variable '%s' is undefined", variableName.c_str() ) );
-	return ZephyrValue::ERROR_VALUE;
+	return ZephyrValue();
 }
 
 

@@ -5,8 +5,6 @@ Function OnSpawn()
 {
     RegisterKeyEvent( key: "leftClick"  event: "OnLeftClick" )
     RegisterKeyEvent( key: "rightClick"  event: "OnRightClick" )
-
-    
 }
 
 Function OnPossess( Entity newPossessedEntity )
@@ -16,16 +14,6 @@ Function OnPossess( Entity newPossessedEntity )
 
 State Character
 {
-    // OnUpdate()
-    // {
-    //     if( possessedEntity == null )
-    //     {
-    //         return
-    //     }
-
-
-    // }
-
     Function OnLeftClick()
     {
         Entity clickedEntity = null
@@ -39,7 +27,6 @@ State Character
         {
             Vec2 mousePosition
             GetMouseCursorPositionWorld( pos: mousePosition )
-            // MoveToLocation( targetEntity: possessedEntity, pos: mousePosition )
             possessedEntity.SetTargetLocation(targetLocation: mousePosition)
         }
     }

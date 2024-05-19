@@ -67,8 +67,8 @@ public:
 	void				FireSpawnEvent();
 	bool				FireScriptEvent( const std::string& eventName, EventArgs* args = nullptr );
 
-	ZephyrValue			GetGlobalVariable( const std::string& varName );
-	void				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
+	ZephyrHandle		GetGlobalVariable( const std::string& varName );
+	bool				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
 
 protected:
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );
@@ -78,7 +78,7 @@ protected:
 	const EntityTypeDefinition&				m_entityDef;
 	Map*									m_map = nullptr;
 	Transform								m_transform;
-	float									m_curHealth = 1.f;								// how much health is currently remaining on entity
+	float									m_curHealth = 1.f;								
 	
 	bool									m_isDead = false;								// whether the Entity is “dead” in the game; affects entity and game logic
 	bool									m_isGarbage = false;							// whether the Entity should be deleted at the end of Game::Update()

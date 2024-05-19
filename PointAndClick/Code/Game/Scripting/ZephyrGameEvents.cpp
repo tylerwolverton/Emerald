@@ -357,18 +357,20 @@ void ZephyrGameEvents::GetNativeEntityVariable( EventArgs* args )
 {
 	GameEntity* entity = GetTargetEntityFromArgs( args );
 	std::string varName = args->GetValue( "varName", "" );
-	ZephyrValue zephyrValue = args->GetValue( "zephyrValue", ZephyrValue() );
 
 	if ( entity == nullptr || varName.empty() )
 	{
 		return;
 	}
 
-	bool isNative = false;
-	//if ( varName == "position" ) { zephyrValue = ZephyrValue( entity->GetPosition() ); isNative = true; }
+	ZephyrValue zephyrValue;
+	ZephyrHandle varHandle = entity->GetGlobalVariable( varName );
+	if ( varHandle.IsValid() )
+	{
+		zephyrValue = ZephyrValue( varHandle );
+	}
 
 	args->SetValue( "zephyrValue", zephyrValue );
-	args->SetValue( "isNative", isNative );
 }
 
 
@@ -384,9 +386,7 @@ void ZephyrGameEvents::SetNativeEntityVariable( EventArgs* args )
 		return;
 	}
 
-	bool isNative = false;
-	//if ( varName == "position" ) { entity->SetPosition( zephyrValue.GetAsVec3() ); isNative = true; }
-
+	bool isNative = entity->SetGlobalVariable( varName, zephyrValue );
 	args->SetValue( "isNative", isNative );
 }
 

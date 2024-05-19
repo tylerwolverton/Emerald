@@ -14,7 +14,7 @@ class ZephyrComponent;
 struct MemberAccessorResult
 {
 public:
-	ZephyrValue finalMemberVal = NULL_ZEPHYR_HANDLE;
+	ZephyrValue finalMemberVal;
 	std::string	baseObjName;
 	std::vector<std::string> memberNames;
 	std::vector<EntityId> entityIdChain;

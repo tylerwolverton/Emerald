@@ -4,7 +4,6 @@ Number movementSpeed = .05
 Position testPos = Position(x:1, y:2)
 String testStr = "hello"
 Bool testBool = true
-// Position testPos(x: 1, y: 2)
 
 Function SetTargetLocation( Vec2 targetLocation )
 {
@@ -19,18 +18,18 @@ Function SetTargetLocation( Vec2 targetLocation )
 // Could be moved to code...
 Function MoveToTargetLocation( Vec2 targetLocation )
 {
-    // Vec2 position2D = Vec2(parentEntity.position.x, parentEntity.position.y)
-    // Vec2 displacementVec = targetLocation - position2D
-    // Number length = 0
-    // Vec2 direction = Vec2(0,0)
+    Vec2 position2D = Vec2(x: parentEntity.position.x, y: parentEntity.position.y)
+    Vec2 displacementVec = targetLocation - position2D
+    Number length = 0
+    Vec2 direction = Vec2(x:0,y:0)
 
-    // GetVec2Normalized( inVec: displacementVec, length: length, direction: direction)
+    GetVec2Normalized( inVec: displacementVec, length: length, direction: direction)
 
-    // if(length > movementThreshhold)
-    // {
-    //     Vec2 newPosition2D = position2D + (direction * movementSpeed)
-    //     parentEntity.position = Vec3(newPosition2D.x, newPosition2D.y, parentEntity.position.z)
-    // }
+    if(length > movementThreshhold)
+    {
+        Vec2 newPosition2D = position2D + (direction * movementSpeed)
+        parentEntity.position = Vec3(x: newPosition2D.x, y: newPosition2D.y, z: parentEntity.position.z)
+    }
 }
 
 State Default

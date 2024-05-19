@@ -244,9 +244,14 @@ private:
 };
 
 
+// This won't work with CRTP
+////----------------------------------------------------------------------------
+//// Support handles for child types
+//template<class Child, class Parent>
+//concept Derived = std::is_base_of<Parent, Child>::value;
+
 //----------------------------------------------------------------------------
-// Support handles for child types
-template<typename ParentType, typename ChildType>
+template<class ParentType, class ChildType>
 class ChildSmartPtr
 {
 public:
