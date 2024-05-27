@@ -16,7 +16,8 @@
 #include "Engine/Renderer/RenderContext.hpp"
 #include "Engine/Time/Time.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
+#include "Engine/Zephyr/Types/ZephyrNumber.hpp"
+#include "Engine/Zephyr/Types/ZephyrString.hpp"
 #include "Engine/Zephyr/Types/ZephyrVec2.hpp"
 #include "Engine/Zephyr/Types/ZephyrVec3.hpp"
 
@@ -222,11 +223,11 @@ ZephyrHandle GameEntity::GetGlobalVariable( const std::string& varName )
 	// First check c++ built in vars
 	ZephyrArgs args;
 
-	if ( varName == "id" )			{ args.SetValue( "value", GetId() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &args ); }
-	if ( varName == "name" )		{ args.SetValue( "value", GetName() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &args ); }
-	if ( varName == "health" )		{ args.SetValue( "value", m_curHealth );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &args ); }
-	if ( varName == "maxHealth" )	{ args.SetValue( "value", m_entityDef.GetMaxHealth() ); return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &args ); }
-	if ( varName == "position" )	{ args.SetValue( "value", GetPosition() );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::VEC3,   &args ); }
+	if ( varName == "id" )			{ args.SetValue( "value", GetId() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
+	if ( varName == "name" )		{ args.SetValue( "value", GetName() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrString::TYPE_NAME, &args ); }
+	if ( varName == "health" )		{ args.SetValue( "value", m_curHealth );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
+	if ( varName == "maxHealth" )	{ args.SetValue( "value", m_entityDef.GetMaxHealth() ); return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
+	if ( varName == "position" )	{ args.SetValue( "value", GetPosition() );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrVec3::TYPE_NAME,   &args ); }
 	//if ( varName == "forwardVec" )	{ return ZephyrValue( GetForwardVector() ); }
 
 	return NULL_ZEPHYR_HANDLE;
@@ -234,13 +235,16 @@ ZephyrHandle GameEntity::GetGlobalVariable( const std::string& varName )
 
 
 //-----------------------------------------------------------------------------------------------
-bool GameEntity::SetGlobalVariable( const std::string& varName, const ZephyrValue& value )
+bool GameEntity::SetGlobalVariable( const std::string& varName, ZephyrValue& value )
 {
 	// First check c++ built in vars
 	if ( varName == "health" )
 	{
-		m_curHealth = value.GetAsNumber();
-		if ( m_curHealth < 0 )
+		float newHealth = m_curHealth;
+		value.TryToGetValueFrom<ZephyrNumber>( newHealth );
+
+		m_curHealth = newHealth;
+		if ( m_curHealth < 0.f )
 		{
 			Die();
 		}
@@ -250,26 +254,25 @@ bool GameEntity::SetGlobalVariable( const std::string& varName, const ZephyrValu
 
 	if ( varName == "position" ) 
 	{ 
-		ZephyrHandle valHandle = value.GetAsUserType();
-		if ( !valHandle.IsValid() )
+		if ( !value.IsValid() )
 		{
 			// Error, but still return true to mark as native variable
 			return true;
 		}
 
-		SmartPtr valPtr( valHandle );
-		if ( valPtr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+		Vec3 pos3D;
+		if ( value.TryToGetValueFrom<ZephyrVec3>( pos3D ) )
 		{
-			ZephyrVec3Ptr vec3Ptr( valHandle );
-			SetPosition( vec3Ptr->GetValue() );
+			SetPosition( pos3D );
+			return true;
 		}
-		else if ( valPtr->GetTypeName() == ZephyrEngineTypeNames::VEC2 )
+		
+		Vec2 pos2D;
+		if ( value.TryToGetValueFrom<ZephyrVec2>( pos2D ) )
 		{
-			ZephyrVec2Ptr vec2Ptr( valHandle );
-			SetPosition( Vec3( vec2Ptr->GetValue(), GetPosition().z ) );
+			SetPosition( Vec3( pos2D, GetPosition().z ) );
+			return true; 
 		}
-
-		return true; 
 	}
 
 	return false;

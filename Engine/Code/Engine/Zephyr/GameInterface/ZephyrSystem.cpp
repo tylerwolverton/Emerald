@@ -124,7 +124,7 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 {
 	if ( zephyrComp == nullptr || !zephyrComp->IsScriptValid() )
 	{
-		return ZephyrValue::ERROR_VALUE;
+		return ZephyrValue::NULL_VAL;
 	}
 
 	// Try to get native entity variable first
@@ -134,10 +134,10 @@ ZephyrValue ZephyrSystem::GetGlobalVariable( ZephyrComponent* zephyrComp, const 
 
 	g_eventSystem->FireEvent( "GetNativeEntityVariable", &args, EVERYWHERE );
 
-	ZephyrValue returnVal = args.GetValue( "zephyrValue", ZephyrValue::ERROR_VALUE );
+	ZephyrValue returnVal = args.GetValue( "zephyrValue", ZephyrValue::NULL_VAL );
 
 	// A native variable was found, return it
-	if ( returnVal != ZephyrValue::ERROR_VALUE )
+	if ( returnVal.IsValid() )
 	{
 		return returnVal;
 	}

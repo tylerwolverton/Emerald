@@ -21,6 +21,8 @@ public:
 	virtual void FromString( const std::string& dataStr )						{ m_position.SetFromText( dataStr.c_str()); }
 	virtual bool EvaluateAsBool() const override;
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
+
+	static const std::string TYPE_NAME;
 	
 // ZephyrType Overrides accessed by friend ZephyrVirtualMachine
 protected:

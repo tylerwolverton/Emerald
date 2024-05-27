@@ -2,30 +2,30 @@
 #include "Engine/Core/StringUtils.hpp"
 #include "Engine/Core/NamedProperties.hpp"
 #include "Engine/Core/EngineCommon.hpp"
+#include "Engine/Core/StringUtils.hpp"
 #include "Engine/Zephyr/Core/ZephyrCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-class ZephyrString : public ZephyrType<ZephyrString>
+class ZephyrEntity : public ZephyrType<ZephyrEntity>
 {
 	friend class ZephyrSubsystem;
 	friend class ZephyrVirtualMachine;
 
 public:
 	// ZephyrType Overrides
-	ZephyrString();
-	virtual ~ZephyrString() {}
-	virtual std::string ToString() const override								{ return m_value; }
-	virtual void FromString( const std::string& dataStr )						{ m_value = dataStr; }
-	virtual bool EvaluateAsBool() const override								{ return !IsEmpty(); }
+	ZephyrEntity();
+	virtual ~ZephyrEntity() {}
+	virtual std::string ToString() const override								{ return ::ToString( m_value ); }
+	virtual void FromString( const std::string& dataStr )						{ m_value = ::FromString( dataStr, false ); }
+	virtual bool EvaluateAsBool() const override								{ return m_value; }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	std::string GetValue() const												{ return m_value; }
-	bool IsEmpty() const														{ return m_value.empty(); }
+	bool GetValue() const { return m_value; }
 
 	static const std::string TYPE_NAME;
 
-// ZephyrType Overrides accessed by friend ZephyrVirtualMachine
+	// ZephyrType Overrides accessed by friend ZephyrVirtualMachine
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
 	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
@@ -39,9 +39,9 @@ private:
 	static ZephyrHandle CreateAsZephyrType( ZephyrArgs* args );
 
 private:
-	std::string m_value;
+	bool m_value = false;
 };
 
 
 //-----------------------------------------------------------------------------------------------
-typedef ChildSmartPtr<ZephyrTypeBase, ZephyrString> ZephyrStringPtr;
+typedef ChildSmartPtr<ZephyrTypeBase, ZephyrEntity> ZephyrEntityPtr;

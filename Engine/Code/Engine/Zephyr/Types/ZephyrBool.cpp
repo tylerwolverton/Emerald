@@ -1,11 +1,14 @@
 #include "Engine/Zephyr/Types/ZephyrBool.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
+
+
+//-----------------------------------------------------------------------------------------------
+const std::string ZephyrBool::TYPE_NAME = "Bool";
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrBool::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::BOOL );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrBool::TYPE_NAME );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -34,7 +37,7 @@ ZephyrHandle ZephyrBool::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrBool::ZephyrBool()
-	: ZephyrType( ZephyrEngineTypeNames::BOOL )
+	: ZephyrType( ZephyrBool::TYPE_NAME )
 {
 }
 

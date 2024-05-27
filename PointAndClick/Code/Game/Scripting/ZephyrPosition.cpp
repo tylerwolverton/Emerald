@@ -1,20 +1,16 @@
 #include "Game/Scripting/ZephyrPosition.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
-namespace ZephyrPositionType
-{
-	const char* TYPE_NAME = "Position";
-}
+const std::string ZephyrPosition::TYPE_NAME = "Position";
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrPosition::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrPositionType::TYPE_NAME );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrPosition::TYPE_NAME );
 	metadata->RegisterMember( "x", "" );
 	metadata->RegisterMember( "y", "" );
 	metadata->RegisterMethod( "GetDistFromOrigin" );
@@ -65,7 +61,7 @@ ZephyrHandle ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrPosition::ZephyrPosition()
-	: ZephyrType( ZephyrPositionType::TYPE_NAME )
+	: ZephyrType( ZephyrPosition::TYPE_NAME )
 {
 }
 

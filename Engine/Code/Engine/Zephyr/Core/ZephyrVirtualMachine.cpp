@@ -4,7 +4,8 @@
 #include "Engine/Zephyr/GameInterface/ZephyrComponent.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
+#include "Engine/Zephyr/Types/ZephyrNumber.hpp"
+#include "Engine/Zephyr/Types/ZephyrString.hpp"
 #include "Engine/Core/DevConsole.hpp"
 #include "Engine/Core/EngineCommon.hpp"
 #include "Engine/Core/EventSystem.hpp"
@@ -32,12 +33,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 		return;
 	}
 
-	// Event variables don't need to be persisted after this call, so save a copy as local variables
-	// TODO: Account for scopes inside if statements, etc.?
-	//std::map<std::string, ZephyrValue> localVariables;
 	m_bytecodeChunk.SetScopeFromIdx( 0 );
-	//ZephyrScope localVariableScope;
-	//localVariableScope.parentScope = m_bytecodeChunk.GetChunkVariableScope();
 	if ( m_bytecodeChunk.GetType() == eBytecodeChunkType::EVENT )
 	{
 		CopyEventArgsToZephyrVariables( m_eventArgs );
@@ -75,14 +71,14 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				ZephyrArgs args;
 				InsertParametersIntoEventArgs( args );
 
-				PushConstant( ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( variableType.GetAsString(), &args ) ) );
+				PushConstant( ZephyrValue( variableType.ToString(), &args ) );
 			}
 			break;
 
 			case eOpCode::GET_VARIABLE_VALUE:
 			{
 				ZephyrValue variableName = PopConstant();
-				PushConstant( GetVariableValue( variableName.GetAsString() ) );
+				PushConstant( GetVariableValue( variableName.ToString() ) );
 			}
 			break;
 			
@@ -90,7 +86,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				ZephyrValue variableName = PopConstant(); 
 				ZephyrValue constantValue = PeekConstant();
-				AssignToVariable( variableName.GetAsString(), constantValue );
+				AssignToVariable( variableName.ToString(), constantValue );
 			}
 			break;	
 
@@ -100,22 +96,20 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
-				if ( IsErrorValue( memberAccessorResult.finalMemberVal ) )
+				if ( !memberAccessorResult.finalMemberVal.IsValid() )
 				{
 					return;
 				}
 
 				std::string lastMemberName = memberAccessorResult.memberNames.back();
 
-				if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::ENTITY )
-				{
-					SetGlobalVariableInEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName, constantValue );
-				}
-				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
-				{
-					ZephyrHandle typeNameHandle = memberAccessorResult.finalMemberVal.GetAsUserType();
-					SmartPtr typeNamePtr( typeNameHandle );
-					std::string typeName = typeNamePtr->GetTypeName();
+				//if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::ENTITY )
+				//{
+				//	SetGlobalVariableInEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName, constantValue );
+				//}
+				//else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
+				//{
+					std::string typeName = memberAccessorResult.finalMemberVal.GetTypeName();
 					ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
 					if ( metadata == nullptr )
 					{
@@ -126,7 +120,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 					ZephyrTypeMemberVariable* memberVariable = metadata->GetMemberVariable( lastMemberName );
 					if ( memberVariable == nullptr )
 					{
-						ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+						ReportError( Stringf( "Zephyr type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
 						return;
 					}
 
@@ -136,12 +130,12 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 						return;
 					}
 
-					if ( !typeNamePtr->SetMember( lastMemberName, constantValue.EvaluateAsUserType() ) )
+					if ( !memberAccessorResult.finalMemberVal.SetMember( lastMemberName, constantValue ) )
 					{
-						ReportError( Stringf( "User type '%s' does not implement SetMembers", typeName.c_str() ) );
+						ReportError( Stringf( "Zephyr type '%s' does not implement SetMember", typeName.c_str() ) );
 						return;
 					}
-				}
+				//}
 
 				PushConstant( constantValue );
 			}
@@ -151,9 +145,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
-				// TODO: Helper function for error checking user types?
-				if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE
-					&& !memberAccessorResult.finalMemberVal.GetAsUserType().IsValid() )
+				if ( !memberAccessorResult.finalMemberVal.IsValid() )
 				{
 					ReportError( Stringf( "Member accessor failed" ) );
 					return;
@@ -161,65 +153,45 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 				// Push final member to top of constant stack
 				const std::string& lastMemberName = memberAccessorResult.memberNames.back();
-				int memberCount = (int)memberAccessorResult.memberNames.size();
+				//int memberCount = (int)memberAccessorResult.memberNames.size();
 
-				switch ( memberAccessorResult.finalMemberVal.GetType() )
+				//case eValueType::ENTITY:
+				//{
+				//	ZephyrValue val = GetGlobalVariableFromEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName );
+				//	if ( IsErrorValue( val ) )
+				//	{
+				//		std::string entityVarName = memberCount > 1 ? memberAccessorResult.memberNames[memberCount - 2] : memberAccessorResult.baseObjName;
+
+				//		ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", lastMemberName.c_str(), entityVarName.c_str() ) );
+				//		return;
+				//	}
+
+				//	PushConstant( val );
+				//}
+				//break;
+
+				std::string typeName = memberAccessorResult.finalMemberVal.GetTypeName();
+				ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
+				if ( metadata == nullptr )
 				{
-					case eValueType::BOOL:
-					case eValueType::NUMBER:
-					case eValueType::STRING:
-					{
-						ReportError( Stringf( "Variable of type %s can't have members. Tried to access '%s'",
-																ToString( memberAccessorResult.finalMemberVal.GetType() ).c_str(),
-																lastMemberName.c_str() ) );
-						return;
-					}
-					break;
-
-					case eValueType::ENTITY:
-					{
-						ZephyrValue val = GetGlobalVariableFromEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName );
-						if ( IsErrorValue( val ) )
-						{
-							std::string entityVarName = memberCount > 1 ? memberAccessorResult.memberNames[memberCount - 2] : memberAccessorResult.baseObjName;
-
-							ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", lastMemberName.c_str(), entityVarName.c_str() ) );
-							return;
-						}
-
-						PushConstant( val );
-					}
-					break;
-
-					case eValueType::USER_TYPE:
-					{
-						ZephyrHandle typeNameHandle = memberAccessorResult.finalMemberVal.GetAsUserType();
-						SmartPtr typeNamePtr( typeNameHandle );
-						std::string typeName = typeNamePtr->GetTypeName();
-						ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
-						if ( metadata == nullptr )
-						{
-							ReportError( Stringf( "Can't access members of non-registered user type '%s'", typeName.c_str() ) );
-							return;
-						}
-
-						if ( !metadata->HasMemberVariable( lastMemberName ) )
-						{
-							ReportError( Stringf( "User type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
-							return;
-						}
-
-						ZephyrHandle memberVal = typeNamePtr->GetMember( lastMemberName );
-						if ( !memberVal.IsValid() )
-						{
-							ReportError( Stringf( "User type '%s' does not implement GetMember for '%s'", typeName.c_str(), lastMemberName.c_str() ) );
-							return;
-						}
-
-						PushConstant( memberVal );
-					}
-					break;
+					ReportError( Stringf( "Can't access members of non-registered user type '%s'", typeName.c_str() ) );
+					return;
 				}
+
+				if ( !metadata->HasMemberVariable( lastMemberName ) )
+				{
+					ReportError( Stringf( "Zephyr type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+					return;
+				}
+
+				ZephyrValue memberVal = memberAccessorResult.finalMemberVal.GetMember( lastMemberName );
+				if ( !memberVal.IsValid() )
+				{
+					ReportError( Stringf( "Zephyr type '%s' does not implement GetMember for '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+					return;
+				}
+
+				PushConstant( memberVal );
 			}
 			break;
 
@@ -235,33 +207,30 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 				MemberAccessorResult memberAccessorResult = ProcessResultOfMemberAccessor();
 
-				if ( IsErrorValue( memberAccessorResult.finalMemberVal ) )
+				if ( !memberAccessorResult.finalMemberVal.IsValid() )
 				{
 					return;
 				}
 
-				int memberCount = (int)memberAccessorResult.memberNames.size();
+				//int memberCount = (int)memberAccessorResult.memberNames.size();
 
-				if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::ENTITY )
+				if ( memberAccessorResult.finalMemberVal.IsEntity() )
 				{
 					CallMemberFunctionOnEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), memberAccessorResult.memberNames.back(), args );
 				}
-				else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
+				else
 				{
-					ZephyrHandle userTypeObj = memberAccessorResult.finalMemberVal.GetAsUserType();
-					if ( !userTypeObj.IsValid() )
+					if ( !memberAccessorResult.finalMemberVal.IsValid() )
 					{
-						ReportError( Stringf( "User type object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
+						ReportError( Stringf( "Zephyr object '%s' is null, cannot access its methods", memberAccessorResult.baseObjName.c_str() ));
 						return;
 					}
 
-					CallMemberFunctionOnUserType( userTypeObj, memberAccessorResult.memberNames.back(), args );
-				}
-				else
-				{
-					std::string entityVarName = memberCount > 1 ? memberAccessorResult.memberNames[memberCount - 2] : memberAccessorResult.baseObjName;
-					ReportError( Stringf( "Cannot call method on non entity variable '%s' with type '%s'", entityVarName.c_str(), ToString( memberAccessorResult.finalMemberVal.GetType() ).c_str() ) );
-					return;
+					if ( !memberAccessorResult.finalMemberVal.CallMethod( memberAccessorResult.memberNames.back(), args ) )
+					{
+						ReportError( Stringf( "Zephyr object '%s' does not have a registered method '%s'", memberAccessorResult.baseObjName.c_str(), memberAccessorResult.memberNames.back().c_str() ) );
+						return;
+					}
 				}
 				
 				// Set new values of identifier parameters
@@ -286,22 +255,30 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				// The if statement is false, jump over the bytes corresponding to that code block
 				if ( !expression.EvaluateAsBool() )
 				{
-					curByteIdx += (int)ifBlockByteCount.GetAsNumber();
+					int numIfBlockBytes = 0;
+					ifBlockByteCount.TryToGetValueFrom<ZephyrNumber>( numIfBlockBytes );
+					curByteIdx += numIfBlockBytes;
 				}
 			}
 			break;
 
 			case eOpCode::JUMP:
 			{
-				ZephyrValue numBytesToJump = PopConstant();
-				curByteIdx += (int)numBytesToJump.GetAsNumber();
+				ZephyrValue numBytesToJumpVal = PopConstant();	
+
+				int numBytesToJump = 0;
+				numBytesToJumpVal.TryToGetValueFrom<ZephyrNumber>( numBytesToJump );
+				curByteIdx += numBytesToJump;
 			}
 			break;
 
 			case eOpCode::SET_SCOPE:
 			{
-				ZephyrValue scopeIdx = PopConstant();
-				m_bytecodeChunk.SetScopeFromIdx( (int)scopeIdx.EvaluateAsNumber() );
+				ZephyrValue scopeIdxVal = PopConstant();
+
+				int scopeIdx = 0;
+				scopeIdxVal.TryToGetValueFrom<ZephyrNumber>( scopeIdx );
+				m_bytecodeChunk.SetScopeFromIdx( scopeIdx );
 			}
 			break;
 
@@ -342,68 +319,24 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			case eOpCode::NEGATE:
 			{
 				ZephyrValue a = PopConstant();
-				if ( a.GetType() == eValueType::NUMBER )
+				
+				ZephyrValue result = a.Negate();
+				if ( !result.IsValid() )
 				{
-					PushConstant( -a.GetAsNumber() );
+					ReportError( Stringf( "ZephyrType '%s' doesn't define a Negate function", a.GetTypeName().c_str() ) );
+					return;
 				}
-				else if ( a.GetType() == eValueType::USER_TYPE )
-				{
-					ZephyrHandle aHandle = a.GetAsUserType();
-					SmartPtr aPtr( aHandle );
 
-					ZephyrHandle result = aPtr->Negate();
-
-					if ( !result.IsValid() )
-					{
-						ReportError( Stringf( "ZephyrType '%s' doesn't define a Negate function", aPtr->GetTypeName().c_str() ) );
-						return;
-					}
-
-					PushConstant( result );
-				}
+				PushConstant( result );
 			}
 			break;
 
 			case eOpCode::NOT:
 			{
 				ZephyrValue a = PopConstant();
-				if ( a.GetType() == eValueType::NUMBER )
-				{
-					if ( IsNearlyEqual( a.GetAsNumber(), 0.f, .00001f ) )
-					{
-						PushConstant( ZephyrValue( true ) );
-					}
-					else
-					{
-						PushConstant( ZephyrValue( false ) );
-					}
-				}
-				else if ( a.GetType() == eValueType::BOOL )
-				{
-					PushConstant( !a.GetAsBool() );
-				}
-				else if ( a.GetType() == eValueType::STRING )
-				{
-					if ( a.GetAsString().empty() )
-					{
-						PushConstant( ZephyrValue( true ) );
-					}
-					else
-					{
-						PushConstant( ZephyrValue( false ) );
-					}
-				}
-				else if ( a.GetType() == eValueType::USER_TYPE )
-				{
-					ZephyrHandle aHandle = a.GetAsUserType();
-					SmartPtr aPtr( aHandle );
-
-					bool result = aPtr->EvaluateAsBool();
+				bool result = a.EvaluateAsBool();
 					
-					ZephyrArgs args;
-					args.SetValue( "value", !result );
-					PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-				}
+				PushConstant( ZephyrValue( !result ) );
 			}
 			break;
 
@@ -427,10 +360,10 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			case eOpCode::FUNCTION_CALL:
 			{
 				ZephyrValue eventName = PopConstant();
-				GUARANTEE_OR_DIE( eventName.GetType() == eValueType::STRING, "Event name isn't a string" );
+				GUARANTEE_OR_DIE( eventName.GetTypeName() == ZephyrString::TYPE_NAME, "Event name isn't a string" );
 
 				// Save identifier names to be updated with new values after call
-				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.GetAsString() );
+				std::map<std::string, std::string> identifierToParamNames = GetCallerVariableToParamNamesFromParameters( eventName.ToString() );
 
 				ZephyrArgs* args = new ZephyrArgs();
 				args->SetValue( PARENT_ENTITY_STR, m_zephyrComponent.GetParentEntityId() );
@@ -438,15 +371,15 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				InsertParametersIntoEventArgs( *args );
 
 				// Try to call GameAPI function, then local function
-				if ( g_zephyrAPI->IsMethodRegistered( eventName.GetAsString() ) )
+				if ( g_zephyrAPI->IsMethodRegistered( eventName.ToString() ) )
 				{
-					g_eventSystem->FireEvent( eventName.GetAsString(), args, EVERYWHERE );
+					g_eventSystem->FireEvent( eventName.ToString(), args, EVERYWHERE );
 				}
 				else
 				{
-					if ( !CallMemberFunctionOnEntity( m_zephyrComponent.GetParentEntityId(), eventName.GetAsString(), args ) )
+					if ( !CallMemberFunctionOnEntity( m_zephyrComponent.GetParentEntityId(), eventName.ToString(), args ) )
 					{
-						ReportError( Stringf( "Entity '%s' doesn't have a function '%s'", m_zephyrComponent.GetParentEntityName().c_str(), eventName.GetAsString().c_str() ) );
+						ReportError( Stringf( "Entity '%s' doesn't have a function '%s'", m_zephyrComponent.GetParentEntityName().c_str(), eventName.ToString().c_str() ) );
 					}
 				}
 
@@ -461,7 +394,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 			{
 				ZephyrValue stateName = PopConstant();
 				
-				ZephyrSystem::ChangeZephyrScriptState( m_zephyrComponent.GetParentEntityId(), stateName.GetAsString() );
+				ZephyrSystem::ChangeZephyrScriptState( m_zephyrComponent.GetParentEntityId(), stateName.ToString() );
 
 				// Bail out of this chunk to avoid trying to execute bytecode in the wrong update chunk
 				return;
@@ -481,6 +414,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 
 //-----------------------------------------------------------------------------------------------
+// TODO: Convert this to only using ZephyrValue?
 void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs )
 {
 	if ( eventArgs == nullptr )
@@ -528,7 +462,7 @@ void ZephyrVirtualMachine::CopyEventArgsToZephyrVariables( ZephyrArgs* eventArgs
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args )
 {
-	std::vector<std::string> userTypeOutParamNames;
+	std::vector<std::string> zephyrValueOutParamNames;
 
 	// Save updated event variables back into args
 	if ( args != nullptr )
@@ -544,16 +478,8 @@ void ZephyrVirtualMachine::CopyZephyrVariablesToEventArgs( ZephyrArgs* args )
 				continue;
 			}
 
-			switch ( val.GetType() )
-			{
-				case eValueType::ENTITY:	args->SetValue( keyValuePair.first, val.GetAsEntity() ); break;
-				case eValueType::USER_TYPE:
-				{
-					args->SetValue( keyValuePair.first, val.GetAsUserType() );
-					userTypeOutParamNames.push_back( keyValuePair.first );
-					break;
-				}
-			}
+			args->SetValue( keyValuePair.first, val );
+			zephyrValueOutParamNames.push_back( keyValuePair.first );			
 		}
 	}
 }
@@ -608,443 +534,159 @@ void ZephyrVirtualMachine::PushBinaryOp( ZephyrValue& a, ZephyrValue& b, eOpCode
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushAddOp( ZephyrValue& a, ZephyrValue& b )
-{
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+{		
+	// Handle ZephyrString concatenation with other types
+	if ( a.GetTypeName() == ZephyrString::TYPE_NAME
+		|| b.GetTypeName() == ZephyrString::TYPE_NAME )
 	{
-		NUMBER_TYPE result = a.GetAsNumber() + b.GetAsNumber();
+		PushConstant( ZephyrValue( a.ToString() + b.ToString() ) );
+		return;
+	}
+
+	ZephyrValue result = a.Add( b );
+	if ( result.IsValid() )
+	{
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::STRING
-		 || bType == eValueType::STRING )
+	else
 	{
-		std::string result = a.EvaluateAsString();
-		result.append( b.EvaluateAsString() );
-		PushConstant( result );
-		return;
+		ReportError( Stringf( "%s + %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
-	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-		
-		// Handle ZephyrString concatenation with other types
-		if ( aPtr->GetTypeName() == ZephyrEngineTypeNames::STRING
-			|| bPtr->GetTypeName() == ZephyrEngineTypeNames::STRING )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", aPtr->ToString() + bPtr->ToString() );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &args ) );
-			return;
-		}
-
-		ZephyrHandle result = aPtr->Add( bHandle );
-		if ( result.IsValid() )
-		{
-			PushConstant( result );
-		}
-		else
-		{
-			ReportError( Stringf( "%s + %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
-	}
-
-	ReportError( Stringf( "Cannot add a variable of type %s with a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushSubtractOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Subtract( b );
+	if ( result.IsValid() )
 	{
-		NUMBER_TYPE result = a.GetAsNumber() - b.GetAsNumber();
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		ZephyrHandle result = aPtr->Subtract( bHandle );
-		if ( result.IsValid() )
-		{
-			PushConstant( result );
-		}
-		else
-		{
-			ReportError( Stringf( "%s - %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s - %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot subtract a variable of type %s from a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushMultiplyOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Multiply( b );
+	if ( result.IsValid() )
 	{
-		NUMBER_TYPE result = a.GetAsNumber() * b.GetAsNumber();
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		ZephyrHandle result = aPtr->Multiply( bHandle );
-		if ( result.IsValid() )
-		{
-			PushConstant( result );
-		}
-		else
-		{
-			ReportError( Stringf( "%s * %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s * %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot multiply a variable of type %s by a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushDivideOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Divide( b );
+	if ( result.IsValid() )
 	{
-		if ( IsNearlyEqual( b.GetAsNumber(), 0.f, .0000001f ) )
-		{
-			ReportError( "Cannot divide a Number variable by 0" );
-			return;
-		}
-
-		NUMBER_TYPE result = a.GetAsNumber() / b.GetAsNumber();
 		PushConstant( result );
-		return;
 	}
-	
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		ZephyrHandle result = aPtr->Divide( bHandle );
-		if ( result.IsValid() )
-		{
-			PushConstant( result );
-		}
-		else
-		{
-			ReportError( Stringf( "%s / %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s / %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot divide a variable of type %s by a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushNotEqualOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.NotEqual( b );
+	if ( result.IsValid() )
 	{
-		bool result = !IsNearlyEqual( a.GetAsNumber(), b.GetAsNumber(), .001f );
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::STRING && bType == eValueType::STRING )
+	else
 	{
-		bool result = a.GetAsString() != b.GetAsString();
-		PushConstant( result );
-		return;
+		ReportError( Stringf( "%s != %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	if ( aType == eValueType::BOOL 
-		 || bType == eValueType::BOOL )
-	{
-		bool result = a.EvaluateAsBool() != b.EvaluateAsBool();
-		PushConstant( result );
-		return;
-	}
-
-	if ( aType == eValueType::ENTITY && bType == eValueType::ENTITY )
-	{
-		bool result = a.GetAsEntity() != b.GetAsEntity();
-		PushConstant( result );
-		return;
-	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
-	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->NotEqual(bHandle);
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-		}
-		else
-		{
-			ReportError( Stringf( "%s != %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
-	}
-
-	ReportError( Stringf( "Cannot compare a variable of type %s with a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushEqualOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Equal( b );
+	if ( result.IsValid() )
 	{
-		bool result = IsNearlyEqual( a.GetAsNumber(), b.GetAsNumber(), .001f );
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::STRING && bType == eValueType::STRING )
+	else
 	{
-		bool result = a.GetAsString() == b.GetAsString();
-		PushConstant( result );
-		return;
+		ReportError( Stringf( "%s == %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	if ( aType == eValueType::BOOL
-		 || bType == eValueType::BOOL )
-	{
-		bool result = a.EvaluateAsBool() == b.EvaluateAsBool();
-		PushConstant( result );
-		return;
-	}
-
-	if ( aType == eValueType::ENTITY && bType == eValueType::ENTITY )
-	{
-		bool result = a.GetAsEntity() == b.GetAsEntity();
-		PushConstant( result );
-		return;
-	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
-	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->Equal( bHandle );
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-		}
-		else
-		{
-			ReportError( Stringf( "%s == %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
-	}
-
-	ReportError( Stringf( "Cannot compare a variable of type %s with a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushGreaterOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Greater( b );
+	if ( result.IsValid() )
 	{
-		bool result = a.GetAsNumber() > b.GetAsNumber();
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->Greater( bHandle );
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-		}
-		else
-		{
-			ReportError( Stringf( "%s > %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s > %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-	
-	ReportError( Stringf( "Cannot check if a variable of type %s is greater than a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushGreaterEqualOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.GreaterEqual( b );
+	if ( result.IsValid() )
 	{
-		bool result = a.GetAsNumber() < b.GetAsNumber();
-		PushConstant( !result );
-		return;
+		PushConstant( result );
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->GreaterEqual( bHandle );
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle(ZephyrEngineTypeNames::BOOL, &args ) );
-			//PushConstant( (bool)result );
-		}
-		else
-		{
-			ReportError( Stringf( "%s >= %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s >= %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot check if a variable of type %s is greater than or equal to a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushLessOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.Less( b );
+	if ( result.IsValid() )
 	{
-		bool result = a.GetAsNumber() < b.GetAsNumber();
 		PushConstant( result );
-		return;
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->Less( bHandle );
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-		}
-		else
-		{
-			ReportError( Stringf( "%s < %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s < %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot check if a variable of type %s is less than a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::PushLessEqualOp( ZephyrValue& a, ZephyrValue& b )
 {
-	eValueType aType = a.GetType();
-	eValueType bType = b.GetType();
-
-	if ( aType == eValueType::NUMBER && bType == eValueType::NUMBER )
+	ZephyrValue result = a.LessEqual( b );
+	if ( result.IsValid() )
 	{
-		bool result = a.GetAsNumber() > b.GetAsNumber();
-		PushConstant( !result );
-		return;
+		PushConstant( result );
 	}
-
-	if ( aType == eValueType::USER_TYPE && bType == eValueType::USER_TYPE )
+	else
 	{
-		ZephyrHandle aHandle = a.GetAsUserType();
-		ZephyrHandle bHandle = b.GetAsUserType();
-		SmartPtr aPtr( aHandle );
-		SmartPtr bPtr( bHandle );
-
-		eZephyrComparatorResult result = aPtr->LessEqual( bHandle );
-		if ( result != eZephyrComparatorResult::UNDEFINED_VAL )
-		{
-			ZephyrArgs args;
-			args.SetValue( "value", (bool)result );
-			PushConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &args ) );
-		}
-		else
-		{
-			ReportError( Stringf( "%s <= %s is undefined", aPtr->GetTypeName().c_str(), bPtr->GetTypeName().c_str() ) );
-		}
-		return;
+		ReportError( Stringf( "%s <= %s is undefined", a.GetTypeName().c_str(), b.GetTypeName().c_str() ) );
 	}
-
-	ReportError( Stringf( "Cannot check if a variable of type %s is less than a variable of type %s", ToString( aType ).c_str(), ToString( bType ).c_str() ) );
 }
 
 
@@ -1079,7 +721,10 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 	MemberAccessorResult memberAccessResult;
 
 	ZephyrValue memberCountZephyr = PopConstant();
-	int memberCount = (int)memberCountZephyr.GetAsNumber();
+	//ZephyrNumberPtr memberCountVal = memberCountZephyr.GetAsPtrTo<ZephyrNumber>();
+	int memberCount = 0;
+	memberCountZephyr.TryToGetValueFrom<ZephyrNumber>( memberCount );
+
 
 	ZephyrValue baseObjName = PopConstant();
 
@@ -1090,12 +735,12 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 	memberNames.resize( memberCount );
 	for ( int memberIdx = memberCount - 1; memberIdx >= 0; --memberIdx )
 	{
-		memberNames[memberIdx] = PopConstant().GetAsString();
+		memberNames[memberIdx] = PopConstant().ToString();
 	}
 
 	// Find base object in this bytecode chunk
-	ZephyrValue memberVal = GetVariableValue( baseObjName.GetAsString() );
-	if ( IsErrorValue( memberVal ) )
+	ZephyrValue memberVal = GetVariableValue( baseObjName.ToString() );
+	if ( !memberVal.IsValid() )
 	{
 		return memberAccessResult;
 	}
@@ -1107,53 +752,35 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 	{
 		std::string& memberName = memberNames[memberNameIdx];
 
-		switch ( memberVal.GetType() )
+		//case eValueType::ENTITY:
+		//{
+		//	ZephyrValue val = GetGlobalVariableFromEntity( memberVal.GetAsEntity(), memberName );
+		//	if ( !val.IsValid() )
+		//	{
+		//		std::string entityVarName = memberNameIdx > 0 ? memberNames[memberNameIdx - 1] : baseObjName.ToString();
+
+		//		ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", memberName.c_str(), entityVarName.c_str() ) );
+		//		return memberAccessResult;
+		//	}
+
+		//	entityIdChain.push_back( memberVal.GetAsEntity() );
+		//	memberVal = val;
+		//}
+		//break;
+
+		if ( !memberVal.IsValid() )
 		{
-			// This isn't the last member, so it can't be a primitive type
-			case eValueType::BOOL:
-			case eValueType::NUMBER:
-			case eValueType::STRING:
-			{
-				ReportError( Stringf( "Variable of type %s can't have members. Tried to access '%s'",
-									  ToString( memberVal.GetType() ).c_str(),
-									  memberName.c_str() ) );
-				return memberAccessResult;
-			}
-			break;
-
-			case eValueType::ENTITY:
-			{
-				ZephyrValue val = GetGlobalVariableFromEntity( memberVal.GetAsEntity(), memberName );
-				if ( IsErrorValue( val ) )
-				{
-					std::string entityVarName = memberNameIdx > 0 ? memberNames[memberNameIdx - 1] : baseObjName.GetAsString();
-
-					ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", memberName.c_str(), entityVarName.c_str() ) );
-					return memberAccessResult;
-				}
-
-				entityIdChain.push_back( memberVal.GetAsEntity() );
-				memberVal = val;
-			}
-			break;
-
-			case eValueType::USER_TYPE:
-			{
-				ZephyrHandle userTypeObj = memberVal.GetAsUserType();
-				if ( !userTypeObj.IsValid() )
-				{
-					ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
-					return memberAccessResult;
-				}
-
-				memberVal = ZephyrValue( userTypeObj );
-			}
-			break;
+			ReportError( Stringf( "Variable '%s' is null, cannot dereference it", memberName.c_str() ) );
+			return memberAccessResult;
 		}
+
+		memberVal = memberVal.GetMember( memberName );
+		//memberVal = ZephyrValue( userTypeObj );	
 	}
+	
 
 	memberAccessResult.finalMemberVal = memberVal;
-	memberAccessResult.baseObjName = baseObjName.GetAsString();
+	memberAccessResult.baseObjName = baseObjName.ToString();
 	memberAccessResult.memberNames = memberNames;
 	memberAccessResult.entityIdChain = entityIdChain;
 
@@ -1166,18 +793,22 @@ std::map<std::string, std::string> ZephyrVirtualMachine::GetCallerVariableToPara
 {
 	std::map<std::string, std::string> identifierToParamNames;
 
-	ZephyrValue identifierCount = PopConstant();
-	for ( int identifierIdx = 0; identifierIdx < (int)identifierCount.GetAsNumber(); ++identifierIdx )
+	ZephyrValue identifierCountVal = PopConstant();
+
+	int numIdentifiers = 0;
+	identifierCountVal.TryToGetValueFrom<ZephyrNumber>( numIdentifiers );
+
+	for ( int identifierIdx = 0; identifierIdx < numIdentifiers; ++identifierIdx )
 	{
 		ZephyrValue identifierParamName = PopConstant();
 		ZephyrValue identifier = PopConstant();
-		if ( identifier.GetType() != eValueType::STRING
-			 || identifierParamName.GetType() != eValueType::STRING )
+		if ( identifier.GetTypeName() != ZephyrString::TYPE_NAME
+			 || identifierParamName.GetTypeName() != ZephyrString::TYPE_NAME )
 		{
 			ReportError( Stringf( "Identifier name is not a string in parameter list for function call '%s'", eventName.c_str() ) );
 			continue;
 		}
-		identifierToParamNames[identifier.GetAsString()] = identifierParamName.GetAsString();
+		identifierToParamNames[identifier.ToString()] = identifierParamName.ToString();
 	}
 
 	return identifierToParamNames;
@@ -1189,20 +820,25 @@ void ZephyrVirtualMachine::InsertParametersIntoEventArgs( ZephyrArgs& args )
 {
 	ZephyrValue paramCount = PopConstant();
 
-	for ( int paramIdx = 0; paramIdx < (int)paramCount.GetAsNumber(); ++paramIdx )
+	int numOfParams = 0;
+	paramCount.TryToGetValueFrom<ZephyrNumber>( numOfParams );
+
+	for ( int paramIdx = 0; paramIdx < numOfParams; ++paramIdx )
 	{
 		ZephyrValue param = PopConstant();
 		ZephyrValue value = PopConstant();
 
-		switch ( value.GetType() )
-		{
-			case eValueType::BOOL:		args.SetValue( param.GetAsString(), value.GetAsBool() ); break;
-			case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
-			case eValueType::STRING:	args.SetValue( param.GetAsString(), value.GetAsString() ); break;
-			case eValueType::ENTITY:	args.SetValue( param.GetAsString(), value.GetAsEntity() ); break;
-			case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), value.EvaluateAsUserType() ); break;
-			default: ERROR_AND_DIE( Stringf( "Unimplemented event arg type '%s'", ToString( value.GetType() ).c_str() ) );
-		}
+		args.SetValue( param.ToString(), value );
+
+		//switch ( value.GetType() )
+		//{
+		//	case eValueType::BOOL:		args.SetValue( param.GetAsString(), value.GetAsBool() ); break;
+		//	case eValueType::NUMBER:	args.SetValue( param.GetAsString(), value.GetAsNumber() ); break;
+		//	case eValueType::STRING:	args.SetValue( param.GetAsString(), value.GetAsString() ); break;
+		//	case eValueType::ENTITY:	args.SetValue( param.GetAsString(), value.GetAsEntity() ); break;
+		//	case eValueType::USER_TYPE:	args.SetValue( param.GetAsString(), value.EvaluateAsUserType() ); break;
+		//	default: ERROR_AND_DIE( Stringf( "Unimplemented event arg type '%s'", ToString( value.GetType() ).c_str() ) );
+		//}
 	}
 }
 
@@ -1217,8 +853,7 @@ void ZephyrVirtualMachine::UpdateIdentifierParameters( const std::map<std::strin
 
 		ZephyrValue newVal = GetZephyrValFromEventArgs( paramName, args );
 		
-		if ( newVal.GetType() == eValueType::ENTITY 
-			 && newVal == ZephyrValue::ERROR_VALUE )
+		if ( !newVal.IsValid() )
 		{
 			//ReportError( Stringf( "No matching arg found for parameter '%s'", param.c_str() ) );
 			continue;
@@ -1236,19 +871,17 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	auto iter = keyValuePairs.find( varName );
 	if ( iter == keyValuePairs.end() )
 	{
-		return ZephyrValue::ERROR_VALUE;
+		return ZephyrValue::NULL_VAL;
 	}
 	
 	ZephyrArgs params;
 	if ( iter->second->Is<float>() )
 	{
-		params.SetValue( "value", args.GetValue( varName, 0.f ) );
-		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
+		return ZephyrValue( args.GetValue( varName, 0.f ) );
 	}
 	else if ( iter->second->Is<double>() )
 	{
-		params.SetValue( "value", (float)args.GetValue( varName, 0.0 ) );
-		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
+		return ZephyrValue( (float)args.GetValue( varName, 0.0 ) );
 	}
 	else if ( iter->second->Is<EntityId>() )
 	{
@@ -1256,21 +889,19 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	}
 	else if ( iter->second->Is<bool>() )
 	{
-		params.SetValue( "value", args.GetValue( varName, false ) );
-		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
+		return ZephyrValue( args.GetValue( varName, false ) );
 	}
 	else if ( iter->second->Is<std::string>()
 			  || iter->second->Is<char*>() )
 	{
-		params.SetValue( "value", iter->second->GetAsString() );
-		return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+		return ZephyrValue( iter->second->GetAsString() );
 	}
 	else if ( iter->second->Is<ZephyrHandle>() )
 	{
 		return ZephyrValue( args.GetValue( varName, NULL_ZEPHYR_HANDLE ) );
 	}
 
-	return ZephyrValue::ERROR_VALUE;
+	return ZephyrValue::NULL_VAL;
 }
 
 
@@ -1304,16 +935,6 @@ bool ZephyrVirtualMachine::CallMemberFunctionOnEntity( EntityId entityId, const 
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::CallMemberFunctionOnUserType( ZephyrHandle userObj, const std::string& functionName, ZephyrArgs* args )
-{
-	SmartPtr userObjPtr( userObj );
-	userObjPtr->CallMethod( functionName, args );
-	
-	return true;
-}
-
-
-//-----------------------------------------------------------------------------------------------
 void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 {
 	//m_bytecodeChunk.Disassemble();
@@ -1338,11 +959,4 @@ void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 	g_devConsole->PrintError( Stringf( "  %s line %i: %s", errorPrefix.c_str(), lineNum, errorMsg.c_str() ) );
 
 	m_zephyrComponent.m_compState = eComponentState::INVALID_SCRIPT;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool ZephyrVirtualMachine::IsErrorValue( const ZephyrValue& zephyrValue )
-{
-	return zephyrValue.GetAsEntity() == ZephyrValue::ERROR_VALUE;
 }

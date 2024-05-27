@@ -1,11 +1,14 @@
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
+
+
+//-----------------------------------------------------------------------------------------------
+const std::string ZephyrString::TYPE_NAME = "String";
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrString::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::STRING );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrString::TYPE_NAME );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -34,7 +37,7 @@ ZephyrHandle ZephyrString::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrString::ZephyrString()
-	: ZephyrType( ZephyrEngineTypeNames::STRING )
+	: ZephyrType( ZephyrString::TYPE_NAME )
 {
 }
 

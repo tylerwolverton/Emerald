@@ -405,12 +405,6 @@ bool ZephyrScanner::MatchReservedIdentifier( const std::string& identifier )
 		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::FUNCTION );
 		case eReservedKeywordResult::CASE_MISMATCH: return true;
 	}
-
-	switch	( MatchesReservedName( identifier, "Entity" ) )
-	{ 
-		case eReservedKeywordResult::MATCH:			AddToken( eTokenType::ENTITY );
-		case eReservedKeywordResult::CASE_MISMATCH: return true;
-	}
 	
 	switch	( MatchesReservedName( identifier, "OnEnter" ) )
 	{ 

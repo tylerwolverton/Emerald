@@ -43,7 +43,7 @@ public:
 	void										ResetRegisteredUserTypes();
 
 	template <typename ChildType>
-	ZephyrHandle				AllocateNewZephyrTypeObject()
+	ZephyrHandle AllocateNewZephyrTypeObject()
 	{
 		ZephyrHandle handle( *m_memoryMgr );
 		handle.InitializeAsParent<ChildType>();

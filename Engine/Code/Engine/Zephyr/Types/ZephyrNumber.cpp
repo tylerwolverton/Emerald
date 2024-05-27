@@ -1,13 +1,16 @@
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 #include "Engine/Zephyr/Types/ZephyrVec2.hpp"
 #include "Engine/Zephyr/Types/ZephyrVec3.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
+const std::string ZephyrNumber::TYPE_NAME = "Number";
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrNumber::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::NUMBER );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrNumber::TYPE_NAME );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -36,7 +39,7 @@ ZephyrHandle ZephyrNumber::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrNumber::ZephyrNumber()
-	: ZephyrType( ZephyrEngineTypeNames::NUMBER )
+	: ZephyrType( ZephyrNumber::TYPE_NAME )
 {
 }
 
@@ -202,13 +205,22 @@ ZephyrHandle ZephyrNumber::Negate()
 //-----------------------------------------------------------------------------------------------
 ZephyrHandle ZephyrNumber::Add( ZephyrHandle other )
 {
+	/*NUMBER_TYPE otherAsNumber = 0.f;
+
+	if ( !other.TryToGetValueFrom<ZephyrNumber>( otherAsNumber ) )
+	{
+		return NULL_ZEPHYR_HANDLE;
+	}
+
+	return ZephyrValue( otherAsNumber );*/
+
 	SmartPtr otherPtr( other );
 	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
 	{
 		ZephyrNumberPtr otherAsNumberPtr( other );
 		ZephyrArgs params;
-		params.SetValue("value", m_value + otherAsNumberPtr->GetValue() );
-		return CreateAsZephyrType(&params);
+		params.SetValue( "value", m_value + otherAsNumberPtr->m_value );
+		return CreateAsZephyrType( &params );
 	}
 
 	return NULL_ZEPHYR_HANDLE;

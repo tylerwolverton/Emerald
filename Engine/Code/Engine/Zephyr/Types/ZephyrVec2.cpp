@@ -1,16 +1,19 @@
 #include "Engine/Zephyr/Types/ZephyrVec2.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
+const std::string ZephyrVec2::TYPE_NAME = "Vec2";
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrVec2::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::VEC2 );
-	metadata->RegisterMember( "x", ZephyrEngineTypeNames::NUMBER );
-	metadata->RegisterMember( "y", ZephyrEngineTypeNames::NUMBER );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrVec2::TYPE_NAME );
+	metadata->RegisterMember( "x", ZephyrNumber::TYPE_NAME );
+	metadata->RegisterMember( "y", ZephyrNumber::TYPE_NAME );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -41,9 +44,10 @@ ZephyrHandle ZephyrVec2::CreateAsZephyrType( ZephyrArgs* args )
 
 	// Try to set from ZephyrVec2
 	ZephyrHandle valueZephyrVec2 = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
-	if ( valueZephyrVec2.IsValid() && zephyrVec2Ptr->GetTypeName() == ZephyrEngineTypeNames::VEC2 )
+	ZephyrSmartPtr valueZephyrVec2Ptr( valueZephyrVec2 );
+	if ( valueZephyrVec2.IsValid() && valueZephyrVec2Ptr->GetTypeName() == ZephyrEngineTypeNames::VEC2 )
 	{
-		zephyrVec2Ptr->m_value = ::FromString( zephyrVec2Ptr->ToString(), zephyrVec2Ptr->m_value );
+		zephyrVec2Ptr->m_value = ::FromString( valueZephyrVec2Ptr->ToString(), zephyrVec2Ptr->m_value );
 		return zephyrVec2Handle;
 	}
 
@@ -56,7 +60,7 @@ ZephyrHandle ZephyrVec2::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrVec2::ZephyrVec2()
-	: ZephyrType( ZephyrEngineTypeNames::VEC2 )
+	: ZephyrType( ZephyrVec2::TYPE_NAME )
 {
 }
 

@@ -34,9 +34,9 @@ const std::string ParseZephyrVarInitsFromData( const XmlElement* globalVarElem,
 		// Convert value to correct type and store in map
 		ZephyrValue newValue = CreateZephyrValueFromData( typeName, valueStr );
 
-		if ( newValue.GetType() == eValueType::ENTITY )
+		if ( newValue.IsEntity() )
 		{
-			if ( newValue == ZephyrValue::ERROR_VALUE )
+			if ( !newValue.IsValid() )
 			{
 				return Stringf( "GlobalVar '%s' has unsupported type '%s'", varName.c_str(), typeName.c_str() );
 			}
@@ -76,5 +76,5 @@ ZephyrValue CreateZephyrValueFromData( const std::string& typeName, const std::s
 		return ZephyrValue( (EntityId)0 );
 	}
 	
-	return ZephyrValue::ERROR_VALUE;
+	return ZephyrValue::NULL_VAL;
 }

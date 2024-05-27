@@ -1,17 +1,20 @@
 #include "Engine/Zephyr/Types/ZephyrVec3.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 #include "Engine/Zephyr/Types/ZephyrNumber.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
+const std::string ZephyrVec3::TYPE_NAME = "Vec3";
+
+
+//-----------------------------------------------------------------------------------------------
 void ZephyrVec3::CreateAndRegisterMetadata()
 {
-	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrEngineTypeNames::VEC3 );
-	metadata->RegisterMember( "x", ZephyrEngineTypeNames::NUMBER );
-	metadata->RegisterMember( "y", ZephyrEngineTypeNames::NUMBER );
-	metadata->RegisterMember( "z", ZephyrEngineTypeNames::NUMBER );
+	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrVec3::TYPE_NAME );
+	metadata->RegisterMember( "x", ZephyrNumber::TYPE_NAME );
+	metadata->RegisterMember( "y", ZephyrNumber::TYPE_NAME );
+	metadata->RegisterMember( "z", ZephyrNumber::TYPE_NAME );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
 
@@ -42,9 +45,10 @@ ZephyrHandle ZephyrVec3::CreateAsZephyrType( ZephyrArgs* args )
 
 	// Try to set from ZephyrVec2
 	ZephyrHandle valueZephyrVec3 = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
-	if ( valueZephyrVec3.IsValid() && zephyrVec3Ptr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
+	ZephyrSmartPtr valueZephyrVec3Ptr( valueZephyrVec3 );
+	if ( valueZephyrVec3.IsValid() && valueZephyrVec3Ptr->GetTypeName() == ZephyrEngineTypeNames::VEC3 )
 	{
-		zephyrVec3Ptr->m_value = ::FromString( zephyrVec3Ptr->ToString(), zephyrVec3Ptr->m_value );
+		zephyrVec3Ptr->m_value = ::FromString( valueZephyrVec3Ptr->ToString(), zephyrVec3Ptr->m_value );
 		return zephyrVec3Handle;
 	}
 	
@@ -57,7 +61,7 @@ ZephyrHandle ZephyrVec3::CreateAsZephyrType( ZephyrArgs* args )
 
 //-----------------------------------------------------------------------------------------------
 ZephyrVec3::ZephyrVec3()
-	: ZephyrType( ZephyrEngineTypeNames::VEC3 )
+	: ZephyrType( ZephyrVec3::TYPE_NAME )
 {
 }
 

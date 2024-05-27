@@ -442,10 +442,10 @@
     <ClCompile Include="Zephyr\Types\ZephyrVec3.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Zephyr\Types\ZephyrTypesCommon.cpp">
+    <ClCompile Include="Memory\MemoryManager.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="Memory\MemoryManager.cpp">
+    <ClCompile Include="Zephyr\Types\ZephyrEntity.cpp">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -793,7 +793,6 @@
     <ClInclude Include="Zephyr\Types\ZephyrBool.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrVec2.hpp" />
     <ClInclude Include="Zephyr\Types\ZephyrVec3.hpp" />
-    <ClInclude Include="Zephyr\Types\ZephyrTypesCommon.hpp" />
     <ClInclude Include="Memory\LockPolicies.hpp" />
     <ClInclude Include="Memory\MemoryManager.hpp" />
     <ClInclude Include="Memory\ObjectPool.hpp" />
@@ -801,6 +800,7 @@
     <ClInclude Include="Memory\MovableMemory.hpp" />
     <ClInclude Include="Memory\IndexEntry.hpp" />
     <ClInclude Include="Memory\HandleFactory.hpp" />
+    <ClInclude Include="Zephyr\Types\ZephyrEntity.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Physics\CollisionResolver.inl" />

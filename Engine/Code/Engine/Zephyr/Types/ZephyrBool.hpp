@@ -23,6 +23,8 @@ public:
 
 	bool GetValue() const { return m_value; }
 
+	static const std::string TYPE_NAME;
+
 // ZephyrType Overrides accessed by friend ZephyrVirtualMachine
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;

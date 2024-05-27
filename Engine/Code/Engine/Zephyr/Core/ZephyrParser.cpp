@@ -8,7 +8,6 @@
 #include "Engine/Zephyr/Core/ZephyrScriptDefinition.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrEngineEvents.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
-#include "Engine/Zephyr/Types/ZephyrTypesCommon.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -143,12 +142,6 @@ bool ZephyrParser::CreateBytecodeChunk( const std::string& chunkName, const eByt
 
 	// This is a valid chunk definition, create with current chunk as parent scope
 	ZephyrBytecodeChunk* newChunk = new ZephyrBytecodeChunk( chunkName, m_curBytecodeChunk );
-
-	/*for ( auto globalVar : m_curBytecodeChunk->GetVariables() )
-	{
-		newChunk->SetVariable( globalVar.first, globalVar.second );
-	}*/
-
 	newChunk->SetType( type );
 
 	// Save any state chunks into a map for the ZephyrScriptDefinition
@@ -196,7 +189,7 @@ bool ZephyrParser::WriteByteToCurChunk( byte newByte )
 {
 	if ( m_curBytecodeChunk == nullptr )
 	{
-		ReportError( "No active bytecode chunks to write data to, make Tyler fix this" );
+		ReportError( "No active bytecode chunks to write data to" );
 		return false;
 	}
 
@@ -211,13 +204,12 @@ bool ZephyrParser::WriteOpCodeToCurChunk( eOpCode opCode, int lineNum )
 {
 	if ( m_curBytecodeChunk == nullptr )
 	{
-		ReportError( "No active bytecode chunks to write data to, make Tyler fix this" );
+		ReportError( "No active bytecode chunks to write data to" );
 		return false;
 	}
 
 	m_curBytecodeChunk->WriteByte( opCode );
 
-	//AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), (int)opCode );
 	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), lineNum );
 
 	return true;
@@ -232,7 +224,6 @@ bool ZephyrParser::WriteConstantOpToCurChunk( const ZephyrValue& constant, int l
 		return false;
 	}
 
-	//AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), 3 );
 	AddOpCodeLineNumToMap( m_curBytecodeChunk->GetFullyQualifiedName(), lineNum );
 	return true;
 }
@@ -243,7 +234,7 @@ bool ZephyrParser::WriteConstantToCurChunk( const ZephyrValue& constant )
 {
 	if ( m_curBytecodeChunk == nullptr )
 	{
-		ReportError( "No active bytecode chunks to write data to, make Tyler fix this" );
+		ReportError( "No active bytecode chunks to write data to" );
 		return false;
 	}
 
@@ -323,19 +314,10 @@ bool ZephyrParser::ParseStatement()
 		{
 			return ParseFunctionDefinition();
 		}
-		
-		case eTokenType::ENTITY:
-		{
-			if ( !ParseVariableDeclaration( eValueType::ENTITY ) )
-			{
-				return false;
-			}
-		}
-		break;
-		
+				
 		case eTokenType::USER_TYPE:
 		{
-			if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )
+			if ( !ParseVariableDeclaration( curToken.GetData() ) )
 			{
 				return false;
 			}
@@ -493,8 +475,7 @@ bool ZephyrParser::ParseFunctionDefinition()
 	{
 		switch ( curToken.GetType() )
 		{
-			case eTokenType::ENTITY:	if ( !ParseVariableDeclaration( eValueType::ENTITY ) )							{ return false; } break;
-			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( eValueType::USER_TYPE, curToken.GetData() ) )	{ return false; } break;
+			case eTokenType::USER_TYPE: if ( !ParseVariableDeclaration( curToken.GetData() ) )	{ return false; } break;
 
 			default:
 			{
@@ -516,16 +497,16 @@ bool ZephyrParser::ParseFunctionDefinition()
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::ParseVariableDeclaration( const eValueType& varType, const std::string& typeName )
+bool ZephyrParser::ParseVariableDeclaration( const std::string& typeName )
 {
 	ZephyrToken identifier = ConsumeCurToken();
 	if ( !DoesTokenMatchType( identifier, eTokenType::IDENTIFIER ) )
 	{
-		ReportError( Stringf( "Expected variable name after '%s'", ToString( varType ).c_str() ) );
+		ReportError( Stringf( "Expected variable name after '%s'", typeName.c_str() ) );
 		return false;
 	}
 
-	if ( !DeclareVariable( identifier, varType, typeName ) )
+	if ( !DeclareVariable( identifier, typeName ) )
 	{
 		return false;
 	}
@@ -604,7 +585,6 @@ bool ZephyrParser::ParseEventArgs()
 		switch ( valueToken.GetType() )
 		{
 			case eTokenType::CONSTANT_NUMBER:
-			case eTokenType::ENTITY:
 			case eTokenType::TRUE_TOKEN:
 			case eTokenType::FALSE_TOKEN:
 			case eTokenType::NULL_TOKEN:
@@ -643,7 +623,7 @@ bool ZephyrParser::ParseEventArgs()
 			}
 		}
 
-		WriteConstantOpToCurChunk( identifier.GetData(), valueToken.GetLineNum() );
+		WriteConstantOpToCurChunk( ZephyrValue( identifier.GetData() ), valueToken.GetLineNum() );
 		++paramCount;
 
 		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
@@ -655,8 +635,8 @@ bool ZephyrParser::ParseEventArgs()
 
 	for ( int identifierIdx = 0; identifierIdx < (int)identifierParamNames.size(); ++identifierIdx )
 	{
-		WriteConstantOpToCurChunk( identifierNames[identifierIdx], identifier.GetLineNum() );
-		WriteConstantOpToCurChunk( identifierParamNames[identifierIdx], identifier.GetLineNum() );
+		WriteConstantOpToCurChunk( ZephyrValue( identifierNames[identifierIdx] ), identifier.GetLineNum() );
+		WriteConstantOpToCurChunk( ZephyrValue( identifierParamNames[identifierIdx] ), identifier.GetLineNum() );
 	}
 
 	WriteConstantOpToCurChunk( ZephyrValue( (float)identifierParamNames.size() ), identifier.GetLineNum() );
@@ -684,7 +664,6 @@ bool ZephyrParser::ParseParameters()
 		{
 			case eTokenType::MINUS:
 			case eTokenType::CONSTANT_NUMBER:
-			case eTokenType::ENTITY:
 			case eTokenType::TRUE_TOKEN:
 			case eTokenType::FALSE_TOKEN:
 			case eTokenType::NULL_TOKEN:
@@ -706,7 +685,7 @@ bool ZephyrParser::ParseParameters()
 			}
 		}
 
-		WriteConstantOpToCurChunk( identifier.GetData(), identifier.GetLineNum() );
+		WriteConstantOpToCurChunk( ZephyrValue( identifier.GetData() ), identifier.GetLineNum() );
 		++paramCount;
 
 		AdvanceToNextTokenIfTypeMatches( eTokenType::COMMA );
@@ -866,8 +845,8 @@ bool ZephyrParser::ParseMemberAssignment()
 	ZephyrToken identifier = GetCurToken();
 	ZephyrToken nextToken = PeekNextToken();
 
-	eValueType valType;
-	if ( !TryToGetVariableType( identifier.GetData(), valType ) )
+	ZephyrValue value;
+	if ( !TryToGetVariable( identifier.GetData(), value ) )
 	{
 		ReportError( Stringf( "Cannot assign to an undefined variable, '%s'", identifier.GetData().c_str() ) );
 		return false;
@@ -1021,7 +1000,6 @@ bool ZephyrParser::CallPrefixFunction( const ZephyrToken& token )
 		case eTokenType::CONSTANT_STRING:	return ParseStringConstant();
 		case eTokenType::USER_TYPE:			return ParseUserTypeConstant( token.GetData() );
 
-		case eTokenType::ENTITY:
 		case eTokenType::IDENTIFIER:
 		{
 			if ( PeekNextToken().GetType() == eTokenType::EQUAL )
@@ -1150,9 +1128,10 @@ bool ZephyrParser::ParseNumberConstant()
 {
 	ZephyrToken curToken = ConsumeCurToken();
 
-	ZephyrArgs params;
+	/*ZephyrArgs params;
 	params.SetValue( "value", (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
-	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );
+	ZephyrValue numberConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params ) );*/
+	ZephyrValue numberConstant = ZephyrValue( (NUMBER_TYPE)atof( curToken.GetData().c_str() ) );
 
 	return WriteConstantOpToCurChunk( numberConstant, curToken.GetLineNum() );
 }
@@ -1163,9 +1142,10 @@ bool ZephyrParser::ParseBoolConstant( bool value )
 {
 	ZephyrToken curToken = ConsumeCurToken();
 
-	ZephyrArgs params;
-	params.SetValue( "value", value );
-	ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
+	//ZephyrArgs params;
+	//params.SetValue( "value", value );
+	//ZephyrValue boolConstant = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::BOOL, &params ) );
+	ZephyrValue boolConstant = ZephyrValue( value );
 
 	return WriteConstantOpToCurChunk( boolConstant, curToken.GetLineNum() );
 }
@@ -1185,9 +1165,10 @@ bool ZephyrParser::ParseStringConstant()
 {
 	ZephyrToken curToken = ConsumeCurToken();
 
-	ZephyrArgs params;
-	params.SetValue( "value", curToken.GetData() );
-	ZephyrValue stringConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+	//ZephyrArgs params;
+	//params.SetValue( "value", curToken.GetData() );
+	//ZephyrValue stringConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+	ZephyrValue stringConstant( curToken.GetData() );
 
 	return WriteConstantOpToCurChunk( stringConstant, curToken.GetLineNum() );
 }
@@ -1216,9 +1197,10 @@ bool ZephyrParser::ParseUserTypeConstant( const std::string& typeName )
 		return false;
 	}
 
-	ZephyrArgs params;
-	params.SetValue( "value", "TEMPORARY_VAR" );
-	ZephyrValue nameConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+	//ZephyrArgs params;
+	//params.SetValue( "value", "TEMPORARY_VAR" );
+	//ZephyrValue nameConstant( g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::STRING, &params ) );
+	ZephyrValue nameConstant( "TEMPORARY_VAR" );
 
 	int lastTokenLineNum = GetLastToken().GetLineNum();
 	WriteConstantOpToCurChunk( ZephyrValue( typeName ), lastTokenLineNum );
@@ -1407,7 +1389,6 @@ bool ZephyrParser::IsStatementValidForChunk( eTokenType statementToken, eBytecod
 		// Valid to define anywhere
 		case eTokenType::STATE:
 		case eTokenType::FUNCTION:
-		case eTokenType::ENTITY:
 		case eTokenType::USER_TYPE:
 		case eTokenType::BRACE_RIGHT:
 		{
@@ -1489,14 +1470,14 @@ bool ZephyrParser::DoesTokenMatchType( const ZephyrToken& token, const eTokenTyp
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const eValueType& varType, const std::string& typeName )
+bool ZephyrParser::DeclareVariable( const ZephyrToken& identifier, const std::string& typeName )
 {
-	return DeclareVariable( identifier.GetData(), varType, typeName );
+	return DeclareVariable( identifier.GetData(), typeName );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName )
+bool ZephyrParser::DeclareVariable( const std::string& identifier, const std::string& typeName )
 {
 	ZephyrValue value;
 	if ( m_curBytecodeChunk->TryToGetVariableFromCurrentScope( identifier, value ) )
@@ -1505,26 +1486,8 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 		return false;
 	}
 
-	// m_curBytecodeChunk will be the global state machine if outside a state declaration, should never be null
-	switch ( varType )
-	{
-		case eValueType::ENTITY: 
-		{
-			// Cannot redefine parent entity
-			if ( identifier == PARENT_ENTITY_STR )
-			{
-				ReportError( Stringf( "Cannot define an entity named '%s'. That name is reserved to reference the parent entity for this script.", PARENT_ENTITY_STR.c_str() ) );
-				return false;
-			}
-
-			value = ZephyrValue( INVALID_ENTITY_ID ); break;
-		}
-		case eValueType::USER_TYPE:
-		{
-			// Declare only, no parameters to invoke default constructor
-			value = ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( typeName, nullptr ) ); break;
-		}
-	}
+	// Declare only, no parameters to invoke default constructor
+	value = ZephyrValue( typeName, nullptr );
 
 	m_curBytecodeChunk->DefineVariable( identifier, value );
 	return true;
@@ -1534,37 +1497,7 @@ bool ZephyrParser::DeclareVariable( const std::string& identifier, const eValueT
 //-----------------------------------------------------------------------------------------------
 bool ZephyrParser::TryToGetVariable( const std::string& identifier, ZephyrValue& out_value )
 {
-	bool foundValue = m_curBytecodeChunk->TryToGetVariable( identifier, out_value );
-
-	// TODO: Check parent chunk instead of only global
-	if ( !foundValue
-		 && m_curBytecodeChunk != m_globalBytecodeChunk )
-	{
-		foundValue = m_globalBytecodeChunk->TryToGetVariable( identifier, out_value );
-	}
-
-	return foundValue;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-bool ZephyrParser::TryToGetVariableType( const std::string& identifier, eValueType& out_varType )
-{
-	ZephyrValue val;
-	bool foundValue = m_curBytecodeChunk->TryToGetVariable( identifier, val );
-
-	if ( !foundValue
-		 && m_curBytecodeChunk != m_globalBytecodeChunk )
-	{
-		foundValue = m_globalBytecodeChunk->TryToGetVariable( identifier, val );
-	}
-
-	if ( foundValue )
-	{
-		out_varType = val.GetType();
-	}
-
-	return foundValue;
+	return m_curBytecodeChunk->TryToGetVariable( identifier, out_value );
 }
 
 

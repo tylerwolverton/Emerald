@@ -8,6 +8,10 @@
 
 #include "Engine/Zephyr/Core/ZephyrUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
+#include "Engine/Zephyr/Types/ZephyrBool.hpp"
+#include "Engine/Zephyr/Types/ZephyrEntity.hpp"
+#include "Engine/Zephyr/Types/ZephyrNumber.hpp"
+#include "Engine/Zephyr/Types/ZephyrString.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -21,7 +25,7 @@ ZephyrSubsystem* g_zephyrSubsystem = nullptr;
 ZephyrTypeHandleFactory* g_zephyrTypeHandleFactory = nullptr;
 
 ZephyrHandle NULL_ZEPHYR_HANDLE = ZephyrHandle();
-const ZephyrValue ZephyrValue::ERROR_VALUE = ZephyrValue( (EntityId)ERROR_ZEPHYR_ENTITY_ID );
+const ZephyrValue ZephyrValue::NULL_VAL = ZephyrValue( NULL_ZEPHYR_HANDLE );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -35,7 +39,6 @@ std::string ToString( eTokenType type )
 		case eTokenType::PARENTHESIS_RIGHT:	return ")";
 		case eTokenType::STATE:				return "State";
 		case eTokenType::FUNCTION:			return "Function";
-		case eTokenType::ENTITY:			return "Entity";
 		case eTokenType::USER_TYPE:			return "UserType";
 		case eTokenType::ON_ENTER:			return "OnEnter";
 		case eTokenType::ON_UPDATE:			return "OnUpdate";
@@ -86,7 +89,6 @@ std::string GetTokenName( eTokenType type )
 		case eTokenType::PARENTHESIS_RIGHT:	return "PARENTHESIS_RIGHT";
 		case eTokenType::STATE:				return "STATE";
 		case eTokenType::FUNCTION:			return "FUNCTION";
-		case eTokenType::ENTITY:			return "ENTITY";
 		case eTokenType::USER_TYPE:			return "USER_TYPE";
 		case eTokenType::ON_ENTER:			return "ON_ENTER";
 		case eTokenType::ON_UPDATE:			return "ON_UPDATE";
@@ -174,35 +176,6 @@ std::string ToString( eOpCode opCode )
 		case eOpCode::LAST_VAL:					return "LAST_VAL";
 		default:								return "UNKNOWN";
 	}
-}
-
-//-----------------------------------------------------------------------------------------------
-std::string ToString( eValueType valueType )
-{
-	switch ( valueType )
-	{
-		case eValueType::NUMBER:	return "Number";
-		case eValueType::BOOL:		return "Bool";
-		case eValueType::STRING:	return "String";
-		case eValueType::ENTITY:	return "Entity";
-		case eValueType::USER_TYPE:	return "UserType";
-
-		case eValueType::NONE:		
-		default: return "None";
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-eValueType FromString( const std::string& strType )
-{
-	if ( strType == "Number" )		{ return eValueType::NUMBER; }
-	if ( strType == "Bool" )		{ return eValueType::BOOL; }	
-	if ( strType == "String" )		{ return eValueType::STRING; }
-	if ( strType == "Entity" )		{ return eValueType::ENTITY; }
-	if ( strType == "UserType" )	{ return eValueType::USER_TYPE; }
-
-	return eValueType::NONE;
 }
 
 
@@ -309,16 +282,17 @@ bool ZephyrTypeBase::HasMethod( const std::string& methodName )
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args )
+bool ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args )
 {
 	ZephyrTypeMethod* methodToCall = m_typeMetadata.GetMethod( methodName );
 	if ( methodToCall == nullptr )
 	{
 		// Error
-		return;
+		return false;
 	}
 
 	methodToCall->delegate.Invoke( args );
+	return true;
 }
 
 
@@ -334,364 +308,443 @@ eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrHandle other)
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue()
+ZephyrValue::ZephyrValue( const ZephyrHandle& value )
+	: m_dataHandle( value )
 {
-	m_type = eValueType::NONE;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( NUMBER_TYPE value )
-{
-	m_type = eValueType::NUMBER;
-	numberData = value;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue( bool value )
 {
-	m_type = eValueType::BOOL;
-	boolData = value;
+	ZephyrArgs params;
+	params.SetValue( "value", value );
+
+	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( ZephyrBool::TYPE_NAME, &params );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue::ZephyrValue( float value )
+{
+	ZephyrArgs params;
+	params.SetValue( "value", value );
+
+	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &params );
 }
 
 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue::ZephyrValue( const std::string& value )
 {
-	m_type = eValueType::STRING;
-	strData = new std::string( value );
+	ZephyrArgs params;
+	params.SetValue( "value", value );
+
+	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( ZephyrString::TYPE_NAME, &params );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( EntityId value )
+ZephyrValue::ZephyrValue( const EntityId& value )
 {
-	m_type = eValueType::ENTITY;
-	entityData = value;
+	ZephyrArgs params;
+	params.SetValue( "value", value );
+
+	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( ZephyrEntity::TYPE_NAME, &params );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( ZephyrHandle value )
+ZephyrValue::ZephyrValue( const std::string& typeName, ZephyrArgs* params )
 {
-	m_type = eValueType::USER_TYPE;
-	userTypeData = value;
+	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( typeName, params );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( ZephyrValue const& other )
+bool ZephyrValue::IsValid() const
 {
-	// If this is already a string type delete the data before setting new data
-	if ( this->m_type == eValueType::STRING )
-	{
-		delete this->strData;
-		this->strData = nullptr;
-	}
-
-	switch ( other.m_type )
-	{
-		case eValueType::STRING:	this->strData = new std::string( *other.strData );	break;
-		case eValueType::NUMBER:	this->numberData = other.numberData;	break;
-		case eValueType::BOOL:		this->boolData = other.boolData;	break;
-		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
-		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
-	}
-
-	m_type = other.m_type;
+	return m_dataHandle.IsValid();
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue& ZephyrValue::operator=( ZephyrValue const& other )
+std::string ZephyrValue::GetTypeName()
 {
-	if ( this->m_type == eValueType::USER_TYPE && other.GetType() == eValueType::USER_TYPE )
-	{
-		//if ( this->userTypeData->GetTypeName() != other.GetAsUserType()->GetTypeName() )
-		//{
-		//	// Trying to set a user type to a different type
-		//}
-
-		this->userTypeData = other.GetAsUserType();
-
-		return *this;
-	}
-
-	if ( this->m_type == eValueType::STRING )
-	{
-		delete this->strData;
-		this->strData = nullptr;
-	}
-
-	switch ( other.m_type )
-	{
-		case eValueType::STRING:	this->strData = new std::string( *other.strData );	break;
-		case eValueType::NUMBER:	this->numberData = other.numberData;	break;
-		case eValueType::BOOL:		this->boolData = other.boolData;	break;
-		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
-		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
-	}
-
-	m_type = other.m_type;
-
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrValue::ZephyrValue( ZephyrValue const&& other )
-{
-	// If this is already a string type delete the data before setting new data
-	if ( this->m_type == eValueType::STRING  )
-	{
-		delete this->strData;
-		this->strData = nullptr;
-	}
-
-	switch ( other.m_type )
-	{
-		case eValueType::STRING:	this->strData = new std::string( *other.strData );	break;
-		case eValueType::NUMBER:	this->numberData = other.numberData;	break;
-		case eValueType::BOOL:		this->boolData = other.boolData;	break;
-		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
-		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
-	}
-
-	m_type = other.m_type;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrValue& ZephyrValue::operator=( ZephyrValue const&& other )
-{
-	if ( this == &other )
-	{
-		return *this;
-	}
-
-	if ( this->m_type == eValueType::STRING )
-	{
-		delete this->strData;
-		this->strData = nullptr;
-	}
-
-	switch ( other.m_type )
-	{
-		case eValueType::STRING:	this->strData = new std::string( *other.strData );	break;
-		case eValueType::NUMBER:	this->numberData = other.numberData;	break;
-		case eValueType::BOOL:		this->boolData = other.boolData;	break;
-		case eValueType::ENTITY:	this->entityData = other.entityData;	break;
-		case eValueType::USER_TYPE:	this->userTypeData = other.userTypeData;	break;
-	}
-
-	m_type = other.m_type;
-
-	return *this;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrValue::~ZephyrValue()
-{
-	if ( m_type == eValueType::STRING )
-	{
-		delete strData;
-		strData = nullptr;
-	}
-
-	if ( m_type == eValueType::USER_TYPE )
-	{
-		userTypeData.~Handle();
-	}
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ZephyrValue::GetAsString() const
-{
-	if ( strData == nullptr )
+	if ( !m_dataHandle.IsValid() )
 	{
 		return "";
 	}
 
-	return *strData;
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return dataPtr->GetTypeName();
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrValue::SetMember( const std::string& memberName, const ZephyrValue& value )
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return false;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return dataPtr->SetMember( memberName, value.m_dataHandle );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::GetMember( const std::string& memberName )
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	ZephyrHandle retHandle = dataPtr->GetMember( memberName );
+	if ( retHandle.IsValid() )
+	{
+		return ZephyrValue( retHandle );
+	}
+
+	return ZephyrValue::NULL_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrValue::CallMethod( const std::string& methodName, ZephyrArgs* args )
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return false;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return dataPtr->CallMethod( methodName, args );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+bool ZephyrValue::IsEntity()
+{
+	return GetTypeName() == ZephyrEntity::TYPE_NAME;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+// TODO: Templatize me captain?
+EntityId ZephyrValue::GetAsEntity()
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return ERROR_ZEPHYR_ENTITY_ID;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	if ( dataPtr->GetTypeName() != ZephyrEntity::TYPE_NAME )
+	{
+		return ERROR_ZEPHYR_ENTITY_ID;
+	}
+
+	ZephyrEntityPtr entityPtr( m_dataHandle );
+	return entityPtr->GetValue();
+}
+
+
+////-----------------------------------------------------------------------------------------------
+//bool ZephyrValue::operator==( const ZephyrValue& compare ) const
+//{
+//	return &m_dataHandle == &compare.m_dataHandle;
+//}
+
+
+//-----------------------------------------------------------------------------------------------
+std::string ZephyrValue::ToString()
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return "";
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return dataPtr->ToString();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 bool ZephyrValue::EvaluateAsBool()
 {
-	switch ( m_type )
+	if ( !m_dataHandle.IsValid() )
 	{
-		case eValueType::STRING: 	return !strData->empty();	
-		case eValueType::NUMBER: 	return !IsNearlyEqual( numberData, 0.f );			
-		case eValueType::BOOL:		return boolData;	
-		case eValueType::ENTITY:	return entityData != INVALID_ENTITY_ID;
-		case eValueType::USER_TYPE:	
-		{
-			if ( userTypeData.IsValid() )
-			{
-				SmartPtr<ZephyrTypeBase> smartPtr( userTypeData );
-				return smartPtr->EvaluateAsBool();
-			}
-			else
-			{
-				return false;
-			}
-		}
+		return false;
 	}
 
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-std::string ZephyrValue::EvaluateAsString()
-{
-	switch ( m_type )
-	{
-		case eValueType::STRING: 	return GetAsString();
-		case eValueType::NUMBER: 	return ToString( numberData );
-		case eValueType::BOOL:		return ToString( boolData );
-		case eValueType::ENTITY:	return ToString( entityData );
-		case eValueType::USER_TYPE:	
-		{
-			if ( userTypeData.IsValid() )
-			{
-				SmartPtr<ZephyrTypeBase> smartPtr( userTypeData );
-				smartPtr->ToString();
-			}
-			else
-			{
-				return "";
-			}
-		}
-	}
-
-	return "";
-}
-
-
-//-----------------------------------------------------------------------------------------------
-float ZephyrValue::EvaluateAsNumber()
-{
-	switch ( m_type )
-	{
-		case eValueType::NUMBER: 	return numberData;
-		case eValueType::BOOL:		return boolData ? 1.f : 0.f;
-		default:	
-			ReportConversionError( eValueType::NUMBER );
-	}
-
-	return (float)ERROR_ZEPHYR_ENTITY_ID;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-EntityId ZephyrValue::EvaluateAsEntity()
-{
-	if ( m_type == eValueType::ENTITY )
-	{
-		return entityData;
-	}
-		
-	ReportConversionError( eValueType::ENTITY );
-	return ERROR_ZEPHYR_ENTITY_ID;
-}
-
-
-//-----------------------------------------------------------------------------------------------
-ZephyrHandle ZephyrValue::EvaluateAsUserType()
-{
-	if ( m_type == eValueType::USER_TYPE )
-	{
-		return userTypeData;
-	}
-
-	ReportConversionError( eValueType::USER_TYPE );
-	return NULL_ZEPHYR_HANDLE;
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return dataPtr->EvaluateAsBool();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 std::string ZephyrValue::SerializeToString() const
 {
-	std::string serializedStr = ToString( m_type );
-	serializedStr += ":";
-	switch ( m_type )
-	{
-		case eValueType::STRING: 	serializedStr += GetAsString();
-		case eValueType::NUMBER: 	serializedStr += ToString( numberData );
-		case eValueType::BOOL:		serializedStr += ToString( boolData );
-		case eValueType::ENTITY:	serializedStr += ToString( entityData );
-		case eValueType::USER_TYPE:	
-		{		
-			ZephyrHandle userHandle = GetAsUserType();
-			if ( userHandle.IsValid() )
-			{
-				SmartPtr userPtr( userHandle );
-				serializedStr += userPtr->ToString();
-			}
-		}
-	}
+	return "";
+	//std::string serializedStr = ToString( m_type );
+	//serializedStr += ":";
+	//switch ( m_type )
+	//{
+	//	case eValueType::STRING: 	serializedStr += GetAsString();
+	//	case eValueType::NUMBER: 	serializedStr += ToString( numberData );
+	//	case eValueType::BOOL:		serializedStr += ToString( boolData );
+	//	case eValueType::ENTITY:	serializedStr += ToString( entityData );
+	//	case eValueType::USER_TYPE:	
+	//	{		
+	//		ZephyrHandle userHandle = GetAsUserType();
+	//		if ( userHandle.IsValid() )
+	//		{
+	//			SmartPtr userPtr( userHandle );
+	//			serializedStr += userPtr->ToString();
+	//		}
+	//	}
+	//}
 
-	return serializedStr;
+	//return serializedStr;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 void ZephyrValue::DeserializeFromString( const std::string& serlializedStr )
 {
-	// This will destroy the ZephyrValue even if the serialization fails
-	if ( this->m_type == eValueType::STRING )
-	{
-		delete this->strData;
-		this->strData = nullptr;
-	}
+	UNUSED( serlializedStr );
+	//// This will destroy the ZephyrValue even if the serialization fails
+	//if ( this->m_type == eValueType::STRING )
+	//{
+	//	delete this->strData;
+	//	this->strData = nullptr;
+	//}
 
-	// Split serialized string into type and data
-	Strings components = SplitStringOnDelimiter( serlializedStr, ':' );
-	m_type = FromString(components[0]);
-	const char* dataStr = components[1].c_str();
+	//// Split serialized string into type and data
+	//Strings components = SplitStringOnDelimiter( serlializedStr, ':' );
+	//m_type = FromString(components[0]);
+	//const char* dataStr = components[1].c_str();
 
-	switch ( m_type )
-	{
-		case eValueType::STRING: 	{ strData = new std::string( dataStr ); }
-		case eValueType::NUMBER:	{ numberData = FromString( dataStr, 0.f ); }
-		case eValueType::BOOL:		{ boolData = FromString( dataStr, false ); }
-		case eValueType::ENTITY:	{ entityData = (EntityId)FromString( dataStr, (EntityId)-1 ); }
-		//case eValueType::USER_TYPE: { userTypeData->FromString( dataStr ); }
-	}
+	//switch ( m_type )
+	//{
+	//	case eValueType::STRING: 	{ strData = new std::string( dataStr ); }
+	//	case eValueType::NUMBER:	{ numberData = FromString( dataStr, 0.f ); }
+	//	case eValueType::BOOL:		{ boolData = FromString( dataStr, false ); }
+	//	case eValueType::ENTITY:	{ entityData = (EntityId)FromString( dataStr, (EntityId)-1 ); }
+	//	//case eValueType::USER_TYPE: { userTypeData->FromString( dataStr ); }
+	//}
 }
 
 
 //-----------------------------------------------------------------------------------------------
-void ZephyrValue::ReportConversionError( eValueType targetType )
+ZephyrValue ZephyrValue::Greater( const ZephyrValue& other )
 {
-	g_devConsole->PrintError( Stringf( "Cannot access '%s' variable as type '%s'", ToString( m_type ).c_str(), ToString( targetType ).c_str() ) );
-	entityData = ERROR_ZEPHYR_ENTITY_ID;
+	if ( !m_dataHandle.IsValid() 
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->Greater( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	return ZephyrValue( (bool)result );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-bool operator==( const ZephyrValue& lhs, const ZephyrValue& rhs )
+ZephyrValue ZephyrValue::GreaterEqual( const ZephyrValue& other )
 {
-	if ( lhs.GetType() != rhs.GetType() )
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
 	{
-		return false;
+		return ZephyrValue::NULL_VAL;
 	}
 
-	switch ( lhs.GetType() )
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->GreaterEqual( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
-		case eValueType::STRING:	{ return lhs.GetAsString() == rhs.GetAsString(); }
-		case eValueType::NUMBER:	{ return lhs.GetAsNumber() == rhs.GetAsNumber(); }
-		case eValueType::BOOL:		{ return lhs.GetAsBool() == rhs.GetAsBool(); }
-		case eValueType::ENTITY:	{ return lhs.GetAsEntity() == rhs.GetAsEntity(); }
+		return ZephyrValue::NULL_VAL;
 	}
 
-	return false;
+	return ZephyrValue( (bool)result );
 }
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Less( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->Less( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	return ZephyrValue( (bool)result );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::LessEqual( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->LessEqual( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	return ZephyrValue( (bool)result );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Equal( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->Equal( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	return ZephyrValue( (bool)result );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::NotEqual( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	eZephyrComparatorResult result = dataPtr->NotEqual( other.m_dataHandle );
+	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	return ZephyrValue( (bool)result );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Negate()
+{
+	if ( !m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+	return ZephyrValue( dataPtr->Negate() );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Add( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	return ZephyrValue( dataPtr->Add( other.m_dataHandle ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Subtract( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	return ZephyrValue( dataPtr->Subtract( other.m_dataHandle ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Multiply( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	return ZephyrValue( dataPtr->Multiply( other.m_dataHandle ) );
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrValue::Divide( const ZephyrValue& other )
+{
+	if ( !m_dataHandle.IsValid()
+		|| !other.m_dataHandle.IsValid() )
+	{
+		return ZephyrValue::NULL_VAL;
+	}
+
+	ZephyrSmartPtr dataPtr( m_dataHandle );
+
+	return ZephyrValue( dataPtr->Divide( other.m_dataHandle ) );
+}
+
+
+////-----------------------------------------------------------------------------------------------
+//void ZephyrValue::ReportConversionError( eValueType targetType )
+//{
+//	g_devConsole->PrintError( Stringf( "Cannot access '%s' variable as type '%s'", ToString( m_type ).c_str(), ToString( targetType ).c_str() ) );
+//	entityData = ERROR_ZEPHYR_ENTITY_ID;
+//}
 
 
 //-----------------------------------------------------------------------------------------------
@@ -761,4 +814,3 @@ bool ZephyrScope::DefineVariable( const std::string& identifier, const ZephyrVal
 	variables[identifier] = value;
 	return true;
 }
-

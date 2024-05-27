@@ -104,7 +104,7 @@ std::string ZephyrComponent::GetScriptName() const
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrComponent::GetGlobalVariable( const std::string& varName )
 {
-	ZephyrValue val = ZephyrValue::ERROR_VALUE;
+	ZephyrValue val = ZephyrValue::NULL_VAL;
 
 	m_globalBytecodeChunk->TryToGetVariable( varName, val );
 
@@ -134,7 +134,7 @@ void ZephyrComponent::InitializeEntityVariables()
 			continue;
 		}
 
-		validEntities[entityVarInit.varName] = entity->GetId();
+		validEntities[entityVarInit.varName] = ZephyrValue( entity->GetId() );
 	}
 
 	ZephyrSystem::InitializeGlobalVariables( this, validEntities );

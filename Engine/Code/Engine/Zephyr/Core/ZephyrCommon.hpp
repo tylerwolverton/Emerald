@@ -30,6 +30,7 @@ typedef std::map<std::string, ZephyrBytecodeChunk*> ZephyrBytecodeChunkMap;
 typedef std::vector<ZephyrComponent*> ZephyrComponentVector;
 typedef NamedProperties ZephyrArgs;
 typedef Handle<ZephyrTypeBase> ZephyrHandle;
+typedef SmartPtr<ZephyrTypeBase> ZephyrSmartPtr;
 extern ZephyrHandle NULL_ZEPHYR_HANDLE;
 
 constexpr int ERROR_ZEPHYR_ENTITY_ID = -1000;
@@ -56,7 +57,6 @@ enum class eTokenType
 	// Keywords
 	STATE,
 	FUNCTION,
-	ENTITY,
 	USER_TYPE,
 	ON_ENTER,
 	ON_UPDATE,
@@ -162,19 +162,6 @@ enum class eOpCode : byte
 
 eOpCode ByteToOpCode( byte opCodeByte );
 std::string ToString( eOpCode opCode );
-
-//-----------------------------------------------------------------------------------------------
-enum class eValueType
-{
-	NONE,
-	NUMBER,
-	BOOL,
-	STRING,
-	ENTITY,
-	USER_TYPE,
-};
-
-std::string ToString( eValueType valueType );
 
 
 //-----------------------------------------------------------------------------------------------
@@ -284,6 +271,7 @@ private:
 class ZephyrTypeBase
 {
 	friend class ZephyrSubsystem;
+	friend class ZephyrValue;
 	friend class ZephyrVirtualMachine;
 
 public:
@@ -299,7 +287,7 @@ public:
 	bool HasMemberVariable( const std::string& varName );
 	bool HasMethod( const std::string& methodName );
 	
-	void CallMethod( const std::string& methodName, ZephyrArgs* args );
+	bool CallMethod( const std::string& methodName, ZephyrArgs* args );
 
 	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 
@@ -316,10 +304,10 @@ protected:
 	virtual eZephyrComparatorResult NotEqual( ZephyrHandle other );
 
 	virtual ZephyrHandle Negate()										{  return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Add( ZephyrHandle other )		{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Subtract( ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Multiply (ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Divide( ZephyrHandle other )	{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Add( ZephyrHandle other )						{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Subtract( ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Multiply (ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrHandle Divide( ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
 
 protected:
 	ZephyrTypeMetadata m_typeMetadata;
@@ -348,56 +336,122 @@ public:
 //-----------------------------------------------------------------------------------------------
 class ZephyrValue
 {
+	friend class ZephyrVirtualMachine;
+
 public:
-	ZephyrValue();
-	ZephyrValue( NUMBER_TYPE value );
-	ZephyrValue( bool value );
-	ZephyrValue( const std::string& value );
-	ZephyrValue( EntityId value );
-	ZephyrValue( ZephyrHandle value );
+	ZephyrValue() = default;
+	explicit ZephyrValue( const ZephyrHandle& value );
+	explicit ZephyrValue( const std::string& typeName, ZephyrArgs* params );
+	// Helper constructors for types used internally by zephyr systems
+	explicit ZephyrValue( bool value );
+	explicit ZephyrValue( float value );
+	explicit ZephyrValue( const std::string& value );
+	explicit ZephyrValue( const EntityId& value );
 
-	ZephyrValue( ZephyrValue const& other );
-	ZephyrValue& operator=( ZephyrValue const& other );
-	ZephyrValue( ZephyrValue const&& other );
-	ZephyrValue& operator=( ZephyrValue const&& other );
-	~ZephyrValue();
+	// ZephyrTypeBase wrappers
+	bool IsValid() const;
+	std::string ToString();
+	std::string GetTypeName();
 
-	friend bool operator==( const ZephyrValue& lhs, const ZephyrValue& rhs );
+	// Convenience functions for dealing with entities since they have special functionality in VM
+	bool IsEntity();
+	EntityId GetAsEntity();
 
-	eValueType		GetType() const			{ return m_type; }
+	/*template<typename ChildType>
+	ChildSmartPtr<ZephyrTypeBase, ChildType> GetAsPtrTo()
+	{
+		if ( !IsValid() )
+		{
+			return ChildSmartPtr<ZephyrTypeBase, ChildType>();
+		}
 
-	float			GetAsNumber() const		{ return numberData; }
-	bool			GetAsBool() const		{ return boolData; }
-	std::string		GetAsString() const;
-	EntityId		GetAsEntity() const		{ return entityData; }
-	ZephyrHandle	GetAsUserType() const	{ return userTypeData; }
+		SmartPtr<ZephyrTypeBase> parentPtr( m_dataHandle );
+		if ( parentPtr->GetTypeName() != ChildType::TYPE_NAME )
+		{
+			return ChildSmartPtr<ZephyrTypeBase, ChildType>();
+		}
+
+		return ChildSmartPtr<ZephyrTypeBase, ChildType>( m_dataHandle );
+	}*/
+
+	//template<typename CastPtrType>
+	//CastPtrType GetAs() const
+	//{
+	//	if ( !m_dataHandle.IsValid() )
+	//	{
+	//		return NULL_ZEPHYR_HANDLE;
+	//	}
+
+	//	//ZephyrSmartPtr dataPtr( m_dataHandle );
+	//	//if ( dataPtr->GetTypeName() != ZephyrEngineTypeNames::ENTITY )
+	//	//{
+	//	//	return NULL_ZEPHYR_HANDLE;
+	//	//}
+
+	//	CastPtrType castTypePtr( m_dataHandle );
+	//	return castTypePtr;
+	//}
+
+	template<typename ValueType, typename T>
+	bool TryToGetValueFrom( T& outVal )
+	{
+		if ( !m_dataHandle.IsValid() )
+		{
+			return false;
+		}
+
+		SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
+		if ( dataPtr->GetTypeName() != ValueType::TYPE_NAME )
+		{
+			return false;
+		}
+
+		ChildSmartPtr<ZephyrTypeBase, ValueType> castTypePtr( m_dataHandle );
+		outVal = static_cast<T>( castTypePtr->GetValue() );
+
+		return true;
+	}
+
+	//bool operator==( const ZephyrValue& compare ) const;
+
+	//eValueType		GetType() const			{ return m_type; }
+
+	//ZephyrHandle	GetAsUserType() const	{ return m_dataHandle; }
 	
-	bool			EvaluateAsBool();
-	std::string		EvaluateAsString();
-	float			EvaluateAsNumber();
-	EntityId		EvaluateAsEntity();
-	ZephyrHandle	EvaluateAsUserType();
+	// GetData() {return SmartPtr(handle);}
+	// GetDataAs<class ChildType>	
 
 	std::string		SerializeToString() const;
 	void			DeserializeFromString( const std::string& serlializedStr );
 
 private:
-	void ReportConversionError( eValueType targetType );
+	bool EvaluateAsBool();
+
+	bool SetMember( const std::string& memberName, const ZephyrValue& value );
+	ZephyrValue GetMember( const std::string& memberName );
+	bool CallMethod( const std::string& methodName, ZephyrArgs* args );
+
+	// Operator wrappers
+	ZephyrValue Greater(		const ZephyrValue& other );
+	ZephyrValue GreaterEqual(	const ZephyrValue& other );
+	ZephyrValue Less(			const ZephyrValue& other );
+	ZephyrValue LessEqual(		const ZephyrValue& other );
+	ZephyrValue Equal(			const ZephyrValue& other );
+	ZephyrValue NotEqual(		const ZephyrValue& other );
+
+	ZephyrValue Negate();
+	ZephyrValue Add(		const ZephyrValue& other );
+	ZephyrValue Subtract(	const ZephyrValue& other );
+	ZephyrValue Multiply(	const ZephyrValue& other );
+	ZephyrValue Divide(		const ZephyrValue& other );
+	//void ReportConversionError( eValueType targetType );
 
 public:
-	static const ZephyrValue ERROR_VALUE;
+	static const ZephyrValue NULL_VAL;
 
 private:
-	eValueType m_type = eValueType::NONE;
-
-	union
-	{
-		NUMBER_TYPE numberData;
-		bool boolData;
-		std::string* strData;
-		EntityId entityData;
-		ZephyrHandle userTypeData = NULL_ZEPHYR_HANDLE;
-	};
+	// TODO: Hold a reference?
+	ZephyrHandle m_dataHandle = NULL_ZEPHYR_HANDLE;
 };
 
 

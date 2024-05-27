@@ -255,19 +255,49 @@ template<class ParentType, class ChildType>
 class ChildSmartPtr
 {
 public:
+	ChildSmartPtr() {}
+
 	ChildSmartPtr( Handle<ParentType>& handle )
 		: m_handle( handle )
-		, m_pinnedData( (ChildType*)handle.Pin() ) {}
+		, m_pinnedData( (ChildType*)handle.Pin() )
+	{
+		//if ( m_handle.IsValid() )
+		//{
+		//	SmartPtr parentPtr( m_handle );
+		//	if ( parentPtr->GetType() == ChildType::TYPE_NAME )
+		//	{
+		//		m_pinnedData = (ChildType*)handle.Pin();
+		//	}
+		//}
+	}
+
+	//ChildSmartPtr( const Handle<ParentType>& handle )
+	//	: m_handle( handle )
+	//	, m_pinnedData( (ChildType*)handle.Pin() )
+	//{
+	//	//if ( m_handle.IsValid() )
+	//	//{
+	//	//	SmartPtr parentPtr( m_handle );
+	//	//	if ( parentPtr->GetType() == ChildType::TYPE_NAME )
+	//	//	{
+	//	//		m_pinnedData = (ChildType*)handle.Pin();
+	//	//	}
+	//	//}
+	//}
 
 
 	//----------------------------------------------------------------------------
 	~ChildSmartPtr()
 	{
-		m_handle.Unpin();
-		m_pinnedData = nullptr;
+		if ( m_pinnedData != nullptr )
+		{
+			m_handle.Unpin();
+			m_pinnedData = nullptr;
+		}
 	}
 
-	// For now, don't allow copying smart pointers
+
+	// Don't allow copying for now
 	ChildSmartPtr( const ChildSmartPtr& other ) = delete;
 
 	ChildType* operator->() { return m_pinnedData; }

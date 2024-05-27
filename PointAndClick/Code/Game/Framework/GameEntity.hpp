@@ -68,7 +68,7 @@ public:
 	bool				FireScriptEvent( const std::string& eventName, EventArgs* args = nullptr );
 
 	ZephyrHandle		GetGlobalVariable( const std::string& varName );
-	bool				SetGlobalVariable( const std::string& varName, const ZephyrValue& value );
+	bool				SetGlobalVariable( const std::string& varName, ZephyrValue& value );
 
 protected:
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );

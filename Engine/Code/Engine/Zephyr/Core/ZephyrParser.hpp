@@ -55,16 +55,15 @@ private:
 	bool IsCurTokenType( const eTokenType& type );
 	bool DoesTokenMatchType( const ZephyrToken& token, const eTokenType& type );
 
-	bool DeclareVariable( const ZephyrToken& identifier, const eValueType& varType, const std::string& typeName = "" );
-	bool DeclareVariable( const std::string& identifier, const eValueType& varType, const std::string& typeName = "" );
+	bool DeclareVariable( const ZephyrToken& identifier, const std::string& typeName = "" );
+	bool DeclareVariable( const std::string& identifier, const std::string& typeName = "" );
 	bool TryToGetVariable( const std::string& identifier, ZephyrValue& out_value );
-	bool TryToGetVariableType( const std::string& identifier, eValueType& out_varType );
 
 	bool ParseBlock();
 	bool ParseStatement();
 	bool ParseStateDefinition();
 	bool ParseFunctionDefinition();
-	bool ParseVariableDeclaration( const eValueType& varType, const std::string& typeName = "" );
+	bool ParseVariableDeclaration( const std::string& typeName );
 	bool ParseFunctionCall();
 	bool ParseEventArgs();
 	bool ParseParameters();
