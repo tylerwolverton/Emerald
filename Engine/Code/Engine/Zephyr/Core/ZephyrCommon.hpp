@@ -266,6 +266,10 @@ private:
 
 
 //-----------------------------------------------------------------------------------------------
+class ZephyrValue;
+
+
+//-----------------------------------------------------------------------------------------------
 // The base class for types exposed to Zephyr. The intention is that they will only be used in scripts,
 // if C++ usage is desired, make a normal C++ class and then a ZephyrType wrapper class.
 class ZephyrTypeBase
@@ -289,25 +293,25 @@ public:
 	
 	bool CallMethod( const std::string& methodName, ZephyrArgs* args );
 
-	virtual eZephyrComparatorResult Equal( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Equal( ZephyrValue& other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
 
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) = 0;
-	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) = 0;
-	virtual ZephyrHandle GetMember( const std::string& memberName ) = 0;
+	virtual bool SetMember( const std::string& memberName, ZephyrValue& value ) = 0;
+	virtual ZephyrValue GetMember( const std::string& memberName ) = 0;
 
 	// Operators
-	virtual eZephyrComparatorResult Greater( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult Less( ZephyrHandle other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult LessEqual( ZephyrHandle other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
-	virtual eZephyrComparatorResult NotEqual( ZephyrHandle other );
+	virtual eZephyrComparatorResult Greater( ZephyrValue& other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult GreaterEqual( ZephyrValue& other )	{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult Less( ZephyrValue& other )			{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult LessEqual( ZephyrValue& other )		{ (void)other; return eZephyrComparatorResult::UNDEFINED_VAL; }
+	virtual eZephyrComparatorResult NotEqual( ZephyrValue& other );
 
-	virtual ZephyrHandle Negate()										{  return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Add( ZephyrHandle other )						{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Subtract( ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Multiply (ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
-	virtual ZephyrHandle Divide( ZephyrHandle other )					{ (void)other; return NULL_ZEPHYR_HANDLE; }
+	virtual ZephyrValue Negate();
+	virtual ZephyrValue Add( ZephyrValue& other );
+	virtual ZephyrValue Subtract( ZephyrValue& other );
+	virtual ZephyrValue Multiply( ZephyrValue& other );
+	virtual ZephyrValue Divide( ZephyrValue& other );
 
 protected:
 	ZephyrTypeMetadata m_typeMetadata;
@@ -351,12 +355,14 @@ public:
 	// ZephyrTypeBase wrappers
 	bool IsValid() const;
 	std::string ToString();
+	bool EvaluateAsBool();
 	std::string GetTypeName();
 
 	// Convenience functions for dealing with entities since they have special functionality in VM
 	bool IsEntity();
 	EntityId GetAsEntity();
 
+	ZephyrValue Equal( ZephyrValue& other );
 	/*template<typename ChildType>
 	ChildSmartPtr<ZephyrTypeBase, ChildType> GetAsPtrTo()
 	{
@@ -425,25 +431,22 @@ public:
 	void			DeserializeFromString( const std::string& serlializedStr );
 
 private:
-	bool EvaluateAsBool();
-
-	bool SetMember( const std::string& memberName, const ZephyrValue& value );
+	bool SetMember( const std::string& memberName, ZephyrValue& value );
 	ZephyrValue GetMember( const std::string& memberName );
 	bool CallMethod( const std::string& methodName, ZephyrArgs* args );
 
 	// Operator wrappers
-	ZephyrValue Greater(		const ZephyrValue& other );
-	ZephyrValue GreaterEqual(	const ZephyrValue& other );
-	ZephyrValue Less(			const ZephyrValue& other );
-	ZephyrValue LessEqual(		const ZephyrValue& other );
-	ZephyrValue Equal(			const ZephyrValue& other );
-	ZephyrValue NotEqual(		const ZephyrValue& other );
+	ZephyrValue Greater(		ZephyrValue& other );
+	ZephyrValue GreaterEqual(	ZephyrValue& other );
+	ZephyrValue Less(			ZephyrValue& other );
+	ZephyrValue LessEqual(		ZephyrValue& other );
+	ZephyrValue NotEqual(		ZephyrValue& other );
 
 	ZephyrValue Negate();
-	ZephyrValue Add(		const ZephyrValue& other );
-	ZephyrValue Subtract(	const ZephyrValue& other );
-	ZephyrValue Multiply(	const ZephyrValue& other );
-	ZephyrValue Divide(		const ZephyrValue& other );
+	ZephyrValue Add(		ZephyrValue& other );
+	ZephyrValue Subtract(	ZephyrValue& other );
+	ZephyrValue Multiply(	ZephyrValue& other );
+	ZephyrValue Divide(		ZephyrValue& other );
 	//void ReportConversionError( eValueType targetType );
 
 public:

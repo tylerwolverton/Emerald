@@ -27,7 +27,7 @@ public:
 		const auto creatorIter = m_creatorMap.find( id );
 		if ( creatorIter == m_creatorMap.end() )
 		{
-			//ERROR_AND_DIE( Stringf( "ObjectFactory: Can't find a creation function with id '%s'", id ) );
+			ERROR_AND_DIE( Stringf( "ObjectFactory: Can't find a creation function with id '%s'", id.c_str() ) );
 		}
 
 		return creatorIter->second( params );

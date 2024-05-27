@@ -1,4 +1,5 @@
 #include "Engine/Zephyr/Types/ZephyrString.hpp"
+#include "Engine/Zephyr/Types/ZephyrBool.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ bool ZephyrString::SetMembersFromArgs( ZephyrArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrString::SetMember( const std::string& memberName, ZephyrHandle value )
+bool ZephyrString::SetMember( const std::string& memberName, ZephyrValue& value )
 {
 	UNUSED( memberName );
 	UNUSED( value );
@@ -68,21 +69,20 @@ bool ZephyrString::SetMember( const std::string& memberName, ZephyrHandle value 
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrHandle ZephyrString::GetMember( const std::string& memberName )
+ZephyrValue ZephyrString::GetMember( const std::string& memberName )
 {
 	UNUSED( memberName );
-	return NULL_ZEPHYR_HANDLE;
+	return ZephyrValue::NULL_VAL;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrString::Equal( ZephyrHandle other )
+eZephyrComparatorResult ZephyrString::Equal( ZephyrValue& other )
 {
-	SmartPtr otherPtr( other );
-	if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::STRING )
+	std::string otherAsString;
+	if ( other.TryToGetValueFrom<ZephyrString>( otherAsString ) )
 	{
-		ZephyrStringPtr otherAsStringPtr( other );
-		if ( m_value == otherAsStringPtr->GetValue() )
+		if ( m_value == otherAsString )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}
@@ -91,9 +91,11 @@ eZephyrComparatorResult ZephyrString::Equal( ZephyrHandle other )
 			return eZephyrComparatorResult::FALSE_VAL;
 		}
 	}
-	else if ( otherPtr->GetTypeName() == ZephyrEngineTypeNames::BOOL )
+	
+	bool otherAsBool;
+	if ( other.TryToGetValueFrom<ZephyrBool>( otherAsBool ) )
 	{
-		if ( EvaluateAsBool() == otherPtr->EvaluateAsBool() )
+		if ( EvaluateAsBool() == otherAsBool )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}

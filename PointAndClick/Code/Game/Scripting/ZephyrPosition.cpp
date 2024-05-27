@@ -1,4 +1,5 @@
 #include "Game/Scripting/ZephyrPosition.hpp"
+#include "Engine/Zephyr/Types/ZephyrNumber.hpp"
 #include "Engine/Math/MathUtils.hpp"
 #include "Engine/Zephyr/GameInterface/ZephyrSubsystem.hpp"
 
@@ -11,8 +12,8 @@ const std::string ZephyrPosition::TYPE_NAME = "Position";
 void ZephyrPosition::CreateAndRegisterMetadata()
 {
 	ZephyrTypeMetadata* metadata = new ZephyrTypeMetadata( ZephyrPosition::TYPE_NAME );
-	metadata->RegisterMember( "x", "" );
-	metadata->RegisterMember( "y", "" );
+	metadata->RegisterMember( "x", ZephyrNumber::TYPE_NAME );
+	metadata->RegisterMember( "y", ZephyrNumber::TYPE_NAME );
 	metadata->RegisterMethod( "GetDistFromOrigin" );
 
 	g_zephyrSubsystem->RegisterZephyrType( metadata );
@@ -37,19 +38,19 @@ ZephyrHandle ZephyrPosition::CreateAsZephyrType( ZephyrArgs* args )
 		{
 			zephyrPositionPtr->m_position = value;
 		}
-		else
-		{
-			// Try to set from ZephyrVec2
-			ZephyrHandle valueZephyrVec2 = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
-			if ( valueZephyrVec2.IsValid() && zephyrPositionPtr->GetTypeName() == ZephyrPositionType::TYPE_NAME )
-			{
-				zephyrPositionPtr->m_position = ::FromString( zephyrPositionPtr->ToString(), Vec2::ZERO );
-			}
-			else
-			{
-				zephyrPositionPtr->SetMembersFromArgs( args );
-			}
-		}
+		//else
+		//{
+		//	// Try to set from ZephyrVec2
+		//	ZephyrHandle valueZephyrVec2 = args->GetValue( "value", NULL_ZEPHYR_HANDLE );
+		//	if ( valueZephyrVec2.IsValid() && zephyrPositionPtr->GetTypeName() == ZephyrPosition::TYPE_NAME )
+		//	{
+		//		zephyrPositionPtr->m_position = ::FromString( zephyrPositionPtr->ToString(), Vec2::ZERO );
+		//	}
+		//	else
+		//	{
+		//		zephyrPositionPtr->SetMembersFromArgs( args );
+		//	}
+		//}
 	}
 
 	// Bind methods
@@ -83,13 +84,18 @@ ZephyrTypeBase& ZephyrPosition::operator=(ZephyrTypeBase const& other)
 //-----------------------------------------------------------------------------------------------
 bool ZephyrPosition::SetMembersFromArgs( ZephyrArgs* args )
 {
-	ZephyrHandle xType = args->GetValue( "x", NULL_ZEPHYR_HANDLE );
+	if ( args == nullptr )
+	{
+		return true;
+	}
+
+	ZephyrValue xType = args->GetValue( "x", ZephyrValue::NULL_VAL );
 	if ( xType.IsValid() )
 	{
 		SetMember( "x", xType );
 	}
 
-	ZephyrHandle yType = args->GetValue( "y", NULL_ZEPHYR_HANDLE );
+	ZephyrValue yType = args->GetValue( "y", ZephyrValue::NULL_VAL );
 	if ( yType.IsValid() )
 	{
 		SetMember( "y", yType );
@@ -100,28 +106,28 @@ bool ZephyrPosition::SetMembersFromArgs( ZephyrArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrPosition::SetMember( const std::string& memberName, ZephyrHandle value )
+bool ZephyrPosition::SetMember( const std::string& memberName, ZephyrValue& value )
 {
 	if ( !value.IsValid() )
 	{
 		return false;
 	}
 
-	SmartPtr valuePtr( value );
-
 	if ( memberName == "x" )
 	{
-		if ( valuePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+		NUMBER_TYPE x = m_position.x;
+		if ( value.TryToGetValueFrom<ZephyrNumber>( x ) )
 		{
-			m_position.x = ::FromString( valuePtr->ToString(), m_position.x );
+			m_position.x = x;
 			return true;
 		}
 	}
 	else if ( memberName == "y" )
 	{
-		if ( valuePtr->GetTypeName() == ZephyrEngineTypeNames::NUMBER )
+		NUMBER_TYPE y = m_position.y;
+		if ( value.TryToGetValueFrom<ZephyrNumber>( y ) )
 		{
-			m_position.y = ::FromString( valuePtr->ToString(), m_position.y );
+			m_position.y = y;
 			return true;
 		}
 	}
@@ -131,21 +137,18 @@ bool ZephyrPosition::SetMember( const std::string& memberName, ZephyrHandle valu
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrHandle ZephyrPosition::GetMember( const std::string& memberName )
+ZephyrValue ZephyrPosition::GetMember( const std::string& memberName )
 {
-	ZephyrArgs params;
 	if ( memberName == "x" )
 	{
-		params.SetValue( "value", m_position.x );
-		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params );
+		return ZephyrValue( m_position.x );
 	}
 	else if ( memberName == "y" )
 	{
-		params.SetValue( "value", m_position.y );
-		return g_zephyrTypeHandleFactory->CreateHandle( ZephyrEngineTypeNames::NUMBER, &params );
+		return ZephyrValue( m_position.y );
 	}
 
-	return NULL_ZEPHYR_HANDLE;
+	return ZephyrValue::NULL_VAL;
 }
 
 

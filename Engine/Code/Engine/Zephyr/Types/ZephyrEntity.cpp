@@ -59,7 +59,7 @@ bool ZephyrEntity::SetMembersFromArgs( ZephyrArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrEntity::SetMember( const std::string& memberName, ZephyrHandle value )
+bool ZephyrEntity::SetMember( const std::string& memberName, ZephyrValue& value )
 {
 	UNUSED( memberName );
 	UNUSED( value );
@@ -68,21 +68,20 @@ bool ZephyrEntity::SetMember( const std::string& memberName, ZephyrHandle value 
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrHandle ZephyrEntity::GetMember( const std::string& memberName )
+ZephyrValue ZephyrEntity::GetMember( const std::string& memberName )
 {
 	UNUSED( memberName );
-	return NULL_ZEPHYR_HANDLE;
+	return ZephyrValue::NULL_VAL;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrEntity::Equal( ZephyrHandle other )
+eZephyrComparatorResult ZephyrEntity::Equal( ZephyrValue& other )
 {
-	SmartPtr otherPtr( other );
-	if ( otherPtr->GetTypeName() == ZephyrEntity::TYPE_NAME )
+	EntityId otherAsEntity = ERROR_ZEPHYR_ENTITY_ID;
+	if ( other.TryToGetValueFrom<ZephyrEntity>( otherAsEntity ) )
 	{
-		ZephyrEntityPtr otherEntity( other );
-		if ( m_value == otherEntity->GetValue() )
+		if ( m_value == otherAsEntity )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
 		}

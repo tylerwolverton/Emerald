@@ -28,20 +28,20 @@ public:
 // ZephyrType Overrides accessed by friend ZephyrVirtualMachine
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
-	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
-	virtual ZephyrHandle GetMember( const std::string& memberName ) override;
+	virtual bool SetMember( const std::string& memberName, ZephyrValue& value ) override;
+	virtual ZephyrValue GetMember( const std::string& memberName ) override;
 
-	virtual eZephyrComparatorResult Greater( ZephyrHandle other ) override;
-	virtual eZephyrComparatorResult GreaterEqual( ZephyrHandle other ) override;
-	virtual eZephyrComparatorResult Less( ZephyrHandle other ) override;
-	virtual eZephyrComparatorResult LessEqual( ZephyrHandle other ) override;
-	virtual eZephyrComparatorResult Equal( ZephyrHandle other ) override;
+	virtual eZephyrComparatorResult Greater( ZephyrValue& other ) override;
+	virtual eZephyrComparatorResult GreaterEqual( ZephyrValue& other ) override;
+	virtual eZephyrComparatorResult Less( ZephyrValue& other ) override;
+	virtual eZephyrComparatorResult LessEqual( ZephyrValue& other ) override;
+	virtual eZephyrComparatorResult Equal( ZephyrValue& other ) override;
 
-	virtual ZephyrHandle Negate() override;
-	virtual ZephyrHandle Add( ZephyrHandle other ) override;
-	virtual ZephyrHandle Subtract( ZephyrHandle other ) override;
-	virtual ZephyrHandle Multiply( ZephyrHandle other ) override;
-	virtual ZephyrHandle Divide( ZephyrHandle other ) override;
+	virtual ZephyrValue Negate() override;
+	virtual ZephyrValue Add( ZephyrValue& other ) override;
+	virtual ZephyrValue Subtract( ZephyrValue& other ) override;
+	virtual ZephyrValue Multiply( ZephyrValue& other ) override;
+	virtual ZephyrValue Divide( ZephyrValue& other ) override;
 
 private:
 	// static creation accessed by friend ZephyrSubsystem

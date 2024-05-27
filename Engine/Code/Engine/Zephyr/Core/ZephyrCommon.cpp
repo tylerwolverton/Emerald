@@ -297,13 +297,48 @@ bool ZephyrTypeBase::CallMethod( const std::string& methodName, ZephyrArgs* args
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrTypeBase::NotEqual(ZephyrHandle other)
+eZephyrComparatorResult ZephyrTypeBase::NotEqual( ZephyrValue& other )
 {
-	eZephyrComparatorResult equalResult = Equal(other);
+	eZephyrComparatorResult equalResult = Equal( other );
 	if ( equalResult == eZephyrComparatorResult::FALSE_VAL )		{ return eZephyrComparatorResult::TRUE_VAL; }
 	if ( equalResult == eZephyrComparatorResult::TRUE_VAL )			{ return eZephyrComparatorResult::FALSE_VAL; }
 
 	return eZephyrComparatorResult::UNDEFINED_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrTypeBase::Negate()
+{
+	return ZephyrValue::NULL_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrTypeBase::Add( ZephyrValue& other )
+{
+	(void)other; return ZephyrValue::NULL_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrTypeBase::Subtract( ZephyrValue& other )
+{
+	(void)other; return ZephyrValue::NULL_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrTypeBase::Multiply( ZephyrValue& other )
+{
+	(void)other; return ZephyrValue::NULL_VAL;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+ZephyrValue ZephyrTypeBase::Divide( ZephyrValue& other )
+{
+	(void)other; return ZephyrValue::NULL_VAL;
 }
 
 
@@ -348,7 +383,7 @@ ZephyrValue::ZephyrValue( const std::string& value )
 ZephyrValue::ZephyrValue( const EntityId& value )
 {
 	ZephyrArgs params;
-	params.SetValue( "value", value );
+	params.SetValue( "value", (EntityId)value );
 
 	m_dataHandle = g_zephyrTypeHandleFactory->CreateHandle( ZephyrEntity::TYPE_NAME, &params );
 }
@@ -382,7 +417,7 @@ std::string ZephyrValue::GetTypeName()
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrValue::SetMember( const std::string& memberName, const ZephyrValue& value )
+bool ZephyrValue::SetMember( const std::string& memberName, ZephyrValue& value )
 {
 	if ( !m_dataHandle.IsValid() )
 	{
@@ -390,7 +425,7 @@ bool ZephyrValue::SetMember( const std::string& memberName, const ZephyrValue& v
 	}
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
-	return dataPtr->SetMember( memberName, value.m_dataHandle );
+	return dataPtr->SetMember( memberName, value );
 }
 
 
@@ -403,10 +438,10 @@ ZephyrValue ZephyrValue::GetMember( const std::string& memberName )
 	}
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
-	ZephyrHandle retHandle = dataPtr->GetMember( memberName );
-	if ( retHandle.IsValid() )
+	ZephyrValue retVal = dataPtr->GetMember( memberName );
+	if ( retVal.IsValid() )
 	{
-		return ZephyrValue( retHandle );
+		return retVal;
 	}
 
 	return ZephyrValue::NULL_VAL;
@@ -541,7 +576,7 @@ void ZephyrValue::DeserializeFromString( const std::string& serlializedStr )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Greater( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Greater( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid() 
 		|| !other.m_dataHandle.IsValid() )
@@ -551,7 +586,7 @@ ZephyrValue ZephyrValue::Greater( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->Greater( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->Greater( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -562,7 +597,7 @@ ZephyrValue ZephyrValue::Greater( const ZephyrValue& other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::GreaterEqual( const ZephyrValue& other )
+ZephyrValue ZephyrValue::GreaterEqual( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -572,7 +607,7 @@ ZephyrValue ZephyrValue::GreaterEqual( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->GreaterEqual( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->GreaterEqual( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -583,7 +618,7 @@ ZephyrValue ZephyrValue::GreaterEqual( const ZephyrValue& other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Less( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Less( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -593,7 +628,7 @@ ZephyrValue ZephyrValue::Less( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->Less( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->Less( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -604,7 +639,7 @@ ZephyrValue ZephyrValue::Less( const ZephyrValue& other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::LessEqual( const ZephyrValue& other )
+ZephyrValue ZephyrValue::LessEqual( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -614,7 +649,7 @@ ZephyrValue ZephyrValue::LessEqual( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->LessEqual( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->LessEqual( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -625,7 +660,7 @@ ZephyrValue ZephyrValue::LessEqual( const ZephyrValue& other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Equal( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Equal( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -635,7 +670,7 @@ ZephyrValue ZephyrValue::Equal( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->Equal( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->Equal( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -646,7 +681,7 @@ ZephyrValue ZephyrValue::Equal( const ZephyrValue& other )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::NotEqual( const ZephyrValue& other )
+ZephyrValue ZephyrValue::NotEqual( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -656,7 +691,7 @@ ZephyrValue ZephyrValue::NotEqual( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	eZephyrComparatorResult result = dataPtr->NotEqual( other.m_dataHandle );
+	eZephyrComparatorResult result = dataPtr->NotEqual( other );
 	if ( result == eZephyrComparatorResult::UNDEFINED_VAL )
 	{
 		return ZephyrValue::NULL_VAL;
@@ -680,7 +715,7 @@ ZephyrValue ZephyrValue::Negate()
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Add( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Add( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -690,12 +725,12 @@ ZephyrValue ZephyrValue::Add( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	return ZephyrValue( dataPtr->Add( other.m_dataHandle ) );
+	return ZephyrValue( dataPtr->Add( other ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Subtract( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Subtract( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -705,12 +740,12 @@ ZephyrValue ZephyrValue::Subtract( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	return ZephyrValue( dataPtr->Subtract( other.m_dataHandle ) );
+	return ZephyrValue( dataPtr->Subtract( other ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Multiply( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Multiply( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -720,12 +755,12 @@ ZephyrValue ZephyrValue::Multiply( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	return ZephyrValue( dataPtr->Multiply( other.m_dataHandle ) );
+	return ZephyrValue( dataPtr->Multiply( other ) );
 }
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrValue ZephyrValue::Divide( const ZephyrValue& other )
+ZephyrValue ZephyrValue::Divide( ZephyrValue& other )
 {
 	if ( !m_dataHandle.IsValid()
 		|| !other.m_dataHandle.IsValid() )
@@ -735,7 +770,7 @@ ZephyrValue ZephyrValue::Divide( const ZephyrValue& other )
 
 	ZephyrSmartPtr dataPtr( m_dataHandle );
 
-	return ZephyrValue( dataPtr->Divide( other.m_dataHandle ) );
+	return ZephyrValue( dataPtr->Divide( other ) );
 }
 
 

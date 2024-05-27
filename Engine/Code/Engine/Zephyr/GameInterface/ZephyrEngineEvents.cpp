@@ -102,29 +102,13 @@ void ZephyrEngineEvents::PrintDebugScreenText( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrEngineEvents::PrintToConsole( EventArgs* args )
 {
-	ZephyrHandle textType = args->GetValue( "text", NULL_ZEPHYR_HANDLE );
+	ZephyrValue textType = args->GetValue( "text", ZephyrValue::NULL_VAL );
 	std::string text;
-	if ( textType.IsValid() )
-	{
-		SmartPtr smartPtr( textType );
-		text = smartPtr->ToString();
-	}
-	else
-	{
-		text = args->GetValue( "text", "" );
-	}
+	textType.TryToGetValueFrom<ZephyrString>( text );
 
-	ZephyrHandle colorHandle = args->GetValue( "color", NULL_ZEPHYR_HANDLE );
-	std::string colorStr;
-	if ( colorHandle.IsValid() )
-	{
-		SmartPtr smartPtr( colorHandle );
-		colorStr = smartPtr->ToString();
-	}
-	else
-	{
-		colorStr = "white";
-	}
+	ZephyrValue colorHandle = args->GetValue( "color", ZephyrValue::NULL_VAL );
+	std::string colorStr = "white";
+	colorHandle.TryToGetValueFrom<ZephyrString>( colorStr );
 
 	Rgba8 color = Rgba8::WHITE;
 	if ( colorStr == "white" ) { color = Rgba8::WHITE; }
@@ -140,31 +124,13 @@ void ZephyrEngineEvents::PrintToConsole( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrEngineEvents::Assert( EventArgs* args )
 {
-	ZephyrHandle errorMsgType = args->GetValue( "errorMsg", NULL_ZEPHYR_HANDLE );
+	ZephyrValue errorMsgType = args->GetValue( "errorMsg", ZephyrValue::NULL_VAL );
 	std::string errorMsg;
-	if ( errorMsgType.IsValid() )
-	{
-		SmartPtr smartPtr( errorMsgType );
-		errorMsg = smartPtr->ToString();
-	}
-	else
-	{
-		errorMsg = args->GetValue( "errorMsg", "" );
-	}
+	errorMsgType.TryToGetValueFrom<ZephyrString>( errorMsg );
 
-	ZephyrHandle resultType = args->GetValue( "result", NULL_ZEPHYR_HANDLE );
-	bool result = false;
-	if ( resultType.IsValid() )
-	{
-		SmartPtr smartPtr( resultType );
-		result = smartPtr->EvaluateAsBool();
-	}
-	else
-	{
-		result = args->GetValue( "result", result );
-	}
-
-	if ( !result )
+	ZephyrValue resultType = args->GetValue( "result", ZephyrValue::NULL_VAL );
+	
+	if ( !resultType.EvaluateAsBool() )
 	{
 		g_devConsole->PrintError( errorMsg );
 	}
@@ -174,33 +140,22 @@ void ZephyrEngineEvents::Assert( EventArgs* args )
 //-----------------------------------------------------------------------------------------------
 void ZephyrEngineEvents::AssertEqual( EventArgs* args )
 {
-	ZephyrHandle errorMsgType = args->GetValue( "errorMsg", NULL_ZEPHYR_HANDLE );
+	ZephyrValue errorMsgType = args->GetValue( "errorMsg", ZephyrValue::NULL_VAL );
 	std::string errorMsg;
-	if ( errorMsgType.IsValid() )
-	{
-		SmartPtr smartPtr( errorMsgType );
-		errorMsg = smartPtr->ToString();
-	}
-	else
-	{
-		errorMsg = args->GetValue( "errorMsg", "" );
-	}
+	errorMsgType.TryToGetValueFrom<ZephyrString>( errorMsg );
 
-	ZephyrHandle aType = args->GetValue( "a", NULL_ZEPHYR_HANDLE );
-	ZephyrHandle bType = args->GetValue( "b", NULL_ZEPHYR_HANDLE );
+	ZephyrValue aType = args->GetValue( "a", ZephyrValue::NULL_VAL );
+	ZephyrValue bType = args->GetValue( "b", ZephyrValue::NULL_VAL );
 	
 	if ( !aType.IsValid() || !bType.IsValid() )
 	{
 		return;
 	}
-
-	SmartPtr aPtr( aType );
-	SmartPtr bPtr( bType );
 		
-	eZephyrComparatorResult result = aPtr->Equal(bType);
-	if ( result != eZephyrComparatorResult::TRUE_VAL )
+	ZephyrValue result = aType.Equal( bType );
+	if ( !result.EvaluateAsBool() )
 	{
-		g_devConsole->PrintError( Stringf( "Assert failed %s == %s, %s", aPtr->ToString().c_str(), bPtr->ToString().c_str(), errorMsg.c_str() ));
+		g_devConsole->PrintError( Stringf( "Assert failed %s == %s, %s", aType.ToString().c_str(), bType.ToString().c_str(), errorMsg.c_str() ));
 	}
 }
 

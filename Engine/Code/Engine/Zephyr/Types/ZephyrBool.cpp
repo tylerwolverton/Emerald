@@ -59,7 +59,7 @@ bool ZephyrBool::SetMembersFromArgs( ZephyrArgs* args )
 
 
 //-----------------------------------------------------------------------------------------------
-bool ZephyrBool::SetMember( const std::string& memberName, ZephyrHandle value )
+bool ZephyrBool::SetMember( const std::string& memberName, ZephyrValue& value )
 {
 	UNUSED( memberName );
 	UNUSED( value );
@@ -68,18 +68,17 @@ bool ZephyrBool::SetMember( const std::string& memberName, ZephyrHandle value )
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrHandle ZephyrBool::GetMember( const std::string& memberName )
+ZephyrValue ZephyrBool::GetMember( const std::string& memberName )
 {
 	UNUSED( memberName );
-	return NULL_ZEPHYR_HANDLE;
+	return ZephyrValue::NULL_VAL;
 }
 
 
 //-----------------------------------------------------------------------------------------------
-eZephyrComparatorResult ZephyrBool::Equal( ZephyrHandle other )
+eZephyrComparatorResult ZephyrBool::Equal( ZephyrValue& other )
 {
-	SmartPtr otherPtr( other );
-	if ( m_value == otherPtr->EvaluateAsBool() )
+	if ( m_value == other.EvaluateAsBool() )
 	{
 		return eZephyrComparatorResult::TRUE_VAL;
 	}

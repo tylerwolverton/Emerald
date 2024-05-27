@@ -27,8 +27,8 @@ public:
 // ZephyrType Overrides accessed by friend ZephyrVirtualMachine
 protected:
 	virtual bool SetMembersFromArgs( ZephyrArgs* args ) override;
-	virtual bool SetMember( const std::string& memberName, ZephyrHandle value ) override;
-	virtual ZephyrHandle GetMember( const std::string& memberName ) override;
+	virtual bool SetMember( const std::string& memberName, ZephyrValue& value ) override;
+	virtual ZephyrValue GetMember( const std::string& memberName ) override;
 
 private:
 	// static creation accessed by friend ZephyrTypeRegistrator
