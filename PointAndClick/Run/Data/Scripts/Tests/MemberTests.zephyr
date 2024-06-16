@@ -24,7 +24,6 @@ Function TestVec2Members()
     }
 
     testVec2.x = newX;
-    testVec2.Get();
     if(testVec2.x != 11)
     {
         PrintToConsole( text: "Vec2: Setting x failed" color: "red" )

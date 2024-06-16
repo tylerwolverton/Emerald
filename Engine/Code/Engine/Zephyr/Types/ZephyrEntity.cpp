@@ -1,4 +1,5 @@
 #include "Engine/Zephyr/Types/ZephyrEntity.hpp"
+#include "Engine/Zephyr/GameInterface/ZephyrSystem.hpp"
 
 
 //-----------------------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ void ZephyrEntity::CreateAndRegisterMetadata()
 ZephyrHandle ZephyrEntity::CreateAsZephyrType( ZephyrArgs* args )
 {
 	ZephyrHandle zephyrEntityHandle = g_zephyrSubsystem->AllocateNewZephyrTypeObject<ZephyrEntity>();
-	ChildSmartPtr<ZephyrTypeBase, ZephyrEntity> zephyrBoolPtr( zephyrEntityHandle );
+	ChildSmartPtr<ZephyrTypeBase, ZephyrEntity> zephyrEntityPtr( zephyrEntityHandle );
 
 	if ( args == nullptr )
 	{
@@ -29,7 +30,7 @@ ZephyrHandle ZephyrEntity::CreateAsZephyrType( ZephyrArgs* args )
 	}
 
 	// Fill in vars from args
-	zephyrBoolPtr->m_value = args->GetValue( "value", (EntityId)-1 );
+	zephyrEntityPtr->m_value = args->GetValue( "value", (EntityId)ERROR_ZEPHYR_ENTITY_ID );
 
 	return zephyrEntityHandle;
 }
@@ -61,17 +62,15 @@ bool ZephyrEntity::SetMembersFromArgs( ZephyrArgs* args )
 //-----------------------------------------------------------------------------------------------
 bool ZephyrEntity::SetMember( const std::string& memberName, ZephyrValue& value )
 {
-	UNUSED( memberName );
-	UNUSED( value );
-	return false;
+	ZephyrSystem::SetGlobalVariable( m_value, memberName, value );
+	return true;
 }
 
 
 //-----------------------------------------------------------------------------------------------
 ZephyrValue ZephyrEntity::GetMember( const std::string& memberName )
 {
-	UNUSED( memberName );
-	return ZephyrValue::NULL_VAL;
+	return ZephyrSystem::GetGlobalVariable( m_value, memberName );
 }
 
 

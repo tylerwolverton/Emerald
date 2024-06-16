@@ -418,6 +418,72 @@ public:
 		return true;
 	}
 
+	template<typename ValueType, typename T>
+	T GetValueFrom( const T& defaultVal )
+	{
+		if ( !m_dataHandle.IsValid() )
+		{
+			return defaultVal;
+		}
+
+		SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
+		if ( dataPtr->GetTypeName() != ValueType::TYPE_NAME )
+		{
+			return defaultVal;
+		}
+
+		ChildSmartPtr<ZephyrTypeBase, ValueType> castTypePtr( m_dataHandle );
+		return static_cast<T>( castTypePtr->GetValue() );
+	}
+
+	template<typename ValueType>
+	bool IsType()
+	{
+		if ( !m_dataHandle.IsValid() )
+		{
+			return false;
+		}
+
+		SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
+		return dataPtr->GetTypeName() == ValueType::TYPE_NAME;
+	}
+
+	template<typename ValueType, typename T>
+	T GetValueAs()
+	{
+		if ( !m_dataHandle.IsValid() )
+		{
+			return static_cast<T>( 0 );
+		}
+
+		SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
+		if ( dataPtr->GetTypeName() != ValueType::TYPE_NAME )
+		{
+			return static_cast<T>( 0 );
+		}
+
+		ChildSmartPtr<ZephyrTypeBase, ValueType> castTypePtr( m_dataHandle );
+		return static_cast<T>( castTypePtr->GetValue() );
+	}
+
+	//template<typename ValueType>
+	//ValueType GetAs()
+	//{
+	//	if ( !m_dataHandle.IsValid() )
+	//	{
+	//		return static_cast<T>( 0 );
+	//	}
+
+	//	SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
+	//	if ( dataPtr->GetTypeName() != ValueType::TYPE_NAME )
+	//	{
+	//		return static_cast<T>( 0 );
+	//	}
+
+	//	ChildSmartPtr<ZephyrTypeBase, ValueType> castTypePtr( m_dataHandle );
+	//	return static_cast<T>( castTypePtr->GetValue() );
+	//}
+
 	//bool operator==( const ZephyrValue& compare ) const;
 
 	//eValueType		GetType() const			{ return m_type; }
@@ -453,7 +519,6 @@ public:
 	static const ZephyrValue NULL_VAL;
 
 private:
-	// TODO: Hold a reference?
 	ZephyrHandle m_dataHandle = NULL_ZEPHYR_HANDLE;
 };
 

@@ -102,41 +102,34 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				}
 
 				std::string lastMemberName = memberAccessorResult.memberNames.back();
+				std::string typeName = memberAccessorResult.finalMemberVal.GetTypeName();
 
-				//if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::ENTITY )
-				//{
-				//	SetGlobalVariableInEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName, constantValue );
-				//}
-				//else if ( memberAccessorResult.finalMemberVal.GetType() == eValueType::USER_TYPE )
-				//{
-					std::string typeName = memberAccessorResult.finalMemberVal.GetTypeName();
-					ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
-					if ( metadata == nullptr )
-					{
-						ReportError( Stringf( "Non-registered user type '%s' can not be assigned to", typeName.c_str() ) );
-						return;
-					}
+				ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
+				if ( metadata == nullptr )
+				{
+					ReportError( Stringf( "Non-registered user type '%s' can not be assigned to", typeName.c_str() ) );
+					return;
+				}
 
-					ZephyrTypeMemberVariable* memberVariable = metadata->GetMemberVariable( lastMemberName );
-					if ( memberVariable == nullptr )
-					{
-						ReportError( Stringf( "Zephyr type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
-						return;
-					}
+				ZephyrTypeMemberVariable* memberVariable = metadata->GetMemberVariable( lastMemberName );
+				if ( memberVariable == nullptr )
+				{
+					ReportError( Stringf( "Zephyr type '%s' does not have a member '%s'", typeName.c_str(), lastMemberName.c_str() ) );
+					return;
+				}
 
-					if ( memberVariable->isReadonly )
-					{
-						ReportError( Stringf( "Can't set readonly member '%s' in user type '%s'", lastMemberName.c_str(), typeName.c_str() ) );
-						return;
-					}
+				if ( memberVariable->isReadonly )
+				{
+					ReportError( Stringf( "Can't set readonly member '%s' in user type '%s'", lastMemberName.c_str(), typeName.c_str() ) );
+					return;
+				}
 
-					if ( !memberAccessorResult.finalMemberVal.SetMember( lastMemberName, constantValue ) )
-					{
-						ReportError( Stringf( "Zephyr type '%s' does not implement SetMember", typeName.c_str() ) );
-						return;
-					}
-				//}
-
+				if ( !memberAccessorResult.finalMemberVal.SetMember( lastMemberName, constantValue ) )
+				{
+					ReportError( Stringf( "Zephyr type '%s' does not implement SetMember", typeName.c_str() ) );
+					return;
+				}
+				
 				PushConstant( constantValue );
 			}
 			break;
@@ -153,23 +146,7 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 
 				// Push final member to top of constant stack
 				const std::string& lastMemberName = memberAccessorResult.memberNames.back();
-				//int memberCount = (int)memberAccessorResult.memberNames.size();
-
-				//case eValueType::ENTITY:
-				//{
-				//	ZephyrValue val = GetGlobalVariableFromEntity( memberAccessorResult.finalMemberVal.GetAsEntity(), lastMemberName );
-				//	if ( IsErrorValue( val ) )
-				//	{
-				//		std::string entityVarName = memberCount > 1 ? memberAccessorResult.memberNames[memberCount - 2] : memberAccessorResult.baseObjName;
-
-				//		ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", lastMemberName.c_str(), entityVarName.c_str() ) );
-				//		return;
-				//	}
-
-				//	PushConstant( val );
-				//}
-				//break;
-
+		
 				std::string typeName = memberAccessorResult.finalMemberVal.GetTypeName();
 				ZephyrTypeMetadata* metadata = g_zephyrSubsystem->GetRegisteredUserType( typeName );
 				if ( metadata == nullptr )
@@ -211,8 +188,6 @@ void ZephyrVirtualMachine::InterpretBytecodeChunk()
 				{
 					return;
 				}
-
-				//int memberCount = (int)memberAccessorResult.memberNames.size();
 
 				if ( memberAccessorResult.finalMemberVal.IsEntity() )
 				{
@@ -700,7 +675,7 @@ ZephyrValue ZephyrVirtualMachine::GetVariableValue( const std::string& variableN
 	}
 
 	ReportError( Stringf( "Variable '%s' is undefined", variableName.c_str() ) );
-	return ZephyrValue();
+	return ZephyrValue::NULL_VAL;
 }
 
 
@@ -721,10 +696,8 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 	MemberAccessorResult memberAccessResult;
 
 	ZephyrValue memberCountZephyr = PopConstant();
-	//ZephyrNumberPtr memberCountVal = memberCountZephyr.GetAsPtrTo<ZephyrNumber>();
 	int memberCount = 0;
 	memberCountZephyr.TryToGetValueFrom<ZephyrNumber>( memberCount );
-
 
 	ZephyrValue baseObjName = PopConstant();
 
@@ -751,22 +724,6 @@ MemberAccessorResult ZephyrVirtualMachine::ProcessResultOfMemberAccessor()
 	for ( int memberNameIdx = 0; memberNameIdx < (int)memberNames.size() - 1; ++memberNameIdx )
 	{
 		std::string& memberName = memberNames[memberNameIdx];
-
-		//case eValueType::ENTITY:
-		//{
-		//	ZephyrValue val = GetGlobalVariableFromEntity( memberVal.GetAsEntity(), memberName );
-		//	if ( !val.IsValid() )
-		//	{
-		//		std::string entityVarName = memberNameIdx > 0 ? memberNames[memberNameIdx - 1] : baseObjName.ToString();
-
-		//		ReportError( Stringf( "Variable '%s' is not a member of Entity '%s'", memberName.c_str(), entityVarName.c_str() ) );
-		//		return memberAccessResult;
-		//	}
-
-		//	entityIdChain.push_back( memberVal.GetAsEntity() );
-		//	memberVal = val;
-		//}
-		//break;
 
 		if ( !memberVal.IsValid() )
 		{
@@ -941,17 +898,7 @@ void ZephyrVirtualMachine::ReportError( const std::string& errorMsg )
 
 	g_devConsole->PrintError( Stringf( "Error in zephyr script '%s'", m_zephyrComponent.GetScriptNameWithExtension().c_str() ) );
 
-	std::string errorPrefix;
-	/*if ( ZephyrBytecodeChunk* parentChunk = m_bytecodeChunk.GetParentChunk() )
-	{
-		if ( parentChunk->GetType() == eBytecodeChunkType::STATE )
-		{
-			errorPrefix.append( parentChunk->GetName() );
-			errorPrefix.append( "::" );
-		}
-	}*/
-	
-	errorPrefix.append( m_bytecodeChunk.GetFullyQualifiedName() );
+	std::string errorPrefix( m_bytecodeChunk.GetFullyQualifiedName() );
 
 	ZephyrScriptDefinition* zephyrScriptDef = ZephyrScriptDefinition::GetZephyrScriptDefinitionByName( m_zephyrComponent.GetScriptNameWithExtension() );
 	int lineNum = zephyrScriptDef->GetLineNumFromOpCodeIdx( m_bytecodeChunk.GetFullyQualifiedName(), m_curOpCodeIdx );

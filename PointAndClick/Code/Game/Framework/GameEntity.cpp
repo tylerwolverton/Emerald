@@ -218,19 +218,19 @@ bool GameEntity::FireScriptEvent( const std::string& eventName, EventArgs* args 
 
 
 //-----------------------------------------------------------------------------------------------
-ZephyrHandle GameEntity::GetGlobalVariable( const std::string& varName )
+ZephyrValue GameEntity::GetGlobalVariable( const std::string& varName )
 {
 	// First check c++ built in vars
 	ZephyrArgs args;
 
-	if ( varName == "id" )			{ args.SetValue( "value", GetId() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
-	if ( varName == "name" )		{ args.SetValue( "value", GetName() );					return g_zephyrTypeHandleFactory->CreateHandle( ZephyrString::TYPE_NAME, &args ); }
-	if ( varName == "health" )		{ args.SetValue( "value", m_curHealth );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
-	if ( varName == "maxHealth" )	{ args.SetValue( "value", m_entityDef.GetMaxHealth() ); return g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ); }
-	if ( varName == "position" )	{ args.SetValue( "value", GetPosition() );				return g_zephyrTypeHandleFactory->CreateHandle( ZephyrVec3::TYPE_NAME,   &args ); }
+	if ( varName == "id" )			{ args.SetValue( "value", GetId() );					return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ) ); }
+	if ( varName == "name" )		{ args.SetValue( "value", GetName() );					return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrString::TYPE_NAME, &args ) ); }
+	if ( varName == "health" )		{ args.SetValue( "value", m_curHealth );				return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ) ); }
+	if ( varName == "maxHealth" )	{ args.SetValue( "value", m_entityDef.GetMaxHealth() ); return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrNumber::TYPE_NAME, &args ) ); }
+	if ( varName == "position" )	{ args.SetValue( "value", GetPosition() );				return ZephyrValue( g_zephyrTypeHandleFactory->CreateHandle( ZephyrVec3::TYPE_NAME,   &args ) ); }
 	//if ( varName == "forwardVec" )	{ return ZephyrValue( GetForwardVector() ); }
 
-	return NULL_ZEPHYR_HANDLE;
+	return ZephyrValue::NULL_VAL;
 }
 
 

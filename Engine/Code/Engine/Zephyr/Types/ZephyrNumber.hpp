@@ -21,7 +21,7 @@ public:
 	virtual bool EvaluateAsBool() const override				{ return !IsNearlyEqual( m_value, 0.f ); }
 	virtual ZephyrTypeBase& operator=( ZephyrTypeBase const& other ) override;
 
-	NUMBER_TYPE GetValue() const		{ return m_value; }
+	NUMBER_TYPE GetValue() const								{ return m_value; }
 
 	static const std::string TYPE_NAME;
 

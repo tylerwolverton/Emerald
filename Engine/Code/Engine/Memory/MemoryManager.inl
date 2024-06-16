@@ -227,6 +227,7 @@ void MemoryManager<LockPolicy, MovementPolicy>::Free(void* ptrToMemory)
 	IndexEntry* indexEntryToFreePrev = nullptr;
 	if (!FindIndexEntryFromDataPtr(ptrToMemory, indexEntryToFree, indexEntryToFreePrev))
 	{
+		DebugPrint();
 		ERROR_AND_DIE( "Tried to free a ptr not associated with manager\n" );
 		return;
 	}

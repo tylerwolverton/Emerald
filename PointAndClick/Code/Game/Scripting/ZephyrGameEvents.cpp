@@ -362,13 +362,8 @@ void ZephyrGameEvents::GetNativeEntityVariable( EventArgs* args )
 		return;
 	}
 
-	ZephyrValue zephyrValue;
-	ZephyrHandle varHandle = entity->GetGlobalVariable( varName );
-	if ( varHandle.IsValid() )
-	{
-		zephyrValue = ZephyrValue( varHandle );
-	}
-
+	ZephyrValue zephyrValue = entity->GetGlobalVariable( varName );
+	
 	args->SetValue( "zephyrValue", zephyrValue );
 }
 

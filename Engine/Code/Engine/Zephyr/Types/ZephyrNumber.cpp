@@ -161,9 +161,37 @@ eZephyrComparatorResult ZephyrNumber::LessEqual( ZephyrValue& other )
 //-----------------------------------------------------------------------------------------------
 eZephyrComparatorResult ZephyrNumber::Equal( ZephyrValue& other )
 {
-	NUMBER_TYPE otherAsNumber;
-	if ( other.TryToGetValueFrom<ZephyrNumber>( otherAsNumber ) )
+	
+	//if ( NUMBER_TYPE otherAsNumber; other.TryToGetValueFrom<ZephyrNumber>( otherAsNumber ) )
+	//{
+	//	if ( m_value == otherAsNumber )
+	//	{
+	//		return eZephyrComparatorResult::TRUE_VAL;
+	//	}
+	//	else
+	//	{
+	//		return eZephyrComparatorResult::FALSE_VAL;
+	//	}
+	//}
+
+	//if ( other.IsType<ZephyrNumber>() )
+	//{
+	//	NUMBER_TYPE otherAsNumber = other.GetValueAs<ZephyrNumber, float>();
+
+	//	if ( m_value == otherAsNumber )
+	//	{
+	//		return eZephyrComparatorResult::TRUE_VAL;
+	//	}
+	//	else
+	//	{
+	//		return eZephyrComparatorResult::FALSE_VAL;
+	//	}
+	//}
+
+	if ( other.IsType<ZephyrNumber>() )
 	{
+		NUMBER_TYPE otherAsNumber = other.GetValueFrom<ZephyrNumber>( 0.f );
+
 		if ( m_value == otherAsNumber )
 		{
 			return eZephyrComparatorResult::TRUE_VAL;
@@ -173,6 +201,7 @@ eZephyrComparatorResult ZephyrNumber::Equal( ZephyrValue& other )
 			return eZephyrComparatorResult::FALSE_VAL;
 		}
 	}
+
 	
 	bool otherAsBool;
 	if ( other.TryToGetValueFrom<ZephyrBool>( otherAsBool ) )

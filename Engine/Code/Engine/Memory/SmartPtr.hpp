@@ -68,12 +68,12 @@ public:
 
 	//----------------------------------------------------------------------------
 	Handle( Handle&& other )
-		: m_entry( other.m_entry )
+		: m_entry( std::move( other.m_entry ) )
+		, m_managerWhoCreatedMe( std::move( other.m_managerWhoCreatedMe ) )
+		, m_numPinned( std::move( other.m_numPinned ) )
 	{
-		if ( m_entry )
-		{
-			m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
-		}
+		// Clear moved entry so it isn't destructed later
+		other.m_entry = nullptr;
 	}
 
 
@@ -106,34 +106,14 @@ public:
 			Destroy();
 		}
 
-		//other.m_entry->refCount++;
+		m_entry = std::move( other.m_entry );
+		m_managerWhoCreatedMe = std::move( other.m_managerWhoCreatedMe );
+		m_numPinned = std::move( other.m_numPinned );
 
-		m_entry = other.m_entry;
-		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
-		m_numPinned = other.m_numPinned;
-
+		// Clear moved entry so it isn't destructed later
 		other.m_entry = nullptr;
 
 		return *this;
-	}
-
-
-	//----------------------------------------------------------------------------
-	void MoveCopy( Handle& other )
-	{
-		if ( m_entry )
-		{
-			Destroy();
-		}
-
-		m_entry = other.m_entry;
-		m_managerWhoCreatedMe = other.m_managerWhoCreatedMe;
-		m_numPinned = other->m_numPinned;
-
-		if ( m_entry )
-		{
-			other->Destroy();
-		}
 	}
 
 

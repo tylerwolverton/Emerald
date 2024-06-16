@@ -67,7 +67,7 @@ public:
 	void				FireSpawnEvent();
 	bool				FireScriptEvent( const std::string& eventName, EventArgs* args = nullptr );
 
-	ZephyrHandle		GetGlobalVariable( const std::string& varName );
+	ZephyrValue			GetGlobalVariable( const std::string& varName );
 	bool				SetGlobalVariable( const std::string& varName, ZephyrValue& value );
 
 protected:
