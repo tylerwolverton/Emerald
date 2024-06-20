@@ -853,9 +853,9 @@ ZephyrValue ZephyrVirtualMachine::GetZephyrValFromEventArgs( const std::string& 
 	{
 		return ZephyrValue( iter->second->GetAsString() );
 	}
-	else if ( iter->second->Is<ZephyrHandle>() )
+	else if ( iter->second->Is<ZephyrValue>() )
 	{
-		return ZephyrValue( args.GetValue( varName, NULL_ZEPHYR_HANDLE ) );
+		return args.GetValue( varName, ZephyrValue::NULL_VAL );
 	}
 
 	return ZephyrValue::NULL_VAL;

@@ -466,33 +466,6 @@ public:
 		return static_cast<T>( castTypePtr->GetValue() );
 	}
 
-	//template<typename ValueType>
-	//ValueType GetAs()
-	//{
-	//	if ( !m_dataHandle.IsValid() )
-	//	{
-	//		return static_cast<T>( 0 );
-	//	}
-
-	//	SmartPtr<ZephyrTypeBase> dataPtr( m_dataHandle );
-	//	if ( dataPtr->GetTypeName() != ValueType::TYPE_NAME )
-	//	{
-	//		return static_cast<T>( 0 );
-	//	}
-
-	//	ChildSmartPtr<ZephyrTypeBase, ValueType> castTypePtr( m_dataHandle );
-	//	return static_cast<T>( castTypePtr->GetValue() );
-	//}
-
-	//bool operator==( const ZephyrValue& compare ) const;
-
-	//eValueType		GetType() const			{ return m_type; }
-
-	//ZephyrHandle	GetAsUserType() const	{ return m_dataHandle; }
-	
-	// GetData() {return SmartPtr(handle);}
-	// GetDataAs<class ChildType>	
-
 	std::string		SerializeToString() const;
 	void			DeserializeFromString( const std::string& serlializedStr );
 

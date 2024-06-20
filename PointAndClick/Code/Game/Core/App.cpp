@@ -73,12 +73,13 @@ void App::Startup()
 	g_devConsole->SetRenderer( g_renderer );
 	g_devConsole->SetBitmapFont( g_renderer->CreateOrGetBitmapFontFromFile( "Data/Fonts/SquirrelFixedFont" ) );
 	
+	ZephyrSystemParams zephyrParams;
+	g_zephyrSubsystem->Startup( zephyrParams );
+
 	// Calls g_physicsSystem2D::Startup too
 	g_game->Startup();
 
-	ZephyrSystemParams zephyrParams;
-	zephyrParams.clock = g_game->GetGameClock();
-	g_zephyrSubsystem->Startup( zephyrParams );
+	g_zephyrSubsystem->SetClock( g_game->GetGameClock() );
 
 	PerformanceTrackerParams perfParams;
 	perfParams.clock = g_game->GetGameClock();

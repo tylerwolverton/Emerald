@@ -33,6 +33,8 @@ public:
 	void										EndFrame() {};
 	void										Shutdown();
 
+	void										SetClock( Clock* newClock )						{ m_clock = newClock; }
+
 	void										StartNewTimer( const EntityId& targetId, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
 	void										StartNewTimer( const std::string& targetName, const std::string& name, float durationSeconds, const std::string& onCompletedEventName, EventArgs* callbackArgs );
 	void										StopAllTimers();

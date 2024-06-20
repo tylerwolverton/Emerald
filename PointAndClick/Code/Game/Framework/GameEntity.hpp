@@ -70,6 +70,9 @@ public:
 	ZephyrValue			GetGlobalVariable( const std::string& varName );
 	bool				SetGlobalVariable( const std::string& varName, ZephyrValue& value );
 
+	// Static
+	static void			AppendToMetadata();
+
 protected:
 	char				GetKeyCodeFromString( const std::string& keyCodeStr );
 

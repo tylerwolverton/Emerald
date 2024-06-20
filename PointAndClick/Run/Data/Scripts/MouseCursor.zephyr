@@ -25,9 +25,9 @@ State Visible
 
     OnUpdate()
     {
-        Vec2 mousePosition
-        //GetMouseCursorPositionWorld(pos: mousePosition)
-        //parentEntity.position = mousePosition
+        Vec2 mousePosition;
+        GetMouseCursorPositionWorld(pos: mousePosition);
+        parentEntity.position = mousePosition;
     }
 }
 

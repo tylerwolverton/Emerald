@@ -112,32 +112,25 @@ bool ZephyrVec3::SetMember( const std::string& memberName, ZephyrValue& value )
 		return false;
 	}
 
+	if ( !value.IsType<ZephyrNumber>() )
+	{
+		return false;
+	}
+
 	if ( memberName == "x" )
 	{
-		NUMBER_TYPE x = m_value.x;
-		if ( value.TryToGetValueFrom<ZephyrNumber>( x ) )
-		{
-			m_value.x = x;
-			return true;
-		}
+		m_value.x = value.GetValueFrom<ZephyrNumber>( m_value.x );
+		return true;
 	}
 	else if ( memberName == "y" )
 	{
-		NUMBER_TYPE y = m_value.y;
-		if ( value.TryToGetValueFrom<ZephyrNumber>( y ) )
-		{
-			m_value.y = y;
-			return true;
-		}
+		m_value.y = value.GetValueFrom<ZephyrNumber>( m_value.y );
+		return true;
 	}
 	else if ( memberName == "z" )
 	{
-		NUMBER_TYPE z = m_value.z;
-		if ( value.TryToGetValueFrom<ZephyrNumber>( z ) )
-		{
-			m_value.z = z;
-			return true;
-		}
+		m_value.z = value.GetValueFrom<ZephyrNumber>( m_value.z );
+		return true;
 	}
 
 	return false;

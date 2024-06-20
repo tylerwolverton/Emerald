@@ -30,6 +30,15 @@
 
 
 //-----------------------------------------------------------------------------------------------
+void GameEntity::AppendToMetadata()
+{
+	ZephyrTypeMetadata* entityMetadata = g_zephyrSubsystem->GetRegisteredUserType( "Entity" );
+
+	entityMetadata->RegisterMember( "position", "Vec3" );
+}
+
+
+//-----------------------------------------------------------------------------------------------
 GameEntity::GameEntity( const EntityTypeDefinition& entityDef, Map* map )
 	: m_entityDef( entityDef )
 	, m_map( map )
